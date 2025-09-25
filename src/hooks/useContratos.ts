@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useRealtimeQuery } from "./useRealtimeQuery";
 
 export interface Contrato {
   id: string;
@@ -37,7 +37,7 @@ export interface Contrato {
 }
 
 export const useContratos = () => {
-  return useQuery({
+  return useRealtimeQuery({
     queryKey: ["contratos"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -55,11 +55,12 @@ export const useContratos = () => {
 
       return data as Contrato[];
     },
+    tableName: "contratos",
   });
 };
 
 export const useContratosStats = () => {
-  return useQuery({
+  return useRealtimeQuery({
     queryKey: ["contratos-stats"],
     queryFn: async () => {
       const { data: contratos, error } = await supabase
@@ -95,5 +96,6 @@ export const useContratosStats = () => {
         percentualProvisao: valorTotalDividas > 0 ? (valorTotalProvisao / valorTotalDividas) * 100 : 0
       };
     },
+    tableName: "contratos",
   });
 };

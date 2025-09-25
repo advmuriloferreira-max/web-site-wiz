@@ -1,6 +1,7 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useRealtimeQuery } from "./useRealtimeQuery";
 
 export interface ProvisaoPerda {
   id: string;
@@ -31,7 +32,7 @@ export interface ProvisaoPerdaIncorrida {
 }
 
 export const useProvisaoPerda = () => {
-  return useQuery({
+  return useRealtimeQuery({
     queryKey: ["provisao-perda"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -45,11 +46,12 @@ export const useProvisaoPerda = () => {
 
       return data as ProvisaoPerda[];
     },
+    tableName: "provisao_perda_esperada",
   });
 };
 
 export const useProvisaoPerdaIncorrida = () => {
-  return useQuery({
+  return useRealtimeQuery({
     queryKey: ["provisao-perda-incorrida"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -63,6 +65,7 @@ export const useProvisaoPerdaIncorrida = () => {
 
       return data as ProvisaoPerdaIncorrida[];
     },
+    tableName: "provisao_perdas_incorridas",
   });
 };
 

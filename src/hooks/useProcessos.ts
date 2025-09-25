@@ -1,6 +1,7 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useRealtimeQuery } from "./useRealtimeQuery";
 
 export interface Processo {
   id: string;
@@ -29,7 +30,7 @@ export interface Processo {
 }
 
 export const useProcessos = () => {
-  return useQuery({
+  return useRealtimeQuery({
     queryKey: ["processos"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -51,6 +52,7 @@ export const useProcessos = () => {
 
       return data as Processo[];
     },
+    tableName: "processos",
   });
 };
 
