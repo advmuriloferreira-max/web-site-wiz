@@ -1,4 +1,4 @@
-const CACHE_NAME = 'murilo-ferreira-advocacia-v10';
+const CACHE_NAME = 'murilo-ferreira-advocacia-v11';
 const urlsToCache = [
   '/static/js/bundle.js',
   '/static/css/main.css',
