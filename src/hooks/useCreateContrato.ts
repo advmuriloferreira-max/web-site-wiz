@@ -18,7 +18,6 @@ export interface ContratoInput {
   valor_divida: number;
   saldo_contabil?: number | null;
   data_ultimo_pagamento?: string | null;
-  data_vencimento?: string | null;
   dias_atraso?: number;
   meses_atraso?: number;
   classificacao?: ClassificacaoRisco | null;
@@ -41,12 +40,6 @@ export const useCreateContrato = () => {
       let classificacao = contratoInput.classificacao;
       let percentualProvisao = contratoInput.percentual_provisao || 0;
       let valorProvisao = contratoInput.valor_provisao || 0;
-
-      // Se tem data de vencimento, calcular dias de atraso automaticamente
-      if (contratoInput.data_vencimento) {
-        diasAtraso = calcularDiasAtraso(contratoInput.data_vencimento);
-        mesesAtraso = diasParaMeses(diasAtraso);
-      }
 
       // Calcular provisão automaticamente se temos dados suficientes e tabelas carregadas
       // A classificação deve ser informada pelo usuário (vem no contrato original)

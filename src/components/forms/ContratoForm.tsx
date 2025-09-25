@@ -20,7 +20,6 @@ const contratoSchema = z.object({
   valor_divida: z.string().min(1, "Valor da dívida é obrigatório"),
   saldo_contabil: z.string().optional(),
   data_ultimo_pagamento: z.string().optional(),
-  data_vencimento: z.string().optional(),
   dias_atraso: z.string().optional(),
   meses_atraso: z.string().optional(),
   classificacao: z.enum(["C1", "C2", "C3", "C4", "C5"]).optional(),
@@ -49,7 +48,6 @@ export function ContratoForm({ onSuccess }: ContratoFormProps) {
       valor_divida: "",
       saldo_contabil: "",
       data_ultimo_pagamento: "",
-      data_vencimento: "",
       dias_atraso: "0",
       meses_atraso: "0",
       percentual_provisao: "0",
@@ -69,7 +67,6 @@ export function ContratoForm({ onSuccess }: ContratoFormProps) {
         valor_divida: parseFloat(data.valor_divida),
         saldo_contabil: data.saldo_contabil ? parseFloat(data.saldo_contabil) : null,
         data_ultimo_pagamento: data.data_ultimo_pagamento || null,
-        data_vencimento: data.data_vencimento || null,
         dias_atraso: data.dias_atraso ? parseInt(data.dias_atraso) : undefined,
         meses_atraso: data.meses_atraso ? parseFloat(data.meses_atraso) : undefined,
         classificacao: data.classificacao || null,
@@ -94,7 +91,7 @@ export function ContratoForm({ onSuccess }: ContratoFormProps) {
         <Info className="h-4 w-4" />
         <AlertDescription>
           <strong>Dados essenciais para automação:</strong> Informe a classificação C1-C5 (conforme contrato original) 
-          e a data de vencimento. O sistema calculará automaticamente dias de atraso e provisão conforme BCB 352/2023 e 4966/2021.
+          e os dias de atraso. O sistema calculará automaticamente a provisão conforme BCB 352/2023 e 4966/2021.
         </AlertDescription>
       </Alert>
 
@@ -216,19 +213,6 @@ export function ContratoForm({ onSuccess }: ContratoFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Data Último Pagamento</FormLabel>
-                <FormControl>
-                  <Input type="date" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="data_vencimento"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Data de Vencimento</FormLabel>
                 <FormControl>
                   <Input type="date" {...field} />
                 </FormControl>
