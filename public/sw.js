@@ -1,4 +1,4 @@
-const CACHE_NAME = 'murilo-ferreira-advocacia-v9-' + Date.now();
+const CACHE_NAME = 'murilo-ferreira-advocacia-v10';
 const urlsToCache = [
   '/static/js/bundle.js',
   '/static/css/main.css',
@@ -47,7 +47,7 @@ self.addEventListener('message', (event) => {
   }
 });
 
-// Fetch event - handle requests normally
+// Fetch event - simplified caching strategy
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   
@@ -56,16 +56,23 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
-  // Never cache HTML pages - always fetch fresh
+  // Network first for HTML pages
   if (request.headers.get('accept')?.includes('text/html')) {
     event.respondWith(
-      fetch(request, {
-        cache: 'no-cache',
-        headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache'
-        }
-      })
+      fetch(request)
+        .then((response) => {
+          if (response.status === 200) {
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME)
+              .then((cache) => {
+                cache.put(request, responseClone);
+              });
+          }
+          return response;
+        })
+        .catch(() => {
+          return caches.match(request);
+        })
     );
   } else {
     // Cache first for static assets
@@ -78,17 +85,18 @@ self.addEventListener('fetch', (event) => {
   }
 });
 
-// Activate event - clean up ALL old caches and take control
+// Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
-  // Take control of all pages immediately
+  // Take control of all pages
   self.clients.claim();
   
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
-          // Delete ALL caches to force fresh start
-          return caches.delete(cacheName);
+          if (cacheName !== CACHE_NAME) {
+            return caches.delete(cacheName);
+          }
         })
       );
     })

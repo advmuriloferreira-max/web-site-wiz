@@ -4,11 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
-    <!-- Cache Control - Force no cache -->
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-    <meta http-equiv="Pragma" content="no-cache" />
-    <meta http-equiv="Expires" content="0" />
-    
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#2563eb" />
     <meta name="description" content="Sistema de monitoramento e gestão de provisionamento bancário - Murilo Ferreira Advocacia" />
@@ -42,13 +37,9 @@
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          // Cache-busting para forçar buscar novo service worker
-          const swUrl = `/sw.js?v=${Date.now()}`;
-          navigator.serviceWorker.register(swUrl, { updateViaCache: 'none' })
+          navigator.serviceWorker.register('/sw.js')
             .then((registration) => {
               console.log('SW registered: ', registration);
-              // Força verificação de update imediatamente
-              registration.update();
             })
             .catch((registrationError) => {
               console.log('SW registration failed: ', registrationError);

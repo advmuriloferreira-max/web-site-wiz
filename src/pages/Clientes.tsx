@@ -6,7 +6,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ClienteForm } from "@/components/forms/ClienteForm";
 import { ContratosCliente } from "@/components/cliente/ContratosCliente";
 import { useClientes, Cliente } from "@/hooks/useClientes";
@@ -119,18 +118,21 @@ export default function Clientes() {
                     const contratosDoCliente = contratosCount?.[cliente.id] || 0;
                     
                     return (
-                      <Collapsible key={cliente.id} open={isExpanded} onOpenChange={() => toggleClienteExpanded(cliente.id)}>
-                        <TableRow>
+                      <>
+                        <TableRow key={cliente.id}>
                           <TableCell>
-                            <CollapsibleTrigger asChild>
-                              <Button variant="ghost" size="sm" className="p-0 h-6 w-6">
-                                {isExpanded ? (
-                                  <ChevronDown className="h-4 w-4" />
-                                ) : (
-                                  <ChevronRight className="h-4 w-4" />
-                                )}
-                              </Button>
-                            </CollapsibleTrigger>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="p-0 h-6 w-6"
+                              onClick={() => toggleClienteExpanded(cliente.id)}
+                            >
+                              {isExpanded ? (
+                                <ChevronDown className="h-4 w-4" />
+                              ) : (
+                                <ChevronRight className="h-4 w-4" />
+                              )}
+                            </Button>
                           </TableCell>
                           <TableCell className="font-medium">{cliente.nome}</TableCell>
                           <TableCell>
@@ -176,16 +178,16 @@ export default function Clientes() {
                             </div>
                           </TableCell>
                         </TableRow>
-                        <CollapsibleContent asChild>
-                          <TableRow>
+                        {isExpanded && (
+                          <TableRow key={`${cliente.id}-expanded`}>
                             <TableCell colSpan={7} className="p-0">
                               <div className="p-4 bg-muted/30">
                                 <ContratosCliente cliente={cliente} />
                               </div>
                             </TableCell>
                           </TableRow>
-                        </CollapsibleContent>
-                      </Collapsible>
+                        )}
+                      </>
                     );
                   })
                 )}
