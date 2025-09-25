@@ -1,4 +1,4 @@
-const CACHE_NAME = 'murilo-ferreira-advocacia-v11';
+const CACHE_NAME = 'murilo-ferreira-advocacia-v12';
 const urlsToCache = [
   '/static/js/bundle.js',
   '/static/css/main.css',
@@ -47,7 +47,7 @@ self.addEventListener('message', (event) => {
   }
 });
 
-// Fetch event - simplified caching strategy
+// Fetch event - network first strategy for fresh content
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   
@@ -56,33 +56,24 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
-  // Network first for HTML pages
-  if (request.headers.get('accept')?.includes('text/html')) {
-    event.respondWith(
-      fetch(request)
-        .then((response) => {
-          if (response.status === 200) {
-            const responseClone = response.clone();
-            caches.open(CACHE_NAME)
-              .then((cache) => {
-                cache.put(request, responseClone);
-              });
-          }
-          return response;
-        })
-        .catch(() => {
-          return caches.match(request);
-        })
-    );
-  } else {
-    // Cache first for static assets
-    event.respondWith(
-      caches.match(request)
-        .then((response) => {
-          return response || fetch(request);
-        })
-    );
-  }
+  // Network first for all requests to ensure fresh content
+  event.respondWith(
+    fetch(request)
+      .then((response) => {
+        if (response.status === 200) {
+          const responseClone = response.clone();
+          caches.open(CACHE_NAME)
+            .then((cache) => {
+              cache.put(request, responseClone);
+            });
+        }
+        return response;
+      })
+      .catch(() => {
+        // Only use cache as fallback if network fails
+        return caches.match(request);
+      })
+  );
 });
 
 // Activate event - clean up old caches
