@@ -224,32 +224,34 @@ export function CalculadoraProvisaoAvancada() {
             </div>
           </div>
 
-          {/* Marco Temporal - Regra dos 180 dias */}
+          {/* Marco Temporal - Regra da 4966/2021 */}
           <div className="mt-6">
-            <Card className={`p-4 border-2 ${diasAtraso > 180 ? 'border-red-500 bg-red-50' : diasAtraso > 150 ? 'border-yellow-500 bg-yellow-50' : 'border-green-500 bg-green-50'}`}>
+            <Card className={`p-4 border-2 ${diasAtraso >= 630 ? 'border-red-500 bg-red-50' : diasAtraso >= 450 && (classificacaoManual === 'C3' || classificacaoManual === 'C4' || classificacaoManual === 'C5') ? 'border-red-400 bg-red-25' : diasAtraso >= 420 ? 'border-yellow-500 bg-yellow-50' : 'border-green-500 bg-green-50'}`}>
               <div className="flex items-center gap-2">
-                <AlertTriangle className={`h-5 w-5 ${diasAtraso > 180 ? 'text-red-600' : diasAtraso > 150 ? 'text-yellow-600' : 'text-green-600'}`} />
+                <AlertTriangle className={`h-5 w-5 ${diasAtraso >= 630 ? 'text-red-600' : diasAtraso >= 450 ? 'text-red-500' : diasAtraso >= 420 ? 'text-yellow-600' : 'text-green-600'}`} />
                 <div className="flex-1">
-                  <h3 className="font-semibold">Marco Regulamentar</h3>
+                  <h3 className="font-semibold">Marco Regulamentar 4966/2021</h3>
                   <p className="text-sm">
-                    {diasAtraso > 180 
-                      ? "🔴 CRÍTICO: Mais de 180 dias = 100% PROVISÃO OBRIGATÓRIA (Res. 2682/99 - Risco H)"
-                      : diasAtraso > 150 
-                      ? "⚠️ ATENÇÃO: Aproximando dos 180 dias críticos (provisão progressiva 70%-100%)"
-                      : "✅ Dentro dos parâmetros normais de provisão"
+                    {diasAtraso >= 630 
+                      ? "🔴 CRÍTICO: 21+ meses = 100% PROVISÃO (todas classificações) - Art. 49 Res. 4966"
+                      : diasAtraso >= 450 && (classificacaoManual === 'C3' || classificacaoManual === 'C4' || classificacaoManual === 'C5')
+                      ? "🔴 CRÍTICO: 15+ meses = 100% PROVISÃO (C3/C4/C5) - Anexo I BCB 352/2023"
+                      : diasAtraso >= 420 
+                      ? "⚠️ ATENÇÃO: Aproximando dos marcos críticos (15-21 meses dependendo da classificação)"
+                      : "✅ Provisão gradual conforme Anexo I da BCB 352/2023"
                     }
                   </p>
-                  {diasAtraso > 180 && (
-                    <div className="mt-2 text-xs text-red-700">
-                      <strong>Marcos futuros:</strong>
-                      <br />• {365 * 2 - diasAtraso > 0 ? `${365 * 2 - diasAtraso} dias` : 'AGORA'} → Baixa obrigatória (2 anos)
-                      <br />• Controle por 5 anos após baixa
-                    </div>
-                  )}
+                  <div className="mt-2 text-xs">
+                    <strong>Marcos por classificação:</strong>
+                    <br />• C3/C4/C5: 100% aos 15 meses (~450 dias)
+                    <br />• C1/C2: 100% aos 21 meses (~630 dias)
+                    <br />• Meses atuais: <span className="font-bold">{(diasAtraso / 30).toFixed(1)}</span>
+                  </div>
                 </div>
                 <div className="text-right">
                   <div className="text-2xl font-bold">{diasAtraso}</div>
                   <div className="text-xs text-muted-foreground">dias atraso</div>
+                  <div className="text-sm font-semibold">{(diasAtraso / 30).toFixed(1)} meses</div>
                 </div>
               </div>
             </Card>

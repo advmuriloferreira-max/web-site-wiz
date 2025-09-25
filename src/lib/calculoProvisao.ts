@@ -24,10 +24,65 @@ export interface ResultadoCalculo {
   regraAplicadaPerda?: ProvisaoPerda;
   regraAplicadaIncorrida?: ProvisaoPerdaIncorrida;
   metodologia: 'completa' | 'simplificada';
+  marcoRegulamentar?: string;
 }
 
 /**
- * Calcula a provisão baseada nas regulamentações do BCB (Res. 4966/2021 e BCB 352/2023)
+ * Marcos regulamentares conforme Resolução 4966/2021 e BCB 352/2023
+ */
+export function getMarcoRegulamentar4966(diasAtraso: number, classificacao: ClassificacaoRisco): {
+  provisao100: boolean;
+  marcoAtingido: string | null;
+  proximoMarco: string | null;
+} {
+  const meses = diasAtraso / 30;
+
+  // Marco definitivo: 21 meses (630 dias) = 100% para TODAS as classificações
+  if (meses >= 21) {
+    return {
+      provisao100: true,
+      marcoAtingido: "21 meses - Provisão 100% obrigatória (todas as classificações)",
+      proximoMarco: null
+    };
+  }
+
+  // Marcos por classificação conforme Anexo I da BCB 352/2023
+  if (classificacao === 'C3' || classificacao === 'C4' || classificacao === 'C5') {
+    if (meses >= 15) { // 450 dias
+      return {
+        provisao100: true,
+        marcoAtingido: "15+ meses - Provisão 100% (C3/C4/C5)",
+        proximoMarco: null
+      };
+    }
+    if (meses >= 14) { // ~420 dias - aproximação crítica
+      return {
+        provisao100: false,
+        marcoAtingido: null,
+        proximoMarco: `${Math.ceil(15 - meses)} meses para provisão 100% (C3/C4/C5)`
+      };
+    }
+  }
+
+  if (classificacao === 'C1' || classificacao === 'C2') {
+    if (meses >= 20) { // ~600 dias - aproximação crítica
+      return {
+        provisao100: false,
+        marcoAtingido: null,
+        proximoMarco: `${Math.ceil(21 - meses)} meses para provisão 100% (C1/C2)`
+      };
+    }
+  }
+
+  return {
+    provisao100: false,
+    marcoAtingido: null,
+    proximoMarco: `Provisão gradual até ${classificacao === 'C1' || classificacao === 'C2' ? '21' : '15'} meses`
+  };
+}
+
+/**
+ * Calcula a provisão baseada nas regulamentações 4966/2021
  */
 export function calcularProvisao(params: CalculoProvisaoParams): ResultadoCalculo {
   const {
@@ -39,8 +94,10 @@ export function calcularProvisao(params: CalculoProvisaoParams): ResultadoCalcul
     criterioIncorrida = "Dias de Atraso"
   } = params;
 
-  // REGRA CRÍTICA: Após 180 dias = 100% provisão (Resolução 2682/99 - Risco H)
-  if (diasAtraso > 180) {
+  const marco = getMarcoRegulamentar4966(diasAtraso, classificacao);
+  
+  // REGRA CRÍTICA: Conforme Anexo I da BCB 352/2023
+  if (marco.provisao100) {
     return {
       percentualPerda: 100,
       percentualIncorrida: 100,
@@ -49,6 +106,7 @@ export function calcularProvisao(params: CalculoProvisaoParams): ResultadoCalcul
       valorProvisaoTotal: valorDivida,
       estagioRisco: 3,
       metodologia: 'completa',
+      marcoRegulamentar: marco.marcoAtingido!,
       regraAplicadaPerda: undefined,
       regraAplicadaIncorrida: undefined,
     };
@@ -73,12 +131,10 @@ export function calcularProvisao(params: CalculoProvisaoParams): ResultadoCalcul
   let percentualPerda = regraPerda ? getPercentualPorClassificacao(regraPerda, classificacao) : 0;
   let percentualIncorrida = regraIncorrida ? getPercentualPorClassificacao(regraIncorrida, classificacao) : 0;
 
-  // Progressão para 100% conforme se aproxima de 180 dias (151-180 dias)
-  if (diasAtraso > 150) {
-    const provisaoMinima = 70; // Base mínima para >150 dias
-    percentualPerda = Math.max(percentualPerda, provisaoMinima);
-    percentualIncorrida = Math.max(percentualIncorrida, provisaoMinima);
-  }
+  // Aplicar progressão regulamentar baseada no Anexo I
+  const percentualRegulamentar = calcularPercentualPorMesAtraso(diasAtraso, classificacao);
+  percentualPerda = Math.max(percentualPerda, percentualRegulamentar);
+  percentualIncorrida = Math.max(percentualIncorrida, percentualRegulamentar);
 
   // Calcular valores de provisão
   const valorProvisaoPerda = (valorDivida * percentualPerda) / 100;
@@ -93,9 +149,64 @@ export function calcularProvisao(params: CalculoProvisaoParams): ResultadoCalcul
     valorProvisaoTotal,
     estagioRisco,
     metodologia: 'completa',
+    marcoRegulamentar: marco.proximoMarco,
     regraAplicadaPerda: regraPerda,
     regraAplicadaIncorrida: regraIncorrida,
   };
+}
+
+/**
+ * Calcula percentual baseado no Anexo I da BCB 352/2023
+ */
+function calcularPercentualPorMesAtraso(diasAtraso: number, classificacao: ClassificacaoRisco): number {
+  const meses = diasAtraso / 30;
+  
+  // Tabela do Anexo I - Provisão para perdas incorridas (ativos inadimplidos)
+  const tabelaAnexoI: Record<number, Record<ClassificacaoRisco, number>> = {
+    1: { C1: 5.5, C2: 30.0, C3: 45.0, C4: 35.0, C5: 50.0 },
+    2: { C1: 10.0, C2: 33.4, C3: 48.7, C4: 39.5, C5: 53.4 },
+    3: { C1: 14.5, C2: 36.8, C3: 52.4, C4: 44.0, C5: 56.8 },
+    4: { C1: 19.0, C2: 40.2, C3: 56.1, C4: 48.5, C5: 60.2 },
+    5: { C1: 23.5, C2: 43.6, C3: 59.8, C4: 53.0, C5: 63.6 },
+    6: { C1: 28.0, C2: 47.0, C3: 63.5, C4: 57.5, C5: 67.0 },
+    7: { C1: 32.5, C2: 50.4, C3: 67.2, C4: 62.0, C5: 70.4 },
+    8: { C1: 37.0, C2: 53.8, C3: 70.9, C4: 66.5, C5: 73.8 },
+    9: { C1: 41.5, C2: 57.2, C3: 74.6, C4: 71.0, C5: 77.2 },
+    10: { C1: 46.0, C2: 60.6, C3: 78.3, C4: 75.5, C5: 80.6 },
+    11: { C1: 50.5, C2: 64.0, C3: 82.0, C4: 80.0, C5: 84.0 },
+    12: { C1: 55.0, C2: 67.4, C3: 85.7, C4: 84.5, C5: 87.4 },
+    13: { C1: 59.5, C2: 70.8, C3: 89.4, C4: 89.0, C5: 90.8 },
+    14: { C1: 64.0, C2: 74.2, C3: 93.1, C4: 93.5, C5: 94.2 },
+    15: { C1: 68.5, C2: 77.6, C3: 96.8, C4: 98.0, C5: 97.6 },
+    16: { C1: 73.0, C2: 81.0, C3: 100.0, C4: 100.0, C5: 100.0 },
+    17: { C1: 77.5, C2: 84.4, C3: 100.0, C4: 100.0, C5: 100.0 },
+    18: { C1: 82.0, C2: 87.8, C3: 100.0, C4: 100.0, C5: 100.0 },
+    19: { C1: 86.5, C2: 91.2, C3: 100.0, C4: 100.0, C5: 100.0 },
+    20: { C1: 91.0, C2: 94.6, C3: 100.0, C4: 100.0, C5: 100.0 },
+    21: { C1: 95.5, C2: 98.0, C3: 100.0, C4: 100.0, C5: 100.0 }
+  };
+
+  // Se for 21+ meses, todos chegam a 100%
+  if (meses >= 21) return 100.0;
+
+  // Buscar na tabela
+  const mesInteiro = Math.floor(meses);
+  if (tabelaAnexoI[mesInteiro]) {
+    return tabelaAnexoI[mesInteiro][classificacao];
+  }
+
+  // Interpolação linear para valores entre meses
+  const mesAnterior = Math.floor(meses);
+  const mesProximo = Math.ceil(meses);
+  
+  if (tabelaAnexoI[mesAnterior] && tabelaAnexoI[mesProximo]) {
+    const valorAnterior = tabelaAnexoI[mesAnterior][classificacao];
+    const valorProximo = tabelaAnexoI[mesProximo][classificacao];
+    const fator = meses - mesAnterior;
+    return valorAnterior + (valorProximo - valorAnterior) * fator;
+  }
+
+  return 0;
 }
 
 /**
@@ -117,7 +228,6 @@ function getPercentualPorClassificacao(
 
 /**
  * Classifica automaticamente o risco baseado nos dias de atraso
- * Mantida para compatibilidade - usar determinarEstagio para regulamentação BCB
  */
 export function classificarRisco(diasAtraso: number): ClassificacaoRisco {
   if (diasAtraso <= 30) return 'C1';
@@ -189,12 +299,10 @@ export function calcularProbabilidadeDefault(
 
   let pd = basePD[estagio][classificacao];
   
-  // Ajuste por dias de atraso adicional
-  if (estagio === 2 && diasAtraso > 60) {
-    pd += (diasAtraso - 60) * 0.5;
-  }
-  if (estagio === 3 && diasAtraso > 180) {
-    pd = 100; // Após 180 dias = 100% PD
+  // Ajuste por marco regulamentar 4966
+  const marco = getMarcoRegulamentar4966(diasAtraso, classificacao);
+  if (marco.provisao100) {
+    pd = 100;
   }
   
   return Math.min(100, pd);
@@ -251,8 +359,10 @@ export function calcularProvisaoAvancada(params: CalculoProvisaoParams): Resulta
     taxaJurosEfetiva = 2.5
   } = params;
 
-  // REGRA CRÍTICA: Após 180 dias = 100% provisão (independente da classificação)
-  if (diasAtraso > 180) {
+  const marco = getMarcoRegulamentar4966(diasAtraso, classificacao);
+  
+  // REGRA CRÍTICA: Conforme Anexo I da BCB 352/2023
+  if (marco.provisao100) {
     return {
       percentualPerda: 100,
       percentualIncorrida: 100,
@@ -261,6 +371,7 @@ export function calcularProvisaoAvancada(params: CalculoProvisaoParams): Resulta
       valorProvisaoTotal: valorDivida,
       estagioRisco: 3,
       metodologia: 'completa',
+      marcoRegulamentar: marco.marcoAtingido!,
       regraAplicadaPerda: undefined,
       regraAplicadaIncorrida: undefined,
     };
@@ -286,18 +397,13 @@ export function calcularProvisaoAvancada(params: CalculoProvisaoParams): Resulta
 
   const percentualTabelaPerda = regraPerda ? getPercentualPorClassificacao(regraPerda, classificacao) : 0;
   const percentualTabelaIncorrida = regraIncorrida ? getPercentualPorClassificacao(regraIncorrida, classificacao) : 0;
+  
+  // Aplicar percentual regulamentar do Anexo I
+  const percentualRegulamentar = calcularPercentualPorMesAtraso(diasAtraso, classificacao);
 
-  // Usar o maior entre cálculo avançado e tabela regulamentar
-  let percentualPerda = Math.max(perdaEsperadaPercentual, percentualTabelaPerda);
-  let percentualIncorrida = Math.max(perdaEsperadaPercentual, percentualTabelaIncorrida);
-
-  // Progressão para 100% conforme se aproxima de 180 dias
-  if (diasAtraso > 150) {
-    const fatorProgresso = (diasAtraso - 150) / 30; // De 150 a 180 dias
-    const provisaoProgressiva = 70 + (30 * fatorProgresso); // De 70% a 100%
-    percentualPerda = Math.max(percentualPerda, provisaoProgressiva);
-    percentualIncorrida = Math.max(percentualIncorrida, provisaoProgressiva);
-  }
+  // Usar o maior entre todos os cálculos
+  let percentualPerda = Math.max(perdaEsperadaPercentual, percentualTabelaPerda, percentualRegulamentar);
+  let percentualIncorrida = Math.max(perdaEsperadaPercentual, percentualTabelaIncorrida, percentualRegulamentar);
 
   const valorProvisaoPerda = (valorDivida * percentualPerda) / 100;
   const valorProvisaoIncorrida = (valorDivida * percentualIncorrida) / 100;
@@ -311,33 +417,26 @@ export function calcularProvisaoAvancada(params: CalculoProvisaoParams): Resulta
     valorProvisaoTotal,
     estagioRisco: estagio,
     metodologia: 'completa',
+    marcoRegulamentar: marco.proximoMarco,
     regraAplicadaPerda: regraPerda,
     regraAplicadaIncorrida: regraIncorrida,
   };
 }
 
 /**
- * Verifica se o contrato deve ter baixa obrigatória (100% provisão + baixa)
+ * Verifica se o contrato deve ter baixa obrigatória
  */
-export function deveSerBaixado(diasAtraso: number, temProcessoCobranca: boolean = false): {
+export function deveSerBaixado(diasAtraso: number, classificacao: ClassificacaoRisco): {
   deveBaixar: boolean;
   motivo: string;
 } {
-  // Regra 1: Mais de 180 dias = Provisão 100%
-  if (diasAtraso > 180) {
-    return {
-      deveBaixar: diasAtraso > 365 * 2, // Baixa após 2 anos
-      motivo: diasAtraso > 365 * 2 
-        ? "Baixa obrigatória - Mais de 2 anos em atraso" 
-        : "Provisão 100% - Mais de 180 dias em atraso"
-    };
-  }
-
-  // Regra 2: Sem processo de cobrança e >1 ano
-  if (!temProcessoCobranca && diasAtraso > 365) {
+  const marco = getMarcoRegulamentar4966(diasAtraso, classificacao);
+  
+  if (marco.provisao100) {
+    const meses = Math.floor(diasAtraso / 30);
     return {
       deveBaixar: true,
-      motivo: "Baixa obrigatória - Sem processo de cobrança há mais de 1 ano"
+      motivo: `Baixa conforme Art. 49 da Res. 4966 - ${meses} meses de atraso (${marco.marcoAtingido})`
     };
   }
 
@@ -348,16 +447,21 @@ export function deveSerBaixado(diasAtraso: number, temProcessoCobranca: boolean 
 }
 
 /**
- * Calcula os marcos temporais regulamentares
+ * Calcula os marcos temporais regulamentares da 4966
  */
-export function getMarcosTemporal(diasAtraso: number) {
+export function getMarcosTemporal(diasAtraso: number, classificacao: ClassificacaoRisco) {
+  const meses = diasAtraso / 30;
+  const marco = getMarcoRegulamentar4966(diasAtraso, classificacao);
+  
   return {
     estagio1: diasAtraso <= 30,
     estagio2: diasAtraso > 30 && diasAtraso <= 90,
     estagio3: diasAtraso > 90,
-    stopAccrual: diasAtraso > 90, // Para de computar juros
-    provisao100: diasAtraso > 180, // 100% provisão
-    baixaObrigatoria: diasAtraso > 365 * 2, // Baixa após 2 anos
-    manterControle: diasAtraso <= 365 * 5 // Manter controle por 5 anos
+    stopAccrual: diasAtraso > 90,
+    provisao100: marco.provisao100,
+    baixaObrigatoria: marco.provisao100,
+    marcoAtual: marco.marcoAtingido,
+    proximoMarco: marco.proximoMarco,
+    mesesAtraso: Math.floor(meses)
   };
 }
