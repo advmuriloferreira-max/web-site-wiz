@@ -218,6 +218,48 @@ export type Database = {
           },
         ]
       }
+      convites: {
+        Row: {
+          created_at: string
+          created_by: string
+          email: string
+          expires_at: string
+          id: string
+          nome: string
+          role: Database["public"]["Enums"]["app_role"]
+          token: string
+          updated_at: string
+          usado: boolean | null
+          usado_em: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          email: string
+          expires_at: string
+          id?: string
+          nome: string
+          role?: Database["public"]["Enums"]["app_role"]
+          token: string
+          updated_at?: string
+          usado?: boolean | null
+          usado_em?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          nome?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          token?: string
+          updated_at?: string
+          usado?: boolean | null
+          usado_em?: string | null
+        }
+        Relationships: []
+      }
       processos: {
         Row: {
           acao: string | null
@@ -441,6 +483,22 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      convite_valido: {
+        Args: { invite_token: string }
+        Returns: boolean
+      }
+      generate_invite_token: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      get_convite_data: {
+        Args: { invite_token: string }
+        Returns: {
+          email: string
+          nome: string
+          role: Database["public"]["Enums"]["app_role"]
+        }[]
+      }
       get_user_role: {
         Args: { user_uuid: string }
         Returns: Database["public"]["Enums"]["app_role"]
