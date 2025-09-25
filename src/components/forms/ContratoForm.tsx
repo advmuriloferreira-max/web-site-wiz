@@ -91,10 +91,10 @@ export function ContratoForm({ onSuccess }: ContratoFormProps) {
     <div className="space-y-4">
       {/* Alerta sobre automações */}
       <Alert>
-        <Calculator className="h-4 w-4" />
+        <Info className="h-4 w-4" />
         <AlertDescription>
-          <strong>Automação Inteligente:</strong> Quando você informar a data de vencimento, o sistema calculará 
-          automaticamente os dias de atraso, classificação de risco e provisão baseados nas Resoluções BCB 352/2023 e 4966/2021.
+          <strong>Dados essenciais para automação:</strong> Informe a classificação C1-C5 (conforme contrato original) 
+          e a data de vencimento. O sistema calculará automaticamente dias de atraso e provisão conforme BCB 352/2023 e 4966/2021.
         </AlertDescription>
       </Alert>
 
@@ -270,19 +270,19 @@ export function ContratoForm({ onSuccess }: ContratoFormProps) {
             name="classificacao"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Classificação</FormLabel>
+                <FormLabel>Classificação (conforme contrato) *</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione" />
+                      <SelectValue placeholder="Selecione a classificação" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="C1">C1</SelectItem>
-                    <SelectItem value="C2">C2</SelectItem>
-                    <SelectItem value="C3">C3</SelectItem>
-                    <SelectItem value="C4">C4</SelectItem>
-                    <SelectItem value="C5">C5</SelectItem>
+                    <SelectItem value="C1">C1 - Risco Mínimo</SelectItem>
+                    <SelectItem value="C2">C2 - Risco Pequeno</SelectItem>
+                    <SelectItem value="C3">C3 - Risco Médio</SelectItem>
+                    <SelectItem value="C4">C4 - Risco Alto</SelectItem>
+                    <SelectItem value="C5">C5 - Risco Máximo</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />

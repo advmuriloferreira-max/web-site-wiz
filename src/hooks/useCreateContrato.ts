@@ -48,17 +48,13 @@ export const useCreateContrato = () => {
         mesesAtraso = diasParaMeses(diasAtraso);
       }
 
-      // Se não tem classificação, classificar automaticamente baseado no atraso
-      if (!classificacao && diasAtraso > 0) {
-        classificacao = classificarRisco(diasAtraso);
-      }
-
       // Calcular provisão automaticamente se temos dados suficientes e tabelas carregadas
-      if (tabelaPerda && tabelaIncorrida && diasAtraso > 0 && classificacao) {
+      // A classificação deve ser informada pelo usuário (vem no contrato original)
+      if (tabelaPerda && tabelaIncorrida && contratoInput.classificacao) {
         const resultado = calcularProvisao({
           valorDivida: contratoInput.valor_divida,
           diasAtraso,
-          classificacao,
+          classificacao: contratoInput.classificacao,
           tabelaPerda,
           tabelaIncorrida,
           criterioIncorrida: "Dias de Atraso",
