@@ -36,6 +36,7 @@ const contratoSchema = z.object({
   classificacao: z.enum(["C1", "C2", "C3", "C4", "C5"]).optional(),
   percentual_provisao: z.string().optional(),
   valor_provisao: z.string().optional(),
+  proposta_acordo: z.string().optional(),
   situacao: z.string().optional(),
   observacoes: z.string().optional(),
 });
@@ -70,6 +71,7 @@ export function ContratoForm({ onSuccess }: ContratoFormProps) {
       meses_atraso: "0",
       percentual_provisao: "0",
       valor_provisao: "0",
+      proposta_acordo: "0",
       situacao: "Em análise",
       observacoes: "",
     },
@@ -90,6 +92,7 @@ export function ContratoForm({ onSuccess }: ContratoFormProps) {
         classificacao: data.classificacao || null,
         percentual_provisao: data.percentual_provisao ? parseFloat(data.percentual_provisao) : undefined,
         valor_provisao: data.valor_provisao ? parseFloat(data.valor_provisao) : undefined,
+        proposta_acordo: data.proposta_acordo ? parseFloat(data.proposta_acordo) : undefined,
         situacao: data.situacao || "Em análise",
         observacoes: data.observacoes || null,
       };
@@ -151,6 +154,10 @@ export function ContratoForm({ onSuccess }: ContratoFormProps) {
       form.setValue("meses_atraso", mesesAtraso.toString());
       form.setValue("percentual_provisao", percentualProvisao.toFixed(2));
       form.setValue("valor_provisao", resultado.valorProvisaoTotal.toFixed(2));
+      
+      // Calcular proposta de acordo (valor para cálculo - valor da provisão)
+      const propostaAcordo = valorParaCalculo - resultado.valorProvisaoTotal;
+      form.setValue("proposta_acordo", propostaAcordo.toFixed(2));
 
       toast.success(`Provisão calculada: ${percentualProvisao.toFixed(2)}% (R$ ${resultado.valorProvisaoTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })})`);
     } catch (error) {
@@ -189,6 +196,7 @@ export function ContratoForm({ onSuccess }: ContratoFormProps) {
       classificacao: contratoExistente.classificacao || undefined,
       percentual_provisao: contratoExistente.percentual_provisao?.toString() || "0",
       valor_provisao: contratoExistente.valor_provisao?.toString() || "0",
+      proposta_acordo: contratoExistente.proposta_acordo?.toString() || "0",
       situacao: contratoExistente.situacao || "Em análise",
       observacoes: contratoExistente.observacoes || "",
     });
@@ -486,7 +494,7 @@ export function ContratoForm({ onSuccess }: ContratoFormProps) {
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <FormField
             control={form.control}
             name="percentual_provisao"
@@ -506,6 +514,19 @@ export function ContratoForm({ onSuccess }: ContratoFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Valor Provisão</FormLabel>
+                <FormControl>
+                  <Input type="number" step="0.01" placeholder="0.00" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="proposta_acordo"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Proposta de Acordo</FormLabel>
                 <FormControl>
                   <Input type="number" step="0.01" placeholder="0.00" {...field} />
                 </FormControl>
