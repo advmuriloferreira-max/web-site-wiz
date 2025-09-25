@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/components/AuthProvider";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { UserMenu } from "@/components/UserMenu";
+import { InstallPrompt } from "@/components/InstallPrompt";
 import { AppSidebar } from "@/components/AppSidebar";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -42,7 +43,7 @@ const App = () => (
                         <div className="flex items-center">
                           <SidebarTrigger className="mr-4" />
                           <h1 className="text-sm font-medium text-foreground">
-                            Sistema de Provisionamento Bancário
+                            Sistema de Provisionamento Bancário - Murilo Ferreira Advocacia
                           </h1>
                         </div>
                         <UserMenu />
@@ -65,6 +66,7 @@ const App = () => (
                       </main>
                     </div>
                   </div>
+                  <InstallPrompt />
                 </SidebarProvider>
               </ProtectedRoute>
             } />

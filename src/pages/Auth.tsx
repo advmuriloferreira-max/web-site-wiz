@@ -113,10 +113,10 @@ export default function Auth() {
             <Shield className="h-8 w-8 text-accent" />
           </div>
           <h1 className="text-2xl font-bold text-foreground">
-            Sistema de Provisionamento
+            Murilo Ferreira Advocacia
           </h1>
           <p className="text-muted-foreground">
-            Acesso restrito para equipe autorizada
+            Sistema de Provisionamento Bancário
           </p>
         </div>
 
@@ -241,7 +241,7 @@ export default function Auth() {
 
         {/* Footer */}
         <p className="text-center text-xs text-muted-foreground">
-          Sistema interno do escritório • Acesso restrito
+          Murilo Ferreira Advocacia • Sistema interno
         </p>
       </div>
     </div>

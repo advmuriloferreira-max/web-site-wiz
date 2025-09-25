@@ -71,10 +71,10 @@ export function AppSidebar() {
         {!isCollapsed && (
           <div className="px-4 py-6 border-b border-border">
             <h2 className="text-lg font-semibold text-foreground">
-              Provisionamento
+              Murilo Ferreira
             </h2>
             <p className="text-sm text-muted-foreground">
-              Sistema de Monitoramento
+              Advocacia & Provisionamento
             </p>
           </div>
         )}

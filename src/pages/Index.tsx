@@ -83,7 +83,7 @@ function DashboardContent() {
         <div>
           <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
           <p className="text-muted-foreground">
-            Monitoramento Inteligente de Provisionamento Bancário
+            Murilo Ferreira Advocacia - Monitoramento Inteligente de Provisionamento
           </p>
         </div>
       </div>
