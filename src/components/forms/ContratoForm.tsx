@@ -314,13 +314,13 @@ export function ContratoForm({ onSuccess, contratoParaEditar }: ContratoFormProp
 
   // Calcular valor da parcela automaticamente
   useEffect(() => {
-    if (formaPagamento === "parcelado" && numeroParcelas && propostaAcordo) {
+    if (formaPagamento === "parcelado" && numeroParcelas && acordoFinal) {
       try {
-        const valorProposta = parseFloat(propostaAcordo);
+        const valorAcordo = parseFloat(acordoFinal);
         const numParcelas = parseInt(numeroParcelas);
         
-        if (valorProposta > 0 && numParcelas > 0) {
-          const valorParcela = valorProposta / numParcelas;
+        if (valorAcordo > 0 && numParcelas > 0) {
+          const valorParcela = valorAcordo / numParcelas;
           form.setValue("valor_parcela", valorParcela.toFixed(2));
         }
       } catch (error) {
@@ -329,7 +329,7 @@ export function ContratoForm({ onSuccess, contratoParaEditar }: ContratoFormProp
     } else {
       form.setValue("valor_parcela", "0");
     }
-  }, [formaPagamento, numeroParcelas, propostaAcordo, form]);
+  }, [formaPagamento, numeroParcelas, acordoFinal, form]);
 
   // Calcular redução da dívida automaticamente
   useEffect(() => {
