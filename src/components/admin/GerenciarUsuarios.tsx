@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { usePWANavigation } from "@/hooks/usePWANavigation";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,39 +23,19 @@ interface UserProfile {
 }
 
 export function GerenciarUsuarios() {
-  const { createUser, isAdmin, user } = useAuth();
+  const { createUser, isAdmin } = useAuth();
   const { toast } = useToast();
-  const { shareInviteLink } = usePWANavigation();
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [convites, setConvites] = useState<any[]>([]);
-  const [showConvites, setShowConvites] = useState(false);
 
   useEffect(() => {
     if (isAdmin) {
       fetchUsers();
-      fetchConvites();
     }
   }, [isAdmin]);
-
-  const fetchConvites = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('convites')
-        .select('*')
-        .eq('usado', false)
-        .gt('expires_at', new Date().toISOString())
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setConvites(data || []);
-    } catch (error) {
-      console.error('Error fetching convites:', error);
-    }
-  };
 
   const fetchUsers = async () => {
     try {
@@ -79,15 +58,16 @@ export function GerenciarUsuarios() {
     }
   };
 
-  const handleCreateInvite = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleCreateUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
     setIsCreating(true);
 
     const formData = new FormData(e.currentTarget);
-    const conviteData = {
+    const userData = {
       nome: formData.get('nome') as string,
       email: formData.get('email') as string,
+      password: formData.get('password') as string,
       role: formData.get('role') as string
     };
 
@@ -95,32 +75,27 @@ export function GerenciarUsuarios() {
       const validation = z.object({
         nome: z.string().trim().min(2, 'Nome deve ter pelo menos 2 caracteres'),
         email: z.string().email('Email inválido').trim(),
+        password: z.string().min(6, 'Senha deve ter pelo menos 6 caracteres'),
         role: z.enum(['admin', 'advogado', 'assistente'])
-      }).parse(conviteData);
+      }).parse(userData);
 
-      // Chamar a edge function para criar o convite e enviar email
-      const { data, error } = await supabase.functions.invoke('send-invite', {
-        body: {
-          email: validation.email,
-          nome: validation.nome,
-          role: validation.role,
-          created_by: user?.id
-        }
-      });
+      const { error } = await createUser(
+        validation.email, 
+        validation.password, 
+        validation.nome, 
+        validation.role
+      );
 
       if (error) {
-        console.error('Error calling send-invite function:', error);
-        setError('Erro ao enviar convite: ' + error.message);
-      } else if (data?.error) {
-        setError(data.error);
+        setError(error.message || 'Erro ao criar usuário');
       } else {
         toast({
-          title: "Convite enviado!",
-          description: `Convite enviado por email para ${validation.nome} (${validation.email})`,
+          title: "Usuário criado!",
+          description: `Usuário ${validation.nome} foi criado com sucesso`,
         });
         
         setIsDialogOpen(false);
-        fetchConvites();
+        fetchUsers();
         (e.target as HTMLFormElement).reset();
       }
     } catch (err) {
@@ -189,158 +164,119 @@ export function GerenciarUsuarios() {
           <h2 className="text-lg font-semibold">Gerenciar Usuários</h2>
         </div>
         
-        <div className="flex items-center gap-2">
-          <Button 
-            variant="outline" 
-            onClick={() => setShowConvites(!showConvites)}
-            className="flex items-center gap-2"
-          >
-            📧 {showConvites ? 'Ocultar' : 'Ver'} Convites ({convites.length})
-          </Button>
-          
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="flex items-center gap-2">
-                <UserPlus className="h-4 w-4" />
-                Gerar Convite
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Gerar Convite de Acesso</DialogTitle>
-              </DialogHeader>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="flex items-center gap-2">
+              <UserPlus className="h-4 w-4" />
+              Cadastrar Usuário
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Cadastrar Novo Usuário</DialogTitle>
+            </DialogHeader>
+            
+            <form onSubmit={handleCreateUser} className="space-y-4">
+              {error && (
+                <Alert variant="destructive">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
               
-              <form onSubmit={handleCreateInvite} className="space-y-4">
-                {error && (
-                  <Alert variant="destructive">
-                    <AlertDescription>{error}</AlertDescription>
-                  </Alert>
-                )}
-                
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email da Pessoa</Label>
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    placeholder="joao.silva@escritorio.com"
-                    required
-                    disabled={isCreating}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="nome">Nome Completo</Label>
-                  <Input
-                    id="nome"
-                    name="nome"
-                    type="text"
-                    placeholder="João Silva"
-                    required
-                    disabled={isCreating}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="role">Função</Label>
-                  <Select name="role" required disabled={isCreating}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione a função" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="assistente">
-                        <div className="flex items-center gap-2">
-                          <User className="h-4 w-4" />
-                          Assistente
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="advogado">
-                        <div className="flex items-center gap-2">
-                          <Shield className="h-4 w-4" />
-                          Advogado
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="admin">
-                        <div className="flex items-center gap-2">
-                          <Crown className="h-4 w-4" />
-                          Administrador
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="flex gap-2 pt-4">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setIsDialogOpen(false)}
-                    disabled={isCreating}
-                    className="flex-1"
-                  >
-                    Cancelar
-                  </Button>
-                  <Button 
-                    type="submit" 
-                    disabled={isCreating}
-                    className="flex-1"
-                  >
-                    {isCreating ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Gerando Convite...
-                      </>
-                    ) : (
-                      'Gerar Convite'
-                    )}
-                  </Button>
-                </div>
-              </form>
-            </DialogContent>
-          </Dialog>
-        </div>
+              <div className="space-y-2">
+                <Label htmlFor="nome">Nome Completo</Label>
+                <Input
+                  id="nome"
+                  name="nome"
+                  type="text"
+                  placeholder="João Silva"
+                  required
+                  disabled={isCreating}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="joao.silva@escritorio.com"
+                  required
+                  disabled={isCreating}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="password">Senha</Label>
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  placeholder="Mínimo 6 caracteres"
+                  required
+                  disabled={isCreating}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="role">Função</Label>
+                <Select name="role" required disabled={isCreating}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione a função" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="assistente">
+                      <div className="flex items-center gap-2">
+                        <User className="h-4 w-4" />
+                        Assistente
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="advogado">
+                      <div className="flex items-center gap-2">
+                        <Shield className="h-4 w-4" />
+                        Advogado
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="admin">
+                      <div className="flex items-center gap-2">
+                        <Crown className="h-4 w-4" />
+                        Administrador
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="flex gap-2 pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsDialogOpen(false)}
+                  disabled={isCreating}
+                  className="flex-1"
+                >
+                  Cancelar
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={isCreating}
+                  className="flex-1"
+                >
+                  {isCreating ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Criando Usuário...
+                    </>
+                  ) : (
+                    'Criar Usuário'
+                  )}
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
-
-      {/* Lista de Convites Pendentes */}
-      {showConvites && convites.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              📧 Convites Pendentes ({convites.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {convites.map((convite) => (
-                <div key={convite.id} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div>
-                    <p className="font-medium">{convite.nome}</p>
-                    <p className="text-sm text-muted-foreground">{convite.email}</p>
-                    <p className="text-xs text-muted-foreground">
-                      Expira: {new Date(convite.expires_at).toLocaleString('pt-BR')}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant={getRoleBadgeVariant(convite.role) as any}>
-                      {getRoleLabel(convite.role)}
-                    </Badge>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={async () => {
-                        await shareInviteLink(convite.token);
-                        toast({ title: "Link copiado!", description: "Link do convite copiado para a área de transferência." });
-                      }}
-                    >
-                      📋 Copiar Link
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       <Card>
         <CardHeader>
