@@ -1,5 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalculadoraProvisao } from "@/components/calculadora/CalculadoraProvisao";
+import { CalculadoraProvisaoAvancada } from "@/components/calculadora/CalculadoraProvisaoAvancada";
 import { ContratosComCalculos } from "@/components/contratos/ContratosComCalculos";
 import { Calculator, List } from "lucide-react";
 
@@ -26,7 +26,7 @@ export default function Calculos() {
         </TabsList>
 
         <TabsContent value="calculadora">
-          <CalculadoraProvisao />
+          <CalculadoraProvisaoAvancada />
         </TabsContent>
 
         <TabsContent value="contratos">
