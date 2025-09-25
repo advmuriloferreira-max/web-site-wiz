@@ -45,9 +45,10 @@ type ContratoFormData = z.infer<typeof contratoSchema>;
 
 interface ContratoFormProps {
   onSuccess?: () => void;
+  contratoParaEditar?: string | null;
 }
 
-export function ContratoForm({ onSuccess }: ContratoFormProps) {
+export function ContratoForm({ onSuccess, contratoParaEditar }: ContratoFormProps) {
   const { data: clientes } = useClientes();
   const { data: bancos } = useBancos();
   const createContrato = useCreateContrato();
@@ -230,6 +231,20 @@ export function ContratoForm({ onSuccess }: ContratoFormProps) {
       form.setValue("meses_atraso", "0");
     }
   }, [dataUltimoPagamento, form]);
+
+  // Carregar contrato automaticamente quando contratoParaEditar muda
+  useEffect(() => {
+    if (contratoParaEditar) {
+      setNumeroContratoSearch(contratoParaEditar);
+    }
+  }, [contratoParaEditar]);
+
+  // Carregar contrato para edição quando contratoExistente é encontrado e contratoParaEditar está definido
+  useEffect(() => {
+    if (contratoExistente && contratoParaEditar && !isEditing) {
+      carregarContratoParaEdicao();
+    }
+  }, [contratoExistente, contratoParaEditar, isEditing]);
 
   return (
     <div className="space-y-4">

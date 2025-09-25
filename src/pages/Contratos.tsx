@@ -26,6 +26,7 @@ export default function Contratos() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [dialogTitle, setDialogTitle] = useState("Novo Contrato");
+  const [contratoParaEditar, setContratoParaEditar] = useState<string | null>(null);
 
   const filteredContratos = contratos?.filter(contrato => 
     contrato.clientes?.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -36,15 +37,25 @@ export default function Contratos() {
 
   const handleSuccess = () => {
     setIsDialogOpen(false);
+    setContratoParaEditar(null);
   };
 
   const handleNovoContrato = () => {
     setDialogTitle("Novo Contrato");
+    setContratoParaEditar(null);
     setIsDialogOpen(true);
   };
 
   const handleEditarContrato = () => {
     setDialogTitle("Editar Contrato");
+    setContratoParaEditar(null);
+    setIsDialogOpen(true);
+  };
+
+  const handleEditarContratoEspecifico = (numeroContrato: string | null) => {
+    if (!numeroContrato) return;
+    setDialogTitle("Editar Contrato");
+    setContratoParaEditar(numeroContrato);
     setIsDialogOpen(true);
   };
 
@@ -81,7 +92,7 @@ export default function Contratos() {
             <DialogHeader>
               <DialogTitle>{dialogTitle}</DialogTitle>
             </DialogHeader>
-            <ContratoForm onSuccess={handleSuccess} />
+            <ContratoForm onSuccess={handleSuccess} contratoParaEditar={contratoParaEditar} />
           </DialogContent>
         </Dialog>
         
@@ -165,8 +176,13 @@ export default function Contratos() {
                         )}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button variant="ghost" size="sm">
-                          <Eye className="h-4 w-4" />
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => handleEditarContratoEspecifico(contrato.numero_contrato)}
+                          disabled={!contrato.numero_contrato}
+                        >
+                          <Edit className="h-4 w-4" />
                         </Button>
                       </TableCell>
                     </TableRow>
