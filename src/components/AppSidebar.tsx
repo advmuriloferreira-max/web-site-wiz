@@ -7,7 +7,8 @@ import {
   Plus,
   TrendingUp,
   AlertTriangle,
-  Calculator
+  Calculator,
+  Handshake
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
@@ -28,6 +29,7 @@ const navigationItems = [
   { title: "Clientes", url: "/clientes", icon: Users },
   { title: "Contratos", url: "/contratos", icon: FileText },
   { title: "Processos", url: "/processos", icon: AlertTriangle },
+  { title: "Acordos", url: "/acordos", icon: Handshake },
   { title: "Cálculos", url: "/calculos", icon: Calculator },
   { title: "Relatórios", url: "/relatorios", icon: TrendingUp },
 ];

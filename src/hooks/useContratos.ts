@@ -19,6 +19,10 @@ export interface Contrato {
   situacao: string;
   data_entrada: string;
   data_conclusao: string | null;
+  proposta_acordo: number | null;
+  acordo_final: number | null;
+  quantidade_planos: number | null;
+  observacoes: string | null;
   created_at: string;
   updated_at: string;
   // Relacionamentos
