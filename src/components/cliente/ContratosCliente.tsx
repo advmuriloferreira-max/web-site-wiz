@@ -1,0 +1,181 @@
+import { useState } from "react";
+import { Plus, Eye, Edit2, Building2, Calendar, DollarSign } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { ContratoForm } from "@/components/forms/ContratoForm";
+import { useContratosByCliente } from "@/hooks/useContratosByCliente";
+import { Cliente } from "@/hooks/useClientes";
+import { format } from "date-fns";
+
+interface ContratosClienteProps {
+  cliente: Cliente;
+}
+
+export function ContratosCliente({ cliente }: ContratosClienteProps) {
+  const { data: contratos, isLoading } = useContratosByCliente(cliente.id);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [contratoParaEditar, setContratoParaEditar] = useState<string | null>(null);
+
+  const getClassificacaoColor = (classificacao: string | null) => {
+    if (!classificacao) return "bg-gray-500";
+    
+    switch (classificacao) {
+      case "C1": return "bg-green-500";
+      case "C2": return "bg-blue-500";
+      case "C3": return "bg-yellow-500";
+      case "C4": return "bg-orange-500";
+      case "C5": return "bg-red-500";
+      default: return "bg-gray-500";
+    }
+  };
+
+  const getSituacaoColor = (situacao: string | null) => {
+    if (!situacao) return "bg-gray-500";
+    
+    switch (situacao.toLowerCase()) {
+      case "acordado": return "bg-green-500";
+      case "em análise": return "bg-blue-500";
+      case "em negociação": return "bg-yellow-500";
+      case "rejeitado": return "bg-red-500";
+      default: return "bg-gray-500";
+    }
+  };
+
+  const handleContratoSuccess = () => {
+    setIsAddDialogOpen(false);
+    setContratoParaEditar(null);
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-lg">
+            Contratos de {cliente.nome}
+          </CardTitle>
+          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm">
+                <Plus className="mr-2 h-4 w-4" />
+                Novo Contrato
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>
+                  Novo Contrato para {cliente.nome}
+                </DialogTitle>
+              </DialogHeader>
+              <ContratoForm 
+                onSuccess={handleContratoSuccess}
+                contratoParaEditar={contratoParaEditar}
+                clienteIdPredefinido={cliente.id}
+              />
+            </DialogContent>
+          </Dialog>
+
+          {/* Dialog para edição */}
+          <Dialog open={!!contratoParaEditar} onOpenChange={() => setContratoParaEditar(null)}>
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>
+                  Editar Contrato {contratoParaEditar}
+                </DialogTitle>
+              </DialogHeader>
+              <ContratoForm 
+                onSuccess={handleContratoSuccess}
+                contratoParaEditar={contratoParaEditar}
+                clienteIdPredefinido={cliente.id}
+              />
+            </DialogContent>
+          </Dialog>
+        </div>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <div className="text-center py-4">Carregando contratos...</div>
+        ) : contratos?.length === 0 ? (
+          <div className="text-center py-8 text-muted-foreground">
+            <Building2 className="mx-auto h-12 w-12 mb-4 opacity-50" />
+            <p className="text-lg font-medium">Nenhum contrato encontrado</p>
+            <p className="text-sm">Adicione o primeiro contrato para este cliente</p>
+          </div>
+        ) : (
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nº Contrato</TableHead>
+                  <TableHead>Banco</TableHead>
+                  <TableHead>Valor Dívida</TableHead>
+                  <TableHead>Classificação</TableHead>
+                  <TableHead>Situação</TableHead>
+                  <TableHead>Data Cadastro</TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {contratos?.map((contrato) => (
+                  <TableRow key={contrato.id}>
+                    <TableCell className="font-medium">
+                      {contrato.numero_contrato || (
+                        <span className="text-muted-foreground">Sem número</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center">
+                        <Building2 className="h-4 w-4 mr-2 text-muted-foreground" />
+                        {contrato.bancos?.nome || "N/A"}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center">
+                        <DollarSign className="h-4 w-4 mr-1 text-muted-foreground" />
+                        {contrato.valor_divida.toLocaleString("pt-BR", {
+                          style: "currency",
+                          currency: "BRL",
+                        })}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {contrato.classificacao ? (
+                        <Badge className={`text-white ${getClassificacaoColor(contrato.classificacao)}`}>
+                          {contrato.classificacao}
+                        </Badge>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={`text-white ${getSituacaoColor(contrato.situacao)}`}>
+                        {contrato.situacao || "Em análise"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center">
+                        <Calendar className="h-4 w-4 mr-1 text-muted-foreground" />
+                        {format(new Date(contrato.created_at), "dd/MM/yyyy")}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setContratoParaEditar(contrato.numero_contrato || contrato.id)}
+                      >
+                        <Edit2 className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}

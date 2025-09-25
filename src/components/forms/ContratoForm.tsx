@@ -60,9 +60,10 @@ type ContratoFormData = z.infer<typeof contratoSchema>;
 interface ContratoFormProps {
   onSuccess?: () => void;
   contratoParaEditar?: string | null;
+  clienteIdPredefinido?: string;
 }
 
-export function ContratoForm({ onSuccess, contratoParaEditar }: ContratoFormProps) {
+export function ContratoForm({ onSuccess, contratoParaEditar, clienteIdPredefinido }: ContratoFormProps) {
   const { data: clientes } = useClientes();
   const { data: bancos } = useBancos();
   const { data: tiposOperacao } = useTiposOperacao();
@@ -78,6 +79,7 @@ export function ContratoForm({ onSuccess, contratoParaEditar }: ContratoFormProp
   const form = useForm<ContratoFormData>({
     resolver: zodResolver(contratoSchema),
     defaultValues: {
+      cliente_id: clienteIdPredefinido || "",
       numero_contrato: "",
       tipo_operacao_bcb: "",
       valor_divida: "",
@@ -478,7 +480,7 @@ export function ContratoForm({ onSuccess, contratoParaEditar }: ContratoFormProp
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Cliente *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!!clienteIdPredefinido}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione um cliente" />
