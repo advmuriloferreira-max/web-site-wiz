@@ -90,3 +90,27 @@ export const useUpdateCliente = () => {
     },
   });
 };
+
+export const useDeleteCliente = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from("clientes")
+        .delete()
+        .eq("id", id);
+
+      if (error) {
+        throw new Error(`Erro ao excluir cliente: ${error.message}`);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["clientes"] });
+      toast.success("Cliente excluído com sucesso!");
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+};

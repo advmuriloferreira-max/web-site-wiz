@@ -1,13 +1,15 @@
 import { useState } from "react";
-import { Plus, Search, Eye, Edit } from "lucide-react";
+import { Plus, Search, Eye, Edit, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { ContratoForm } from "@/components/forms/ContratoForm";
 import { useContratos, Contrato } from "@/hooks/useContratos";
+import { useDeleteContrato } from "@/hooks/useDeleteContrato";
 import { format } from "date-fns";
 
 const getClassificacaoColor = (classificacao: string | null) => {
@@ -23,6 +25,7 @@ const getClassificacaoColor = (classificacao: string | null) => {
 
 export default function Contratos() {
   const { data: contratos, isLoading } = useContratos();
+  const deleteContratoMutation = useDeleteContrato();
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [dialogTitle, setDialogTitle] = useState("Novo Contrato");
@@ -57,6 +60,10 @@ export default function Contratos() {
     setDialogTitle("Editar Contrato");
     setContratoParaEditar(numeroContrato);
     setIsDialogOpen(true);
+  };
+
+  const handleDeleteContrato = (contrato: Contrato) => {
+    deleteContratoMutation.mutate(contrato.id);
   };
 
   const formatCurrency = (value: number) => {
@@ -176,14 +183,45 @@ export default function Contratos() {
                         )}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => handleEditarContratoEspecifico(contrato.numero_contrato)}
-                          disabled={!contrato.numero_contrato}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
+                        <div className="flex items-center gap-1 justify-end">
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => handleEditarContratoEspecifico(contrato.numero_contrato)}
+                            disabled={!contrato.numero_contrato}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-destructive hover:text-destructive"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Tem certeza que deseja excluir o contrato de "{contrato.clientes?.nome}" do banco "{contrato.bancos?.nome}"?
+                                  Esta ação não pode ser desfeita.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => handleDeleteContrato(contrato)}
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                >
+                                  Excluir
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))

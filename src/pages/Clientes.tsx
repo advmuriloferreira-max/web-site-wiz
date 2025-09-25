@@ -1,21 +1,24 @@
 import { useState, useEffect } from "react";
-import { Plus, Edit2, Search, Building2, ChevronDown, ChevronRight } from "lucide-react";
+import { Plus, Edit2, Search, Building2, ChevronDown, ChevronRight, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { ClienteForm } from "@/components/forms/ClienteForm";
 import { ContratosCliente } from "@/components/cliente/ContratosCliente";
-import { useClientes, Cliente } from "@/hooks/useClientes";
+import { useClientes, useDeleteCliente, Cliente } from "@/hooks/useClientes";
 import { useContratosCountByCliente } from "@/hooks/useContratosByCliente";
 import { usePWANavigation } from "@/hooks/usePWANavigation";
 import { format } from "date-fns";
+import { toast } from "sonner";
 
 export default function Clientes() {
   const { data: clientes, isLoading } = useClientes();
   const { data: contratosCount } = useContratosCountByCliente();
+  const deleteClienteMutation = useDeleteCliente();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCliente, setSelectedCliente] = useState<Cliente | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -43,6 +46,15 @@ export default function Clientes() {
       newExpanded.add(clienteId);
     }
     setExpandedClientes(newExpanded);
+  };
+
+  const handleDeleteCliente = (cliente: Cliente) => {
+    const contratosDoCliente = contratosCount?.[cliente.id] || 0;
+    if (contratosDoCliente > 0) {
+      toast.error("Não é possível excluir cliente com contratos vinculados");
+      return;
+    }
+    deleteClienteMutation.mutate(cliente.id);
   };
 
   if (isLoading) {
@@ -175,6 +187,35 @@ export default function Clientes() {
                               >
                                 <Edit2 className="h-4 w-4" />
                               </Button>
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="text-destructive hover:text-destructive"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Tem certeza que deseja excluir o cliente "{cliente.nome}"?
+                                      Esta ação não pode ser desfeita.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                    <AlertDialogAction
+                                      onClick={() => handleDeleteCliente(cliente)}
+                                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                    >
+                                      Excluir
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
                             </div>
                           </TableCell>
                         </TableRow>
