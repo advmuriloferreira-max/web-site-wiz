@@ -209,7 +209,7 @@ export function CalculadoraProvisao() {
               {/* Perda Esperada */}
               <div className="space-y-3">
                 <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
-                  Resultado da Provisão BCB 352/2023
+                  Provisão BCB 352/2023
                 </h4>
                 <div className="space-y-2">
                   <div className="flex justify-between">
@@ -217,11 +217,11 @@ export function CalculadoraProvisao() {
                     <Badge variant="outline">{formatPercentage(resultado.percentualProvisao)}</Badge>
                   </div>
                   <div className="flex justify-between">
-                    <span>Valor da Provisão:</span>
+                    <span>Valor:</span>
                     <span className="font-medium">{formatCurrency(resultado.valorProvisao)}</span>
                   </div>
                   <div className="text-xs text-muted-foreground">
-                    Regra Aplicada: {resultado.regra}
+                    Regra: {resultado.regra}
                   </div>
                   <div className="text-xs text-green-600">
                     {resultado.detalhes}
