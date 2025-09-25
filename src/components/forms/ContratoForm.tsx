@@ -395,7 +395,14 @@ export function ContratoForm({ onSuccess, contratoParaEditar, clienteIdPredefini
 
   // Calcular provisão automaticamente quando campos relevantes mudarem
   useEffect(() => {
+    console.log("=== DEBUG: useEffect provisão automática ===");
+    console.log("valorDivida:", valorDivida);
+    console.log("classificacao:", classificacao);
+    console.log("tabelaPerda disponível:", !!tabelaPerda);
+    console.log("tabelaIncorrida disponível:", !!tabelaIncorrida);
+    
     if (valorDivida && classificacao && tabelaPerda && tabelaIncorrida) {
+      console.log("Iniciando cálculo automático de provisão...");
       try {
         // Usar dias de atraso do formulário ou calcular se não disponível
         let diasCalculados = diasAtraso ? parseInt(diasAtraso) : 0;
@@ -403,10 +410,14 @@ export function ContratoForm({ onSuccess, contratoParaEditar, clienteIdPredefini
           diasCalculados = calcularDiasAtraso(dataUltimoPagamento);
         }
 
+        console.log("Dias calculados:", diasCalculados);
+
         // Determinar valor para cálculo (priorizar saldo contábil)
         const valorDividaNum = parseFloat(valorDivida);
         const saldoContabilNum = saldoContabil ? parseFloat(saldoContabil) : null;
         const valorParaCalculo = saldoContabilNum || valorDividaNum;
+
+        console.log("Valor para cálculo:", valorParaCalculo);
 
         // Calcular provisão
         const resultado = calcularProvisao({
@@ -418,6 +429,8 @@ export function ContratoForm({ onSuccess, contratoParaEditar, clienteIdPredefini
           criterioIncorrida: "Dias de Atraso",
         });
 
+        console.log("Resultado do cálculo:", resultado);
+
         // Atualizar campos calculados
         form.setValue("percentual_provisao", resultado.percentualProvisao.toString());
         form.setValue("valor_provisao", resultado.valorProvisao.toFixed(2));
@@ -426,9 +439,13 @@ export function ContratoForm({ onSuccess, contratoParaEditar, clienteIdPredefini
         const propostaAcordoCalculada = valorParaCalculo - resultado.valorProvisao;
         form.setValue("proposta_acordo", propostaAcordoCalculada.toFixed(2));
 
+        console.log("Campos atualizados com sucesso!");
+
       } catch (error) {
         console.error("Erro no cálculo automático de provisão:", error);
       }
+    } else {
+      console.log("Condições não atendidas para cálculo automático");
     }
   }, [valorDivida, classificacao, diasAtraso, saldoContabil, dataUltimoPagamento, tabelaPerda, tabelaIncorrida, form]);
 
