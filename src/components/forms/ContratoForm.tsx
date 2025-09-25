@@ -14,7 +14,7 @@ import { useCreateContrato } from "@/hooks/useCreateContrato";
 import { useUpdateContrato } from "@/hooks/useUpdateContrato";
 import { useContratoByNumero } from "@/hooks/useContratoByNumero";
 import { useProvisaoPerda, useProvisaoPerdaIncorrida } from "@/hooks/useProvisao";
-import { useTiposOperacao } from "@/hooks/useTiposOperacao";
+import { useTiposOperacao, useGetTipoOperacaoById } from "@/hooks/useTiposOperacao";
 import { 
   calcularProvisao, 
   calcularDiasAtraso,
@@ -263,6 +263,10 @@ export function ContratoForm({ onSuccess, contratoParaEditar }: ContratoFormProp
 
   // Calcular automaticamente dias e meses de atraso quando data do último pagamento mudar
   const dataUltimoPagamento = form.watch("data_ultimo_pagamento");
+  const tipoOperacaoBcb = form.watch("tipo_operacao_bcb");
+  
+  // Buscar dados do tipo de operação selecionado
+  const { data: tipoOperacaoSelecionado } = useGetTipoOperacaoById(tipoOperacaoBcb);
   
   // Watchers para cálculos automáticos dos novos campos
   const dataEntradaEscritorio = form.watch("data_entrada_escritorio");
@@ -295,6 +299,17 @@ export function ContratoForm({ onSuccess, contratoParaEditar }: ContratoFormProp
       form.setValue("meses_atraso", "0");
     }
   }, [dataUltimoPagamento, form]);
+
+  // Atualizar classificação automaticamente baseada no tipo de operação BCB
+  useEffect(() => {
+    if (tipoOperacaoSelecionado) {
+      // A classificação é definida pela carteira do tipo de operação
+      const classificacao = tipoOperacaoSelecionado.carteira as ClassificacaoRisco;
+      form.setValue("classificacao", classificacao);
+      
+      toast.info(`Classificação automaticamente definida como ${classificacao} baseada no tipo de operação selecionado`);
+    }
+  }, [tipoOperacaoSelecionado, form]);
 
   // Calcular tempo no escritório automaticamente
   useEffect(() => {
@@ -624,11 +639,11 @@ export function ContratoForm({ onSuccess, contratoParaEditar }: ContratoFormProp
             name="classificacao"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Classificação (conforme contrato) *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormLabel>Classificação (conforme contrato) - Preenchida Automaticamente *</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value} disabled={!!tipoOperacaoSelecionado}>
                   <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione a classificação" />
+                    <SelectTrigger className={!!tipoOperacaoSelecionado ? "bg-muted" : ""}>
+                      <SelectValue placeholder={tipoOperacaoSelecionado ? `${field.value} - Definido pelo tipo de operação` : "Selecione o tipo de operação BCB acima"} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
