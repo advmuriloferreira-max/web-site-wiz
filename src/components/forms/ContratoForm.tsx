@@ -6,11 +6,11 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useClientes } from "@/hooks/useClientes";
 import { useBancos } from "@/hooks/useBancos";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { useCreateContrato } from "@/hooks/useCreateContrato";
+import { Calculator, Info } from "lucide-react";
 
 const contratoSchema = z.object({
   cliente_id: z.string().min(1, "Cliente é obrigatório"),
@@ -39,49 +39,7 @@ interface ContratoFormProps {
 export function ContratoForm({ onSuccess }: ContratoFormProps) {
   const { data: clientes } = useClientes();
   const { data: bancos } = useBancos();
-  const queryClient = useQueryClient();
-  
-  const createContrato = useMutation({
-    mutationFn: async (data: ContratoFormData) => {
-      const contratoData = {
-        cliente_id: data.cliente_id,
-        banco_id: data.banco_id,
-        numero_contrato: data.numero_contrato || null,
-        tipo_operacao: data.tipo_operacao,
-        valor_divida: parseFloat(data.valor_divida),
-        saldo_contabil: data.saldo_contabil ? parseFloat(data.saldo_contabil) : null,
-        data_ultimo_pagamento: data.data_ultimo_pagamento || null,
-        data_vencimento: data.data_vencimento || null,
-        dias_atraso: data.dias_atraso ? parseInt(data.dias_atraso) : 0,
-        meses_atraso: data.meses_atraso ? parseFloat(data.meses_atraso) : 0,
-        classificacao: data.classificacao || null,
-        percentual_provisao: data.percentual_provisao ? parseFloat(data.percentual_provisao) : 0,
-        valor_provisao: data.valor_provisao ? parseFloat(data.valor_provisao) : 0,
-        situacao: data.situacao || "Em análise",
-        observacoes: data.observacoes || null,
-      };
-
-      const { data: result, error } = await supabase
-        .from("contratos")
-        .insert(contratoData)
-        .select()
-        .single();
-
-      if (error) {
-        throw new Error(`Erro ao criar contrato: ${error.message}`);
-      }
-
-      return result;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["contratos"] });
-      queryClient.invalidateQueries({ queryKey: ["contratos-stats"] });
-      toast.success("Contrato criado com sucesso!");
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
+  const createContrato = useCreateContrato();
   
   const form = useForm<ContratoFormData>({
     resolver: zodResolver(contratoSchema),
@@ -103,7 +61,25 @@ export function ContratoForm({ onSuccess }: ContratoFormProps) {
 
   const onSubmit = async (data: ContratoFormData) => {
     try {
-      await createContrato.mutateAsync(data);
+      const contratoData = {
+        cliente_id: data.cliente_id,
+        banco_id: data.banco_id,
+        numero_contrato: data.numero_contrato || null,
+        tipo_operacao: data.tipo_operacao,
+        valor_divida: parseFloat(data.valor_divida),
+        saldo_contabil: data.saldo_contabil ? parseFloat(data.saldo_contabil) : null,
+        data_ultimo_pagamento: data.data_ultimo_pagamento || null,
+        data_vencimento: data.data_vencimento || null,
+        dias_atraso: data.dias_atraso ? parseInt(data.dias_atraso) : undefined,
+        meses_atraso: data.meses_atraso ? parseFloat(data.meses_atraso) : undefined,
+        classificacao: data.classificacao || null,
+        percentual_provisao: data.percentual_provisao ? parseFloat(data.percentual_provisao) : undefined,
+        valor_provisao: data.valor_provisao ? parseFloat(data.valor_provisao) : undefined,
+        situacao: data.situacao || "Em análise",
+        observacoes: data.observacoes || null,
+      };
+
+      await createContrato.mutateAsync(contratoData);
       form.reset();
       onSuccess?.();
     } catch (error) {
@@ -112,8 +88,18 @@ export function ContratoForm({ onSuccess }: ContratoFormProps) {
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+    <div className="space-y-4">
+      {/* Alerta sobre automações */}
+      <Alert>
+        <Calculator className="h-4 w-4" />
+        <AlertDescription>
+          <strong>Automação Inteligente:</strong> Quando você informar a data de vencimento, o sistema calculará 
+          automaticamente os dias de atraso, classificação de risco e provisão baseados nas Resoluções BCB 352/2023 e 4966/2021.
+        </AlertDescription>
+      </Alert>
+
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
@@ -363,9 +349,11 @@ export function ContratoForm({ onSuccess }: ContratoFormProps) {
         />
 
         <Button type="submit" disabled={createContrato.isPending}>
-          {createContrato.isPending ? "Cadastrando..." : "Cadastrar Contrato"}
+          <Calculator className="mr-2 h-4 w-4" />
+          {createContrato.isPending ? "Calculando e Cadastrando..." : "Cadastrar com Automação"}
         </Button>
       </form>
     </Form>
+    </div>
   );
 }

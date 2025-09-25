@@ -169,13 +169,13 @@ function DashboardContent() {
                 <p className="text-sm text-muted-foreground">Registrar dívida</p>
               </div>
             </Link>
-            <div className="flex items-center space-x-3 p-4 border border-border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors">
-              <AlertTriangle className="h-8 w-8 text-primary" />
+            <Link to="/calculos" className="flex items-center space-x-3 p-4 border border-border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors">
+              <Calculator className="h-8 w-8 text-primary" />
               <div>
-                <h3 className="font-medium text-foreground">Alertas</h3>
-                <p className="text-sm text-muted-foreground">Verificar pendências</p>
+                <h3 className="font-medium text-foreground">Calculadora</h3>
+                <p className="text-sm text-muted-foreground">Calcular provisões</p>
               </div>
-            </div>
+            </Link>
           </div>
         </CardContent>
       </Card>
