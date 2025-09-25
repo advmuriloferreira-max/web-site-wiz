@@ -280,6 +280,11 @@ export function ContratoForm({ onSuccess, contratoParaEditar, clienteIdPredefini
   const reducaoDivida = form.watch("reducao_divida");
   const percentualHonorarios = form.watch("percentual_honorarios");
   
+  // Watchers para cálculo automático de provisão
+  const classificacao = form.watch("classificacao");
+  const diasAtraso = form.watch("dias_atraso");
+  const saldoContabil = form.watch("saldo_contabil");
+  
   useEffect(() => {
     if (dataUltimoPagamento) {
       try {
@@ -387,6 +392,45 @@ export function ContratoForm({ onSuccess, contratoParaEditar, clienteIdPredefini
       form.setValue("valor_honorarios", "0");
     }
   }, [percentualHonorarios, reducaoDivida, form]);
+
+  // Calcular provisão automaticamente quando campos relevantes mudarem
+  useEffect(() => {
+    if (valorDivida && classificacao && tabelaPerda && tabelaIncorrida) {
+      try {
+        // Usar dias de atraso do formulário ou calcular se não disponível
+        let diasCalculados = diasAtraso ? parseInt(diasAtraso) : 0;
+        if (dataUltimoPagamento && diasCalculados === 0) {
+          diasCalculados = calcularDiasAtraso(dataUltimoPagamento);
+        }
+
+        // Determinar valor para cálculo (priorizar saldo contábil)
+        const valorDividaNum = parseFloat(valorDivida);
+        const saldoContabilNum = saldoContabil ? parseFloat(saldoContabil) : null;
+        const valorParaCalculo = saldoContabilNum || valorDividaNum;
+
+        // Calcular provisão
+        const resultado = calcularProvisao({
+          valorDivida: valorParaCalculo,
+          diasAtraso: diasCalculados,
+          classificacao: classificacao as ClassificacaoRisco,
+          tabelaPerda,
+          tabelaIncorrida,
+          criterioIncorrida: "Dias de Atraso",
+        });
+
+        // Atualizar campos calculados
+        form.setValue("percentual_provisao", resultado.percentualProvisao.toString());
+        form.setValue("valor_provisao", resultado.valorProvisao.toFixed(2));
+        
+        // Calcular proposta de acordo (valor para cálculo - valor da provisão)
+        const propostaAcordoCalculada = valorParaCalculo - resultado.valorProvisao;
+        form.setValue("proposta_acordo", propostaAcordoCalculada.toFixed(2));
+
+      } catch (error) {
+        console.error("Erro no cálculo automático de provisão:", error);
+      }
+    }
+  }, [valorDivida, classificacao, diasAtraso, saldoContabil, dataUltimoPagamento, tabelaPerda, tabelaIncorrida, form]);
 
   // Carregar contrato automaticamente quando contratoParaEditar muda
   useEffect(() => {
