@@ -7,10 +7,14 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AppSidebar } from "@/components/AppSidebar";
 import Index from "./pages/Index";
 import Clientes from "./pages/Clientes";
+import NovoCliente from "./pages/NovoCliente";
 import Contratos from "./pages/Contratos";
+import NovoContrato from "./pages/NovoContrato";
 import Calculos from "./pages/Calculos";
 import Processos from "./pages/Processos";
 import Acordos from "./pages/Acordos";
+import Relatorios from "./pages/Relatorios";
+import Configuracoes from "./pages/Configuracoes";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -37,10 +41,14 @@ const App = () => (
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/clientes" element={<Clientes />} />
+                  <Route path="/clientes/novo" element={<NovoCliente />} />
                   <Route path="/contratos" element={<Contratos />} />
+                  <Route path="/contratos/novo" element={<NovoContrato />} />
                   <Route path="/calculos" element={<Calculos />} />
                   <Route path="/processos" element={<Processos />} />
                   <Route path="/acordos" element={<Acordos />} />
+                  <Route path="/relatorios" element={<Relatorios />} />
+                  <Route path="/configuracoes" element={<Configuracoes />} />
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>

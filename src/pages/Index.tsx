@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { Link } from "react-router-dom";
 import { useContratosStats } from "@/hooks/useContratos";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { ClassificacaoChart } from "@/components/dashboard/ClassificacaoChart";
@@ -154,20 +155,20 @@ function DashboardContent() {
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-3">
-            <div className="flex items-center space-x-3 p-4 border border-border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors">
+            <Link to="/clientes/novo" className="flex items-center space-x-3 p-4 border border-border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors">
               <Users className="h-8 w-8 text-primary" />
               <div>
                 <h3 className="font-medium text-foreground">Novo Cliente</h3>
                 <p className="text-sm text-muted-foreground">Cadastrar cliente</p>
               </div>
-            </div>
-            <div className="flex items-center space-x-3 p-4 border border-border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors">
+            </Link>
+            <Link to="/contratos/novo" className="flex items-center space-x-3 p-4 border border-border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors">
               <FileText className="h-8 w-8 text-primary" />
               <div>
                 <h3 className="font-medium text-foreground">Novo Contrato</h3>
                 <p className="text-sm text-muted-foreground">Registrar dívida</p>
               </div>
-            </div>
+            </Link>
             <div className="flex items-center space-x-3 p-4 border border-border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors">
               <AlertTriangle className="h-8 w-8 text-primary" />
               <div>
