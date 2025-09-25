@@ -1,4 +1,4 @@
-const CACHE_NAME = 'murilo-ferreira-advocacia-v3';
+const CACHE_NAME = 'murilo-ferreira-advocacia-v4';
 const urlsToCache = [
   '/',
   '/static/js/bundle.js',
@@ -48,16 +48,28 @@ self.addEventListener('message', (event) => {
   }
 });
 
-// Fetch event - network first for HTML, cache first for static assets
+// Fetch event - network first strategy for all resources to ensure updates
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   
-  // Network first strategy for HTML pages and API calls
-  if (request.headers.get('accept')?.includes('text/html') || request.url.includes('/api/')) {
-    event.respondWith(
-      fetch(request)
-        .then((response) => {
-          // Clone the response
+  // Skip non-HTTP requests
+  if (!request.url.startsWith('http')) {
+    return;
+  }
+  
+  // Network first strategy for ALL resources to ensure updates
+  event.respondWith(
+    fetch(request, {
+      cache: 'no-cache',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    })
+      .then((response) => {
+        // Only cache successful responses
+        if (response.status === 200) {
           const responseClone = response.clone();
           
           // Cache the new response
@@ -65,23 +77,15 @@ self.addEventListener('fetch', (event) => {
             .then((cache) => {
               cache.put(request, responseClone);
             });
-          
-          return response;
-        })
-        .catch(() => {
-          // Fallback to cache if network fails
-          return caches.match(request);
-        })
-    );
-  } else {
-    // Cache first strategy for static assets
-    event.respondWith(
-      caches.match(request)
-        .then((response) => {
-          return response || fetch(request);
-        })
-    );
-  }
+        }
+        
+        return response;
+      })
+      .catch(() => {
+        // Fallback to cache only if network completely fails
+        return caches.match(request);
+      })
+  );
 });
 
 // Activate event - clean up old caches and take control
