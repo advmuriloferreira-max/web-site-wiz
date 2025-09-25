@@ -70,8 +70,8 @@ export const useCreateContrato = () => {
           criterioIncorrida: "Dias de Atraso",
         });
 
-        percentualProvisao = Math.max(resultado.percentualPerda, resultado.percentualIncorrida);
-        valorProvisao = resultado.valorProvisaoTotal;
+        percentualProvisao = resultado.percentualProvisao;
+        valorProvisao = resultado.valorProvisao;
       }
 
       const contratoData = {

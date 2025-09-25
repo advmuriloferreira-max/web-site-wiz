@@ -81,8 +81,8 @@ export function ContratosComCalculos() {
         dias_atraso: diasAtraso,
         meses_atraso: diasParaMeses(diasAtraso),
         classificacao: classificacao,
-        percentual_provisao: Math.max(resultado.percentualPerda, resultado.percentualIncorrida),
-        valor_provisao: resultado.valorProvisaoTotal,
+        percentual_provisao: resultado.percentualProvisao,
+        valor_provisao: resultado.valorProvisao,
       };
 
       await updateContrato.mutateAsync({ id: contratoId, updates });

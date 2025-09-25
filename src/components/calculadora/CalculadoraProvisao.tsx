@@ -209,46 +209,23 @@ export function CalculadoraProvisao() {
               {/* Perda Esperada */}
               <div className="space-y-3">
                 <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
-                  Perda Esperada
+                  Resultado da Provisão BCB 352/2023
                 </h4>
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span>Percentual:</span>
-                    <Badge variant="outline">{formatPercentage(resultado.percentualPerda)}</Badge>
+                    <Badge variant="outline">{formatPercentage(resultado.percentualProvisao)}</Badge>
                   </div>
                   <div className="flex justify-between">
-                    <span>Valor:</span>
-                    <span className="font-medium">{formatCurrency(resultado.valorProvisaoPerda)}</span>
+                    <span>Valor da Provisão:</span>
+                    <span className="font-medium">{formatCurrency(resultado.valorProvisao)}</span>
                   </div>
-                  {resultado.regraAplicadaPerda && (
-                    <div className="text-xs text-muted-foreground">
-                      Regra: {resultado.regraAplicadaPerda.periodo_atraso} 
-                      ({resultado.regraAplicadaPerda.prazo_inicial}-{resultado.regraAplicadaPerda.prazo_final} dias)
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Perdas Incorridas */}
-              <div className="space-y-3">
-                <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
-                  Perdas Incorridas
-                </h4>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span>Percentual:</span>
-                    <Badge variant="outline">{formatPercentage(resultado.percentualIncorrida)}</Badge>
+                  <div className="text-xs text-muted-foreground">
+                    Regra Aplicada: {resultado.regra}
                   </div>
-                  <div className="flex justify-between">
-                    <span>Valor:</span>
-                    <span className="font-medium">{formatCurrency(resultado.valorProvisaoIncorrida)}</span>
+                  <div className="text-xs text-green-600">
+                    {resultado.detalhes}
                   </div>
-                  {resultado.regraAplicadaIncorrida && (
-                    <div className="text-xs text-muted-foreground">
-                      Regra: {resultado.regraAplicadaIncorrida.criterio} 
-                      ({resultado.regraAplicadaIncorrida.prazo_inicial}-{resultado.regraAplicadaIncorrida.prazo_final} dias)
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
@@ -259,10 +236,10 @@ export function CalculadoraProvisao() {
             <div className="flex justify-between items-center p-4 bg-muted/50 rounded-lg">
               <div className="flex items-center gap-2">
                 <AlertCircle className="h-5 w-5 text-primary" />
-                <span className="font-semibold">Provisão Total (Maior Valor):</span>
+                <span className="font-semibold">Provisão Total BCB 352/2023:</span>
               </div>
               <span className="text-xl font-bold text-primary">
-                {formatCurrency(resultado.valorProvisaoTotal)}
+                {formatCurrency(resultado.valorProvisao)}
               </span>
             </div>
           </CardContent>

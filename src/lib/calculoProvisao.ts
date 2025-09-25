@@ -304,7 +304,7 @@ export function calcularProbabilidadeDefault(
   
   // Ajuste por marco regulamentar 352/2023
   const marco = getMarcoRegulamentar352(diasAtraso, classificacao);
-  if (marco.provisao100) {
+  if (marco.aplica100Porcento) {
     pd = 100;
   }
   
@@ -429,11 +429,11 @@ export function deveSerBaixado(diasAtraso: number, classificacao: ClassificacaoR
 } {
   const marco = getMarcoRegulamentar352(diasAtraso, classificacao);
   
-  if (marco.provisao100) {
+  if (marco.aplica100Porcento) {
     const meses = Math.floor(diasAtraso / 30);
     return {
       deveBaixar: true,
-      motivo: `Baixa conforme Art. 49 da Res. 4966 - ${meses} meses de atraso (${marco.marcoAtingido})`
+      motivo: `Baixa conforme Art. 49 da Res. 4966 - ${meses} meses de atraso (${marco.detalhes})`
     };
   }
 
