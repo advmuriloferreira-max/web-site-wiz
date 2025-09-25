@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Search, Eye } from "lucide-react";
+import { Plus, Search, Eye, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { ContratoForm } from "@/components/forms/ContratoForm";
-import { useContratos } from "@/hooks/useContratos";
+import { useContratos, Contrato } from "@/hooks/useContratos";
 import { format } from "date-fns";
 
 const getClassificacaoColor = (classificacao: string | null) => {
@@ -25,6 +25,7 @@ export default function Contratos() {
   const { data: contratos, isLoading } = useContratos();
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [dialogTitle, setDialogTitle] = useState("Novo Contrato");
 
   const filteredContratos = contratos?.filter(contrato => 
     contrato.clientes?.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -35,6 +36,16 @@ export default function Contratos() {
 
   const handleSuccess = () => {
     setIsDialogOpen(false);
+  };
+
+  const handleNovoContrato = () => {
+    setDialogTitle("Novo Contrato");
+    setIsDialogOpen(true);
+  };
+
+  const handleEditarContrato = () => {
+    setDialogTitle("Editar Contrato");
+    setIsDialogOpen(true);
   };
 
   const formatCurrency = (value: number) => {
@@ -61,18 +72,23 @@ export default function Contratos() {
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button onClick={handleNovoContrato}>
               <Plus className="mr-2 h-4 w-4" />
               Novo Contrato
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Novo Contrato</DialogTitle>
+              <DialogTitle>{dialogTitle}</DialogTitle>
             </DialogHeader>
             <ContratoForm onSuccess={handleSuccess} />
           </DialogContent>
         </Dialog>
+        
+        <Button variant="outline" onClick={handleEditarContrato}>
+          <Edit className="mr-2 h-4 w-4" />
+          Editar Contrato
+        </Button>
       </div>
 
       <Card>

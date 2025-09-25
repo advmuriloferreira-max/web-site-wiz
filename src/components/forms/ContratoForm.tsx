@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useClientes } from "@/hooks/useClientes";
 import { useBancos } from "@/hooks/useBancos";
 import { useCreateContrato } from "@/hooks/useCreateContrato";
+import { useUpdateContrato } from "@/hooks/useUpdateContrato";
+import { useContratoByNumero } from "@/hooks/useContratoByNumero";
 import { useProvisaoPerda, useProvisaoPerdaIncorrida } from "@/hooks/useProvisao";
 import { 
   calcularProvisao, 
@@ -18,7 +20,7 @@ import {
   diasParaMeses,
   ClassificacaoRisco 
 } from "@/lib/calculoProvisao";
-import { Calculator, Info } from "lucide-react";
+import { Calculator, Info, Search, Edit } from "lucide-react";
 import { toast } from "sonner";
 
 const contratoSchema = z.object({
@@ -48,8 +50,13 @@ export function ContratoForm({ onSuccess }: ContratoFormProps) {
   const { data: clientes } = useClientes();
   const { data: bancos } = useBancos();
   const createContrato = useCreateContrato();
+  const updateContrato = useUpdateContrato();
   const { data: tabelaPerda } = useProvisaoPerda();
   const { data: tabelaIncorrida } = useProvisaoPerdaIncorrida();
+  
+  const [numeroContratoSearch, setNumeroContratoSearch] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const { data: contratoExistente } = useContratoByNumero(numeroContratoSearch);
   
   const form = useForm<ContratoFormData>({
     resolver: zodResolver(contratoSchema),
@@ -87,8 +94,13 @@ export function ContratoForm({ onSuccess }: ContratoFormProps) {
         observacoes: data.observacoes || null,
       };
 
-      await createContrato.mutateAsync(contratoData);
-      form.reset();
+      if (isEditing && contratoExistente) {
+        await updateContrato.mutateAsync({ ...contratoData, id: contratoExistente.id });
+      } else {
+        await createContrato.mutateAsync(contratoData);
+      }
+      
+      handleReset();
       onSuccess?.();
     } catch (error) {
       // Error is handled by the mutation
@@ -147,6 +159,49 @@ export function ContratoForm({ onSuccess }: ContratoFormProps) {
     }
   };
 
+  const buscarContrato = () => {
+    if (!numeroContratoSearch.trim()) {
+      toast.error("Digite o número do contrato para buscar");
+      return;
+    }
+    // A busca é automática através do hook useContratoByNumero
+  };
+
+  const carregarContratoParaEdicao = () => {
+    if (!contratoExistente) {
+      toast.error("Contrato não encontrado");
+      return;
+    }
+
+    setIsEditing(true);
+    
+    // Preencher formulário com dados do contrato existente
+    form.reset({
+      cliente_id: contratoExistente.cliente_id,
+      banco_id: contratoExistente.banco_id,
+      numero_contrato: contratoExistente.numero_contrato || "",
+      tipo_operacao: contratoExistente.tipo_operacao,
+      valor_divida: contratoExistente.valor_divida.toString(),
+      saldo_contabil: contratoExistente.saldo_contabil?.toString() || "",
+      data_ultimo_pagamento: contratoExistente.data_ultimo_pagamento || "",
+      dias_atraso: contratoExistente.dias_atraso?.toString() || "0",
+      meses_atraso: contratoExistente.meses_atraso?.toString() || "0",
+      classificacao: contratoExistente.classificacao || undefined,
+      percentual_provisao: contratoExistente.percentual_provisao?.toString() || "0",
+      valor_provisao: contratoExistente.valor_provisao?.toString() || "0",
+      situacao: contratoExistente.situacao || "Em análise",
+      observacoes: contratoExistente.observacoes || "",
+    });
+
+    toast.success(`Contrato ${contratoExistente.numero_contrato} carregado para edição`);
+  };
+
+  const handleReset = () => {
+    setIsEditing(false);
+    setNumeroContratoSearch("");
+    form.reset();
+  };
+
   // Calcular automaticamente dias e meses de atraso quando data do último pagamento mudar
   const dataUltimoPagamento = form.watch("data_ultimo_pagamento");
   
@@ -170,6 +225,64 @@ export function ContratoForm({ onSuccess }: ContratoFormProps) {
 
   return (
     <div className="space-y-4">
+      {/* Buscar contrato existente para edição */}
+      <Alert>
+        <Search className="h-4 w-4" />
+        <AlertDescription>
+          <strong>Editar contrato existente:</strong> Digite o número do contrato para buscar e editar os dados cadastrados.
+        </AlertDescription>
+      </Alert>
+
+      <div className="flex gap-2 p-4 border rounded-lg bg-muted/50">
+        <div className="flex-1">
+          <Input
+            placeholder="Digite o número do contrato para buscar..."
+            value={numeroContratoSearch}
+            onChange={(e) => setNumeroContratoSearch(e.target.value)}
+          />
+        </div>
+        <Button 
+          type="button" 
+          variant="outline" 
+          onClick={buscarContrato}
+          disabled={!numeroContratoSearch.trim()}
+        >
+          <Search className="h-4 w-4 mr-2" />
+          Buscar
+        </Button>
+        {contratoExistente && (
+          <Button 
+            type="button" 
+            variant="default" 
+            onClick={carregarContratoParaEdicao}
+          >
+            <Edit className="h-4 w-4 mr-2" />
+            Editar
+          </Button>
+        )}
+        {isEditing && (
+          <Button 
+            type="button" 
+            variant="secondary" 
+            onClick={handleReset}
+          >
+            Novo
+          </Button>
+        )}
+      </div>
+
+      {contratoExistente && !isEditing && (
+        <Alert>
+          <Info className="h-4 w-4" />
+          <AlertDescription>
+            Contrato encontrado: <strong>{contratoExistente.numero_contrato}</strong> - 
+            Cliente: <strong>{contratoExistente.clientes?.nome}</strong> - 
+            Banco: <strong>{contratoExistente.bancos?.nome}</strong>.
+            Clique em "Editar" para modificar os dados.
+          </AlertDescription>
+        </Alert>
+      )}
+
       {/* Alerta sobre automações */}
       <Alert>
         <Info className="h-4 w-4" />
@@ -430,10 +543,27 @@ export function ContratoForm({ onSuccess }: ContratoFormProps) {
           )}
         />
 
-        <Button type="submit" disabled={createContrato.isPending}>
-          <Calculator className="mr-2 h-4 w-4" />
-          {createContrato.isPending ? "Calculando e Cadastrando..." : "Cadastrar com Automação"}
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            type="submit" 
+            disabled={createContrato.isPending || updateContrato.isPending}
+          >
+            <Calculator className="mr-2 h-4 w-4" />
+            {isEditing 
+              ? (updateContrato.isPending ? "Atualizando..." : "Atualizar Contrato")
+              : (createContrato.isPending ? "Calculando e Cadastrando..." : "Cadastrar com Automação")
+            }
+          </Button>
+          {isEditing && (
+            <Button 
+              type="button" 
+              variant="outline"
+              onClick={handleReset}
+            >
+              Cancelar Edição
+            </Button>
+          )}
+        </div>
       </form>
     </Form>
     </div>
