@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -145,6 +146,27 @@ export function ContratoForm({ onSuccess }: ContratoFormProps) {
       console.error(error);
     }
   };
+
+  // Calcular automaticamente dias e meses de atraso quando data do último pagamento mudar
+  const dataUltimoPagamento = form.watch("data_ultimo_pagamento");
+  
+  useEffect(() => {
+    if (dataUltimoPagamento) {
+      try {
+        const diasAtraso = calcularDiasAtraso(dataUltimoPagamento);
+        const mesesAtraso = diasParaMeses(diasAtraso);
+        
+        form.setValue("dias_atraso", diasAtraso.toString());
+        form.setValue("meses_atraso", mesesAtraso.toString());
+      } catch (error) {
+        console.error("Erro ao calcular atraso:", error);
+      }
+    } else {
+      // Limpar campos quando data for removida
+      form.setValue("dias_atraso", "0");
+      form.setValue("meses_atraso", "0");
+    }
+  }, [dataUltimoPagamento, form]);
 
   return (
     <div className="space-y-4">
