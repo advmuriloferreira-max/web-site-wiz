@@ -43,14 +43,9 @@ export function usePWA() {
 
     // Register service worker and listen for updates
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' })
+      navigator.serviceWorker.register('/sw.js')
         .then((registration) => {
           console.log('SW registered: ', registration);
-          
-          // Force check for updates every 30 seconds
-          setInterval(() => {
-            registration.update();
-          }, 30000);
           
           // Listen for service worker updates
           registration.addEventListener('updatefound', () => {
@@ -59,17 +54,10 @@ export function usePWA() {
               newWorker.addEventListener('statechange', () => {
                 if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                   setUpdateAvailable(true);
-                  // Auto-apply update after 2 seconds
-                  setTimeout(() => {
-                    handleApplyUpdate();
-                  }, 2000);
                 }
               });
             }
           });
-          
-          // Check for updates immediately
-          registration.update();
         })
         .catch((registrationError) => {
           console.log('SW registration failed: ', registrationError);
@@ -77,7 +65,6 @@ export function usePWA() {
         
       // Listen for service worker controlling the page
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-        // Force reload without cache
         window.location.reload();
       });
     }
@@ -106,28 +93,10 @@ export function usePWA() {
     return false;
   };
 
-  const handleApplyUpdate = () => {
-    if ('serviceWorker' in navigator) {
-      // Clear all caches first
-      caches.keys().then((cacheNames) => {
-        Promise.all(
-          cacheNames.map((cacheName) => caches.delete(cacheName))
-        ).then(() => {
-          // Force service worker to skip waiting
-          if (navigator.serviceWorker.controller) {
-            navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
-          }
-          // Force reload after a short delay
-          setTimeout(() => {
-            window.location.reload();
-          }, 1000);
-        });
-      });
-    }
-  };
-
   const applyUpdate = () => {
-    handleApplyUpdate();
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
+    }
   };
 
   return {
