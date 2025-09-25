@@ -11,6 +11,7 @@ import { InstallPrompt } from "@/components/InstallPrompt";
 import { AppSidebar } from "@/components/AppSidebar";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import Convite from "./pages/Convite";
 import Clientes from "./pages/Clientes";
 import NovoCliente from "./pages/NovoCliente";
 import Contratos from "./pages/Contratos";
@@ -33,6 +34,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/auth" element={<Auth />} />
+            <Route path="/convite/:token" element={<Convite />} />
             <Route path="/*" element={
               <ProtectedRoute>
                 <SidebarProvider>
