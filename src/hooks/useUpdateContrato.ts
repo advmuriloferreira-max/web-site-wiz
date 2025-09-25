@@ -47,6 +47,7 @@ export const useUpdateContrato = () => {
       const { id, ...updateData } = contratoInput;
       const contratoData = {
         ...updateData,
+        tipo_operacao: updateData.tipo_operacao || null, // Campo legado, manter para compatibilidade
         dias_atraso: diasAtraso,
         meses_atraso: mesesAtraso,
         classificacao: classificacao,

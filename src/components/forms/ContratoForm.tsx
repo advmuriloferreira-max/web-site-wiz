@@ -112,6 +112,7 @@ export function ContratoForm({ onSuccess, contratoParaEditar }: ContratoFormProp
         cliente_id: data.cliente_id,
         banco_id: data.banco_id,
         numero_contrato: data.numero_contrato || null,
+        tipo_operacao: null, // Campo legado, manter como null
         tipo_operacao_bcb: data.tipo_operacao_bcb,
         valor_divida: parseFloat(data.valor_divida),
         saldo_contabil: data.saldo_contabil ? parseFloat(data.saldo_contabil) : null,

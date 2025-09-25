@@ -119,7 +119,7 @@ export type Database = {
           saldo_contabil: number | null
           situacao: string | null
           tempo_escritorio: number | null
-          tipo_operacao: string
+          tipo_operacao: string | null
           tipo_operacao_bcb: string | null
           updated_at: string
           valor_divida: number
@@ -156,7 +156,7 @@ export type Database = {
           saldo_contabil?: number | null
           situacao?: string | null
           tempo_escritorio?: number | null
-          tipo_operacao: string
+          tipo_operacao?: string | null
           tipo_operacao_bcb?: string | null
           updated_at?: string
           valor_divida: number
@@ -193,7 +193,7 @@ export type Database = {
           saldo_contabil?: number | null
           situacao?: string | null
           tempo_escritorio?: number | null
-          tipo_operacao?: string
+          tipo_operacao?: string | null
           tipo_operacao_bcb?: string | null
           updated_at?: string
           valor_divida?: number

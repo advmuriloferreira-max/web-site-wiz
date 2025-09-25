@@ -77,6 +77,7 @@ export const useCreateContrato = () => {
 
       const contratoData = {
         ...contratoInput,
+        tipo_operacao: contratoInput.tipo_operacao || null, // Campo legado, manter para compatibilidade
         dias_atraso: diasAtraso,
         meses_atraso: mesesAtraso,
         classificacao: classificacao,
