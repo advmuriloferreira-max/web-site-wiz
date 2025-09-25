@@ -1,4 +1,4 @@
-const CACHE_NAME = 'murilo-ferreira-advocacia-v7';
+const CACHE_NAME = 'murilo-ferreira-advocacia-v8';
 const urlsToCache = [
   '/static/js/bundle.js',
   '/static/css/main.css',
@@ -56,40 +56,17 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
-  // Network first for HTML pages - never cache main page
+  // Never cache HTML pages - always fetch fresh
   if (request.headers.get('accept')?.includes('text/html')) {
-    // Never cache the main page, always fetch fresh with no-cache headers
-    if (request.url.endsWith('/') || request.url.includes('provisionamento.lovable.app')) {
-      event.respondWith(
-        fetch(request, {
-          cache: 'no-cache',
-          headers: {
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache'
-          }
-        }).catch(() => {
-          return caches.match(request);
-        })
-      );
-    } else {
-      // For other HTML pages, network first with cache fallback
-      event.respondWith(
-        fetch(request)
-          .then((response) => {
-            if (response.status === 200) {
-              const responseClone = response.clone();
-              caches.open(CACHE_NAME)
-                .then((cache) => {
-                  cache.put(request, responseClone);
-                });
-            }
-            return response;
-          })
-          .catch(() => {
-            return caches.match(request);
-          })
-      );
-    }
+    event.respondWith(
+      fetch(request, {
+        cache: 'no-cache',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
+        }
+      })
+    );
   } else {
     // Cache first for static assets
     event.respondWith(

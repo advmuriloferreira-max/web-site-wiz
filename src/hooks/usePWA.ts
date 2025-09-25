@@ -43,9 +43,12 @@ export function usePWA() {
 
     // Register service worker and listen for updates
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js')
+      navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' })
         .then((registration) => {
           console.log('SW registered: ', registration);
+          
+          // Force update check immediately
+          registration.update();
           
           // Listen for service worker updates
           registration.addEventListener('updatefound', () => {
@@ -53,7 +56,10 @@ export function usePWA() {
             if (newWorker) {
               newWorker.addEventListener('statechange', () => {
                 if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                  setUpdateAvailable(true);
+                  // Auto apply update immediately
+                  if (navigator.serviceWorker.controller) {
+                    navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
+                  }
                 }
               });
             }
@@ -63,7 +69,7 @@ export function usePWA() {
           console.log('SW registration failed: ', registrationError);
         });
         
-      // Listen for service worker controlling the page
+      // Listen for service worker controlling the page and force reload
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         window.location.reload();
       });
