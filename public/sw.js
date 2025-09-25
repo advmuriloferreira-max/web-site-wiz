@@ -1,4 +1,4 @@
-const CACHE_NAME = 'murilo-ferreira-advocacia-v5';
+const CACHE_NAME = 'murilo-ferreira-advocacia-v6';
 const urlsToCache = [
   '/',
   '/static/js/bundle.js',
@@ -57,24 +57,36 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
-  // Network first for HTML pages only
+  // Network first for HTML pages - never cache main page
   if (request.headers.get('accept')?.includes('text/html')) {
-    event.respondWith(
-      fetch(request)
-        .then((response) => {
-          if (response.status === 200) {
-            const responseClone = response.clone();
-            caches.open(CACHE_NAME)
-              .then((cache) => {
-                cache.put(request, responseClone);
-              });
-          }
-          return response;
-        })
-        .catch(() => {
+    // Never cache the main page, always fetch fresh
+    if (request.url.endsWith('/') || request.url.includes('provisionamento.lovable.app')) {
+      event.respondWith(
+        fetch(request, {
+          cache: 'no-cache'
+        }).catch(() => {
           return caches.match(request);
         })
-    );
+      );
+    } else {
+      // For other HTML pages, network first with cache fallback
+      event.respondWith(
+        fetch(request)
+          .then((response) => {
+            if (response.status === 200) {
+              const responseClone = response.clone();
+              caches.open(CACHE_NAME)
+                .then((cache) => {
+                  cache.put(request, responseClone);
+                });
+            }
+            return response;
+          })
+          .catch(() => {
+            return caches.match(request);
+          })
+      );
+    }
   } else {
     // Cache first for static assets
     event.respondWith(
