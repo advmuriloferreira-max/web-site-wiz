@@ -34,7 +34,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/auth" element={<Auth />} />
-            <Route path="/convite/:token" element={<Convite />} />
+            <Route path="/convite" element={<Convite />} />
             <Route path="/*" element={
               <ProtectedRoute>
                 <SidebarProvider>

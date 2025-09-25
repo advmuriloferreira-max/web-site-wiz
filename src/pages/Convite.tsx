@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,7 +26,8 @@ interface ConviteData {
 }
 
 export default function Convite() {
-  const { token } = useParams();
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get('token');
   const navigate = useNavigate();
   const { toast } = useToast();
   usePWANavigation(); // Initialize PWA navigation
@@ -39,6 +40,8 @@ export default function Convite() {
   useEffect(() => {
     if (token) {
       verificarConvite();
+    } else {
+      setLoading(false);
     }
   }, [token]);
 

@@ -98,46 +98,36 @@ export function GerenciarUsuarios() {
         role: z.enum(['admin', 'advogado', 'assistente'])
       }).parse(conviteData);
 
-      // Gerar token e data de expiração (48 horas)
-      const token = Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2);
-      const expiresAt = new Date();
-      expiresAt.setHours(expiresAt.getHours() + 48);
-
-      const { error } = await supabase
-        .from('convites')
-        .insert([{
+      // Chamar a edge function para criar o convite e enviar email
+      const { data, error } = await supabase.functions.invoke('send-invite', {
+        body: {
           email: validation.email,
           nome: validation.nome,
           role: validation.role,
-          token: token,
-          expires_at: expiresAt.toISOString(),
           created_by: user?.id
-        }]);
+        }
+      });
 
       if (error) {
-        if (error.message.includes('duplicate')) {
-          setError('Já existe um convite ativo para este email');
-        } else {
-          setError(error.message);
-        }
+        console.error('Error calling send-invite function:', error);
+        setError('Erro ao enviar convite: ' + error.message);
+      } else if (data?.error) {
+        setError(data.error);
       } else {
-        // Use the PWA navigation hook for better link handling
-        await shareInviteLink(token);
+        toast({
+          title: "Convite enviado!",
+          description: `Convite enviado por email para ${validation.nome} (${validation.email})`,
+        });
         
         setIsDialogOpen(false);
         fetchConvites();
         (e.target as HTMLFormElement).reset();
-
-        // Mostrar o link gerado
-        setTimeout(() => {
-          const inviteLink = `${window.location.origin}/convite/${token}`;
-          alert(`Link de convite criado:\n\n${inviteLink}\n\nO link foi copiado para a área de transferência e expira em 48 horas.`);
-        }, 500);
       }
     } catch (err) {
       if (err instanceof z.ZodError) {
         setError(err.errors[0].message);
       } else {
+        console.error('Unexpected error:', err);
         setError('Erro inesperado. Tente novamente.');
       }
     } finally {
