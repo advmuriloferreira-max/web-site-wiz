@@ -726,7 +726,7 @@ export function ContratoForm({ onSuccess, contratoParaEditar }: ContratoFormProp
         <div className="p-4 border rounded-lg bg-muted/50 space-y-4">
           <h3 className="text-lg font-semibold">Dados do Acordo</h3>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <FormField
               control={form.control}
               name="forma_pagamento"
@@ -744,6 +744,20 @@ export function ContratoForm({ onSuccess, contratoParaEditar }: ContratoFormProp
                       <SelectItem value="parcelado">Parcelado</SelectItem>
                     </SelectContent>
                   </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="acordo_final"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Valor do Acordo</FormLabel>
+                  <FormControl>
+                    <Input type="number" step="0.01" placeholder="0.00" {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -837,20 +851,6 @@ export function ContratoForm({ onSuccess, contratoParaEditar }: ContratoFormProp
           <h3 className="text-lg font-semibold">Valores Finais e Honorários</h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField
-              control={form.control}
-              name="acordo_final"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Valor do Acordo Final</FormLabel>
-                  <FormControl>
-                    <Input type="number" step="0.01" placeholder="0.00" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
             <FormField
               control={form.control}
               name="reducao_divida"
