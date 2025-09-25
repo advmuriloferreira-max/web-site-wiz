@@ -15,25 +15,19 @@ export interface CalculoProvisaoParams {
 }
 
 export interface ResultadoCalculo {
-  percentualPerda: number;
-  percentualIncorrida: number;
-  valorProvisaoPerda: number;
-  valorProvisaoIncorrida: number;
-  valorProvisaoTotal: number;
-  estagioRisco: EstagioRisco;
-  regraAplicadaPerda?: ProvisaoPerda;
-  regraAplicadaIncorrida?: ProvisaoPerdaIncorrida;
-  metodologia: 'completa' | 'simplificada';
-  marcoRegulamentar?: string;
+  percentualProvisao: number;
+  valorProvisao: number;
+  estagio: EstagioRisco;
+  regra: string;
+  detalhes: string;
 }
 
 /**
  * Marcos regulamentares conforme Anexo I da Resolução BCB 352/2023
  */
 export function getMarcoRegulamentar352(diasAtraso: number, classificacao: ClassificacaoRisco): {
-  provisao100: boolean;
-  marcoAtingido: string | null;
-  proximoMarco: string | null;
+  aplica100Porcento: boolean;
+  detalhes: string;
 } {
   const meses = diasAtraso / 30;
 
@@ -41,16 +35,8 @@ export function getMarcoRegulamentar352(diasAtraso: number, classificacao: Class
   if (classificacao === 'C3' || classificacao === 'C4' || classificacao === 'C5') {
     if (meses >= 15) { // "Igual ou maior que 15 e menor que 16 meses" = 100%
       return {
-        provisao100: true,
-        marcoAtingido: "15+ meses - Provisão 100% (Anexo I BCB 352/2023)",
-        proximoMarco: null
-      };
-    }
-    if (meses >= 14) {
-      return {
-        provisao100: false,
-        marcoAtingido: null,
-        proximoMarco: `${Math.ceil(15 - meses)} mês(es) para provisão 100%`
+        aplica100Porcento: true,
+        detalhes: "15+ meses - Provisão 100% obrigatória (Anexo I BCB 352/2023)"
       };
     }
   }
@@ -58,100 +44,84 @@ export function getMarcoRegulamentar352(diasAtraso: number, classificacao: Class
   if (classificacao === 'C1' || classificacao === 'C2') {
     if (meses >= 21) { // "Igual ou maior que 21 meses" = 100%
       return {
-        provisao100: true,
-        marcoAtingido: "21+ meses - Provisão 100% (Anexo I BCB 352/2023)",
-        proximoMarco: null
-      };
-    }
-    if (meses >= 20) {
-      return {
-        provisao100: false,
-        marcoAtingido: null,
-        proximoMarco: `${Math.ceil(21 - meses)} mês(es) para provisão 100%`
+        aplica100Porcento: true,
+        detalhes: "21+ meses - Provisão 100% obrigatória (Anexo I BCB 352/2023)"
       };
     }
   }
 
   return {
-    provisao100: false,
-    marcoAtingido: null,
-    proximoMarco: `Provisão gradual conforme Anexo I (${classificacao === 'C1' || classificacao === 'C2' ? '21' : '15'} meses)`
+    aplica100Porcento: false,
+    detalhes: `Provisão gradual - ${meses.toFixed(1)} meses de atraso`
   };
 }
 
 /**
- * Calcula a provisão baseada nas regulamentações 4966/2021
+ * Calcula a provisão baseada nas regulamentações BCB 352/2023 com marco de 90 dias
  */
-export function calcularProvisao(params: CalculoProvisaoParams): ResultadoCalculo {
-  const {
-    valorDivida,
-    diasAtraso,
-    classificacao,
-    tabelaPerda,
-    tabelaIncorrida,
-    criterioIncorrida = "Dias de Atraso"
-  } = params;
-
-  const marco = getMarcoRegulamentar352(diasAtraso, classificacao);
+export const calcularProvisao = (params: CalculoProvisaoParams): ResultadoCalculo => {
+  const { diasAtraso, valorDivida, classificacao, tabelaPerda, tabelaIncorrida } = params;
   
-  // REGRA CRÍTICA: Conforme Anexo I da BCB 352/2023
-  if (marco.provisao100) {
+  // MARCO DE 90 DIAS: Determina qual metodologia usar
+  const inadimplido = diasAtraso > 90;
+  
+  // Verifica se deve aplicar 100% de provisão (Marco Regulamentar BCB 352/2023)
+  const marco100Porcento = getMarcoRegulamentar352(diasAtraso, classificacao);
+  if (marco100Porcento.aplica100Porcento) {
     return {
-      percentualPerda: 100,
-      percentualIncorrida: 100,
-      valorProvisaoPerda: valorDivida,
-      valorProvisaoIncorrida: valorDivida,
-      valorProvisaoTotal: valorDivida,
-      estagioRisco: 3,
-      metodologia: 'completa',
-      marcoRegulamentar: marco.marcoAtingido!,
-      regraAplicadaPerda: undefined,
-      regraAplicadaIncorrida: undefined,
+      percentualProvisao: 100,
+      valorProvisao: valorDivida,
+      estagio: determinarEstagio(diasAtraso),
+      regra: "100% - Marco Regulamentar BCB 352/2023",
+      detalhes: marco100Porcento.detalhes
     };
   }
 
-  // Determinar estágio de risco conforme Res. 4966/2021
-  const estagioRisco = determinarEstagio(diasAtraso);
+  let regraAplicada: any = null;
+  let percentual = 0;
+  let metodologia = "";
 
-  // Encontrar regra aplicável para perda esperada
-  const regraPerda = tabelaPerda.find(regra => 
-    diasAtraso >= regra.prazo_inicial && diasAtraso <= regra.prazo_final
-  );
+  if (inadimplido) {
+    // ACIMA DE 90 DIAS: Usa tabela de perdas incorridas (Anexo I)
+    metodologia = "Perdas Incorridas (Anexo I)";
+    if (tabelaIncorrida && tabelaIncorrida.length > 0) {
+      const mesesAtraso = diasAtraso / 30;
+      regraAplicada = tabelaIncorrida.find(regra => 
+        mesesAtraso >= regra.prazo_inicial && mesesAtraso <= regra.prazo_final
+      );
+      
+      if (regraAplicada) {
+        percentual = getPercentualPorClassificacao(regraAplicada, classificacao);
+      }
+    }
+  } else {
+    // ATÉ 90 DIAS: Usa tabela de perda esperada (Anexo II)
+    metodologia = "Perdas Esperadas (Anexo II)";
+    if (tabelaPerda && tabelaPerda.length > 0) {
+      regraAplicada = tabelaPerda.find(regra => 
+        diasAtraso >= regra.prazo_inicial && diasAtraso <= regra.prazo_final
+      );
+      
+      if (regraAplicada) {
+        percentual = getPercentualPorClassificacao(regraAplicada, classificacao);
+      }
+    }
+  }
 
-  // Encontrar regra aplicável para perdas incorridas
-  const regraIncorrida = tabelaIncorrida.find(regra => 
-    regra.criterio === criterioIncorrida &&
-    diasAtraso >= regra.prazo_inicial && 
-    diasAtraso <= regra.prazo_final
-  );
-
-  // Obter percentuais baseados na classificação
-  let percentualPerda = regraPerda ? getPercentualPorClassificacao(regraPerda, classificacao) : 0;
-  let percentualIncorrida = regraIncorrida ? getPercentualPorClassificacao(regraIncorrida, classificacao) : 0;
-
-  // Aplicar percentual obrigatório do Anexo I da Resolução 352/2023
+  // Aplica percentual mínimo da Resolução 352/2023 Anexo I se aplicável
   const percentualAnexoI = calcularPercentualAnexoI352(diasAtraso, classificacao);
-  percentualPerda = Math.max(percentualPerda, percentualAnexoI);
-  percentualIncorrida = Math.max(percentualIncorrida, percentualAnexoI);
+  percentual = Math.max(percentual, percentualAnexoI);
 
-  // Calcular valores de provisão
-  const valorProvisaoPerda = (valorDivida * percentualPerda) / 100;
-  const valorProvisaoIncorrida = (valorDivida * percentualIncorrida) / 100;
-  const valorProvisaoTotal = Math.max(valorProvisaoPerda, valorProvisaoIncorrida);
+  const valorProvisao = (valorDivida * percentual) / 100;
 
   return {
-    percentualPerda,
-    percentualIncorrida,
-    valorProvisaoPerda,
-    valorProvisaoIncorrida,
-    valorProvisaoTotal,
-    estagioRisco,
-    metodologia: 'completa',
-    marcoRegulamentar: marco.proximoMarco,
-    regraAplicadaPerda: regraPerda,
-    regraAplicadaIncorrida: regraIncorrida,
+    percentualProvisao: percentual,
+    valorProvisao,
+    estagio: determinarEstagio(diasAtraso),
+    regra: `${metodologia} - ${regraAplicada ? (regraAplicada.periodo_atraso || regraAplicada.criterio) : "Regra padrão"}`,
+    detalhes: `Marco: ${inadimplido ? '>90 dias (inadimplido)' : '≤90 dias (em dia)'} | Metodologia: ${metodologia} | Percentual: ${percentual}%`
   };
-}
+};
 
 /**
  * Calcula percentual exato conforme Anexo I da Resolução BCB 352/2023
@@ -255,16 +225,20 @@ function getPercentualPorClassificacao(
   }
 }
 
-/**
- * Classifica automaticamente o risco baseado nos dias de atraso
- */
-export function classificarRisco(diasAtraso: number): ClassificacaoRisco {
-  if (diasAtraso <= 30) return 'C1';
-  if (diasAtraso <= 60) return 'C2';
-  if (diasAtraso <= 90) return 'C3';
-  if (diasAtraso <= 180) return 'C4';
-  return 'C5';
-}
+// ATENÇÃO: A classificação C1-C5 deve ser baseada no TIPO DE OPERAÇÃO, não em dias de atraso
+// Conforme Art. 81 da Resolução BCB 352/2023
+export const classificarRiscoPorTipoOperacao = (tipoOperacao: string): ClassificacaoRisco => {
+  // Esta função deve ser usada apenas como fallback
+  // A classificação correta deve vir do tipo de operação selecionado pelo usuário
+  console.warn('ATENÇÃO: Usando classificação de risco por dias de atraso. Deve ser baseada no tipo de operação conforme BCB 352/2023');
+  return 'C5'; // Retorna o mais conservador como fallback
+};
+
+// DEPRECATED: Mantido apenas para compatibilidade
+export const classificarRisco = (diasAtraso: number): ClassificacaoRisco => {
+  console.warn('DEPRECATED: classificarRisco por dias de atraso. Use classificação baseada em tipo de operação.');
+  return classificarRiscoPorTipoOperacao('');
+};
 
 /**
  * Determina o estágio de risco conforme Resolução 4966/2021
@@ -391,18 +365,13 @@ export function calcularProvisaoAvancada(params: CalculoProvisaoParams): Resulta
   const marco = getMarcoRegulamentar352(diasAtraso, classificacao);
   
   // REGRA CRÍTICA: Conforme Anexo I da BCB 352/2023
-  if (marco.provisao100) {
+  if (marco.aplica100Porcento) {
     return {
-      percentualPerda: 100,
-      percentualIncorrida: 100,
-      valorProvisaoPerda: valorDivida,
-      valorProvisaoIncorrida: valorDivida,
-      valorProvisaoTotal: valorDivida,
-      estagioRisco: 3,
-      metodologia: 'completa',
-      marcoRegulamentar: marco.marcoAtingido!,
-      regraAplicadaPerda: undefined,
-      regraAplicadaIncorrida: undefined,
+      percentualProvisao: 100,
+      valorProvisao: valorDivida,
+      estagio: 3,
+      regra: "100% - Marco Regulamentar BCB 352/2023",
+      detalhes: marco.detalhes
     };
   }
 
@@ -415,40 +384,39 @@ export function calcularProvisaoAvancada(params: CalculoProvisaoParams): Resulta
   const perdaEsperadaPercentual = (probabilidadeDefault / 100) * (perdaGivenDefault / 100) * 100;
   
   // Aplicar regras das tabelas existentes como base mínima
-  const regraPerda = tabelaPerda.find(regra => 
-    diasAtraso >= regra.prazo_inicial && diasAtraso <= regra.prazo_final
-  );
-  const regraIncorrida = tabelaIncorrida.find(regra => 
-    regra.criterio === criterioIncorrida &&
-    diasAtraso >= regra.prazo_inicial && 
-    diasAtraso <= regra.prazo_final
-  );
-
-  const percentualTabelaPerda = regraPerda ? getPercentualPorClassificacao(regraPerda, classificacao) : 0;
-  const percentualTabelaIncorrida = regraIncorrida ? getPercentualPorClassificacao(regraIncorrida, classificacao) : 0;
+  const inadimplido = diasAtraso > 90;
+  let percentualTabela = 0;
+  
+  if (inadimplido && tabelaIncorrida) {
+    const mesesAtraso = diasAtraso / 30;
+    const regraIncorrida = tabelaIncorrida.find(regra => 
+      mesesAtraso >= regra.prazo_inicial && mesesAtraso <= regra.prazo_final
+    );
+    if (regraIncorrida) {
+      percentualTabela = getPercentualPorClassificacao(regraIncorrida, classificacao);
+    }
+  } else if (!inadimplido && tabelaPerda) {
+    const regraPerda = tabelaPerda.find(regra => 
+      diasAtraso >= regra.prazo_inicial && diasAtraso <= regra.prazo_final
+    );
+    if (regraPerda) {
+      percentualTabela = getPercentualPorClassificacao(regraPerda, classificacao);
+    }
+  }
   
   // Aplicar percentual obrigatório do Anexo I da Resolução 352/2023
   const percentualRegulamentar = calcularPercentualAnexoI352(diasAtraso, classificacao);
 
   // Usar o maior entre todos os cálculos
-  let percentualPerda = Math.max(perdaEsperadaPercentual, percentualTabelaPerda, percentualRegulamentar);
-  let percentualIncorrida = Math.max(perdaEsperadaPercentual, percentualTabelaIncorrida, percentualRegulamentar);
-
-  const valorProvisaoPerda = (valorDivida * percentualPerda) / 100;
-  const valorProvisaoIncorrida = (valorDivida * percentualIncorrida) / 100;
-  const valorProvisaoTotal = Math.max(valorProvisaoPerda, valorProvisaoIncorrida);
+  const percentual = Math.max(perdaEsperadaPercentual, percentualTabela, percentualRegulamentar);
+  const valorProvisao = (valorDivida * percentual) / 100;
 
   return {
-    percentualPerda,
-    percentualIncorrida,
-    valorProvisaoPerda,
-    valorProvisaoIncorrida,
-    valorProvisaoTotal,
-    estagioRisco: estagio,
-    metodologia: 'completa',
-    marcoRegulamentar: marco.proximoMarco,
-    regraAplicadaPerda: regraPerda,
-    regraAplicadaIncorrida: regraIncorrida,
+    percentualProvisao: percentual,
+    valorProvisao,
+    estagio: estagio,
+    regra: inadimplido ? "Perdas Incorridas (Anexo I)" : "Perdas Esperadas (Anexo II)",
+    detalhes: `Metodologia avançada: PD=${probabilidadeDefault.toFixed(1)}% | LGD=${perdaGivenDefault.toFixed(1)}% | Percentual final: ${percentual.toFixed(2)}%`
   };
 }
 
@@ -487,10 +455,10 @@ export function getMarcosTemporal(diasAtraso: number, classificacao: Classificac
     estagio2: diasAtraso > 30 && diasAtraso <= 90,
     estagio3: diasAtraso > 90,
     stopAccrual: diasAtraso > 90,
-    provisao100: marco.provisao100,
-    baixaObrigatoria: marco.provisao100,
-    marcoAtual: marco.marcoAtingido,
-    proximoMarco: marco.proximoMarco,
+    provisao100: marco.aplica100Porcento,
+    baixaObrigatoria: marco.aplica100Porcento,
+    marcoAtual: marco.aplica100Porcento ? marco.detalhes : null,
+    proximoMarco: marco.aplica100Porcento ? null : `Provisão gradual - ${meses.toFixed(1)} meses`,
     mesesAtraso: Math.floor(meses)
   };
 }

@@ -17,6 +17,7 @@ import {
   calcularTaxaRecuperacao 
 } from "@/lib/calculoProvisao";
 import { useProvisaoPerda, useProvisaoPerdaIncorrida } from "@/hooks/useProvisao";
+import { useTiposOperacao } from "@/hooks/useTiposOperacao";
 import { Calculator, TrendingUp, AlertTriangle } from "lucide-react";
 
 export function CalculadoraProvisaoAvancada() {
@@ -38,6 +39,7 @@ export function CalculadoraProvisaoAvancada() {
   // Hooks para dados
   const { data: tabelaPerda } = useProvisaoPerda();
   const { data: tabelaIncorrida } = useProvisaoPerdaIncorrida();
+  const { data: tiposOperacao } = useTiposOperacao();
 
   const calcular = () => {
     if (!valorDivida || (!dataVencimento && !diasAtrasoManual)) return;

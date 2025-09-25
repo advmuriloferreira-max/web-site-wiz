@@ -120,6 +120,7 @@ export type Database = {
           situacao: string | null
           tempo_escritorio: number | null
           tipo_operacao: string
+          tipo_operacao_bcb: string | null
           updated_at: string
           valor_divida: number
           valor_honorarios: number | null
@@ -156,6 +157,7 @@ export type Database = {
           situacao?: string | null
           tempo_escritorio?: number | null
           tipo_operacao: string
+          tipo_operacao_bcb?: string | null
           updated_at?: string
           valor_divida: number
           valor_honorarios?: number | null
@@ -192,6 +194,7 @@ export type Database = {
           situacao?: string | null
           tempo_escritorio?: number | null
           tipo_operacao?: string
+          tipo_operacao_bcb?: string | null
           updated_at?: string
           valor_divida?: number
           valor_honorarios?: number | null
@@ -376,6 +379,33 @@ export type Database = {
           prazo_final?: number
           prazo_inicial?: number
           updated_at?: string
+        }
+        Relationships: []
+      }
+      tipos_operacao_bcb: {
+        Row: {
+          carteira: string
+          created_at: string | null
+          descricao: string | null
+          id: string
+          nome: string
+          updated_at: string | null
+        }
+        Insert: {
+          carteira: string
+          created_at?: string | null
+          descricao?: string | null
+          id?: string
+          nome: string
+          updated_at?: string | null
+        }
+        Update: {
+          carteira?: string
+          created_at?: string | null
+          descricao?: string | null
+          id?: string
+          nome?: string
+          updated_at?: string | null
         }
         Relationships: []
       }

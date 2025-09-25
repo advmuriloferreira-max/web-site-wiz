@@ -187,19 +187,14 @@ export function ContratoForm({ onSuccess, contratoParaEditar }: ContratoFormProp
       });
 
       const mesesAtraso = diasParaMeses(diasAtraso);
-      const percentualProvisao = Math.max(resultado.percentualPerda, resultado.percentualIncorrida);
-
-      // Preencher os campos calculados
-      form.setValue("dias_atraso", diasAtraso.toString());
-      form.setValue("meses_atraso", mesesAtraso.toString());
-      form.setValue("percentual_provisao", percentualProvisao.toFixed(2));
-      form.setValue("valor_provisao", resultado.valorProvisaoTotal.toFixed(2));
+      const percentualProvisao = resultado.percentualProvisao;
+      form.setValue("valor_provisao", resultado.valorProvisao.toFixed(2));
       
       // Calcular proposta de acordo (valor para cálculo - valor da provisão)
-      const propostaAcordo = valorParaCalculo - resultado.valorProvisaoTotal;
+      const propostaAcordo = valorParaCalculo - resultado.valorProvisao;
       form.setValue("proposta_acordo", propostaAcordo.toFixed(2));
 
-      toast.success(`Provisão calculada: ${percentualProvisao.toFixed(2)}% (R$ ${resultado.valorProvisaoTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })})`);
+      toast.success(`Provisão calculada: ${percentualProvisao.toFixed(2)}% (R$ ${resultado.valorProvisao.toLocaleString('pt-BR', { minimumFractionDigits: 2 })})`);
     } catch (error) {
       toast.error("Erro ao calcular provisão");
       console.error(error);
