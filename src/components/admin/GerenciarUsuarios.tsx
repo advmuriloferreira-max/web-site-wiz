@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useUpdateUserStatus, useUpdateUserRole, useDeleteUser } from "@/hooks/useUserManagement";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,8 +11,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { UserPlus, Users, Crown, Shield, User, Loader2 } from "lucide-react";
+import { UserPlus, Users, Crown, Shield, User, Loader2, Settings, Trash2, UserCheck, UserX } from "lucide-react";
 import { z } from "zod";
 
 interface UserProfile {
@@ -19,12 +21,16 @@ interface UserProfile {
   nome: string;
   email: string;
   role: string;
+  status: string;
   created_at: string;
 }
 
 export function GerenciarUsuarios() {
-  const { createUser, isAdmin } = useAuth();
+  const { createUser, isAdmin, user } = useAuth();
   const { toast } = useToast();
+  const updateStatusMutation = useUpdateUserStatus();
+  const updateRoleMutation = useUpdateUserRole();
+  const deleteUserMutation = useDeleteUser();
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
@@ -41,7 +47,7 @@ export function GerenciarUsuarios() {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, nome, email, role, created_at')
+        .select('id, nome, email, role, status, created_at')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -143,6 +149,31 @@ export function GerenciarUsuarios() {
       default:
         return 'secondary';
     }
+  };
+
+  const getStatusBadgeVariant = (status: string) => {
+    return status === 'ativo' ? 'default' : 'secondary';
+  };
+
+  const handleStatusChange = async (userId: string, currentStatus: string) => {
+    const newStatus = currentStatus === 'ativo' ? 'inativo' : 'ativo';
+    updateStatusMutation.mutate({ userId, status: newStatus });
+  };
+
+  const handleRoleChange = async (userId: string, newRole: 'admin' | 'advogado' | 'assistente') => {
+    updateRoleMutation.mutate({ userId, role: newRole });
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    if (userId === user?.id) {
+      toast({
+        title: "Erro",
+        description: "Você não pode excluir sua própria conta",
+        variant: "destructive"
+      });
+      return;
+    }
+    deleteUserMutation.mutate(userId);
   };
 
   if (!isAdmin) {
@@ -288,35 +319,120 @@ export function GerenciarUsuarios() {
               <Loader2 className="h-6 w-6 animate-spin" />
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Função</TableHead>
-                  <TableHead>Cadastrado</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {users.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell className="font-medium">{user.nome}</TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>
-                      <Badge 
-                        variant={getRoleBadgeVariant(user.role) as any}
-                        className="flex items-center gap-1 w-fit"
-                      >
-                        {getRoleIcon(user.role)}
-                        {getRoleLabel(user.role)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {new Date(user.created_at).toLocaleDateString('pt-BR')}
-                    </TableCell>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nome</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Função</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Cadastrado</TableHead>
+                    <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
+                </TableHeader>
+                <TableBody>
+                  {users.map((currentUser) => (
+                    <TableRow key={currentUser.id}>
+                      <TableCell className="font-medium">{currentUser.nome}</TableCell>
+                      <TableCell>{currentUser.email}</TableCell>
+                      <TableCell>
+                        <Select
+                          value={currentUser.role}
+                          onValueChange={(value) => handleRoleChange(currentUser.id, value as 'admin' | 'advogado' | 'assistente')}
+                          disabled={updateRoleMutation.isPending || currentUser.id === user?.id}
+                        >
+                          <SelectTrigger className="w-fit">
+                            <SelectValue>
+                              <Badge 
+                                variant={getRoleBadgeVariant(currentUser.role) as any}
+                                className="flex items-center gap-1 w-fit"
+                              >
+                                {getRoleIcon(currentUser.role)}
+                                {getRoleLabel(currentUser.role)}
+                              </Badge>
+                            </SelectValue>
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="assistente">
+                              <div className="flex items-center gap-2">
+                                <User className="h-4 w-4" />
+                                Assistente
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="advogado">
+                              <div className="flex items-center gap-2">
+                                <Shield className="h-4 w-4" />
+                                Advogado
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="admin">
+                              <div className="flex items-center gap-2">
+                                <Crown className="h-4 w-4" />
+                                Administrador
+                              </div>
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleStatusChange(currentUser.id, currentUser.status)}
+                          disabled={updateStatusMutation.isPending || currentUser.id === user?.id}
+                          className="flex items-center gap-1"
+                        >
+                          {currentUser.status === 'ativo' ? (
+                            <>
+                              <UserX className="h-3 w-3" />
+                              Desativar
+                            </>
+                          ) : (
+                            <>
+                              <UserCheck className="h-3 w-3" />
+                              Ativar
+                            </>
+                          )}
+                        </Button>
+                      </TableCell>
+                      <TableCell>
+                        {new Date(currentUser.created_at).toLocaleDateString('pt-BR')}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              disabled={deleteUserMutation.isPending || currentUser.id === user?.id}
+                              className="text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Tem certeza que deseja excluir o usuário <strong>{currentUser.nome}</strong>? 
+                                Esta ação não pode ser desfeita.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleDeleteUser(currentUser.id)}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              >
+                                Excluir
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
             </Table>
           )}
         </CardContent>
