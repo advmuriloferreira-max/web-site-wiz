@@ -4,8 +4,12 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "@/components/AuthProvider";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { UserMenu } from "@/components/UserMenu";
 import { AppSidebar } from "@/components/AppSidebar";
 import Index from "./pages/Index";
+import Auth from "./pages/Auth";
 import Clientes from "./pages/Clientes";
 import NovoCliente from "./pages/NovoCliente";
 import Contratos from "./pages/Contratos";
@@ -21,43 +25,53 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <SidebarProvider>
-          <div className="min-h-screen flex w-full bg-background">
-            <AppSidebar />
-            <div className="flex-1 flex flex-col">
-              <header className="h-12 flex items-center border-b border-border bg-background px-4">
-                <SidebarTrigger className="mr-4" />
-                <div className="flex-1">
-                  <h1 className="text-sm font-medium text-foreground">
-                    Sistema de Provisionamento Bancário
-                  </h1>
-                </div>
-              </header>
-              <main className="flex-1 overflow-auto">
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/clientes" element={<Clientes />} />
-                  <Route path="/clientes/novo" element={<NovoCliente />} />
-                  <Route path="/contratos" element={<Contratos />} />
-                  <Route path="/contratos/novo" element={<NovoContrato />} />
-                  <Route path="/calculos" element={<Calculos />} />
-                  <Route path="/processos" element={<Processos />} />
-                  <Route path="/acordos" element={<Acordos />} />
-                  <Route path="/relatorios" element={<Relatorios />} />
-                  <Route path="/configuracoes" element={<Configuracoes />} />
-                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </main>
-            </div>
-          </div>
-        </SidebarProvider>
-      </BrowserRouter>
-    </TooltipProvider>
+    <AuthProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/*" element={
+              <ProtectedRoute>
+                <SidebarProvider>
+                  <div className="min-h-screen flex w-full bg-background">
+                    <AppSidebar />
+                    <div className="flex-1 flex flex-col">
+                      <header className="h-12 flex items-center justify-between border-b border-border bg-background px-4">
+                        <div className="flex items-center">
+                          <SidebarTrigger className="mr-4" />
+                          <h1 className="text-sm font-medium text-foreground">
+                            Sistema de Provisionamento Bancário
+                          </h1>
+                        </div>
+                        <UserMenu />
+                      </header>
+                      <main className="flex-1 overflow-auto">
+                        <Routes>
+                          <Route path="/" element={<Index />} />
+                          <Route path="/clientes" element={<Clientes />} />
+                          <Route path="/clientes/novo" element={<NovoCliente />} />
+                          <Route path="/contratos" element={<Contratos />} />
+                          <Route path="/contratos/novo" element={<NovoContrato />} />
+                          <Route path="/calculos" element={<Calculos />} />
+                          <Route path="/processos" element={<Processos />} />
+                          <Route path="/acordos" element={<Acordos />} />
+                          <Route path="/relatorios" element={<Relatorios />} />
+                          <Route path="/configuracoes" element={<Configuracoes />} />
+                          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                          <Route path="*" element={<NotFound />} />
+                        </Routes>
+                      </main>
+                    </div>
+                  </div>
+                </SidebarProvider>
+              </ProtectedRoute>
+            } />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 

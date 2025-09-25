@@ -8,9 +8,12 @@ import {
   TrendingUp,
   AlertTriangle,
   Calculator,
-  Handshake
+  Handshake,
+  User
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Sidebar,
   SidebarContent,
@@ -41,6 +44,7 @@ const quickActions = [
 
 export function AppSidebar() {
   const { state } = useSidebar();
+  const { profile } = useAuth();
   const location = useLocation();
   const currentPath = location.pathname;
   const isCollapsed = state === "collapsed";
@@ -48,6 +52,15 @@ export function AppSidebar() {
   const isActive = (path: string) => currentPath === path;
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
     isActive ? "bg-primary/10 text-primary font-medium border-r-2 border-primary" : "hover:bg-muted/50";
+
+  const getInitials = (nome: string) => {
+    return nome
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
 
   return (
     <Sidebar className={isCollapsed ? "w-14" : "w-64"} collapsible="icon">
@@ -104,8 +117,35 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
+        {/* User Info */}
+        {profile && (
+          <SidebarGroup className="mt-auto border-t border-border pt-4">
+            <SidebarGroupContent>
+              <div className="flex items-center space-x-3 px-4 py-2">
+                <Avatar className="h-8 w-8">
+                  <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                    {profile.nome ? getInitials(profile.nome) : <User className="h-4 w-4" />}
+                  </AvatarFallback>
+                </Avatar>
+                {!isCollapsed && (
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">
+                      {profile.nome}
+                    </p>
+                    {profile.cargo && (
+                      <p className="text-xs text-muted-foreground truncate">
+                        {profile.cargo}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
         {/* Settings */}
-        <SidebarGroup className="mt-auto py-4">
+        <SidebarGroup className={profile ? "py-2" : "mt-auto py-4"}>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
