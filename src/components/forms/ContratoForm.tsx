@@ -37,6 +37,19 @@ const contratoSchema = z.object({
   percentual_provisao: z.string().optional(),
   valor_provisao: z.string().optional(),
   proposta_acordo: z.string().optional(),
+  // Novos campos para controle de escritório e acordos
+  data_entrada_escritorio: z.string().optional(),
+  tempo_escritorio: z.string().optional(),
+  forma_pagamento: z.enum(["a_vista", "parcelado"]).optional(),
+  numero_parcelas: z.string().optional(),
+  valor_parcela: z.string().optional(),
+  escritorio_banco_acordo: z.string().optional(),
+  contato_acordo_nome: z.string().optional(),
+  contato_acordo_telefone: z.string().optional(),
+  acordo_final: z.string().optional(),
+  reducao_divida: z.string().optional(),
+  percentual_honorarios: z.enum(["10", "15", "20"]).optional(),
+  valor_honorarios: z.string().optional(),
   situacao: z.string().optional(),
   observacoes: z.string().optional(),
 });
@@ -73,6 +86,19 @@ export function ContratoForm({ onSuccess, contratoParaEditar }: ContratoFormProp
       percentual_provisao: "0",
       valor_provisao: "0",
       proposta_acordo: "0",
+      // Novos campos
+      data_entrada_escritorio: "",
+      tempo_escritorio: "0",
+      forma_pagamento: undefined,
+      numero_parcelas: "",
+      valor_parcela: "0",
+      escritorio_banco_acordo: "",
+      contato_acordo_nome: "",
+      contato_acordo_telefone: "",
+      acordo_final: "0",
+      reducao_divida: "0",
+      percentual_honorarios: undefined,
+      valor_honorarios: "0",
       situacao: "Em análise",
       observacoes: "",
     },
@@ -94,6 +120,19 @@ export function ContratoForm({ onSuccess, contratoParaEditar }: ContratoFormProp
         percentual_provisao: data.percentual_provisao ? parseFloat(data.percentual_provisao) : undefined,
         valor_provisao: data.valor_provisao ? parseFloat(data.valor_provisao) : undefined,
         proposta_acordo: data.proposta_acordo ? parseFloat(data.proposta_acordo) : undefined,
+        // Novos campos
+        data_entrada_escritorio: data.data_entrada_escritorio || null,
+        tempo_escritorio: data.tempo_escritorio ? parseInt(data.tempo_escritorio) : undefined,
+        forma_pagamento: data.forma_pagamento || null,
+        numero_parcelas: data.numero_parcelas ? parseInt(data.numero_parcelas) : null,
+        valor_parcela: data.valor_parcela ? parseFloat(data.valor_parcela) : undefined,
+        escritorio_banco_acordo: data.escritorio_banco_acordo || null,
+        contato_acordo_nome: data.contato_acordo_nome || null,
+        contato_acordo_telefone: data.contato_acordo_telefone || null,
+        acordo_final: data.acordo_final ? parseFloat(data.acordo_final) : undefined,
+        reducao_divida: data.reducao_divida ? parseFloat(data.reducao_divida) : undefined,
+        percentual_honorarios: data.percentual_honorarios ? parseFloat(data.percentual_honorarios) : undefined,
+        valor_honorarios: data.valor_honorarios ? parseFloat(data.valor_honorarios) : undefined,
         situacao: data.situacao || "Em análise",
         observacoes: data.observacoes || null,
       };
@@ -198,6 +237,19 @@ export function ContratoForm({ onSuccess, contratoParaEditar }: ContratoFormProp
       percentual_provisao: contratoExistente.percentual_provisao?.toString() || "0",
       valor_provisao: contratoExistente.valor_provisao?.toString() || "0",
       proposta_acordo: contratoExistente.proposta_acordo?.toString() || "0",
+      // Novos campos (usando any temporariamente até os tipos serem atualizados)
+      data_entrada_escritorio: (contratoExistente as any).data_entrada_escritorio || "",
+      tempo_escritorio: (contratoExistente as any).tempo_escritorio?.toString() || "0",
+      forma_pagamento: (contratoExistente as any).forma_pagamento || undefined,
+      numero_parcelas: (contratoExistente as any).numero_parcelas?.toString() || "",
+      valor_parcela: (contratoExistente as any).valor_parcela?.toString() || "0",
+      escritorio_banco_acordo: (contratoExistente as any).escritorio_banco_acordo || "",
+      contato_acordo_nome: (contratoExistente as any).contato_acordo_nome || "",
+      contato_acordo_telefone: (contratoExistente as any).contato_acordo_telefone || "",
+      acordo_final: contratoExistente.acordo_final?.toString() || "0",
+      reducao_divida: (contratoExistente as any).reducao_divida?.toString() || "0",
+      percentual_honorarios: (contratoExistente as any).percentual_honorarios?.toString() || undefined,
+      valor_honorarios: (contratoExistente as any).valor_honorarios?.toString() || "0",
       situacao: contratoExistente.situacao || "Em análise",
       observacoes: contratoExistente.observacoes || "",
     });
@@ -213,6 +265,16 @@ export function ContratoForm({ onSuccess, contratoParaEditar }: ContratoFormProp
 
   // Calcular automaticamente dias e meses de atraso quando data do último pagamento mudar
   const dataUltimoPagamento = form.watch("data_ultimo_pagamento");
+  
+  // Watchers para cálculos automáticos dos novos campos
+  const dataEntradaEscritorio = form.watch("data_entrada_escritorio");
+  const formaPagamento = form.watch("forma_pagamento");
+  const numeroParcelas = form.watch("numero_parcelas");
+  const propostaAcordo = form.watch("proposta_acordo");
+  const acordoFinal = form.watch("acordo_final");
+  const valorDivida = form.watch("valor_divida");
+  const reducaoDivida = form.watch("reducao_divida");
+  const percentualHonorarios = form.watch("percentual_honorarios");
   
   useEffect(() => {
     if (dataUltimoPagamento) {
@@ -231,6 +293,81 @@ export function ContratoForm({ onSuccess, contratoParaEditar }: ContratoFormProp
       form.setValue("meses_atraso", "0");
     }
   }, [dataUltimoPagamento, form]);
+
+  // Calcular tempo no escritório automaticamente
+  useEffect(() => {
+    if (dataEntradaEscritorio) {
+      try {
+        const dataEntrada = new Date(dataEntradaEscritorio);
+        const hoje = new Date();
+        const diffTime = Math.abs(hoje.getTime() - dataEntrada.getTime());
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        form.setValue("tempo_escritorio", diffDays.toString());
+      } catch (error) {
+        console.error("Erro ao calcular tempo no escritório:", error);
+      }
+    } else {
+      form.setValue("tempo_escritorio", "0");
+    }
+  }, [dataEntradaEscritorio, form]);
+
+  // Calcular valor da parcela automaticamente
+  useEffect(() => {
+    if (formaPagamento === "parcelado" && numeroParcelas && propostaAcordo) {
+      try {
+        const valorProposta = parseFloat(propostaAcordo);
+        const numParcelas = parseInt(numeroParcelas);
+        
+        if (valorProposta > 0 && numParcelas > 0) {
+          const valorParcela = valorProposta / numParcelas;
+          form.setValue("valor_parcela", valorParcela.toFixed(2));
+        }
+      } catch (error) {
+        console.error("Erro ao calcular valor da parcela:", error);
+      }
+    } else {
+      form.setValue("valor_parcela", "0");
+    }
+  }, [formaPagamento, numeroParcelas, propostaAcordo, form]);
+
+  // Calcular redução da dívida automaticamente
+  useEffect(() => {
+    if (valorDivida && acordoFinal) {
+      try {
+        const valorDiv = parseFloat(valorDivida);
+        const valorAcordo = parseFloat(acordoFinal);
+        
+        if (valorDiv > 0 && valorAcordo > 0) {
+          const reducao = valorDiv - valorAcordo;
+          form.setValue("reducao_divida", reducao.toFixed(2));
+        }
+      } catch (error) {
+        console.error("Erro ao calcular redução da dívida:", error);
+      }
+    } else {
+      form.setValue("reducao_divida", "0");
+    }
+  }, [valorDivida, acordoFinal, form]);
+
+  // Calcular honorários de êxito automaticamente
+  useEffect(() => {
+    if (percentualHonorarios && reducaoDivida) {
+      try {
+        const percentual = parseFloat(percentualHonorarios);
+        const valorReducao = parseFloat(reducaoDivida);
+        
+        if (percentual > 0 && valorReducao > 0) {
+          const valorHonorarios = (valorReducao * percentual) / 100;
+          form.setValue("valor_honorarios", valorHonorarios.toFixed(2));
+        }
+      } catch (error) {
+        console.error("Erro ao calcular honorários:", error);
+      }
+    } else {
+      form.setValue("valor_honorarios", "0");
+    }
+  }, [percentualHonorarios, reducaoDivida, form]);
 
   // Carregar contrato automaticamente quando contratoParaEditar muda
   useEffect(() => {
@@ -549,6 +686,224 @@ export function ContratoForm({ onSuccess, contratoParaEditar }: ContratoFormProp
               </FormItem>
             )}
           />
+        </div>
+
+        {/* SEÇÃO: Controle de Escritório */}
+        <div className="p-4 border rounded-lg bg-muted/50 space-y-4">
+          <h3 className="text-lg font-semibold">Controle de Escritório</h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="data_entrada_escritorio"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Data de Entrada no Escritório</FormLabel>
+                  <FormControl>
+                    <Input type="date" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="tempo_escritorio"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tempo no Escritório (dias) - Calculado Automaticamente</FormLabel>
+                  <FormControl>
+                    <Input type="number" placeholder="0" {...field} disabled />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
+
+        {/* SEÇÃO: Acordo e Pagamento */}
+        <div className="p-4 border rounded-lg bg-muted/50 space-y-4">
+          <h3 className="text-lg font-semibold">Dados do Acordo</h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <FormField
+              control={form.control}
+              name="forma_pagamento"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Forma de Pagamento</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione a forma" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="a_vista">À Vista</SelectItem>
+                      <SelectItem value="parcelado">Parcelado</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="numero_parcelas"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Número de Parcelas (máx. 24)</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number" 
+                      min="1" 
+                      max="24" 
+                      placeholder="1" 
+                      {...field} 
+                      disabled={form.watch("forma_pagamento") !== "parcelado"}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="valor_parcela"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Valor da Parcela - Calculado Automaticamente</FormLabel>
+                  <FormControl>
+                    <Input type="number" step="0.01" placeholder="0.00" {...field} disabled />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="escritorio_banco_acordo"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Escritório/Banco do Acordo</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Nome do escritório ou banco" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="contato_acordo_nome"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nome do Contato</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Nome do responsável" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="contato_acordo_telefone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Telefone do Contato</FormLabel>
+                  <FormControl>
+                    <Input placeholder="(11) 99999-9999" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
+
+        {/* SEÇÃO: Valores Finais e Honorários */}
+        <div className="p-4 border rounded-lg bg-muted/50 space-y-4">
+          <h3 className="text-lg font-semibold">Valores Finais e Honorários</h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="acordo_final"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Valor do Acordo Final</FormLabel>
+                  <FormControl>
+                    <Input type="number" step="0.01" placeholder="0.00" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="reducao_divida"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Redução da Dívida - Calculado Automaticamente</FormLabel>
+                  <FormControl>
+                    <Input type="number" step="0.01" placeholder="0.00" {...field} disabled />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="percentual_honorarios"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Percentual de Honorários de Êxito</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o percentual" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="10">10%</SelectItem>
+                      <SelectItem value="15">15%</SelectItem>
+                      <SelectItem value="20">20%</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="valor_honorarios"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Valor dos Honorários - Calculado Automaticamente</FormLabel>
+                  <FormControl>
+                    <Input type="number" step="0.01" placeholder="0.00" {...field} disabled />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
         </div>
 
         <FormField

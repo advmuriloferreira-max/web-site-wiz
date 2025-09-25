@@ -23,6 +23,20 @@ export interface ContratoInput {
   classificacao?: ClassificacaoRisco | null;
   percentual_provisao?: number;
   valor_provisao?: number;
+  proposta_acordo?: number;
+  // Novos campos
+  data_entrada_escritorio?: string | null;
+  tempo_escritorio?: number;
+  forma_pagamento?: string | null;
+  numero_parcelas?: number | null;
+  valor_parcela?: number;
+  escritorio_banco_acordo?: string | null;
+  contato_acordo_nome?: string | null;
+  contato_acordo_telefone?: string | null;
+  acordo_final?: number;
+  reducao_divida?: number;
+  percentual_honorarios?: number;
+  valor_honorarios?: number;
   situacao?: string;
   observacoes?: string | null;
 }

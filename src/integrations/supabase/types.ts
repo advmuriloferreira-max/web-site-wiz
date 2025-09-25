@@ -95,24 +95,35 @@ export type Database = {
           banco_id: string
           classificacao: string | null
           cliente_id: string
+          contato_acordo_nome: string | null
+          contato_acordo_telefone: string | null
           created_at: string
           data_conclusao: string | null
           data_entrada: string
+          data_entrada_escritorio: string | null
           data_ultimo_pagamento: string | null
           data_vencimento: string | null
           dias_atraso: number | null
+          escritorio_banco_acordo: string | null
+          forma_pagamento: string | null
           id: string
           meses_atraso: number | null
           numero_contrato: string | null
+          numero_parcelas: number | null
           observacoes: string | null
+          percentual_honorarios: number | null
           percentual_provisao: number | null
           proposta_acordo: number | null
           quantidade_planos: number | null
+          reducao_divida: number | null
           saldo_contabil: number | null
           situacao: string | null
+          tempo_escritorio: number | null
           tipo_operacao: string
           updated_at: string
           valor_divida: number
+          valor_honorarios: number | null
+          valor_parcela: number | null
           valor_provisao: number | null
         }
         Insert: {
@@ -120,24 +131,35 @@ export type Database = {
           banco_id: string
           classificacao?: string | null
           cliente_id: string
+          contato_acordo_nome?: string | null
+          contato_acordo_telefone?: string | null
           created_at?: string
           data_conclusao?: string | null
           data_entrada?: string
+          data_entrada_escritorio?: string | null
           data_ultimo_pagamento?: string | null
           data_vencimento?: string | null
           dias_atraso?: number | null
+          escritorio_banco_acordo?: string | null
+          forma_pagamento?: string | null
           id?: string
           meses_atraso?: number | null
           numero_contrato?: string | null
+          numero_parcelas?: number | null
           observacoes?: string | null
+          percentual_honorarios?: number | null
           percentual_provisao?: number | null
           proposta_acordo?: number | null
           quantidade_planos?: number | null
+          reducao_divida?: number | null
           saldo_contabil?: number | null
           situacao?: string | null
+          tempo_escritorio?: number | null
           tipo_operacao: string
           updated_at?: string
           valor_divida: number
+          valor_honorarios?: number | null
+          valor_parcela?: number | null
           valor_provisao?: number | null
         }
         Update: {
@@ -145,24 +167,35 @@ export type Database = {
           banco_id?: string
           classificacao?: string | null
           cliente_id?: string
+          contato_acordo_nome?: string | null
+          contato_acordo_telefone?: string | null
           created_at?: string
           data_conclusao?: string | null
           data_entrada?: string
+          data_entrada_escritorio?: string | null
           data_ultimo_pagamento?: string | null
           data_vencimento?: string | null
           dias_atraso?: number | null
+          escritorio_banco_acordo?: string | null
+          forma_pagamento?: string | null
           id?: string
           meses_atraso?: number | null
           numero_contrato?: string | null
+          numero_parcelas?: number | null
           observacoes?: string | null
+          percentual_honorarios?: number | null
           percentual_provisao?: number | null
           proposta_acordo?: number | null
           quantidade_planos?: number | null
+          reducao_divida?: number | null
           saldo_contabil?: number | null
           situacao?: string | null
+          tempo_escritorio?: number | null
           tipo_operacao?: string
           updated_at?: string
           valor_divida?: number
+          valor_honorarios?: number | null
+          valor_parcela?: number | null
           valor_provisao?: number | null
         }
         Relationships: [
