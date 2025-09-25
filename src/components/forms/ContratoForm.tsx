@@ -14,6 +14,7 @@ import { useCreateContrato } from "@/hooks/useCreateContrato";
 import { useUpdateContrato } from "@/hooks/useUpdateContrato";
 import { useContratoByNumero } from "@/hooks/useContratoByNumero";
 import { useProvisaoPerda, useProvisaoPerdaIncorrida } from "@/hooks/useProvisao";
+import { useTiposOperacao } from "@/hooks/useTiposOperacao";
 import { 
   calcularProvisao, 
   calcularDiasAtraso,
@@ -27,8 +28,7 @@ const contratoSchema = z.object({
   cliente_id: z.string().min(1, "Cliente é obrigatório"),
   banco_id: z.string().min(1, "Banco é obrigatório"),
   numero_contrato: z.string().optional(),
-  tipo_operacao: z.string().optional(),
-  tipo_operacao_bcb: z.string().optional(),
+  tipo_operacao_bcb: z.string().min(1, "Tipo de operação BCB é obrigatório"),
   valor_divida: z.string().min(1, "Valor da dívida é obrigatório"),
   saldo_contabil: z.string().optional(),
   data_ultimo_pagamento: z.string().optional(),
@@ -65,6 +65,7 @@ interface ContratoFormProps {
 export function ContratoForm({ onSuccess, contratoParaEditar }: ContratoFormProps) {
   const { data: clientes } = useClientes();
   const { data: bancos } = useBancos();
+  const { data: tiposOperacao } = useTiposOperacao();
   const createContrato = useCreateContrato();
   const updateContrato = useUpdateContrato();
   const { data: tabelaPerda } = useProvisaoPerda();
@@ -78,7 +79,7 @@ export function ContratoForm({ onSuccess, contratoParaEditar }: ContratoFormProp
     resolver: zodResolver(contratoSchema),
     defaultValues: {
       numero_contrato: "",
-      tipo_operacao: "",
+      tipo_operacao_bcb: "",
       valor_divida: "",
       saldo_contabil: "",
       data_ultimo_pagamento: "",
@@ -111,8 +112,7 @@ export function ContratoForm({ onSuccess, contratoParaEditar }: ContratoFormProp
         cliente_id: data.cliente_id,
         banco_id: data.banco_id,
         numero_contrato: data.numero_contrato || null,
-        tipo_operacao: data.tipo_operacao,
-        tipo_operacao_bcb: data.tipo_operacao_bcb || null,
+        tipo_operacao_bcb: data.tipo_operacao_bcb,
         valor_divida: parseFloat(data.valor_divida),
         saldo_contabil: data.saldo_contabil ? parseFloat(data.saldo_contabil) : null,
         data_ultimo_pagamento: data.data_ultimo_pagamento || null,
@@ -224,7 +224,7 @@ export function ContratoForm({ onSuccess, contratoParaEditar }: ContratoFormProp
       cliente_id: contratoExistente.cliente_id,
       banco_id: contratoExistente.banco_id,
       numero_contrato: contratoExistente.numero_contrato || "",
-      tipo_operacao: contratoExistente.tipo_operacao,
+      tipo_operacao_bcb: (contratoExistente as any).tipo_operacao_bcb || "",
       valor_divida: contratoExistente.valor_divida.toString(),
       saldo_contabil: contratoExistente.saldo_contabil?.toString() || "",
       data_ultimo_pagamento: contratoExistente.data_ultimo_pagamento || "",
@@ -281,6 +281,10 @@ export function ContratoForm({ onSuccess, contratoParaEditar }: ContratoFormProp
         
         form.setValue("dias_atraso", diasAtraso.toString());
         form.setValue("meses_atraso", mesesAtraso.toString());
+
+        // Determinar qual anexo usar baseado na regra dos 90 dias
+        const anexoReferencia = diasAtraso >= 90 ? "Anexo I (Perdas Incorridas)" : "Anexo II (Perdas Esperadas)";
+        toast.info(`Referência automática: ${anexoReferencia} - ${diasAtraso} dias de atraso`);
       } catch (error) {
         console.error("Erro ao calcular atraso:", error);
       }
@@ -518,13 +522,24 @@ export function ContratoForm({ onSuccess, contratoParaEditar }: ContratoFormProp
           />
           <FormField
             control={form.control}
-            name="tipo_operacao"
+            name="tipo_operacao_bcb"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Tipo de Operação *</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ex: Empréstimo, Financiamento" {...field} />
-                </FormControl>
+                <FormLabel>Tipo de Operação BCB *</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o tipo de operação" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {tiposOperacao?.map((tipo) => (
+                      <SelectItem key={tipo.id} value={tipo.id}>
+                        {tipo.carteira} - {tipo.nome}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}

@@ -14,7 +14,8 @@ export interface ContratoInput {
   cliente_id: string;
   banco_id: string;
   numero_contrato?: string | null;
-  tipo_operacao: string;
+  tipo_operacao?: string;
+  tipo_operacao_bcb?: string;
   valor_divida: number;
   saldo_contabil?: number | null;
   data_ultimo_pagamento?: string | null;
