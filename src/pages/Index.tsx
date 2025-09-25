@@ -3,15 +3,23 @@ import { Link } from "react-router-dom";
 import { useContratosStats } from "@/hooks/useContratos";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { ClassificacaoChart } from "@/components/dashboard/ClassificacaoChart";
+import { AcordosChart } from "@/components/dashboard/AcordosChart";
+import { ClientesAnalysisChart } from "@/components/dashboard/ClientesAnalysisChart";
+import { TendenciasChart } from "@/components/dashboard/TendenciasChart";
+import { PerformanceCard } from "@/components/dashboard/PerformanceCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   FileText, 
   DollarSign, 
   AlertTriangle, 
   TrendingUp,
   Users,
-  Calculator
+  Calculator,
+  BarChart3,
+  Target,
+  Clock
 } from "lucide-react";
 
 function DashboardContent() {
@@ -75,35 +83,35 @@ function DashboardContent() {
         <div>
           <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
           <p className="text-muted-foreground">
-            Monitoramento de Provisionamento Bancário
+            Monitoramento Inteligente de Provisionamento Bancário
           </p>
         </div>
       </div>
 
-      {/* Stats Cards */}
+      {/* KPI Cards Principais */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatsCard
           title="Total de Contratos"
           value={stats?.totalContratos || 0}
-          description="Contratos cadastrados"
+          description="Contratos ativos"
           icon={FileText}
         />
         <StatsCard
           title="Valor Total de Dívidas"
           value={`R$ ${((stats?.valorTotalDividas || 0) / 1000).toFixed(0)}K`}
-          description="Somatório das dívidas"
+          description="Portfolio total"
           icon={DollarSign}
         />
         <StatsCard
           title="Provisão Total"
           value={`R$ ${((stats?.valorTotalProvisao || 0) / 1000).toFixed(0)}K`}
-          description="Valor total provisionado"
+          description="Valor provisionado"
           icon={Calculator}
         />
         <StatsCard
-          title="% Provisão"
+          title="% Provisão Média"
           value={`${(stats?.percentualProvisao || 0).toFixed(1)}%`}
-          description="Percentual de provisão"
+          description="Risco do portfolio"
           icon={TrendingUp}
           className={
             (stats?.percentualProvisao || 0) > 50 
@@ -113,40 +121,77 @@ function DashboardContent() {
         />
       </div>
 
-      {/* Charts */}
-      <div className="grid gap-6 md:grid-cols-2">
-        <ClassificacaoChart data={stats?.porClassificacao || {}} />
-        
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg font-semibold">
-              Status dos Contratos
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {Object.entries(stats?.porSituacao || {}).map(([situacao, quantidade]) => (
-                <div key={situacao} className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <div className={`w-3 h-3 rounded-full ${
+      {/* Dashboard Tabs */}
+      <Tabs defaultValue="visao-geral" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="visao-geral" className="flex items-center space-x-2">
+            <BarChart3 className="h-4 w-4" />
+            <span>Visão Geral</span>
+          </TabsTrigger>
+          <TabsTrigger value="acordos" className="flex items-center space-x-2">
+            <Target className="h-4 w-4" />
+            <span>Acordos</span>
+          </TabsTrigger>
+          <TabsTrigger value="clientes" className="flex items-center space-x-2">
+            <Users className="h-4 w-4" />
+            <span>Clientes</span>
+          </TabsTrigger>
+          <TabsTrigger value="tendencias" className="flex items-center space-x-2">
+            <Clock className="h-4 w-4" />
+            <span>Tendências</span>
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Visão Geral */}
+        <TabsContent value="visao-geral" className="space-y-6">
+          <div className="grid gap-6 lg:grid-cols-3">
+            <div className="lg:col-span-2">
+              <ClassificacaoChart data={stats?.porClassificacao || {}} />
+            </div>
+            <PerformanceCard />
+          </div>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg font-semibold flex items-center space-x-2">
+                <AlertTriangle className="h-5 w-5" />
+                <span>Status dos Contratos</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {Object.entries(stats?.porSituacao || {}).map(([situacao, quantidade]) => (
+                  <div key={situacao} className="text-center p-3 border border-border rounded-lg">
+                    <div className={`w-4 h-4 rounded-full mx-auto mb-2 ${
                       situacao === 'Concluído' ? 'bg-green-500' :
                       situacao === 'Em análise' ? 'bg-yellow-500' :
                       situacao === 'Cancelado' ? 'bg-red-500' :
                       'bg-blue-500'
                     }`} />
-                    <span className="text-sm font-medium text-foreground">
-                      {situacao}
-                    </span>
+                    <p className="text-2xl font-bold text-foreground">{quantidade}</p>
+                    <p className="text-sm text-muted-foreground">{situacao}</p>
                   </div>
-                  <span className="text-sm text-muted-foreground">
-                    {quantidade}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Análise de Acordos */}
+        <TabsContent value="acordos" className="space-y-6">
+          <AcordosChart />
+        </TabsContent>
+
+        {/* Análise de Clientes */}
+        <TabsContent value="clientes" className="space-y-6">
+          <ClientesAnalysisChart />
+        </TabsContent>
+
+        {/* Tendências */}
+        <TabsContent value="tendencias" className="space-y-6">
+          <TendenciasChart />
+        </TabsContent>
+      </Tabs>
 
       {/* Quick Actions */}
       <Card>
