@@ -1,6 +1,5 @@
-const CACHE_NAME = 'murilo-ferreira-advocacia-v6';
+const CACHE_NAME = 'murilo-ferreira-advocacia-v7';
 const urlsToCache = [
-  '/',
   '/static/js/bundle.js',
   '/static/css/main.css',
   '/manifest.json'
@@ -59,11 +58,15 @@ self.addEventListener('fetch', (event) => {
   
   // Network first for HTML pages - never cache main page
   if (request.headers.get('accept')?.includes('text/html')) {
-    // Never cache the main page, always fetch fresh
+    // Never cache the main page, always fetch fresh with no-cache headers
     if (request.url.endsWith('/') || request.url.includes('provisionamento.lovable.app')) {
       event.respondWith(
         fetch(request, {
-          cache: 'no-cache'
+          cache: 'no-cache',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache'
+          }
         }).catch(() => {
           return caches.match(request);
         })
