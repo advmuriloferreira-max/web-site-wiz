@@ -224,23 +224,34 @@ export function CalculadoraProvisaoAvancada() {
             </div>
           </div>
 
-          {/* Indicadores de Risco */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
-            <Card className="p-4">
-              <div className="text-sm text-muted-foreground">Dias de Atraso</div>
-              <div className="text-2xl font-bold">{diasAtraso}</div>
-            </Card>
-            <Card className="p-4">
-              <div className="text-sm text-muted-foreground">Estágio de Risco</div>
-              <Badge className={getEstagioColor(estagio)}>Estágio {estagio}</Badge>
-            </Card>
-            <Card className="p-4">
-              <div className="text-sm text-muted-foreground">Prob. Default</div>
-              <div className="text-2xl font-bold text-red-600">{formatPercentage(probabilidadeDefault)}</div>
-            </Card>
-            <Card className="p-4">
-              <div className="text-sm text-muted-foreground">Taxa Recuperação</div>
-              <div className="text-2xl font-bold text-green-600">{formatPercentage(taxaRecuperacao)}</div>
+          {/* Marco Temporal - Regra dos 180 dias */}
+          <div className="mt-6">
+            <Card className={`p-4 border-2 ${diasAtraso > 180 ? 'border-red-500 bg-red-50' : diasAtraso > 150 ? 'border-yellow-500 bg-yellow-50' : 'border-green-500 bg-green-50'}`}>
+              <div className="flex items-center gap-2">
+                <AlertTriangle className={`h-5 w-5 ${diasAtraso > 180 ? 'text-red-600' : diasAtraso > 150 ? 'text-yellow-600' : 'text-green-600'}`} />
+                <div className="flex-1">
+                  <h3 className="font-semibold">Marco Regulamentar</h3>
+                  <p className="text-sm">
+                    {diasAtraso > 180 
+                      ? "🔴 CRÍTICO: Mais de 180 dias = 100% PROVISÃO OBRIGATÓRIA (Res. 2682/99 - Risco H)"
+                      : diasAtraso > 150 
+                      ? "⚠️ ATENÇÃO: Aproximando dos 180 dias críticos (provisão progressiva 70%-100%)"
+                      : "✅ Dentro dos parâmetros normais de provisão"
+                    }
+                  </p>
+                  {diasAtraso > 180 && (
+                    <div className="mt-2 text-xs text-red-700">
+                      <strong>Marcos futuros:</strong>
+                      <br />• {365 * 2 - diasAtraso > 0 ? `${365 * 2 - diasAtraso} dias` : 'AGORA'} → Baixa obrigatória (2 anos)
+                      <br />• Controle por 5 anos após baixa
+                    </div>
+                  )}
+                </div>
+                <div className="text-right">
+                  <div className="text-2xl font-bold">{diasAtraso}</div>
+                  <div className="text-xs text-muted-foreground">dias atraso</div>
+                </div>
+              </div>
             </Card>
           </div>
         </CardContent>
@@ -305,12 +316,18 @@ export function CalculadoraProvisaoAvancada() {
                 <div className="mt-6 p-4 bg-blue-50 rounded-lg">
                   <div className="flex items-center gap-2 mb-2">
                     <AlertTriangle className="h-4 w-4 text-blue-600" />
-                    <span className="font-semibold text-blue-800">Diferença de Metodologia</span>
+                    <span className="font-semibold text-blue-800">Análise Regulamentar</span>
                   </div>
-                  <p className="text-sm text-blue-700">
-                    Diferença de provisão: {formatCurrency(Math.abs(resultadoAvancado.valorProvisaoTotal - resultado.valorProvisaoTotal))}
-                    {resultadoAvancado.valorProvisaoTotal > resultado.valorProvisaoTotal ? ' (Método BCB mais conservador)' : ' (Método tradicional mais conservador)'}
-                  </p>
+                  <div className="text-sm text-blue-700 space-y-1">
+                    <p><strong>Diferença de provisão:</strong> {formatCurrency(Math.abs(resultadoAvancado.valorProvisaoTotal - resultado.valorProvisaoTotal))}</p>
+                    <p>{resultadoAvancado.valorProvisaoTotal > resultado.valorProvisaoTotal ? '📈 Método BCB mais conservador' : '📉 Método tradicional mais conservador'}</p>
+                    {diasAtraso > 180 && (
+                      <p className="text-red-700"><strong>⚠️ CRÍTICO:</strong> Mais de 180 dias = Provisão 100% obrigatória</p>
+                    )}
+                    {diasAtraso > 150 && diasAtraso <= 180 && (
+                      <p className="text-yellow-700"><strong>⚠️ ATENÇÃO:</strong> Aproximando dos 180 dias críticos</p>
+                    )}
+                  </div>
                 </div>
               </CardContent>
             </Card>

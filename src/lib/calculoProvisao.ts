@@ -39,6 +39,21 @@ export function calcularProvisao(params: CalculoProvisaoParams): ResultadoCalcul
     criterioIncorrida = "Dias de Atraso"
   } = params;
 
+  // REGRA CRÍTICA: Após 180 dias = 100% provisão (Resolução 2682/99 - Risco H)
+  if (diasAtraso > 180) {
+    return {
+      percentualPerda: 100,
+      percentualIncorrida: 100,
+      valorProvisaoPerda: valorDivida,
+      valorProvisaoIncorrida: valorDivida,
+      valorProvisaoTotal: valorDivida,
+      estagioRisco: 3,
+      metodologia: 'completa',
+      regraAplicadaPerda: undefined,
+      regraAplicadaIncorrida: undefined,
+    };
+  }
+
   // Determinar estágio de risco conforme Res. 4966/2021
   const estagioRisco = determinarEstagio(diasAtraso);
 
@@ -55,8 +70,15 @@ export function calcularProvisao(params: CalculoProvisaoParams): ResultadoCalcul
   );
 
   // Obter percentuais baseados na classificação
-  const percentualPerda = regraPerda ? getPercentualPorClassificacao(regraPerda, classificacao) : 0;
-  const percentualIncorrida = regraIncorrida ? getPercentualPorClassificacao(regraIncorrida, classificacao) : 0;
+  let percentualPerda = regraPerda ? getPercentualPorClassificacao(regraPerda, classificacao) : 0;
+  let percentualIncorrida = regraIncorrida ? getPercentualPorClassificacao(regraIncorrida, classificacao) : 0;
+
+  // Progressão para 100% conforme se aproxima de 180 dias (151-180 dias)
+  if (diasAtraso > 150) {
+    const provisaoMinima = 70; // Base mínima para >150 dias
+    percentualPerda = Math.max(percentualPerda, provisaoMinima);
+    percentualIncorrida = Math.max(percentualIncorrida, provisaoMinima);
+  }
 
   // Calcular valores de provisão
   const valorProvisaoPerda = (valorDivida * percentualPerda) / 100;
@@ -172,7 +194,7 @@ export function calcularProbabilidadeDefault(
     pd += (diasAtraso - 60) * 0.5;
   }
   if (estagio === 3 && diasAtraso > 180) {
-    pd = Math.min(100, pd + (diasAtraso - 180) * 0.1);
+    pd = 100; // Após 180 dias = 100% PD
   }
   
   return Math.min(100, pd);
@@ -229,6 +251,21 @@ export function calcularProvisaoAvancada(params: CalculoProvisaoParams): Resulta
     taxaJurosEfetiva = 2.5
   } = params;
 
+  // REGRA CRÍTICA: Após 180 dias = 100% provisão (independente da classificação)
+  if (diasAtraso > 180) {
+    return {
+      percentualPerda: 100,
+      percentualIncorrida: 100,
+      valorProvisaoPerda: valorDivida,
+      valorProvisaoIncorrida: valorDivida,
+      valorProvisaoTotal: valorDivida,
+      estagioRisco: 3,
+      metodologia: 'completa',
+      regraAplicadaPerda: undefined,
+      regraAplicadaIncorrida: undefined,
+    };
+  }
+
   const estagio = determinarEstagio(diasAtraso);
   const probabilidadeDefault = calcularProbabilidadeDefault(estagio, classificacao, diasAtraso);
   const taxaRecuperacao = calcularTaxaRecuperacao(classificacao, false, 0, valorDivida);
@@ -251,8 +288,16 @@ export function calcularProvisaoAvancada(params: CalculoProvisaoParams): Resulta
   const percentualTabelaIncorrida = regraIncorrida ? getPercentualPorClassificacao(regraIncorrida, classificacao) : 0;
 
   // Usar o maior entre cálculo avançado e tabela regulamentar
-  const percentualPerda = Math.max(perdaEsperadaPercentual, percentualTabelaPerda);
-  const percentualIncorrida = Math.max(perdaEsperadaPercentual, percentualTabelaIncorrida);
+  let percentualPerda = Math.max(perdaEsperadaPercentual, percentualTabelaPerda);
+  let percentualIncorrida = Math.max(perdaEsperadaPercentual, percentualTabelaIncorrida);
+
+  // Progressão para 100% conforme se aproxima de 180 dias
+  if (diasAtraso > 150) {
+    const fatorProgresso = (diasAtraso - 150) / 30; // De 150 a 180 dias
+    const provisaoProgressiva = 70 + (30 * fatorProgresso); // De 70% a 100%
+    percentualPerda = Math.max(percentualPerda, provisaoProgressiva);
+    percentualIncorrida = Math.max(percentualIncorrida, provisaoProgressiva);
+  }
 
   const valorProvisaoPerda = (valorDivida * percentualPerda) / 100;
   const valorProvisaoIncorrida = (valorDivida * percentualIncorrida) / 100;
@@ -268,5 +313,51 @@ export function calcularProvisaoAvancada(params: CalculoProvisaoParams): Resulta
     metodologia: 'completa',
     regraAplicadaPerda: regraPerda,
     regraAplicadaIncorrida: regraIncorrida,
+  };
+}
+
+/**
+ * Verifica se o contrato deve ter baixa obrigatória (100% provisão + baixa)
+ */
+export function deveSerBaixado(diasAtraso: number, temProcessoCobranca: boolean = false): {
+  deveBaixar: boolean;
+  motivo: string;
+} {
+  // Regra 1: Mais de 180 dias = Provisão 100%
+  if (diasAtraso > 180) {
+    return {
+      deveBaixar: diasAtraso > 365 * 2, // Baixa após 2 anos
+      motivo: diasAtraso > 365 * 2 
+        ? "Baixa obrigatória - Mais de 2 anos em atraso" 
+        : "Provisão 100% - Mais de 180 dias em atraso"
+    };
+  }
+
+  // Regra 2: Sem processo de cobrança e >1 ano
+  if (!temProcessoCobranca && diasAtraso > 365) {
+    return {
+      deveBaixar: true,
+      motivo: "Baixa obrigatória - Sem processo de cobrança há mais de 1 ano"
+    };
+  }
+
+  return {
+    deveBaixar: false,
+    motivo: ""
+  };
+}
+
+/**
+ * Calcula os marcos temporais regulamentares
+ */
+export function getMarcosTemporal(diasAtraso: number) {
+  return {
+    estagio1: diasAtraso <= 30,
+    estagio2: diasAtraso > 30 && diasAtraso <= 90,
+    estagio3: diasAtraso > 90,
+    stopAccrual: diasAtraso > 90, // Para de computar juros
+    provisao100: diasAtraso > 180, // 100% provisão
+    baixaObrigatoria: diasAtraso > 365 * 2, // Baixa após 2 anos
+    manterControle: diasAtraso <= 365 * 5 // Manter controle por 5 anos
   };
 }
