@@ -1,4 +1,4 @@
-const CACHE_NAME = 'murilo-ferreira-advocacia-v8';
+const CACHE_NAME = 'murilo-ferreira-advocacia-v9-' + Date.now();
 const urlsToCache = [
   '/static/js/bundle.js',
   '/static/css/main.css',
@@ -78,18 +78,17 @@ self.addEventListener('fetch', (event) => {
   }
 });
 
-// Activate event - clean up old caches and take control
+// Activate event - clean up ALL old caches and take control
 self.addEventListener('activate', (event) => {
-  // Take control of all pages
+  // Take control of all pages immediately
   self.clients.claim();
   
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
-            return caches.delete(cacheName);
-          }
+          // Delete ALL caches to force fresh start
+          return caches.delete(cacheName);
         })
       );
     })

@@ -41,39 +41,7 @@ export function usePWA() {
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     window.addEventListener('appinstalled', handleAppInstalled);
 
-    // Register service worker and listen for updates
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' })
-        .then((registration) => {
-          console.log('SW registered: ', registration);
-          
-          // Force update check immediately
-          registration.update();
-          
-          // Listen for service worker updates
-          registration.addEventListener('updatefound', () => {
-            const newWorker = registration.installing;
-            if (newWorker) {
-              newWorker.addEventListener('statechange', () => {
-                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                  // Auto apply update immediately
-                  if (navigator.serviceWorker.controller) {
-                    navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
-                  }
-                }
-              });
-            }
-          });
-        })
-        .catch((registrationError) => {
-          console.log('SW registration failed: ', registrationError);
-        });
-        
-      // Listen for service worker controlling the page and force reload
-      navigator.serviceWorker.addEventListener('controllerchange', () => {
-        window.location.reload();
-      });
-    }
+    // Service worker is now registered in index.html with cache-busting
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);

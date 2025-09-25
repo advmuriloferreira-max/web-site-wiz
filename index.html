@@ -42,9 +42,13 @@
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js')
+          // Cache-busting para forçar buscar novo service worker
+          const swUrl = `/sw.js?v=${Date.now()}`;
+          navigator.serviceWorker.register(swUrl, { updateViaCache: 'none' })
             .then((registration) => {
               console.log('SW registered: ', registration);
+              // Força verificação de update imediatamente
+              registration.update();
             })
             .catch((registrationError) => {
               console.log('SW registration failed: ', registrationError);
