@@ -6,6 +6,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AppSidebar } from "@/components/AppSidebar";
 import Index from "./pages/Index";
+import Clientes from "./pages/Clientes";
+import Contratos from "./pages/Contratos";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,6 +33,8 @@ const App = () => (
               <main className="flex-1 overflow-auto">
                 <Routes>
                   <Route path="/" element={<Index />} />
+                  <Route path="/clientes" element={<Clientes />} />
+                  <Route path="/contratos" element={<Contratos />} />
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
