@@ -130,7 +130,7 @@ export function CalculadoraProvisaoAvancada() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calculator className="h-5 w-5" />
-            Calculadora de Provisão Avançada - BCB Res. 4966/2021
+            Calculadora de Provisão Avançada - BCB Res. 352/2023
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -224,28 +224,30 @@ export function CalculadoraProvisaoAvancada() {
             </div>
           </div>
 
-          {/* Marco Temporal - Regra da 4966/2021 */}
+          {/* Marco Temporal - Regra da Resolução 352/2023 */}
           <div className="mt-6">
             <Card className={`p-4 border-2 ${diasAtraso >= 630 ? 'border-red-500 bg-red-50' : diasAtraso >= 450 && (classificacaoManual === 'C3' || classificacaoManual === 'C4' || classificacaoManual === 'C5') ? 'border-red-400 bg-red-25' : diasAtraso >= 420 ? 'border-yellow-500 bg-yellow-50' : 'border-green-500 bg-green-50'}`}>
               <div className="flex items-center gap-2">
                 <AlertTriangle className={`h-5 w-5 ${diasAtraso >= 630 ? 'text-red-600' : diasAtraso >= 450 ? 'text-red-500' : diasAtraso >= 420 ? 'text-yellow-600' : 'text-green-600'}`} />
                 <div className="flex-1">
-                  <h3 className="font-semibold">Marco Regulamentar 4966/2021</h3>
+                  <h3 className="font-semibold">Marco Regulamentar BCB 352/2023</h3>
                   <p className="text-sm">
-                    {diasAtraso >= 630 
-                      ? "🔴 CRÍTICO: 21+ meses = 100% PROVISÃO (todas classificações) - Art. 49 Res. 4966"
+                    {diasAtraso >= 630 && (classificacaoManual === 'C1' || classificacaoManual === 'C2')
+                      ? "🔴 CRÍTICO: 21+ meses = 100% PROVISÃO (C1/C2) - Anexo I Res. 352/2023"
                       : diasAtraso >= 450 && (classificacaoManual === 'C3' || classificacaoManual === 'C4' || classificacaoManual === 'C5')
-                      ? "🔴 CRÍTICO: 15+ meses = 100% PROVISÃO (C3/C4/C5) - Anexo I BCB 352/2023"
-                      : diasAtraso >= 420 
-                      ? "⚠️ ATENÇÃO: Aproximando dos marcos críticos (15-21 meses dependendo da classificação)"
-                      : "✅ Provisão gradual conforme Anexo I da BCB 352/2023"
+                      ? "🔴 CRÍTICO: 15+ meses = 100% PROVISÃO (C3/C4/C5) - Anexo I Res. 352/2023"
+                      : diasAtraso >= 420 && (classificacaoManual === 'C3' || classificacaoManual === 'C4' || classificacaoManual === 'C5')
+                      ? "⚠️ ATENÇÃO: Aproximando de 15 meses (C3/C4/C5)"
+                      : diasAtraso >= 600 && (classificacaoManual === 'C1' || classificacaoManual === 'C2')
+                      ? "⚠️ ATENÇÃO: Aproximando de 21 meses (C1/C2)"
+                      : "✅ Provisão gradual conforme Anexo I da Res. 352/2023"
                     }
                   </p>
                   <div className="mt-2 text-xs">
-                    <strong>Marcos por classificação:</strong>
-                    <br />• C3/C4/C5: 100% aos 15 meses (~450 dias)
-                    <br />• C1/C2: 100% aos 21 meses (~630 dias)
-                    <br />• Meses atuais: <span className="font-bold">{(diasAtraso / 30).toFixed(1)}</span>
+                    <strong>Marcos exatos (Anexo I Res. 352/2023):</strong>
+                    <br />• C3/C4/C5: 100% aos 15 meses (450 dias)
+                    <br />• C1/C2: 100% aos 21 meses (630 dias)
+                    <br />• Situação atual: <span className="font-bold">{(diasAtraso / 30).toFixed(1)} meses</span> - Classificação {classificacaoManual}
                   </div>
                 </div>
                 <div className="text-right">
@@ -323,11 +325,11 @@ export function CalculadoraProvisaoAvancada() {
                   <div className="text-sm text-blue-700 space-y-1">
                     <p><strong>Diferença de provisão:</strong> {formatCurrency(Math.abs(resultadoAvancado.valorProvisaoTotal - resultado.valorProvisaoTotal))}</p>
                     <p>{resultadoAvancado.valorProvisaoTotal > resultado.valorProvisaoTotal ? '📈 Método BCB mais conservador' : '📉 Método tradicional mais conservador'}</p>
-                    {diasAtraso > 180 && (
-                      <p className="text-red-700"><strong>⚠️ CRÍTICO:</strong> Mais de 180 dias = Provisão 100% obrigatória</p>
+                    {((diasAtraso >= 450 && (classificacaoManual === 'C3' || classificacaoManual === 'C4' || classificacaoManual === 'C5')) || (diasAtraso >= 630 && (classificacaoManual === 'C1' || classificacaoManual === 'C2'))) && (
+                      <p className="text-red-700"><strong>🔴 CRÍTICO:</strong> Provisão 100% obrigatória conforme Anexo I Res. 352/2023</p>
                     )}
-                    {diasAtraso > 150 && diasAtraso <= 180 && (
-                      <p className="text-yellow-700"><strong>⚠️ ATENÇÃO:</strong> Aproximando dos 180 dias críticos</p>
+                    {((diasAtraso >= 420 && diasAtraso < 450 && (classificacaoManual === 'C3' || classificacaoManual === 'C4' || classificacaoManual === 'C5')) || (diasAtraso >= 600 && diasAtraso < 630 && (classificacaoManual === 'C1' || classificacaoManual === 'C2'))) && (
+                      <p className="text-yellow-700"><strong>⚠️ ATENÇÃO:</strong> Aproximando dos marcos críticos da Res. 352/2023</p>
                     )}
                   </div>
                 </div>

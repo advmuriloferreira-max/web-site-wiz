@@ -28,48 +28,46 @@ export interface ResultadoCalculo {
 }
 
 /**
- * Marcos regulamentares conforme Resolução 4966/2021 e BCB 352/2023
+ * Marcos regulamentares conforme Anexo I da Resolução BCB 352/2023
  */
-export function getMarcoRegulamentar4966(diasAtraso: number, classificacao: ClassificacaoRisco): {
+export function getMarcoRegulamentar352(diasAtraso: number, classificacao: ClassificacaoRisco): {
   provisao100: boolean;
   marcoAtingido: string | null;
   proximoMarco: string | null;
 } {
   const meses = diasAtraso / 30;
 
-  // Marco definitivo: 21 meses (630 dias) = 100% para TODAS as classificações
-  if (meses >= 21) {
-    return {
-      provisao100: true,
-      marcoAtingido: "21 meses - Provisão 100% obrigatória (todas as classificações)",
-      proximoMarco: null
-    };
-  }
-
-  // Marcos por classificação conforme Anexo I da BCB 352/2023
+  // Anexo I da Resolução 352/2023 - Marcos exatos por classificação
   if (classificacao === 'C3' || classificacao === 'C4' || classificacao === 'C5') {
-    if (meses >= 15) { // 450 dias
+    if (meses >= 15) { // "Igual ou maior que 15 e menor que 16 meses" = 100%
       return {
         provisao100: true,
-        marcoAtingido: "15+ meses - Provisão 100% (C3/C4/C5)",
+        marcoAtingido: "15+ meses - Provisão 100% (Anexo I BCB 352/2023)",
         proximoMarco: null
       };
     }
-    if (meses >= 14) { // ~420 dias - aproximação crítica
+    if (meses >= 14) {
       return {
         provisao100: false,
         marcoAtingido: null,
-        proximoMarco: `${Math.ceil(15 - meses)} meses para provisão 100% (C3/C4/C5)`
+        proximoMarco: `${Math.ceil(15 - meses)} mês(es) para provisão 100%`
       };
     }
   }
 
   if (classificacao === 'C1' || classificacao === 'C2') {
-    if (meses >= 20) { // ~600 dias - aproximação crítica
+    if (meses >= 21) { // "Igual ou maior que 21 meses" = 100%
+      return {
+        provisao100: true,
+        marcoAtingido: "21+ meses - Provisão 100% (Anexo I BCB 352/2023)",
+        proximoMarco: null
+      };
+    }
+    if (meses >= 20) {
       return {
         provisao100: false,
         marcoAtingido: null,
-        proximoMarco: `${Math.ceil(21 - meses)} meses para provisão 100% (C1/C2)`
+        proximoMarco: `${Math.ceil(21 - meses)} mês(es) para provisão 100%`
       };
     }
   }
@@ -77,7 +75,7 @@ export function getMarcoRegulamentar4966(diasAtraso: number, classificacao: Clas
   return {
     provisao100: false,
     marcoAtingido: null,
-    proximoMarco: `Provisão gradual até ${classificacao === 'C1' || classificacao === 'C2' ? '21' : '15'} meses`
+    proximoMarco: `Provisão gradual conforme Anexo I (${classificacao === 'C1' || classificacao === 'C2' ? '21' : '15'} meses)`
   };
 }
 
@@ -94,7 +92,7 @@ export function calcularProvisao(params: CalculoProvisaoParams): ResultadoCalcul
     criterioIncorrida = "Dias de Atraso"
   } = params;
 
-  const marco = getMarcoRegulamentar4966(diasAtraso, classificacao);
+  const marco = getMarcoRegulamentar352(diasAtraso, classificacao);
   
   // REGRA CRÍTICA: Conforme Anexo I da BCB 352/2023
   if (marco.provisao100) {
@@ -131,10 +129,10 @@ export function calcularProvisao(params: CalculoProvisaoParams): ResultadoCalcul
   let percentualPerda = regraPerda ? getPercentualPorClassificacao(regraPerda, classificacao) : 0;
   let percentualIncorrida = regraIncorrida ? getPercentualPorClassificacao(regraIncorrida, classificacao) : 0;
 
-  // Aplicar progressão regulamentar baseada no Anexo I
-  const percentualRegulamentar = calcularPercentualPorMesAtraso(diasAtraso, classificacao);
-  percentualPerda = Math.max(percentualPerda, percentualRegulamentar);
-  percentualIncorrida = Math.max(percentualIncorrida, percentualRegulamentar);
+  // Aplicar percentual obrigatório do Anexo I da Resolução 352/2023
+  const percentualAnexoI = calcularPercentualAnexoI352(diasAtraso, classificacao);
+  percentualPerda = Math.max(percentualPerda, percentualAnexoI);
+  percentualIncorrida = Math.max(percentualIncorrida, percentualAnexoI);
 
   // Calcular valores de provisão
   const valorProvisaoPerda = (valorDivida * percentualPerda) / 100;
@@ -156,54 +154,85 @@ export function calcularProvisao(params: CalculoProvisaoParams): ResultadoCalcul
 }
 
 /**
- * Calcula percentual baseado no Anexo I da BCB 352/2023
+ * Calcula percentual exato conforme Anexo I da Resolução BCB 352/2023
+ * "Provisão para perdas incorridas aplicável aos ativos financeiros inadimplidos"
  */
-function calcularPercentualPorMesAtraso(diasAtraso: number, classificacao: ClassificacaoRisco): number {
+function calcularPercentualAnexoI352(diasAtraso: number, classificacao: ClassificacaoRisco): number {
   const meses = diasAtraso / 30;
   
-  // Tabela do Anexo I - Provisão para perdas incorridas (ativos inadimplidos)
-  const tabelaAnexoI: Record<number, Record<ClassificacaoRisco, number>> = {
-    1: { C1: 5.5, C2: 30.0, C3: 45.0, C4: 35.0, C5: 50.0 },
-    2: { C1: 10.0, C2: 33.4, C3: 48.7, C4: 39.5, C5: 53.4 },
-    3: { C1: 14.5, C2: 36.8, C3: 52.4, C4: 44.0, C5: 56.8 },
-    4: { C1: 19.0, C2: 40.2, C3: 56.1, C4: 48.5, C5: 60.2 },
-    5: { C1: 23.5, C2: 43.6, C3: 59.8, C4: 53.0, C5: 63.6 },
-    6: { C1: 28.0, C2: 47.0, C3: 63.5, C4: 57.5, C5: 67.0 },
-    7: { C1: 32.5, C2: 50.4, C3: 67.2, C4: 62.0, C5: 70.4 },
-    8: { C1: 37.0, C2: 53.8, C3: 70.9, C4: 66.5, C5: 73.8 },
-    9: { C1: 41.5, C2: 57.2, C3: 74.6, C4: 71.0, C5: 77.2 },
-    10: { C1: 46.0, C2: 60.6, C3: 78.3, C4: 75.5, C5: 80.6 },
-    11: { C1: 50.5, C2: 64.0, C3: 82.0, C4: 80.0, C5: 84.0 },
-    12: { C1: 55.0, C2: 67.4, C3: 85.7, C4: 84.5, C5: 87.4 },
-    13: { C1: 59.5, C2: 70.8, C3: 89.4, C4: 89.0, C5: 90.8 },
-    14: { C1: 64.0, C2: 74.2, C3: 93.1, C4: 93.5, C5: 94.2 },
-    15: { C1: 68.5, C2: 77.6, C3: 96.8, C4: 98.0, C5: 97.6 },
-    16: { C1: 73.0, C2: 81.0, C3: 100.0, C4: 100.0, C5: 100.0 },
-    17: { C1: 77.5, C2: 84.4, C3: 100.0, C4: 100.0, C5: 100.0 },
-    18: { C1: 82.0, C2: 87.8, C3: 100.0, C4: 100.0, C5: 100.0 },
-    19: { C1: 86.5, C2: 91.2, C3: 100.0, C4: 100.0, C5: 100.0 },
-    20: { C1: 91.0, C2: 94.6, C3: 100.0, C4: 100.0, C5: 100.0 },
-    21: { C1: 95.5, C2: 98.0, C3: 100.0, C4: 100.0, C5: 100.0 }
+  // Tabela EXATA do Anexo I da Resolução BCB 352/2023
+  const tabelaAnexoI: Record<string, Record<ClassificacaoRisco, number>> = {
+    // "Menor que um mês"
+    '0': { C1: 5.5, C2: 30.0, C3: 45.0, C4: 35.0, C5: 50.0 },
+    // "Igual ou maior que 1 e menor que 2 meses"
+    '1': { C1: 10.0, C2: 33.4, C3: 48.7, C4: 39.5, C5: 53.4 },
+    // "Igual ou maior que 2 e menor que 3 meses"  
+    '2': { C1: 14.5, C2: 36.8, C3: 52.4, C4: 44.0, C5: 56.8 },
+    // "Igual ou maior que 3 e menor que 4 meses"
+    '3': { C1: 19.0, C2: 40.2, C3: 56.1, C4: 48.5, C5: 60.2 },
+    // "Igual ou maior que 4 e menor que 5 meses"
+    '4': { C1: 23.5, C2: 43.6, C3: 59.8, C4: 53.0, C5: 63.6 },
+    // "Igual ou maior que 5 e menor que 6 meses"
+    '5': { C1: 28.0, C2: 47.0, C3: 63.5, C4: 57.5, C5: 67.0 },
+    // "Igual ou maior que 6 e menor que 7 meses"
+    '6': { C1: 32.5, C2: 50.4, C3: 67.2, C4: 62.0, C5: 70.4 },
+    // "Igual ou maior que 7 e menor que 8 meses"
+    '7': { C1: 37.0, C2: 53.8, C3: 70.9, C4: 66.5, C5: 73.8 },
+    // "Igual ou maior que 8 e menor que 9 meses"
+    '8': { C1: 41.5, C2: 57.2, C3: 74.6, C4: 71.0, C5: 77.2 },
+    // "Igual ou maior que 9 e menor que 10 meses"
+    '9': { C1: 46.0, C2: 60.6, C3: 78.3, C4: 75.5, C5: 80.6 },
+    // "Igual ou maior que 10 e menor que 11 meses"
+    '10': { C1: 50.5, C2: 64.0, C3: 82.0, C4: 80.0, C5: 84.0 },
+    // "Igual ou maior que 11 e menor que 12 meses"
+    '11': { C1: 55.0, C2: 67.4, C3: 85.7, C4: 84.5, C5: 87.4 },
+    // "Igual ou maior que 12 e menor que 13 meses"
+    '12': { C1: 59.5, C2: 70.8, C3: 89.4, C4: 89.0, C5: 90.8 },
+    // "Igual ou maior que 13 e menor que 14 meses"
+    '13': { C1: 64.0, C2: 74.2, C3: 93.1, C4: 93.5, C5: 94.2 },
+    // "Igual ou maior que 14 e menor que 15 meses"
+    '14': { C1: 68.5, C2: 77.6, C3: 96.8, C4: 98.0, C5: 97.6 },
+    // "Igual ou maior que 15 e menor que 16 meses" - C3/C4/C5 = 100%
+    '15': { C1: 73.0, C2: 81.0, C3: 100.0, C4: 100.0, C5: 100.0 },
+    // "Igual ou maior que 16 e menor que 17 meses"
+    '16': { C1: 77.5, C2: 84.4, C3: 100.0, C4: 100.0, C5: 100.0 },
+    // "Igual ou maior que 17 e menor que 18 meses"
+    '17': { C1: 82.0, C2: 87.8, C3: 100.0, C4: 100.0, C5: 100.0 },
+    // "Igual ou maior que 18 e menor que 19 meses"
+    '18': { C1: 86.5, C2: 91.2, C3: 100.0, C4: 100.0, C5: 100.0 },
+    // "Igual ou maior que 19 e menor que 20 meses"  
+    '19': { C1: 91.0, C2: 94.6, C3: 100.0, C4: 100.0, C5: 100.0 },
+    // "Igual ou maior que 20 e menor que 21 meses"
+    '20': { C1: 95.5, C2: 98.0, C3: 100.0, C4: 100.0, C5: 100.0 },
+    // "Igual ou maior que 21 meses" - TODOS = 100%
+    '21': { C1: 100.0, C2: 100.0, C3: 100.0, C4: 100.0, C5: 100.0 }
   };
 
-  // Se for 21+ meses, todos chegam a 100%
+  // Para 21+ meses, todos chegam a 100%
   if (meses >= 21) return 100.0;
 
-  // Buscar na tabela
+  // Buscar na tabela exata
   const mesInteiro = Math.floor(meses);
-  if (tabelaAnexoI[mesInteiro]) {
-    return tabelaAnexoI[mesInteiro][classificacao];
+  const chave = mesInteiro.toString();
+  
+  if (tabelaAnexoI[chave]) {
+    return tabelaAnexoI[chave][classificacao];
   }
 
-  // Interpolação linear para valores entre meses
+  // Interpolação linear para valores fracionários de mês
   const mesAnterior = Math.floor(meses);
-  const mesProximo = Math.ceil(meses);
+  const mesProximo = mesAnterior + 1;
   
-  if (tabelaAnexoI[mesAnterior] && tabelaAnexoI[mesProximo]) {
-    const valorAnterior = tabelaAnexoI[mesAnterior][classificacao];
-    const valorProximo = tabelaAnexoI[mesProximo][classificacao];
+  if (tabelaAnexoI[mesAnterior.toString()] && tabelaAnexoI[mesProximo.toString()]) {
+    const valorAnterior = tabelaAnexoI[mesAnterior.toString()][classificacao];
+    const valorProximo = tabelaAnexoI[mesProximo.toString()][classificacao];
     const fator = meses - mesAnterior;
     return valorAnterior + (valorProximo - valorAnterior) * fator;
+  }
+
+  // Se for menor que 1 mês, usar a primeira faixa
+  if (meses < 1) {
+    return tabelaAnexoI['0'][classificacao];
   }
 
   return 0;
@@ -299,8 +328,8 @@ export function calcularProbabilidadeDefault(
 
   let pd = basePD[estagio][classificacao];
   
-  // Ajuste por marco regulamentar 4966
-  const marco = getMarcoRegulamentar4966(diasAtraso, classificacao);
+  // Ajuste por marco regulamentar 352/2023
+  const marco = getMarcoRegulamentar352(diasAtraso, classificacao);
   if (marco.provisao100) {
     pd = 100;
   }
@@ -359,7 +388,7 @@ export function calcularProvisaoAvancada(params: CalculoProvisaoParams): Resulta
     taxaJurosEfetiva = 2.5
   } = params;
 
-  const marco = getMarcoRegulamentar4966(diasAtraso, classificacao);
+  const marco = getMarcoRegulamentar352(diasAtraso, classificacao);
   
   // REGRA CRÍTICA: Conforme Anexo I da BCB 352/2023
   if (marco.provisao100) {
@@ -398,8 +427,8 @@ export function calcularProvisaoAvancada(params: CalculoProvisaoParams): Resulta
   const percentualTabelaPerda = regraPerda ? getPercentualPorClassificacao(regraPerda, classificacao) : 0;
   const percentualTabelaIncorrida = regraIncorrida ? getPercentualPorClassificacao(regraIncorrida, classificacao) : 0;
   
-  // Aplicar percentual regulamentar do Anexo I
-  const percentualRegulamentar = calcularPercentualPorMesAtraso(diasAtraso, classificacao);
+  // Aplicar percentual obrigatório do Anexo I da Resolução 352/2023
+  const percentualRegulamentar = calcularPercentualAnexoI352(diasAtraso, classificacao);
 
   // Usar o maior entre todos os cálculos
   let percentualPerda = Math.max(perdaEsperadaPercentual, percentualTabelaPerda, percentualRegulamentar);
@@ -430,7 +459,7 @@ export function deveSerBaixado(diasAtraso: number, classificacao: ClassificacaoR
   deveBaixar: boolean;
   motivo: string;
 } {
-  const marco = getMarcoRegulamentar4966(diasAtraso, classificacao);
+  const marco = getMarcoRegulamentar352(diasAtraso, classificacao);
   
   if (marco.provisao100) {
     const meses = Math.floor(diasAtraso / 30);
@@ -451,7 +480,7 @@ export function deveSerBaixado(diasAtraso: number, classificacao: ClassificacaoR
  */
 export function getMarcosTemporal(diasAtraso: number, classificacao: ClassificacaoRisco) {
   const meses = diasAtraso / 30;
-  const marco = getMarcoRegulamentar4966(diasAtraso, classificacao);
+  const marco = getMarcoRegulamentar352(diasAtraso, classificacao);
   
   return {
     estagio1: diasAtraso <= 30,
