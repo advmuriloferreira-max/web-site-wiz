@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Edit2, Search, Building2, ChevronDown, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +11,7 @@ import { ClienteForm } from "@/components/forms/ClienteForm";
 import { ContratosCliente } from "@/components/cliente/ContratosCliente";
 import { useClientes, Cliente } from "@/hooks/useClientes";
 import { useContratosCountByCliente } from "@/hooks/useContratosByCliente";
+import { usePWANavigation } from "@/hooks/usePWANavigation";
 import { format } from "date-fns";
 
 export default function Clientes() {
@@ -20,6 +21,9 @@ export default function Clientes() {
   const [selectedCliente, setSelectedCliente] = useState<Cliente | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [expandedClientes, setExpandedClientes] = useState<Set<string>>(new Set());
+
+  // Initialize PWA navigation
+  usePWANavigation();
 
   const filteredClientes = clientes?.filter(cliente => 
     cliente.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||

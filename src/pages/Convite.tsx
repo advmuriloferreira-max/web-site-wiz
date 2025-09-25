@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
+import { usePWANavigation } from '@/hooks/usePWANavigation';
 import { z } from 'zod';
 import { Loader2, Building, Shield, UserCheck } from 'lucide-react';
 
@@ -28,6 +29,7 @@ export default function Convite() {
   const { token } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  usePWANavigation(); // Initialize PWA navigation
   const [loading, setLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState('');

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { usePWANavigation } from "@/hooks/usePWANavigation";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,7 @@ interface UserProfile {
 export function GerenciarUsuarios() {
   const { createUser, isAdmin, user } = useAuth();
   const { toast } = useToast();
+  const { shareInviteLink } = usePWANavigation();
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
@@ -119,21 +121,16 @@ export function GerenciarUsuarios() {
           setError(error.message);
         }
       } else {
-        const inviteLink = `${window.location.origin}/convite/${token}`;
+        // Use the PWA navigation hook for better link handling
+        await shareInviteLink(token);
         
-        // Copiar link para clipboard
-        navigator.clipboard.writeText(inviteLink);
-        
-        toast({
-          title: "Convite criado com sucesso!",
-          description: "Link copiado para a área de transferência. Válido por 48 horas."
-        });
         setIsDialogOpen(false);
         fetchConvites();
         (e.target as HTMLFormElement).reset();
 
         // Mostrar o link gerado
         setTimeout(() => {
+          const inviteLink = `${window.location.origin}/convite/${token}`;
           alert(`Link de convite criado:\n\n${inviteLink}\n\nO link foi copiado para a área de transferência e expira em 48 horas.`);
         }, 500);
       }
@@ -340,9 +337,8 @@ export function GerenciarUsuarios() {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => {
-                        const link = `${window.location.origin}/convite/${convite.token}`;
-                        navigator.clipboard.writeText(link);
+                      onClick={async () => {
+                        await shareInviteLink(convite.token);
                         toast({ title: "Link copiado!", description: "Link do convite copiado para a área de transferência." });
                       }}
                     >

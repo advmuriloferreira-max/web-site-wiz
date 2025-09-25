@@ -1,4 +1,4 @@
-const CACHE_NAME = 'murilo-ferreira-advocacia-v2';
+const CACHE_NAME = 'murilo-ferreira-advocacia-v3';
 const urlsToCache = [
   '/',
   '/static/js/bundle.js',
@@ -26,6 +26,25 @@ self.addEventListener('install', (event) => {
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
+  }
+  
+  // Handle URL navigation for PWA
+  if (event.data && event.data.type === 'NAVIGATE_URL') {
+    event.waitUntil(
+      self.clients.matchAll({ type: 'window' }).then((clients) => {
+        if (clients.length > 0) {
+          // Focus existing client and navigate
+          clients[0].focus();
+          clients[0].postMessage({
+            type: 'NAVIGATE_TO',
+            url: event.data.url
+          });
+        } else {
+          // Open new client
+          self.clients.openWindow(event.data.url);
+        }
+      })
+    );
   }
 });
 

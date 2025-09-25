@@ -8,6 +8,7 @@
   "orientation": "portrait",
   "scope": "/",
   "start_url": "/",
+  "id": "/",
   "icons": [
     {
       "src": "/icon-192x192.png",
@@ -23,5 +24,14 @@
     }
   ],
   "categories": ["business", "finance", "productivity"],
-  "lang": "pt-BR"
+  "lang": "pt-BR",
+  "capture_links": "new-client",
+  "url_handlers": [
+    {
+      "origin": "*"
+    }
+  ],
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  }
 }
