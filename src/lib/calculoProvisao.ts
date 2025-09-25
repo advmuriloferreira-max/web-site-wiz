@@ -1,6 +1,7 @@
 import { ProvisaoPerda, ProvisaoPerdaIncorrida } from "@/hooks/useProvisao";
 
 export type ClassificacaoRisco = 'C1' | 'C2' | 'C3' | 'C4' | 'C5';
+export type EstagioRisco = 1 | 2 | 3;
 
 export interface CalculoProvisaoParams {
   valorDivida: number;
@@ -9,6 +10,8 @@ export interface CalculoProvisaoParams {
   tabelaPerda: ProvisaoPerda[];
   tabelaIncorrida: ProvisaoPerdaIncorrida[];
   criterioIncorrida?: string;
+  valorPresente?: number;
+  taxaJurosEfetiva?: number;
 }
 
 export interface ResultadoCalculo {
@@ -17,12 +20,14 @@ export interface ResultadoCalculo {
   valorProvisaoPerda: number;
   valorProvisaoIncorrida: number;
   valorProvisaoTotal: number;
+  estagioRisco: EstagioRisco;
   regraAplicadaPerda?: ProvisaoPerda;
   regraAplicadaIncorrida?: ProvisaoPerdaIncorrida;
+  metodologia: 'completa' | 'simplificada';
 }
 
 /**
- * Calcula a provisão baseada nas tabelas de referência
+ * Calcula a provisão baseada nas regulamentações do BCB (Res. 4966/2021 e BCB 352/2023)
  */
 export function calcularProvisao(params: CalculoProvisaoParams): ResultadoCalculo {
   const {
@@ -33,6 +38,9 @@ export function calcularProvisao(params: CalculoProvisaoParams): ResultadoCalcul
     tabelaIncorrida,
     criterioIncorrida = "Dias de Atraso"
   } = params;
+
+  // Determinar estágio de risco conforme Res. 4966/2021
+  const estagioRisco = determinarEstagio(diasAtraso);
 
   // Encontrar regra aplicável para perda esperada
   const regraPerda = tabelaPerda.find(regra => 
@@ -61,6 +69,8 @@ export function calcularProvisao(params: CalculoProvisaoParams): ResultadoCalcul
     valorProvisaoPerda,
     valorProvisaoIncorrida,
     valorProvisaoTotal,
+    estagioRisco,
+    metodologia: 'completa',
     regraAplicadaPerda: regraPerda,
     regraAplicadaIncorrida: regraIncorrida,
   };
@@ -84,14 +94,12 @@ function getPercentualPorClassificacao(
 }
 
 /**
- * Classifica automaticamente o risco baseado nos dias de atraso
+ * Determina o estágio de risco conforme Resolução 4966/2021
  */
-export function classificarRisco(diasAtraso: number): ClassificacaoRisco {
-  if (diasAtraso <= 30) return 'C1';
-  if (diasAtraso <= 60) return 'C2';
-  if (diasAtraso <= 90) return 'C3';
-  if (diasAtraso <= 180) return 'C4';
-  return 'C5';
+export function determinarEstagio(diasAtraso: number): EstagioRisco {
+  if (diasAtraso <= 30) return 1;  // Estágio 1
+  if (diasAtraso <= 90) return 2;  // Estágio 2 
+  return 3;                        // Estágio 3 (>90 dias = problema de recuperação)
 }
 
 /**
