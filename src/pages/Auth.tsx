@@ -125,14 +125,13 @@ export default function Auth() {
           <CardHeader className="pb-4">
             <CardTitle className="text-center">Autenticação</CardTitle>
             <CardDescription className="text-center">
-              Entre com sua conta ou cadastre-se como membro da equipe
+              Entre com suas credenciais de acesso
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="login" className="space-y-4">
-              <TabsList className="grid w-full grid-cols-2">
+              <TabsList className="grid w-full grid-cols-1">
                 <TabsTrigger value="login">Entrar</TabsTrigger>
-                <TabsTrigger value="signup">Cadastrar</TabsTrigger>
               </TabsList>
 
               {error && (
@@ -183,58 +182,7 @@ export default function Auth() {
                 </form>
               </TabsContent>
 
-              {/* Signup Tab */}
-              <TabsContent value="signup">
-                <form onSubmit={handleSignup} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-nome">Nome Completo</Label>
-                    <Input
-                      id="signup-nome"
-                      name="nome"
-                      type="text"
-                      placeholder="João Silva"
-                      required
-                      disabled={isLoading}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-email">Email</Label>
-                    <Input
-                      id="signup-email"
-                      name="email"
-                      type="email"
-                      placeholder="joao.silva@escritorio.com"
-                      required
-                      disabled={isLoading}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-password">Senha</Label>
-                    <Input
-                      id="signup-password"
-                      name="password"
-                      type="password"
-                      placeholder="Mínimo 6 caracteres"
-                      required
-                      disabled={isLoading}
-                    />
-                  </div>
-                  <Button 
-                    type="submit" 
-                    className="w-full" 
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Cadastrando...
-                      </>
-                    ) : (
-                      'Cadastrar na Equipe'
-                    )}
-                  </Button>
-                </form>
-              </TabsContent>
+              {/* Registro desabilitado - apenas admins podem criar usuários */}
             </Tabs>
           </CardContent>
         </Card>

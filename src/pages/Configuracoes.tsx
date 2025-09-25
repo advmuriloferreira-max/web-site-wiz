@@ -2,19 +2,31 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Settings, Database, Calculator, Shield, ArrowLeft } from "lucide-react";
+import { Settings, Database, Calculator, Shield, ArrowLeft, Users } from "lucide-react";
 import { ConfiguracoesGerais } from "@/components/configuracoes/ConfiguracoesGerais";
 import { TabelasReferencia } from "@/components/configuracoes/TabelasReferencia";
 import { ParametrosCalculo } from "@/components/configuracoes/ParametrosCalculo";
 import { ControleAcesso } from "@/components/configuracoes/ControleAcesso";
+import { GerenciarUsuarios } from "@/components/admin/GerenciarUsuarios";
+import { useAuth } from "@/hooks/useAuth";
 import { Separator } from "@/components/ui/separator";
 
-type ConfiguracaoTipo = "gerais" | "tabelas" | "calculos" | "acesso" | null;
+type ConfiguracaoTipo = "usuarios" | "gerais" | "tabelas" | "calculos" | "acesso" | null;
 
 export default function Configuracoes() {
   const [configuracaoAtiva, setConfiguracaoAtiva] = useState<ConfiguracaoTipo>(null);
+  const { isAdmin } = useAuth();
 
   const configuracoes = [
+    ...(isAdmin ? [{
+      id: "usuarios" as ConfiguracaoTipo,
+      nome: "Gerenciar Usuários",
+      descricao: "Adicionar, remover e gerenciar permissões dos usuários",
+      categoria: "Administração",
+      icon: Users,
+      cor: "text-purple-600",
+      disponivel: true
+    }] : []),
     {
       id: "gerais" as ConfiguracaoTipo,
       nome: "Configurações Gerais",
@@ -55,6 +67,8 @@ export default function Configuracoes() {
 
   const renderConfiguracaoSelecionada = () => {
     switch (configuracaoAtiva) {
+      case "usuarios":
+        return <GerenciarUsuarios />;
       case "gerais":
         return <ConfiguracoesGerais />;
       case "tabelas":
