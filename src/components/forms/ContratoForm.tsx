@@ -10,7 +10,15 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useClientes } from "@/hooks/useClientes";
 import { useBancos } from "@/hooks/useBancos";
 import { useCreateContrato } from "@/hooks/useCreateContrato";
+import { useProvisaoPerda, useProvisaoPerdaIncorrida } from "@/hooks/useProvisao";
+import { 
+  calcularProvisao, 
+  calcularDiasAtraso,
+  diasParaMeses,
+  ClassificacaoRisco 
+} from "@/lib/calculoProvisao";
 import { Calculator, Info } from "lucide-react";
+import { toast } from "sonner";
 
 const contratoSchema = z.object({
   cliente_id: z.string().min(1, "Cliente é obrigatório"),
@@ -39,6 +47,8 @@ export function ContratoForm({ onSuccess }: ContratoFormProps) {
   const { data: clientes } = useClientes();
   const { data: bancos } = useBancos();
   const createContrato = useCreateContrato();
+  const { data: tabelaPerda } = useProvisaoPerda();
+  const { data: tabelaIncorrida } = useProvisaoPerdaIncorrida();
   
   const form = useForm<ContratoFormData>({
     resolver: zodResolver(contratoSchema),
@@ -81,6 +91,58 @@ export function ContratoForm({ onSuccess }: ContratoFormProps) {
       onSuccess?.();
     } catch (error) {
       // Error is handled by the mutation
+    }
+  };
+
+  const calcularProvisaoAutomatica = () => {
+    const valores = form.getValues();
+    
+    // Verificar se temos os dados essenciais
+    if (!valores.valor_divida || !valores.classificacao) {
+      toast.error("Para calcular a provisão, informe pelo menos o valor da dívida e a classificação");
+      return;
+    }
+
+    if (!tabelaPerda || !tabelaIncorrida) {
+      toast.error("Tabelas de referência não carregadas");
+      return;
+    }
+
+    try {
+      // Calcular dias de atraso se houver data do último pagamento
+      let diasAtraso = valores.dias_atraso ? parseInt(valores.dias_atraso) : 0;
+      if (valores.data_ultimo_pagamento && diasAtraso === 0) {
+        diasAtraso = calcularDiasAtraso(valores.data_ultimo_pagamento);
+      }
+
+      // Determinar valor para cálculo (priorizar saldo contábil)
+      const valorDivida = parseFloat(valores.valor_divida);
+      const saldoContabil = valores.saldo_contabil ? parseFloat(valores.saldo_contabil) : null;
+      const valorParaCalculo = saldoContabil || valorDivida;
+
+      // Calcular provisão
+      const resultado = calcularProvisao({
+        valorDivida: valorParaCalculo,
+        diasAtraso,
+        classificacao: valores.classificacao as ClassificacaoRisco,
+        tabelaPerda,
+        tabelaIncorrida,
+        criterioIncorrida: "Dias de Atraso",
+      });
+
+      const mesesAtraso = diasParaMeses(diasAtraso);
+      const percentualProvisao = Math.max(resultado.percentualPerda, resultado.percentualIncorrida);
+
+      // Preencher os campos calculados
+      form.setValue("dias_atraso", diasAtraso.toString());
+      form.setValue("meses_atraso", mesesAtraso.toString());
+      form.setValue("percentual_provisao", percentualProvisao.toFixed(2));
+      form.setValue("valor_provisao", resultado.valorProvisaoTotal.toFixed(2));
+
+      toast.success(`Provisão calculada: ${percentualProvisao.toFixed(2)}% (R$ ${resultado.valorProvisaoTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })})`);
+    } catch (error) {
+      toast.error("Erro ao calcular provisão");
+      console.error(error);
     }
   };
 
@@ -273,6 +335,20 @@ export function ContratoForm({ onSuccess }: ContratoFormProps) {
               </FormItem>
             )}
           />
+        </div>
+
+        {/* Botão para Cálculo Automático */}
+        <div className="flex justify-center py-4">
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={calcularProvisaoAutomatica}
+            disabled={!tabelaPerda || !tabelaIncorrida}
+            className="flex items-center gap-2"
+          >
+            <Calculator className="h-4 w-4" />
+            Calcular Provisão Automaticamente
+          </Button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
