@@ -14,7 +14,311 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      bancos: {
+        Row: {
+          codigo_banco: string | null
+          contato: string | null
+          created_at: string
+          email: string | null
+          id: string
+          nome: string
+          telefone: string | null
+          updated_at: string
+        }
+        Insert: {
+          codigo_banco?: string | null
+          contato?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          nome: string
+          telefone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          codigo_banco?: string | null
+          contato?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          nome?: string
+          telefone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      clientes: {
+        Row: {
+          cpf_cnpj: string | null
+          created_at: string
+          data_cadastro: string
+          email: string | null
+          endereco: string | null
+          id: string
+          nome: string
+          observacoes: string | null
+          responsavel: string | null
+          telefone: string | null
+          updated_at: string
+        }
+        Insert: {
+          cpf_cnpj?: string | null
+          created_at?: string
+          data_cadastro?: string
+          email?: string | null
+          endereco?: string | null
+          id?: string
+          nome: string
+          observacoes?: string | null
+          responsavel?: string | null
+          telefone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          cpf_cnpj?: string | null
+          created_at?: string
+          data_cadastro?: string
+          email?: string | null
+          endereco?: string | null
+          id?: string
+          nome?: string
+          observacoes?: string | null
+          responsavel?: string | null
+          telefone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      contratos: {
+        Row: {
+          acordo_final: number | null
+          banco_id: string
+          classificacao: string | null
+          cliente_id: string
+          created_at: string
+          data_conclusao: string | null
+          data_entrada: string
+          data_ultimo_pagamento: string | null
+          data_vencimento: string | null
+          dias_atraso: number | null
+          id: string
+          meses_atraso: number | null
+          numero_contrato: string | null
+          observacoes: string | null
+          percentual_provisao: number | null
+          proposta_acordo: number | null
+          quantidade_planos: number | null
+          saldo_contabil: number | null
+          situacao: string | null
+          tipo_operacao: string
+          updated_at: string
+          valor_divida: number
+          valor_provisao: number | null
+        }
+        Insert: {
+          acordo_final?: number | null
+          banco_id: string
+          classificacao?: string | null
+          cliente_id: string
+          created_at?: string
+          data_conclusao?: string | null
+          data_entrada?: string
+          data_ultimo_pagamento?: string | null
+          data_vencimento?: string | null
+          dias_atraso?: number | null
+          id?: string
+          meses_atraso?: number | null
+          numero_contrato?: string | null
+          observacoes?: string | null
+          percentual_provisao?: number | null
+          proposta_acordo?: number | null
+          quantidade_planos?: number | null
+          saldo_contabil?: number | null
+          situacao?: string | null
+          tipo_operacao: string
+          updated_at?: string
+          valor_divida: number
+          valor_provisao?: number | null
+        }
+        Update: {
+          acordo_final?: number | null
+          banco_id?: string
+          classificacao?: string | null
+          cliente_id?: string
+          created_at?: string
+          data_conclusao?: string | null
+          data_entrada?: string
+          data_ultimo_pagamento?: string | null
+          data_vencimento?: string | null
+          dias_atraso?: number | null
+          id?: string
+          meses_atraso?: number | null
+          numero_contrato?: string | null
+          observacoes?: string | null
+          percentual_provisao?: number | null
+          proposta_acordo?: number | null
+          quantidade_planos?: number | null
+          saldo_contabil?: number | null
+          situacao?: string | null
+          tipo_operacao?: string
+          updated_at?: string
+          valor_divida?: number
+          valor_provisao?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contratos_banco_id_fkey"
+            columns: ["banco_id"]
+            isOneToOne: false
+            referencedRelation: "bancos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contratos_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      processos: {
+        Row: {
+          acao: string | null
+          contrato_id: string
+          created_at: string
+          diligencias: string | null
+          id: string
+          justica_gratuita: boolean | null
+          liminar: boolean | null
+          numero_processo: string | null
+          prazo: string | null
+          protocolo: string | null
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          acao?: string | null
+          contrato_id: string
+          created_at?: string
+          diligencias?: string | null
+          id?: string
+          justica_gratuita?: boolean | null
+          liminar?: boolean | null
+          numero_processo?: string | null
+          prazo?: string | null
+          protocolo?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          acao?: string | null
+          contrato_id?: string
+          created_at?: string
+          diligencias?: string | null
+          id?: string
+          justica_gratuita?: boolean | null
+          liminar?: boolean | null
+          numero_processo?: string | null
+          prazo?: string | null
+          protocolo?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "processos_contrato_id_fkey"
+            columns: ["contrato_id"]
+            isOneToOne: false
+            referencedRelation: "contratos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      provisao_perda_esperada: {
+        Row: {
+          c1_percentual: number
+          c2_percentual: number
+          c3_percentual: number
+          c4_percentual: number
+          c5_percentual: number
+          created_at: string
+          id: string
+          periodo_atraso: string
+          prazo_final: number
+          prazo_inicial: number
+          updated_at: string
+        }
+        Insert: {
+          c1_percentual: number
+          c2_percentual: number
+          c3_percentual: number
+          c4_percentual: number
+          c5_percentual: number
+          created_at?: string
+          id?: string
+          periodo_atraso: string
+          prazo_final: number
+          prazo_inicial: number
+          updated_at?: string
+        }
+        Update: {
+          c1_percentual?: number
+          c2_percentual?: number
+          c3_percentual?: number
+          c4_percentual?: number
+          c5_percentual?: number
+          created_at?: string
+          id?: string
+          periodo_atraso?: string
+          prazo_final?: number
+          prazo_inicial?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      provisao_perdas_incorridas: {
+        Row: {
+          c1_percentual: number
+          c2_percentual: number
+          c3_percentual: number
+          c4_percentual: number
+          c5_percentual: number
+          created_at: string
+          criterio: string
+          id: string
+          prazo_final: number
+          prazo_inicial: number
+          updated_at: string
+        }
+        Insert: {
+          c1_percentual: number
+          c2_percentual: number
+          c3_percentual: number
+          c4_percentual: number
+          c5_percentual: number
+          created_at?: string
+          criterio: string
+          id?: string
+          prazo_final: number
+          prazo_inicial: number
+          updated_at?: string
+        }
+        Update: {
+          c1_percentual?: number
+          c2_percentual?: number
+          c3_percentual?: number
+          c4_percentual?: number
+          c5_percentual?: number
+          created_at?: string
+          criterio?: string
+          id?: string
+          prazo_final?: number
+          prazo_inicial?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
