@@ -51,7 +51,7 @@ const contratoSchema = z.object({
   reducao_divida: z.string().optional(),
   percentual_honorarios: z.enum(["10", "15", "20"]).optional(),
   valor_honorarios: z.string().optional(),
-  situacao: z.string().optional(),
+  situacao: z.enum(["Em análise", "Em negociação", "Em processo judicial", "Acordo Finalizado"]).optional(),
   observacoes: z.string().optional(),
 });
 
@@ -250,7 +250,7 @@ export function ContratoForm({ onSuccess, contratoParaEditar, clienteIdPredefini
       reducao_divida: (contratoExistente as any).reducao_divida?.toString() || "0",
       percentual_honorarios: (contratoExistente as any).percentual_honorarios?.toString() || undefined,
       valor_honorarios: (contratoExistente as any).valor_honorarios?.toString() || "0",
-      situacao: contratoExistente.situacao || "Em análise",
+      situacao: (contratoExistente.situacao as any) || "Em análise",
       observacoes: contratoExistente.observacoes || "",
     });
 
@@ -986,9 +986,19 @@ export function ContratoForm({ onSuccess, contratoParaEditar, clienteIdPredefini
           render={({ field }) => (
             <FormItem>
               <FormLabel>Situação</FormLabel>
-              <FormControl>
-                <Input placeholder="Em análise" {...field} />
-              </FormControl>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione uma situação" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="Em análise">Em análise</SelectItem>
+                  <SelectItem value="Em negociação">Em negociação</SelectItem>
+                  <SelectItem value="Em processo judicial">Em processo judicial</SelectItem>
+                  <SelectItem value="Acordo Finalizado">Acordo Finalizado</SelectItem>
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}

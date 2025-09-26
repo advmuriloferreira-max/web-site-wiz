@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Plus, Search, Eye, Edit, Trash2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Plus, Search, Eye, Edit, Trash2, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -24,6 +25,7 @@ const getClassificacaoColor = (classificacao: string | null) => {
 };
 
 export default function Contratos() {
+  const navigate = useNavigate();
   const { data: contratos, isLoading } = useContratos();
   const deleteContratoMutation = useDeleteContrato();
   const [searchTerm, setSearchTerm] = useState("");
@@ -64,6 +66,12 @@ export default function Contratos() {
 
   const handleDeleteContrato = (contrato: Contrato) => {
     deleteContratoMutation.mutate(contrato.id);
+  };
+
+  const handleContratoClick = (contrato: Contrato) => {
+    if (contrato.numero_contrato) {
+      navigate(`/contratos/${encodeURIComponent(contrato.numero_contrato)}`);
+    }
   };
 
   const formatCurrency = (value: number) => {
@@ -112,14 +120,19 @@ export default function Contratos() {
       <Card>
         <CardHeader>
           <CardTitle>Lista de Contratos</CardTitle>
-          <div className="flex items-center space-x-2">
-            <Search className="h-4 w-4" />
-            <Input
-              placeholder="Buscar por cliente, banco, número do contrato..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="max-w-sm"
-            />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Search className="h-4 w-4" />
+              <Input
+                placeholder="Buscar por cliente, banco, número do contrato..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="max-w-sm"
+              />
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Clique em uma linha para ver os detalhes do contrato
+            </p>
           </div>
         </CardHeader>
         <CardContent>
@@ -147,14 +160,21 @@ export default function Contratos() {
                   </TableRow>
                 ) : (
                   filteredContratos?.map((contrato) => (
-                    <TableRow key={contrato.id}>
+                    <TableRow 
+                      key={contrato.id} 
+                      className={`${contrato.numero_contrato ? 'cursor-pointer hover:bg-muted/50' : ''}`}
+                      onClick={() => handleContratoClick(contrato)}
+                    >
                       <TableCell className="font-medium">
                         {contrato.clientes?.nome}
                       </TableCell>
                       <TableCell>{contrato.bancos?.nome}</TableCell>
                       <TableCell>
                         {contrato.numero_contrato ? (
-                          <Badge variant="outline">{contrato.numero_contrato}</Badge>
+                          <div className="flex items-center justify-between">
+                            <Badge variant="outline">{contrato.numero_contrato}</Badge>
+                            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                          </div>
                         ) : (
                           <span className="text-muted-foreground">-</span>
                         )}
