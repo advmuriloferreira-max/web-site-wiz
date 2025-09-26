@@ -779,6 +779,77 @@ export function ContratoForm({ onSuccess, contratoParaEditar, clienteIdPredefini
           />
         </div>
 
+        {/* SEÇÃO: Informações de Reestruturação */}
+        <div className="p-4 border rounded-lg bg-muted/50 space-y-4">
+          <h3 className="text-lg font-semibold">Informações de Reestruturação</h3>
+          
+          <FormField
+            control={form.control}
+            name="is_reestruturado"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <FormLabel className="text-base">Operação Reestruturada</FormLabel>
+                  <div className="text-sm text-muted-foreground">
+                    Marque se esta operação foi reestruturada
+                  </div>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          {form.watch("is_reestruturado") && (
+            <FormField
+              control={form.control}
+              name="data_reestruturacao"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Data da Reestruturação</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-[240px] pl-3 text-left font-normal",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value ? (
+                            format(field.value, "dd/MM/yyyy")
+                          ) : (
+                            <span>Selecione a data</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        disabled={(date) =>
+                          date > new Date() || date < new Date("2020-01-01")
+                        }
+                        initialFocus
+                        className={cn("p-3 pointer-events-auto")}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+        </div>
+
         {/* SEÇÃO: Controle de Escritório */}
         <div className="p-4 border rounded-lg bg-muted/50 space-y-4">
           <h3 className="text-lg font-semibold">Controle de Escritório</h3>
@@ -1034,76 +1105,6 @@ export function ContratoForm({ onSuccess, contratoParaEditar, clienteIdPredefini
             </FormItem>
           )}
         />
-
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Informações de Reestruturação</h3>
-          
-          <FormField
-            control={form.control}
-            name="is_reestruturado"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                <div className="space-y-0.5">
-                  <FormLabel className="text-base">Operação Reestruturada</FormLabel>
-                  <div className="text-sm text-muted-foreground">
-                    Marque se esta operação foi reestruturada
-                  </div>
-                </div>
-                <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-
-          {form.watch("is_reestruturado") && (
-            <FormField
-              control={form.control}
-              name="data_reestruturacao"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Data da Reestruturação</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "w-[240px] pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          {field.value ? (
-                            format(field.value, "dd/MM/yyyy")
-                          ) : (
-                            <span>Selecione a data</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        disabled={(date) =>
-                          date > new Date() || date < new Date("2020-01-01")
-                        }
-                        initialFocus
-                        className={cn("p-3 pointer-events-auto")}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          )}
-        </div>
 
         <div className="flex gap-2">
           <Button 
