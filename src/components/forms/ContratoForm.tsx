@@ -7,6 +7,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useClientes } from "@/hooks/useClientes";
 import { useBancos } from "@/hooks/useBancos";
@@ -21,8 +24,10 @@ import {
   diasParaMeses,
   ClassificacaoRisco 
 } from "@/lib/calculoProvisao";
-import { Calculator, Info, Search, Edit } from "lucide-react";
+import { Calculator, Info, Search, Edit, CalendarIcon } from "lucide-react";
 import { toast } from "sonner";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 const contratoSchema = z.object({
   cliente_id: z.string().min(1, "Cliente é obrigatório"),
@@ -53,6 +58,9 @@ const contratoSchema = z.object({
   valor_honorarios: z.string().optional(),
   situacao: z.enum(["Em análise", "Em negociação", "Em processo judicial", "Acordo Finalizado"]).optional(),
   observacoes: z.string().optional(),
+  // Campos de reestruturação
+  is_reestruturado: z.boolean().optional(),
+  data_reestruturacao: z.date().optional(),
 });
 
 type ContratoFormData = z.infer<typeof contratoSchema>;
@@ -105,6 +113,9 @@ export function ContratoForm({ onSuccess, contratoParaEditar, clienteIdPredefini
       valor_honorarios: "0",
       situacao: "Em análise",
       observacoes: "",
+      // Campos de reestruturação
+      is_reestruturado: false,
+      data_reestruturacao: undefined,
     },
   });
 
@@ -140,6 +151,9 @@ export function ContratoForm({ onSuccess, contratoParaEditar, clienteIdPredefini
         valor_honorarios: data.valor_honorarios ? parseFloat(data.valor_honorarios) : undefined,
         situacao: data.situacao || "Em análise",
         observacoes: data.observacoes || null,
+        // Campos de reestruturação
+        is_reestruturado: data.is_reestruturado || false,
+        data_reestruturacao: data.data_reestruturacao ? data.data_reestruturacao.toISOString() : null,
       };
 
       if (isEditing && contratoExistente) {
@@ -252,6 +266,9 @@ export function ContratoForm({ onSuccess, contratoParaEditar, clienteIdPredefini
       valor_honorarios: (contratoExistente as any).valor_honorarios?.toString() || "0",
       situacao: (contratoExistente.situacao as any) || "Em análise",
       observacoes: contratoExistente.observacoes || "",
+      // Campos de reestruturação
+      is_reestruturado: (contratoExistente as any).is_reestruturado || false,
+      data_reestruturacao: (contratoExistente as any).data_reestruturacao ? new Date((contratoExistente as any).data_reestruturacao) : undefined,
     });
 
     toast.success(`Contrato ${contratoExistente.numero_contrato} carregado para edição`);
@@ -1017,6 +1034,76 @@ export function ContratoForm({ onSuccess, contratoParaEditar, clienteIdPredefini
             </FormItem>
           )}
         />
+
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Informações de Reestruturação</h3>
+          
+          <FormField
+            control={form.control}
+            name="is_reestruturado"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <FormLabel className="text-base">Operação Reestruturada</FormLabel>
+                  <div className="text-sm text-muted-foreground">
+                    Marque se esta operação foi reestruturada
+                  </div>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          {form.watch("is_reestruturado") && (
+            <FormField
+              control={form.control}
+              name="data_reestruturacao"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Data da Reestruturação</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-[240px] pl-3 text-left font-normal",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value ? (
+                            format(field.value, "dd/MM/yyyy")
+                          ) : (
+                            <span>Selecione a data</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        disabled={(date) =>
+                          date > new Date() || date < new Date("2020-01-01")
+                        }
+                        initialFocus
+                        className={cn("p-3 pointer-events-auto")}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+        </div>
 
         <div className="flex gap-2">
           <Button 

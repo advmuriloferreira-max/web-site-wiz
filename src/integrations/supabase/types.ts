@@ -101,6 +101,7 @@ export type Database = {
           data_conclusao: string | null
           data_entrada: string
           data_entrada_escritorio: string | null
+          data_reestruturacao: string | null
           data_ultimo_pagamento: string | null
           data_vencimento: string | null
           dias_atraso: number | null
@@ -108,6 +109,7 @@ export type Database = {
           estagio_risco: number | null
           forma_pagamento: string | null
           id: string
+          is_reestruturado: boolean | null
           meses_atraso: number | null
           numero_contrato: string | null
           numero_parcelas: number | null
@@ -139,6 +141,7 @@ export type Database = {
           data_conclusao?: string | null
           data_entrada?: string
           data_entrada_escritorio?: string | null
+          data_reestruturacao?: string | null
           data_ultimo_pagamento?: string | null
           data_vencimento?: string | null
           dias_atraso?: number | null
@@ -146,6 +149,7 @@ export type Database = {
           estagio_risco?: number | null
           forma_pagamento?: string | null
           id?: string
+          is_reestruturado?: boolean | null
           meses_atraso?: number | null
           numero_contrato?: string | null
           numero_parcelas?: number | null
@@ -177,6 +181,7 @@ export type Database = {
           data_conclusao?: string | null
           data_entrada?: string
           data_entrada_escritorio?: string | null
+          data_reestruturacao?: string | null
           data_ultimo_pagamento?: string | null
           data_vencimento?: string | null
           dias_atraso?: number | null
@@ -184,6 +189,7 @@ export type Database = {
           estagio_risco?: number | null
           forma_pagamento?: string | null
           id?: string
+          is_reestruturado?: boolean | null
           meses_atraso?: number | null
           numero_contrato?: string | null
           numero_parcelas?: number | null

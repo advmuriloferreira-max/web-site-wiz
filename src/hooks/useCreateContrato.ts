@@ -40,6 +40,9 @@ export interface ContratoInput {
   valor_honorarios?: number;
   situacao?: string;
   observacoes?: string | null;
+  // Campos de reestruturação
+  is_reestruturado?: boolean;
+  data_reestruturacao?: string | null;
 }
 
 export const useCreateContrato = () => {
