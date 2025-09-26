@@ -7,11 +7,14 @@ export interface CalculoProvisaoParams {
   valorDivida: number;
   diasAtraso: number;
   classificacao: ClassificacaoRisco;
-  tabelaPerda: ProvisaoPerda[];
-  tabelaIncorrida: ProvisaoPerdaIncorrida[];
+  tabelaPerda: any[];
+  tabelaIncorrida: any[];
   criterioIncorrida?: string;
   valorPresente?: number;
   taxaJurosEfetiva?: number;
+  // Novos parâmetros para reestruturação
+  isReestruturado?: boolean;
+  dataReestruturacao?: string | null;
 }
 
 export interface ResultadoCalculo {
@@ -19,7 +22,10 @@ export interface ResultadoCalculo {
   valorProvisao: number;
   estagio: EstagioRisco;
   regra: string;
-  detalhes: string;
+  detalhes?: string;
+  // Novos campos para reestruturação
+  emPeriodoObservacao?: boolean;
+  diasRestantesObservacao?: number;
 }
 
 /**
@@ -57,10 +63,42 @@ export function getMarcoRegulamentar352(diasAtraso: number, classificacao: Class
 }
 
 /**
+ * Verifica se um contrato reestruturado está no período de observação de 6 meses
+ */
+export function verificarPeriodoObservacaoReestruturacao(dataReestruturacao: string): {
+  emPeriodo: boolean;
+  diasRestantes: number;
+} {
+  const hoje = new Date();
+  const dataReest = new Date(dataReestruturacao);
+  const diffTime = hoje.getTime() - dataReest.getTime();
+  const diasDecorridos = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  
+  const PERIODO_OBSERVACAO_DIAS = 180; // 6 meses
+  const emPeriodo = diasDecorridos <= PERIODO_OBSERVACAO_DIAS;
+  const diasRestantes = Math.max(0, PERIODO_OBSERVACAO_DIAS - diasDecorridos);
+  
+  return {
+    emPeriodo,
+    diasRestantes
+  };
+}
+
+/**
  * Calcula a provisão baseada nas regulamentações BCB 352/2023 com marco de 90 dias
  */
 export const calcularProvisao = (params: CalculoProvisaoParams): ResultadoCalculo => {
-  const { diasAtraso, valorDivida, classificacao, tabelaPerda, tabelaIncorrida } = params;
+  const { diasAtraso, valorDivida, classificacao, tabelaPerda, tabelaIncorrida, isReestruturado, dataReestruturacao } = params;
+  
+  // Verificar período de observação para reestruturados
+  let emPeriodoObservacao = false;
+  let diasRestantesObservacao = 0;
+  
+  if (isReestruturado && dataReestruturacao) {
+    const observacao = verificarPeriodoObservacaoReestruturacao(dataReestruturacao);
+    emPeriodoObservacao = observacao.emPeriodo;
+    diasRestantesObservacao = observacao.diasRestantes;
+  }
   
   // MARCO DE 90 DIAS: Determina qual metodologia usar
   const inadimplido = diasAtraso > 90;
@@ -73,7 +111,9 @@ export const calcularProvisao = (params: CalculoProvisaoParams): ResultadoCalcul
       valorProvisao: valorDivida,
       estagio: determinarEstagio(diasAtraso),
       regra: "100% - Marco Regulamentar BCB 352/2023",
-      detalhes: marco100Porcento.detalhes
+      detalhes: marco100Porcento.detalhes,
+      emPeriodoObservacao,
+      diasRestantesObservacao
     };
   }
 
@@ -89,37 +129,44 @@ export const calcularProvisao = (params: CalculoProvisaoParams): ResultadoCalcul
       regraAplicada = tabelaIncorrida.find(regra => 
         mesesAtraso >= regra.prazo_inicial && mesesAtraso <= regra.prazo_final
       );
-      
+
       if (regraAplicada) {
         percentual = getPercentualPorClassificacao(regraAplicada, classificacao);
       }
     }
   } else {
-    // ATÉ 90 DIAS: Usa tabela de perda esperada (Anexo II)
+    // ATÉ 90 DIAS: Usa tabela de perdas esperadas (Anexo II)
     metodologia = "Perdas Esperadas (Anexo II)";
     if (tabelaPerda && tabelaPerda.length > 0) {
       regraAplicada = tabelaPerda.find(regra => 
         diasAtraso >= regra.prazo_inicial && diasAtraso <= regra.prazo_final
       );
-      
+
       if (regraAplicada) {
         percentual = getPercentualPorClassificacao(regraAplicada, classificacao);
       }
     }
   }
 
-  // Aplica percentual mínimo da Resolução 352/2023 Anexo I se aplicável
-  const percentualAnexoI = calcularPercentualAnexoI352(diasAtraso, classificacao);
-  percentual = Math.max(percentual, percentualAnexoI);
+  // Para contratos reestruturados em período de observação, aplicar mínimo de provisão
+  if (emPeriodoObservacao) {
+    // Garantir que o percentual seja pelo menos equivalente ao Estágio 2
+    const percentualMinimoEstagio2 = 3; // Valor típico para estágio 2
+    percentual = Math.max(percentual, percentualMinimoEstagio2);
+    metodologia += " (Reestruturado - Observação 6 meses)";
+  }
 
   const valorProvisao = (valorDivida * percentual) / 100;
+  const estagio = determinarEstagio(diasAtraso);
 
   return {
     percentualProvisao: percentual,
     valorProvisao,
-    estagio: determinarEstagio(diasAtraso),
-    regra: `${metodologia} - ${regraAplicada ? (regraAplicada.periodo_atraso || regraAplicada.criterio) : "Regra padrão"}`,
-    detalhes: `Marco: ${inadimplido ? '>90 dias (inadimplido)' : '≤90 dias (em dia)'} | Metodologia: ${metodologia} | Percentual: ${percentual}%`
+    estagio,
+    regra: `${percentual.toFixed(2)}% - ${metodologia}`,
+    detalhes: regraAplicada ? `Regra: ${regraAplicada.periodo_atraso || regraAplicada.criterio}` : undefined,
+    emPeriodoObservacao,
+    diasRestantesObservacao
   };
 };
 
@@ -132,56 +179,32 @@ function calcularPercentualAnexoI352(diasAtraso: number, classificacao: Classifi
   
   // Tabela EXATA do Anexo I da Resolução BCB 352/2023
   const tabelaAnexoI: Record<string, Record<ClassificacaoRisco, number>> = {
-    // "Menor que um mês"
     '0': { C1: 5.5, C2: 30.0, C3: 45.0, C4: 35.0, C5: 50.0 },
-    // "Igual ou maior que 1 e menor que 2 meses"
     '1': { C1: 10.0, C2: 33.4, C3: 48.7, C4: 39.5, C5: 53.4 },
-    // "Igual ou maior que 2 e menor que 3 meses"  
     '2': { C1: 14.5, C2: 36.8, C3: 52.4, C4: 44.0, C5: 56.8 },
-    // "Igual ou maior que 3 e menor que 4 meses"
     '3': { C1: 19.0, C2: 40.2, C3: 56.1, C4: 48.5, C5: 60.2 },
-    // "Igual ou maior que 4 e menor que 5 meses"
     '4': { C1: 23.5, C2: 43.6, C3: 59.8, C4: 53.0, C5: 63.6 },
-    // "Igual ou maior que 5 e menor que 6 meses"
     '5': { C1: 28.0, C2: 47.0, C3: 63.5, C4: 57.5, C5: 67.0 },
-    // "Igual ou maior que 6 e menor que 7 meses"
     '6': { C1: 32.5, C2: 50.4, C3: 67.2, C4: 62.0, C5: 70.4 },
-    // "Igual ou maior que 7 e menor que 8 meses"
     '7': { C1: 37.0, C2: 53.8, C3: 70.9, C4: 66.5, C5: 73.8 },
-    // "Igual ou maior que 8 e menor que 9 meses"
     '8': { C1: 41.5, C2: 57.2, C3: 74.6, C4: 71.0, C5: 77.2 },
-    // "Igual ou maior que 9 e menor que 10 meses"
     '9': { C1: 46.0, C2: 60.6, C3: 78.3, C4: 75.5, C5: 80.6 },
-    // "Igual ou maior que 10 e menor que 11 meses"
     '10': { C1: 50.5, C2: 64.0, C3: 82.0, C4: 80.0, C5: 84.0 },
-    // "Igual ou maior que 11 e menor que 12 meses"
     '11': { C1: 55.0, C2: 67.4, C3: 85.7, C4: 84.5, C5: 87.4 },
-    // "Igual ou maior que 12 e menor que 13 meses"
     '12': { C1: 59.5, C2: 70.8, C3: 89.4, C4: 89.0, C5: 90.8 },
-    // "Igual ou maior que 13 e menor que 14 meses"
     '13': { C1: 64.0, C2: 74.2, C3: 93.1, C4: 93.5, C5: 94.2 },
-    // "Igual ou maior que 14 e menor que 15 meses"
     '14': { C1: 68.5, C2: 77.6, C3: 96.8, C4: 98.0, C5: 97.6 },
-    // "Igual ou maior que 15 e menor que 16 meses" - C3/C4/C5 = 100%
     '15': { C1: 73.0, C2: 81.0, C3: 100.0, C4: 100.0, C5: 100.0 },
-    // "Igual ou maior que 16 e menor que 17 meses"
     '16': { C1: 77.5, C2: 84.4, C3: 100.0, C4: 100.0, C5: 100.0 },
-    // "Igual ou maior que 17 e menor que 18 meses"
     '17': { C1: 82.0, C2: 87.8, C3: 100.0, C4: 100.0, C5: 100.0 },
-    // "Igual ou maior que 18 e menor que 19 meses"
     '18': { C1: 86.5, C2: 91.2, C3: 100.0, C4: 100.0, C5: 100.0 },
-    // "Igual ou maior que 19 e menor que 20 meses"  
     '19': { C1: 91.0, C2: 94.6, C3: 100.0, C4: 100.0, C5: 100.0 },
-    // "Igual ou maior que 20 e menor que 21 meses"
     '20': { C1: 95.5, C2: 98.0, C3: 100.0, C4: 100.0, C5: 100.0 },
-    // "Igual ou maior que 21 meses" - TODOS = 100%
     '21': { C1: 100.0, C2: 100.0, C3: 100.0, C4: 100.0, C5: 100.0 }
   };
 
-  // Para 21+ meses, todos chegam a 100%
   if (meses >= 21) return 100.0;
-
-  // Buscar na tabela exata
+  
   const mesInteiro = Math.floor(meses);
   const chave = mesInteiro.toString();
   
@@ -189,18 +212,6 @@ function calcularPercentualAnexoI352(diasAtraso: number, classificacao: Classifi
     return tabelaAnexoI[chave][classificacao];
   }
 
-  // Interpolação linear para valores fracionários de mês
-  const mesAnterior = Math.floor(meses);
-  const mesProximo = mesAnterior + 1;
-  
-  if (tabelaAnexoI[mesAnterior.toString()] && tabelaAnexoI[mesProximo.toString()]) {
-    const valorAnterior = tabelaAnexoI[mesAnterior.toString()][classificacao];
-    const valorProximo = tabelaAnexoI[mesProximo.toString()][classificacao];
-    const fator = meses - mesAnterior;
-    return valorAnterior + (valorProximo - valorAnterior) * fator;
-  }
-
-  // Se for menor que 1 mês, usar a primeira faixa
   if (meses < 1) {
     return tabelaAnexoI['0'][classificacao];
   }
@@ -228,8 +239,6 @@ function getPercentualPorClassificacao(
 // ATENÇÃO: A classificação C1-C5 deve ser baseada no TIPO DE OPERAÇÃO, não em dias de atraso
 // Conforme Art. 81 da Resolução BCB 352/2023
 export const classificarRiscoPorTipoOperacao = (tipoOperacao: string): ClassificacaoRisco => {
-  // Esta função deve ser usada apenas como fallback
-  // A classificação correta deve vir do tipo de operação selecionado pelo usuário
   console.warn('ATENÇÃO: Usando classificação de risco por dias de atraso. Deve ser baseada no tipo de operação conforme BCB 352/2023');
   return 'C5'; // Retorna o mais conservador como fallback
 };
@@ -271,9 +280,26 @@ export function classificarRiscoPorEstagio(estagio: EstagioRisco, diasAtraso: nu
 /**
  * Determina o estágio de risco baseado nos dias de atraso
  * @param diasAtraso - Número de dias em atraso
- * @returns 1 se <= 30 dias, 2 se > 30 e <= 90 dias, 3 se > 90 dias
+ * @param isReestruturado - Se a operação foi reestruturada
+ * @param dataReestruturacao - Data da reestruturação
+ * @returns 1 se <= 30 dias, 2 se > 30 e <= 90 dias, 3 se > 90 dias (mínimo 2 para reestruturados em observação)
  */
-export function determinarEstagioRisco(diasAtraso: number): number {
+export function determinarEstagioRisco(
+  diasAtraso: number, 
+  isReestruturado?: boolean, 
+  dataReestruturacao?: string | null
+): number {
+  // Se for reestruturado, verificar período de observação
+  if (isReestruturado && dataReestruturacao) {
+    const observacao = verificarPeriodoObservacaoReestruturacao(dataReestruturacao);
+    if (observacao.emPeriodo) {
+      // Durante o período de observação, mínimo Estágio 2
+      const estagioNormal = diasAtraso <= 30 ? 1 : diasAtraso <= 90 ? 2 : 3;
+      return Math.max(estagioNormal, 2);
+    }
+  }
+
+  // Lógica normal
   if (diasAtraso <= 30) {
     return 1;
   } else if (diasAtraso <= 90) {
@@ -373,8 +399,7 @@ export function calcularProvisaoAvancada(params: CalculoProvisaoParams): Resulta
     classificacao,
     tabelaPerda,
     tabelaIncorrida,
-    criterioIncorrida = "Dias de Atraso",
-    taxaJurosEfetiva = 2.5
+    criterioIncorrida = "Dias de Atraso"
   } = params;
 
   const marco = getMarcoRegulamentar352(diasAtraso, classificacao);
@@ -399,81 +424,39 @@ export function calcularProvisaoAvancada(params: CalculoProvisaoParams): Resulta
   const perdaEsperadaPercentual = (probabilidadeDefault / 100) * (perdaGivenDefault / 100) * 100;
   
   // Aplicar regras das tabelas existentes como base mínima
-  const inadimplido = diasAtraso > 90;
-  let percentualTabela = 0;
-  
-  if (inadimplido && tabelaIncorrida) {
-    const mesesAtraso = diasAtraso / 30;
-    const regraIncorrida = tabelaIncorrida.find(regra => 
-      mesesAtraso >= regra.prazo_inicial && mesesAtraso <= regra.prazo_final
-    );
-    if (regraIncorrida) {
-      percentualTabela = getPercentualPorClassificacao(regraIncorrida, classificacao);
-    }
-  } else if (!inadimplido && tabelaPerda) {
-    const regraPerda = tabelaPerda.find(regra => 
-      diasAtraso >= regra.prazo_inicial && diasAtraso <= regra.prazo_final
-    );
-    if (regraPerda) {
-      percentualTabela = getPercentualPorClassificacao(regraPerda, classificacao);
-    }
-  }
-  
-  // Aplicar percentual obrigatório do Anexo I da Resolução 352/2023
-  const percentualRegulamentar = calcularPercentualAnexoI352(diasAtraso, classificacao);
-
-  // Usar o maior entre todos os cálculos
-  const percentual = Math.max(perdaEsperadaPercentual, percentualTabela, percentualRegulamentar);
-  const valorProvisao = (valorDivida * percentual) / 100;
+  const resultadoSimples = calcularProvisao(params);
+  const percentualFinal = Math.max(perdaEsperadaPercentual, resultadoSimples.percentualProvisao);
 
   return {
-    percentualProvisao: percentual,
-    valorProvisao,
-    estagio: estagio,
-    regra: inadimplido ? "Perdas Incorridas (Anexo I)" : "Perdas Esperadas (Anexo II)",
-    detalhes: `Metodologia avançada: PD=${probabilidadeDefault.toFixed(1)}% | LGD=${perdaGivenDefault.toFixed(1)}% | Percentual final: ${percentual.toFixed(2)}%`
+    percentualProvisao: percentualFinal,
+    valorProvisao: (valorDivida * percentualFinal) / 100,
+    estagio,
+    regra: `Metodologia Avançada - PD: ${probabilidadeDefault.toFixed(1)}% | LGD: ${perdaGivenDefault.toFixed(1)}%`,
+    detalhes: `Perda Esperada: ${perdaEsperadaPercentual.toFixed(2)}% | Base Tabela: ${resultadoSimples.percentualProvisao.toFixed(2)}%`
   };
 }
 
-/**
- * Verifica se o contrato deve ter baixa obrigatória
- */
-export function deveSerBaixado(diasAtraso: number, classificacao: ClassificacaoRisco): {
-  deveBaixar: boolean;
-  motivo: string;
-} {
-  const marco = getMarcoRegulamentar352(diasAtraso, classificacao);
+// Funções auxiliares para verificação de baixa e marcos temporais
+export function deveSerBaixado(diasAtraso: number, classificacao: ClassificacaoRisco): boolean {
+  const meses = diasAtraso / 30;
   
-  if (marco.aplica100Porcento) {
-    const meses = Math.floor(diasAtraso / 30);
-    return {
-      deveBaixar: true,
-      motivo: `Baixa conforme Art. 49 da Res. 4966 - ${meses} meses de atraso (${marco.detalhes})`
-    };
-  }
-
-  return {
-    deveBaixar: false,
-    motivo: ""
-  };
+  if (classificacao === 'C5' && meses >= 18) return true;
+  if ((classificacao === 'C3' || classificacao === 'C4') && meses >= 24) return true;
+  if ((classificacao === 'C1' || classificacao === 'C2') && meses >= 36) return true;
+  
+  return false;
 }
 
-/**
- * Calcula os marcos temporais regulamentares da 4966
- */
 export function getMarcosTemporal(diasAtraso: number, classificacao: ClassificacaoRisco) {
   const meses = diasAtraso / 30;
-  const marco = getMarcoRegulamentar352(diasAtraso, classificacao);
+  const estagio = determinarEstagio(diasAtraso);
   
   return {
-    estagio1: diasAtraso <= 30,
-    estagio2: diasAtraso > 30 && diasAtraso <= 90,
-    estagio3: diasAtraso > 90,
-    stopAccrual: diasAtraso > 90,
-    provisao100: marco.aplica100Porcento,
-    baixaObrigatoria: marco.aplica100Porcento,
-    marcoAtual: marco.aplica100Porcento ? marco.detalhes : null,
-    proximoMarco: marco.aplica100Porcento ? null : `Provisão gradual - ${meses.toFixed(1)} meses`,
-    mesesAtraso: Math.floor(meses)
+    estagio,
+    mesesAtraso: meses,
+    paraAcumuloJuros: diasAtraso > 90,
+    para100Porcento: getMarcoRegulamentar352(diasAtraso, classificacao).aplica100Porcento,
+    paraBaixa: deveSerBaixado(diasAtraso, classificacao),
+    observacoes: `Estágio ${estagio} | ${meses.toFixed(1)} meses de atraso`
   };
 }

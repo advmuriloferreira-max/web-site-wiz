@@ -38,7 +38,7 @@ export const useUpdateContrato = () => {
       let valorProvisao = contratoInput.valor_provisao || 0;
 
       // Calcular estágio de risco automaticamente baseado nos dias de atraso
-      const estagioRisco = determinarEstagioRisco(diasAtraso);
+      const estagioRisco = determinarEstagioRisco(diasAtraso, contratoInput.is_reestruturado, contratoInput.data_reestruturacao);
       console.log(`Atualizando - Estágio de risco calculado: ${estagioRisco} (baseado em ${diasAtraso} dias de atraso)`);
 
       // Calcular provisão automaticamente se temos dados suficientes e tabelas carregadas
@@ -53,6 +53,8 @@ export const useUpdateContrato = () => {
           tabelaPerda,
           tabelaIncorrida,
           criterioIncorrida: "Dias de Atraso",
+          isReestruturado: contratoInput.is_reestruturado,
+          dataReestruturacao: contratoInput.data_reestruturacao,
         });
 
         percentualProvisao = resultado.percentualProvisao;

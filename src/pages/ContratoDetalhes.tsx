@@ -1,12 +1,14 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Edit, FileText, Calculator } from "lucide-react";
+import { ArrowLeft, Edit, FileText, Calculator, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ContratoForm } from "@/components/forms/ContratoForm";
 import { useContratoByNumero } from "@/hooks/useContratoByNumero";
+import { verificarPeriodoObservacaoReestruturacao } from "@/lib/calculoProvisao";
 import { format } from "date-fns";
 import { useState } from "react";
 
@@ -140,6 +142,30 @@ export default function ContratoDetalhes() {
         </Dialog>
       </div>
 
+      {/* Alerta para contratos reestruturados em período de observação */}
+      {(contrato as any).is_reestruturado && (contrato as any).data_reestruturacao && (() => {
+        const observacao = verificarPeriodoObservacaoReestruturacao((contrato as any).data_reestruturacao);
+        if (observacao.emPeriodo) {
+          return (
+            <Alert className="border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-950">
+              <AlertTriangle className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+              <AlertDescription className="text-yellow-800 dark:text-yellow-200">
+                <strong>Operação Reestruturada - Período de Observação</strong>
+                <br />
+                Este contrato está em período de observação regulamentar de 6 meses. 
+                Mantido em Estágio de Risco mínimo 2 conforme normativas.
+                <br />
+                <span className="text-sm">
+                  Restam {observacao.diasRestantes} dias para conclusão do período de observação.
+                  Data da reestruturação: {format(new Date((contrato as any).data_reestruturacao), "dd/MM/yyyy")}
+                </span>
+              </AlertDescription>
+            </Alert>
+          );
+        }
+        return null;
+      })()}
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Informações Básicas */}
         <Card className="lg:col-span-2">
@@ -236,6 +262,15 @@ export default function ContratoDetalhes() {
                 <label className="text-sm font-medium text-muted-foreground">Data de Conclusão</label>
                 <p className="text-lg">{formatDate(contrato.data_conclusao)}</p>
               </div>
+              {(contrato as any).is_reestruturado && (
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Data da Reestruturação</label>
+                  <p className="text-lg">{formatDate((contrato as any).data_reestruturacao)}</p>
+                  <Badge variant="outline" className="mt-1">
+                    Operação Reestruturada
+                  </Badge>
+                </div>
+              )}
             </div>
 
             {contrato.observacoes && (
@@ -277,7 +312,7 @@ export default function ContratoDetalhes() {
 
             <Separator />
 
-            {contrato.percentual_provisao > 0 && (
+            {contrato.valor_provisao > 0 && (
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Provisão</label>
                 <p className="text-lg font-medium">
@@ -286,6 +321,17 @@ export default function ContratoDetalhes() {
                 <p className="text-xl font-semibold text-orange-600">
                   {formatCurrency(contrato.valor_provisao)}
                 </p>
+                {(contrato as any).is_reestruturado && (contrato as any).data_reestruturacao && (() => {
+                  const observacao = verificarPeriodoObservacaoReestruturacao((contrato as any).data_reestruturacao);
+                  if (observacao.emPeriodo) {
+                    return (
+                      <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
+                        ⚠️ Provisão ajustada por reestruturação
+                      </p>
+                    );
+                  }
+                  return null;
+                })()}
               </div>
             )}
 
