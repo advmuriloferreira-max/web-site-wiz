@@ -105,6 +105,7 @@ export type Database = {
           data_vencimento: string | null
           dias_atraso: number | null
           escritorio_banco_acordo: string | null
+          estagio_risco: number | null
           forma_pagamento: string | null
           id: string
           meses_atraso: number | null
@@ -142,6 +143,7 @@ export type Database = {
           data_vencimento?: string | null
           dias_atraso?: number | null
           escritorio_banco_acordo?: string | null
+          estagio_risco?: number | null
           forma_pagamento?: string | null
           id?: string
           meses_atraso?: number | null
@@ -179,6 +181,7 @@ export type Database = {
           data_vencimento?: string | null
           dias_atraso?: number | null
           escritorio_banco_acordo?: string | null
+          estagio_risco?: number | null
           forma_pagamento?: string | null
           id?: string
           meses_atraso?: number | null

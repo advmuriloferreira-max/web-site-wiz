@@ -269,6 +269,21 @@ export function classificarRiscoPorEstagio(estagio: EstagioRisco, diasAtraso: nu
 }
 
 /**
+ * Determina o estágio de risco baseado nos dias de atraso
+ * @param diasAtraso - Número de dias em atraso
+ * @returns 1 se <= 30 dias, 2 se > 30 e <= 90 dias, 3 se > 90 dias
+ */
+export function determinarEstagioRisco(diasAtraso: number): number {
+  if (diasAtraso <= 30) {
+    return 1;
+  } else if (diasAtraso <= 90) {
+    return 2;
+  } else {
+    return 3;
+  }
+}
+
+/**
  * Calcula dias de atraso baseado na data de vencimento
  */
 export function calcularDiasAtraso(dataVencimento: string): number {

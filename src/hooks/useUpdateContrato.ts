@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { useProvisaoPerda, useProvisaoPerdaIncorrida } from "./useProvisao";
 import { 
   calcularProvisao, 
+  determinarEstagioRisco,
   ClassificacaoRisco 
 } from "@/lib/calculoProvisao";
 import { ContratoInput } from "./useCreateContrato";
@@ -25,6 +26,9 @@ export const useUpdateContrato = () => {
       let classificacao = contratoInput.classificacao;
       let percentualProvisao = contratoInput.percentual_provisao || 0;
       let valorProvisao = contratoInput.valor_provisao || 0;
+
+      // Calcular estágio de risco automaticamente baseado nos dias de atraso
+      const estagioRisco = determinarEstagioRisco(diasAtraso);
 
       // Calcular provisão automaticamente se temos dados suficientes e tabelas carregadas
       if (tabelaPerda && tabelaIncorrida && contratoInput.classificacao) {
@@ -53,6 +57,7 @@ export const useUpdateContrato = () => {
         classificacao: classificacao,
         percentual_provisao: percentualProvisao,
         valor_provisao: valorProvisao,
+        estagio_risco: estagioRisco,
         situacao: contratoInput.situacao || "Em análise",
       };
 

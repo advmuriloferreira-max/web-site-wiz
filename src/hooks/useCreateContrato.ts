@@ -7,6 +7,7 @@ import {
   classificarRisco, 
   calcularDiasAtraso,
   diasParaMeses,
+  determinarEstagioRisco,
   ClassificacaoRisco 
 } from "@/lib/calculoProvisao";
 
@@ -56,6 +57,9 @@ export const useCreateContrato = () => {
       let percentualProvisao = contratoInput.percentual_provisao || 0;
       let valorProvisao = contratoInput.valor_provisao || 0;
 
+      // Calcular estágio de risco automaticamente baseado nos dias de atraso
+      const estagioRisco = determinarEstagioRisco(diasAtraso);
+
       // Calcular provisão automaticamente se temos dados suficientes e tabelas carregadas
       // A classificação deve ser informada pelo usuário (vem no contrato original)
       if (tabelaPerda && tabelaIncorrida && contratoInput.classificacao) {
@@ -83,6 +87,7 @@ export const useCreateContrato = () => {
         classificacao: classificacao,
         percentual_provisao: percentualProvisao,
         valor_provisao: valorProvisao,
+        estagio_risco: estagioRisco,
         situacao: contratoInput.situacao || "Em análise",
       };
 
