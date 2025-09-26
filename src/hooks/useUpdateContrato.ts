@@ -26,8 +26,10 @@ export const useUpdateContrato = () => {
       let diasAtraso = 0;
       if (contratoInput.data_ultimo_pagamento) {
         diasAtraso = calcularDiasAtraso(contratoInput.data_ultimo_pagamento);
+        console.log(`Atualizando - Calculando dias de atraso baseado na data: ${contratoInput.data_ultimo_pagamento} = ${diasAtraso} dias`);
       } else if (contratoInput.dias_atraso) {
         diasAtraso = Number(contratoInput.dias_atraso) || 0;
+        console.log(`Atualizando - Usando dias de atraso informados: ${diasAtraso} dias`);
       }
 
       let mesesAtraso = diasParaMeses(diasAtraso);
@@ -37,6 +39,7 @@ export const useUpdateContrato = () => {
 
       // Calcular estágio de risco automaticamente baseado nos dias de atraso
       const estagioRisco = determinarEstagioRisco(diasAtraso);
+      console.log(`Atualizando - Estágio de risco calculado: ${estagioRisco} (baseado em ${diasAtraso} dias de atraso)`);
 
       // Calcular provisão automaticamente se temos dados suficientes e tabelas carregadas
       if (tabelaPerda && tabelaIncorrida && contratoInput.classificacao) {
