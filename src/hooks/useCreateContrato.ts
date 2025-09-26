@@ -4,7 +4,6 @@ import { toast } from "sonner";
 import { useProvisaoPerda, useProvisaoPerdaIncorrida } from "./useProvisao";
 import { 
   calcularProvisao, 
-  classificarRisco, 
   calcularDiasAtraso,
   diasParaMeses,
   determinarEstagioRisco,
@@ -50,9 +49,15 @@ export const useCreateContrato = () => {
   
   return useMutation({
     mutationFn: async (contratoInput: ContratoInput) => {
-      // Calcular automações baseadas nos dados informados
-      let diasAtraso = contratoInput.dias_atraso || 0;
-      let mesesAtraso = contratoInput.meses_atraso || 0;
+      // Calcular dias de atraso baseado na data do último pagamento se fornecida
+      let diasAtraso = 0;
+      if (contratoInput.data_ultimo_pagamento) {
+        diasAtraso = calcularDiasAtraso(contratoInput.data_ultimo_pagamento);
+      } else if (contratoInput.dias_atraso) {
+        diasAtraso = Number(contratoInput.dias_atraso) || 0;
+      }
+
+      let mesesAtraso = diasParaMeses(diasAtraso);
       let classificacao = contratoInput.classificacao;
       let percentualProvisao = contratoInput.percentual_provisao || 0;
       let valorProvisao = contratoInput.valor_provisao || 0;
