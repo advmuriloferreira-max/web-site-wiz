@@ -24,6 +24,24 @@ const getClassificacaoColor = (classificacao: string | null) => {
   }
 };
 
+const getEstagioRiscoColor = (estagio: number | null) => {
+  switch (estagio) {
+    case 1: return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
+    case 2: return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300";
+    case 3: return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300";
+    default: return "bg-muted text-muted-foreground";
+  }
+};
+
+const getEstagioRiscoLabel = (estagio: number | null) => {
+  switch (estagio) {
+    case 1: return "Estágio 1";
+    case 2: return "Estágio 2";
+    case 3: return "Estágio 3";
+    default: return "N/A";
+  }
+};
+
 export default function Contratos() {
   const navigate = useNavigate();
   const { data: contratos, isLoading } = useContratos();
@@ -146,6 +164,7 @@ export default function Contratos() {
                   <TableHead>Tipo</TableHead>
                   <TableHead>Valor Dívida</TableHead>
                   <TableHead>Classificação</TableHead>
+                  <TableHead>Estágio Risco</TableHead>
                   <TableHead>Situação</TableHead>
                   <TableHead>Atraso (dias)</TableHead>
                   <TableHead className="text-right">Ações</TableHead>
@@ -154,7 +173,7 @@ export default function Contratos() {
               <TableBody>
                 {filteredContratos?.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={10} className="text-center py-8 text-muted-foreground">
                       Nenhum contrato encontrado
                     </TableCell>
                   </TableRow>
@@ -187,6 +206,15 @@ export default function Contratos() {
                         {contrato.classificacao ? (
                           <Badge className={getClassificacaoColor(contrato.classificacao)}>
                             {contrato.classificacao}
+                          </Badge>
+                        ) : (
+                          <span className="text-muted-foreground">-</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {(contrato as any).estagio_risco ? (
+                          <Badge className={getEstagioRiscoColor((contrato as any).estagio_risco)}>
+                            {getEstagioRiscoLabel((contrato as any).estagio_risco)}
                           </Badge>
                         ) : (
                           <span className="text-muted-foreground">-</span>

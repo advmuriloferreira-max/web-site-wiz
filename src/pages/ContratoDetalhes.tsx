@@ -21,6 +21,24 @@ const getClassificacaoColor = (classificacao: string | null) => {
   }
 };
 
+const getEstagioRiscoColor = (estagio: number | null) => {
+  switch (estagio) {
+    case 1: return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
+    case 2: return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300";
+    case 3: return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300";
+    default: return "bg-muted text-muted-foreground";
+  }
+};
+
+const getEstagioRiscoLabel = (estagio: number | null) => {
+  switch (estagio) {
+    case 1: return "Estágio 1";
+    case 2: return "Estágio 2";
+    case 3: return "Estágio 3";
+    default: return "N/A";
+  }
+};
+
 const getSituacaoColor = (situacao: string | null) => {
   switch (situacao) {
     case "Em análise": return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300";
@@ -154,7 +172,7 @@ export default function ContratoDetalhes() {
 
             <Separator />
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Situação</label>
                 <div className="mt-1">
@@ -169,6 +187,18 @@ export default function ContratoDetalhes() {
                   {contrato.classificacao ? (
                     <Badge className={getClassificacaoColor(contrato.classificacao)}>
                       {contrato.classificacao}
+                    </Badge>
+                  ) : (
+                    <span className="text-muted-foreground">-</span>
+                  )}
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Estágio de Risco</label>
+                <div className="mt-1">
+                  {(contrato as any).estagio_risco ? (
+                    <Badge className={getEstagioRiscoColor((contrato as any).estagio_risco)}>
+                      {getEstagioRiscoLabel((contrato as any).estagio_risco)}
                     </Badge>
                   ) : (
                     <span className="text-muted-foreground">-</span>
