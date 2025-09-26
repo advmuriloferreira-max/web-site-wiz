@@ -1,10 +1,12 @@
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import { Link } from "react-router-dom";
 import { useContratosStats } from "@/hooks/useContratos";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { ClassificacaoChart } from "@/components/dashboard/ClassificacaoChart";
 import { AcordosChart } from "@/components/dashboard/AcordosChart";
 import { ClientesAnalysisChart } from "@/components/dashboard/ClientesAnalysisChart";
+import { ClienteSelector } from "@/components/dashboard/ClienteSelector";
+import { ClienteAnalysisDetails } from "@/components/dashboard/ClienteAnalysisDetails";
 import { TendenciasChart } from "@/components/dashboard/TendenciasChart";
 import { PerformanceCard } from "@/components/dashboard/PerformanceCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,6 +26,7 @@ import {
 
 function DashboardContent() {
   const { data: stats, isLoading, error } = useContratosStats();
+  const [selectedClienteId, setSelectedClienteId] = useState<string | null>(null);
 
   if (error) {
     return (
@@ -184,7 +187,19 @@ function DashboardContent() {
 
         {/* Análise de Clientes */}
         <TabsContent value="clientes" className="space-y-6">
-          <ClientesAnalysisChart />
+          <div className="grid gap-6 lg:grid-cols-3">
+            <ClienteSelector 
+              selectedClienteId={selectedClienteId}
+              onClienteSelect={setSelectedClienteId}
+            />
+            <div className="lg:col-span-2">
+              {selectedClienteId ? (
+                <ClienteAnalysisDetails clienteId={selectedClienteId} />
+              ) : (
+                <ClientesAnalysisChart />
+              )}
+            </div>
+          </div>
         </TabsContent>
 
         {/* Tendências */}
