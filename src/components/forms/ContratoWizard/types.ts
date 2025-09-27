@@ -21,14 +21,14 @@ export const etapa2Schema = z.object({
 export const etapa3Schema = z.object({
   dias_atraso: z.string().optional(),
   meses_atraso: z.string().optional(),
-  classificacao: z.enum(["C1", "C2", "C3", "C4", "C5"]).optional(),
+  classificacao: z.enum(["C1", "C2", "C3", "C4", "C5"]).nullable().optional(),
   percentual_provisao: z.string().optional(),
   valor_provisao: z.string().optional(),
   proposta_acordo: z.string().optional(),
 });
 
 export const etapa4Schema = z.object({
-  forma_pagamento: z.enum(["a_vista", "parcelado"]).optional(),
+  forma_pagamento: z.enum(["a_vista", "parcelado"]).nullable().optional(),
   numero_parcelas: z.string().optional(),
   valor_parcela: z.string().optional(),
   escritorio_banco_acordo: z.string().optional(),
@@ -36,15 +36,15 @@ export const etapa4Schema = z.object({
   contato_acordo_telefone: z.string().optional(),
   observacoes: z.string().optional(),
   is_reestruturado: z.boolean().optional(),
-  data_reestruturacao: z.date().optional(),
+  data_reestruturacao: z.date().nullable().optional(),
 }).partial(); // Tornar todos os campos completamente opcionais
 
 export const etapa5Schema = z.object({
   acordo_final: z.string().optional(),
   reducao_divida: z.string().optional(),
-  percentual_honorarios: z.enum(["10", "15", "20"]).optional(),
+  percentual_honorarios: z.enum(["10", "15", "20"]).nullable().optional(),
   valor_honorarios: z.string().optional(),
-  situacao: z.enum(["Em análise", "Em negociação", "Em processo judicial", "Acordo Finalizado"]).optional(),
+  situacao: z.enum(["Em análise", "Em negociação", "Em processo judicial", "Acordo Finalizado"]).nullable().optional(),
   tempo_escritorio: z.string().optional(),
 }).partial(); // Tornar todos os campos completamente opcionais
 
