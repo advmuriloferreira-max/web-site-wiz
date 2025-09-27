@@ -1,26 +1,6 @@
 import { useState, useMemo, useCallback } from 'react';
 
-export interface FilterRule {
-  field: string;
-  operator: 'equals' | 'contains' | 'startsWith' | 'endsWith' | 'gt' | 'lt' | 'gte' | 'lte' | 'between' | 'in';
-  value: any;
-  label?: string;
-}
-
-export interface SavedFilter {
-  id: string;
-  name: string;
-  rules: FilterRule[];
-  createdAt: Date;
-}
-
-export interface SortConfig {
-  field: string;
-  direction: 'asc' | 'desc';
-  priority: number;
-}
-
-// Helper functions
+// Helper functions - defined outside the hook to avoid hoisting issues
 const getNestedValue = (obj: any, path: string) => {
   return path.split('.').reduce((current, key) => current?.[key], obj);
 };
@@ -58,6 +38,26 @@ const applyFilterRule = (value: any, rule: FilterRule): boolean => {
       return true;
   }
 };
+
+export interface FilterRule {
+  field: string;
+  operator: 'equals' | 'contains' | 'startsWith' | 'endsWith' | 'gt' | 'lt' | 'gte' | 'lte' | 'between' | 'in';
+  value: any;
+  label?: string;
+}
+
+export interface SavedFilter {
+  id: string;
+  name: string;
+  rules: FilterRule[];
+  createdAt: Date;
+}
+
+export interface SortConfig {
+  field: string;
+  direction: 'asc' | 'desc';
+  priority: number;
+}
 
 export const useAdvancedFilters = <T extends Record<string, any>>(
   data: T[],
