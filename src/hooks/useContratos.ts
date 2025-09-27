@@ -65,14 +65,18 @@ export const useContratosStats = () => {
     queryFn: async () => {
       const { data: contratos, error } = await supabase
         .from("contratos")
-        .select("valor_divida, valor_provisao, classificacao, situacao");
+        .select("valor_divida, saldo_contabil, valor_provisao, classificacao, situacao");
 
       if (error) {
         throw new Error(`Erro ao buscar estatísticas: ${error.message}`);
       }
 
       const totalContratos = contratos.length;
-      const valorTotalDividas = contratos.reduce((sum, c) => sum + (c.valor_divida || 0), 0);
+      const valorTotalDividas = contratos.reduce((sum, c) => {
+        // Se tem saldo contábil, usar ele; senão usar valor da dívida
+        const valorBase = c.saldo_contabil ? c.saldo_contabil : (c.valor_divida || 0);
+        return sum + valorBase;
+      }, 0);
       const valorTotalProvisao = contratos.reduce((sum, c) => sum + (c.valor_provisao || 0), 0);
       
       const porClassificacao = contratos.reduce((acc, c) => {
