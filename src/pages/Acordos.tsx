@@ -51,8 +51,8 @@ export default function Acordos() {
     totalContratos: contratos?.length || 0,
     comProposta: contratos?.filter(c => c.proposta_acordo).length || 0,
     acordosFinalizados: contratos?.filter(c => c.acordo_final).length || 0,
-    valorTotalOriginal: contratos?.reduce((sum, c) => sum + c.valor_divida, 0) || 0,
-    valorTotalAcordos: contratos?.reduce((sum, c) => sum + (c.acordo_final || 0), 0) || 0,
+    valorTotalOriginal: contratos?.filter(c => c.acordo_final).reduce((sum, c) => sum + c.valor_divida, 0) || 0,
+    valorTotalAcordos: contratos?.filter(c => c.acordo_final).reduce((sum, c) => sum + (c.acordo_final || 0), 0) || 0,
   };
 
   const economiaTotal = estatisticas.valorTotalOriginal - estatisticas.valorTotalAcordos;
@@ -72,8 +72,9 @@ export default function Acordos() {
           <CardContent className="flex items-center p-6">
             <DollarSign className="h-8 w-8 text-blue-600" />
             <div className="ml-4">
-              <p className="text-sm font-medium text-muted-foreground">Valor Original</p>
+              <p className="text-sm font-medium text-muted-foreground">Valor Original Negociado</p>
               <p className="text-xl font-bold">{formatCurrency(estatisticas.valorTotalOriginal)}</p>
+              <p className="text-xs text-muted-foreground">Apenas acordos finalizados</p>
             </div>
           </CardContent>
         </Card>
@@ -81,8 +82,9 @@ export default function Acordos() {
           <CardContent className="flex items-center p-6">
             <TrendingDown className="h-8 w-8 text-green-600" />
             <div className="ml-4">
-              <p className="text-sm font-medium text-muted-foreground">Economia Total</p>
+              <p className="text-sm font-medium text-muted-foreground">Economia Real</p>
               <p className="text-xl font-bold text-green-600">{formatCurrency(economiaTotal)}</p>
+              <p className="text-xs text-muted-foreground">Valor efetivamente economizado</p>
             </div>
           </CardContent>
         </Card>
