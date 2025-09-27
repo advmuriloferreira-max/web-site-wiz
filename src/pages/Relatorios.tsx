@@ -126,66 +126,76 @@ export default function Relatorios() {
         {relatorios.map((relatorio, index) => (
           <div 
             key={relatorio.id} 
-            className="cursor-pointer group"
+            className={`cursor-pointer group animate-scale-in animate-delay-${index}`}
             onClick={() => setRelatorioAtivo(relatorio.id)}
           >
             <GlassCard 
               variant="subtle" 
-              className={`h-full interactive-card animate-scale-in animate-delay-${index} group-hover:shadow-xl transition-all duration-300`}
+              className="h-full interactive-card group-hover:shadow-xl transition-all duration-300"
             >
-            <CardHeader>
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="glass-element p-3 rounded-full">
-                  <ColoredIcon icon={relatorio.icon} className={relatorio.cor} />
+              <CardHeader className="pb-4">
+                <div className="flex items-start space-x-4">
+                  <div className="glass-element p-3 rounded-full flex-shrink-0">
+                    <ColoredIcon icon={relatorio.icon} className={relatorio.cor} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <CardTitle className="text-lg font-semibold mb-2 line-clamp-1">
+                      {relatorio.nome}
+                    </CardTitle>
+                    <p className="text-sm text-muted-foreground line-clamp-2">
+                      {relatorio.descricao}
+                    </p>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <CardTitle className="text-lg">{relatorio.nome}</CardTitle>
-                  <p className="text-sm text-muted-foreground">{relatorio.descricao}</p>
+              </CardHeader>
+              
+              <CardContent className="pt-0">
+                <div className="space-y-4">
+                  {/* Status Badge */}
+                  <div className="flex justify-start">
+                    {relatorio.loading ? (
+                      <Skeleton className="h-6 w-24" />
+                    ) : (
+                      <Badge variant="outline" className="font-medium">
+                        {Array.isArray(relatorio.dados) ? relatorio.dados.length : 0} registros
+                      </Badge>
+                    )}
+                  </div>
+                  
+                  <Separator className="opacity-50" />
+                  
+                  {/* Botões de Ação */}
+                  <div className="flex justify-center space-x-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleExportPDF(relatorio.id);
+                      }}
+                      className="interactive-button flex-1 max-w-[100px]"
+                      disabled={relatorio.loading}
+                    >
+                      <FileDown className="h-4 w-4 mr-1" />
+                      PDF
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleExportCSV(relatorio.id);
+                      }}
+                      className="interactive-button flex-1 max-w-[100px]"
+                      disabled={relatorio.loading}
+                    >
+                      <Download className="h-4 w-4 mr-1" />
+                      CSV
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  {relatorio.loading ? (
-                    <Skeleton className="h-4 w-20" />
-                  ) : (
-                    <Badge variant="outline">
-                      {Array.isArray(relatorio.dados) ? relatorio.dados.length : 0} registros
-                    </Badge>
-                  )}
-                </div>
-                <div className="flex space-x-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleExportPDF(relatorio.id);
-                    }}
-                    className="interactive-button"
-                    disabled={relatorio.loading}
-                  >
-                    <FileDown className="h-4 w-4 mr-1" />
-                    PDF
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleExportCSV(relatorio.id);
-                    }}
-                    className="interactive-button"
-                    disabled={relatorio.loading}
-                  >
-                    <Download className="h-4 w-4 mr-1" />
-                    CSV
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </GlassCard>
+              </CardContent>
+            </GlassCard>
           </div>
         ))}
       </div>
