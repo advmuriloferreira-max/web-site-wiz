@@ -7,13 +7,15 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CalendarIcon, Download, RefreshCw, TrendingUp, AlertCircle, LineChart, Users } from "lucide-react";
-import { format, addMonths } from "date-fns";
+import { format, addMonths, addDays, differenceInDays, subDays } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useContratos } from "@/hooks/useContratos";
 import { useClientes } from "@/hooks/useClientes";
 import { useContratosByCliente } from "@/hooks/useContratosByCliente";
-import { determinarEstagio, calcularProvisao } from "@/lib/calculoProvisao";
-import { LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from "recharts";
+import { determinarEstagio, calcularProvisao, ClassificacaoRisco } from "@/lib/calculoProvisao";
+import { useProvisaoPerda, useProvisaoPerdaIncorrida } from "@/hooks/useProvisao";
+import { toast } from "sonner";
+import { LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart, ReferenceLine } from "recharts";
 
 interface MigrationData {
   fromStage: number;
@@ -41,6 +43,10 @@ export default function RelatoriosAvancados() {
   const { data: contratos } = useContratos();
   const { data: clientes } = useClientes();
   const { data: clienteContratos } = useContratosByCliente(selectedClienteId || null);
+  
+  // Hooks para tabelas de provisão
+  const tabelaPerda = useProvisaoPerda();
+  const tabelaIncorrida = useProvisaoPerdaIncorrida();
 
   const formatDate = (date: Date | undefined) => {
     return date ? format(date, "dd/MM/yyyy") : "Selecione a data";
@@ -138,89 +144,88 @@ export default function RelatoriosAvancados() {
       const contrato = clienteContratos.find(c => c.id === selectedContratoId);
       if (!contrato) return;
       
-      const today = new Date();
-      const dataEntrada = new Date(contrato.data_entrada);
-      const monthsActive = Math.floor((today.getTime() - dataEntrada.getTime()) / (1000 * 60 * 60 * 24 * 30));
+      console.log('Analisando contrato:', contrato);
       
-      // Gerar dados históricos simulados e previsões futuras
-      const evolutionData = [];
-      
-      // Dados históricos (baseados no contrato atual)
-      for (let month = 0; month <= monthsActive; month++) {
-        const currentDate = addMonths(dataEntrada, month);
-        const diasAtraso = Math.max(0, contrato.dias_atraso - (monthsActive - month) * 10);
-        const estagio = determinarEstagio(diasAtraso);
-        const provisao = calcularProvisao({
-          valorDivida: contrato.valor_divida || 0,
-          diasAtraso,
-          classificacao: (contrato.classificacao || 'C1') as any,
-          tabelaPerda: [],
-          tabelaIncorrida: []
-        });
-        
-        // Verificar se é mês de fechamento trimestral/anual
-        const isClosingMonth = [3, 6, 9, 12].includes(currentDate.getMonth() + 1);
-        const percentualProvisaoNum = provisao.percentualProvisao; // Valor já está correto (0-100)
-        
-        // Calcular probabilidade de acordo baseada na provisão (>= 50% é favorável)
-        const probabilidadeAcordo = Math.min(100, Math.max(0, 
-          (percentualProvisaoNum - 30) * 2 + // Base: 30% provisão = 40% prob
-          (isClosingMonth ? 20 : 0) + // Bônus trimestral
-          (diasAtraso > 180 ? 15 : 0) // Bônus atraso alto
-        ));
-        
-        evolutionData.push({
-          mes: month,
-          data: format(currentDate, 'MMM/yy'),
-          diasAtraso,
-          estagio,
-          percentualProvisao: percentualProvisaoNum.toFixed(1),
-          valorProvisao: provisao.valorProvisao,
-          risco: estagio === 1 ? 'Baixo' : estagio === 2 ? 'Médio' : 'Alto',
-          melhorMomentoAcordo: percentualProvisaoNum >= 50,
-          probabilidadeAcordo: probabilidadeAcordo.toFixed(1),
-          isClosingMonth
-        });
+      // Calcular evolução desde o início do atraso (data de vencimento) até atingir 100%
+      const dataVencimento = contrato.data_vencimento ? new Date(contrato.data_vencimento) : null;
+      if (!dataVencimento) {
+        toast.error("Data de vencimento não encontrada para calcular evolução");
+        return;
       }
       
-      // Previsões futuras (próximos 12 meses)
-      for (let month = monthsActive + 1; month <= monthsActive + 12; month++) {
-        const currentDate = addMonths(dataEntrada, month);
-        const diasAtrasoPrevisto = contrato.dias_atraso + (month - monthsActive) * 15;
-        const estagio = determinarEstagio(diasAtrasoPrevisto);
+      const hoje = new Date();
+      const diasAtrasoAtual = Math.max(0, differenceInDays(hoje, dataVencimento));
+      
+      let mes100Porcento = null;
+      const evolutionData: any[] = [];
+      
+      console.log('Data vencimento:', dataVencimento);
+      console.log('Dias atraso atual:', diasAtrasoAtual);
+      
+      // Começar da data de vencimento e simular quinzenalmente até atingir 100%
+      for (let diasAtraso = 0; diasAtraso <= Math.max(diasAtrasoAtual + 365, 1095); diasAtraso += 15) {
+        const dataAtual = addDays(dataVencimento, diasAtraso);
+        const mesRelativo = Math.floor(diasAtraso / 30) + 1;
+        
+        // Determinar estágio
+        const estagio = determinarEstagio(diasAtraso);
+        
+        // Calcular provisão para este momento
         const provisao = calcularProvisao({
-          valorDivida: contrato.valor_divida || 0,
-          diasAtraso: diasAtrasoPrevisto,
-          classificacao: (contrato.classificacao || 'C1') as any,
-          tabelaPerda: [],
-          tabelaIncorrida: []
+          diasAtraso,
+          valorDivida: contrato.valor_divida,
+          classificacao: contrato.classificacao as ClassificacaoRisco,
+          tabelaPerda: tabelaPerda?.data || [],
+          tabelaIncorrida: tabelaIncorrida?.data || [],
+          isReestruturado: (contrato as any).is_reestruturado || false,
+          dataReestruturacao: (contrato as any).data_reestruturacao || undefined
         });
+
+        const percentualProvisao = provisao.percentualProvisao;
         
-        // Verificar se é mês de fechamento trimestral/anual (previsão)
-        const isClosingMonth = [3, 6, 9, 12].includes(currentDate.getMonth() + 1);
-        const percentualProvisaoNum = provisao.percentualProvisao; // Valor já está correto (0-100)
+        // Marcar quando atingir 100% pela primeira vez
+        if (percentualProvisao >= 100 && !mes100Porcento) {
+          mes100Porcento = mesRelativo;
+        }
         
-        // Calcular probabilidade de acordo baseada na provisão (>= 50% é favorável)
+        // Verificar se é mês de fechamento trimestral
+        const isClosingMonth = [3, 6, 9, 12].includes(dataAtual.getMonth() + 1);
+        
+        // Calcular probabilidade de acordo
         const probabilidadeAcordo = Math.min(100, Math.max(0, 
-          (percentualProvisaoNum - 30) * 2 + // Base: 30% provisão = 40% prob
-          (isClosingMonth ? 20 : 0) + // Bônus trimestral
-          (diasAtrasoPrevisto > 180 ? 15 : 0) // Bônus atraso alto
+          (percentualProvisao - 30) * 2 +
+          (isClosingMonth ? 20 : 0) +
+          (diasAtraso > 180 ? 15 : 0)
         ));
         
+        const isHistorico = dataAtual <= hoje;
+        const atinge100 = mesRelativo === mes100Porcento;
+        
         evolutionData.push({
-          mes: month,
-          data: format(currentDate, 'MMM/yy'),
-          diasAtraso: diasAtrasoPrevisto,
+          mes: mesRelativo,
+          data: format(dataAtual, 'MMM/yy'),
+          diasAtraso,
           estagio,
-          percentualProvisao: percentualProvisaoNum.toFixed(1),
+          percentualProvisao: percentualProvisao.toFixed(1),
           valorProvisao: provisao.valorProvisao,
           risco: estagio === 1 ? 'Baixo' : estagio === 2 ? 'Médio' : 'Alto',
-          melhorMomentoAcordo: percentualProvisaoNum >= 50,
+          melhorMomentoAcordo: percentualProvisao >= 50,
           probabilidadeAcordo: probabilidadeAcordo.toFixed(1),
           isClosingMonth,
-          previsao: month > monthsActive
+          previsao: !isHistorico,
+          atinge100Porcento: atinge100,
+          marco90Dias: diasAtraso === 90,
+          marco180Dias: diasAtraso === 180,
+          marco360Dias: diasAtraso === 360
         });
+        
+        // Parar após atingir 100% + alguns pontos extras
+        if (percentualProvisao >= 100 && mesRelativo > (mes100Porcento || 0) + 2) {
+          break;
+        }
       }
+      
+      console.log('Evolution data:', evolutionData);
       
       setContractAnalysisData(evolutionData);
     } catch (error) {
@@ -447,12 +452,15 @@ export default function RelatoriosAvancados() {
                               <p className="font-medium">{label}</p>
                               <p className="text-sm">Dias em Atraso: {data.diasAtraso}</p>
                               <p className="text-sm">Estágio: {data.estagio}</p>
+                              <p className="text-sm">Dias Atraso: {data.diasAtraso}</p>
+                              <p className="text-sm">Estágio: {data.estagio}</p>
                               <p className="text-sm">Provisão: {data.percentualProvisao}%</p>
-                              <p className="text-sm">Risco: {data.risco}</p>
                               <p className="text-sm">Prob. Acordo: {data.probabilidadeAcordo}%</p>
                               {data.previsao && <Badge variant="outline">Previsão</Badge>}
                               {data.atinge100Porcento && <Badge className="bg-red-100 text-red-800">Atinge 100%</Badge>}
-                              {data.melhorMomentoAcordo && <Badge className="bg-green-100 text-green-800">Favorável para Acordo</Badge>}
+                              {data.marco90Dias && <Badge className="bg-orange-100 text-orange-800">Marco 90 dias</Badge>}
+                              {data.marco180Dias && <Badge className="bg-purple-100 text-purple-800">Marco 180 dias</Badge>}
+                              {data.melhorMomentoAcordo && <Badge className="bg-green-100 text-green-800">Favorável Acordo</Badge>}
                               {data.isClosingMonth && <Badge className="bg-blue-100 text-blue-800">Fechamento Trimestral</Badge>}
                             </div>
                           );
