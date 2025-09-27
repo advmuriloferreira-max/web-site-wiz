@@ -521,7 +521,7 @@ export default function RelatoriosAvancados() {
                           return data50 ? `${data50.diasAtraso || 'N/A'}` : 'N/A';
                         })()}
                       </div>
-                      <div className="text-sm text-muted-foreground">Dias que atinge 50% de provisionamento</div>
+                      <div className="text-sm text-muted-foreground">Dias de atraso para atingir 50% de provisionamento</div>
                     </div>
                   </CardContent>
                 </Card>
