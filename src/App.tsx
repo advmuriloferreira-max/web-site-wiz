@@ -17,6 +17,7 @@ import { BottomNavigation } from "@/components/ui/bottom-navigation";
 import { ResponsiveDrawer } from "@/components/ui/responsive-drawer";
 import AssistenteVirtual from "@/components/assistente/AssistenteVirtual";
 import Index from "./pages/Index";
+import Home from "./pages/Home";
 import Auth from "./pages/Auth";
 import Convite from "./pages/Convite";
 import Clientes from "./pages/Clientes";
@@ -68,7 +69,8 @@ const App = () => {
                       <main className="flex-1 overflow-auto pb-20 md:pb-0">
                         <PageTransition>
                           <Routes>
-                            <Route path="/" element={<Index />} />
+                            <Route path="/" element={<Home />} />
+                            <Route path="/dashboard" element={<Index />} />
                             <Route path="clientes" element={<Clientes />} />
                             <Route path="clientes/novo" element={<NovoCliente />} />
                             <Route path="contratos" element={<Contratos />} />

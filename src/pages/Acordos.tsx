@@ -58,46 +58,56 @@ export default function Acordos() {
   const economiaTotal = estatisticas.valorTotalOriginal - estatisticas.valorTotalAcordos;
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
+    <ResponsiveContainer className="py-8 animate-fade-in">
+      <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Acordos e Negociações</h1>
+          <GradientText variant="primary" className="text-3xl font-bold mb-2 flex items-center">
+            <ColoredIcon icon={Handshake} className="mr-3" />
+            Acordos e Negociações
+          </GradientText>
           <p className="text-muted-foreground">Gestão de propostas de acordo e negociações</p>
         </div>
       </div>
 
       {/* Estatísticas */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 animate-slide-up">
+        <GlassCard variant="subtle" className="animate-scale-in">
           <CardContent className="flex items-center p-6">
-            <DollarSign className="h-8 w-8 text-blue-600" />
-            <div className="ml-4">
-              <p className="text-sm font-medium text-muted-foreground">Valor Original Negociado</p>
+            <ColoredIcon icon={DollarSign} className="text-blue-600 mr-4" size="lg" />
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Valor Original</p>
               <p className="text-xl font-bold">{formatCurrency(estatisticas.valorTotalOriginal)}</p>
-              <p className="text-xs text-muted-foreground">Apenas acordos finalizados</p>
             </div>
           </CardContent>
-        </Card>
-        <Card>
+        </GlassCard>
+        <GlassCard variant="subtle" className="animate-scale-in animate-delay-1">
           <CardContent className="flex items-center p-6">
-            <TrendingDown className="h-8 w-8 text-green-600" />
-            <div className="ml-4">
+            <ColoredIcon icon={TrendingDown} className="text-green-600 mr-4" size="lg" />
+            <div>
               <p className="text-sm font-medium text-muted-foreground">Economia Real</p>
               <p className="text-xl font-bold text-green-600">{formatCurrency(economiaTotal)}</p>
-              <p className="text-xs text-muted-foreground">Valor efetivamente economizado</p>
             </div>
           </CardContent>
-        </Card>
-        <Card>
+        </GlassCard>
+        <GlassCard variant="subtle" className="animate-scale-in animate-delay-2">
           <CardContent className="flex items-center p-6">
-            <Handshake className="h-8 w-8 text-purple-600" />
-            <div className="ml-4">
+            <ColoredIcon icon={Handshake} className="text-purple-600 mr-4" size="lg" />
+            <div>
               <p className="text-sm font-medium text-muted-foreground">Acordos Finalizados</p>
               <p className="text-2xl font-bold">{estatisticas.acordosFinalizados}</p>
             </div>
           </CardContent>
-        </Card>
-        <Card>
+        </GlassCard>
+        <GlassCard variant="subtle" className="animate-scale-in animate-delay-3">
+          <CardContent className="flex items-center p-6">
+            <ColoredIcon icon={FileText} className="text-orange-600 mr-4" size="lg" />
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Com Proposta</p>
+              <p className="text-2xl font-bold">{estatisticas.comProposta}</p>
+            </div>
+          </CardContent>
+        </GlassCard>
+      </div>
           <CardContent className="flex items-center p-6">
             <AlertTriangle className="h-8 w-8 text-orange-600" />
             <div className="ml-4">
@@ -105,10 +115,20 @@ export default function Acordos() {
               <p className="text-2xl font-bold">{estatisticas.comProposta}</p>
             </div>
           </CardContent>
-        </Card>
+        </GlassCard>
       </div>
 
-      <Card>
+      {/* Rest of the acordos content would continue here */}
+    </ResponsiveContainer>
+  );
+}
+
+const formatCurrency = (valor: number) => {
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL'
+  }).format(valor);
+};
         <CardHeader>
           <CardTitle>Contratos para Acordo</CardTitle>
           <div className="flex items-center space-x-2">

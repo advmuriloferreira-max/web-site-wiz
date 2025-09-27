@@ -8,6 +8,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { ProcessoForm } from "@/components/forms/ProcessoForm";
 import { useProcessos, Processo } from "@/hooks/useProcessos";
+import { ResponsiveContainer } from "@/components/ui/layout-consistency";
+import { GlassCard } from "@/components/ui/glassmorphism";
+import { GradientText } from "@/components/ui/gradient-elements";
+import { ColoredIcon } from "@/components/ui/color-consistency";
+import { ModernBadge } from "@/components/ui/modern-badge";
+import { EnhancedSkeleton } from "@/components/ui/enhanced-skeleton";
 import { format } from "date-fns";
 
 const getStatusColor = (status: string | null) => {
@@ -48,8 +54,15 @@ export default function Processos() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto p-6">
-        <div className="text-center">Carregando processos...</div>
+      <div className="min-h-screen bg-gradient-to-br from-background to-background/80">
+        <ResponsiveContainer className="py-8 animate-fade-in">
+          <div className="text-center">
+            <GradientText variant="primary" className="text-2xl font-bold mb-4">
+              Carregando processos...
+            </GradientText>
+            <EnhancedSkeleton className="h-64 w-full rounded-xl" />
+          </div>
+        </ResponsiveContainer>
       </div>
     );
   }

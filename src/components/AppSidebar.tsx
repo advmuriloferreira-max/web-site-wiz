@@ -37,7 +37,7 @@ import {
 } from "@/components/ui/sidebar";
 
 const navigationItems = [
-  { title: "Dashboard", url: "/", icon: BarChart3, badge: null },
+  { title: "Home", url: "/", icon: BarChart3, badge: null },
   { title: "Clientes", url: "/clientes", icon: Users, dataTour: "sidebar-clientes", badge: null },
   { title: "Contratos", url: "/contratos", icon: FileText, dataTour: "sidebar-contratos", badge: "3" },
   { title: "Processos", url: "/processos", icon: AlertTriangle, badge: null },
