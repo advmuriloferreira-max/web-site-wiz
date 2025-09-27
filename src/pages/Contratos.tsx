@@ -8,7 +8,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { ContratoForm } from "@/components/forms/ContratoForm";
+import { ContratoWizard } from "@/components/forms/ContratoWizard";
 import { useContratos, Contrato } from "@/hooks/useContratos";
 import { useDeleteContrato } from "@/hooks/useDeleteContrato";
 import { GarantiaIndicator } from "@/components/contratos/GarantiaIndicator";
@@ -65,9 +65,7 @@ export default function Contratos() {
   };
 
   const handleNovoContrato = () => {
-    setDialogTitle("Novo Contrato");
-    setContratoParaEditar(null);
-    setIsDialogOpen(true);
+    navigate("/contratos/novo");
   };
 
   const handleEditarContrato = () => {
@@ -122,11 +120,11 @@ export default function Contratos() {
               Novo Contrato
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{dialogTitle}</DialogTitle>
             </DialogHeader>
-            <ContratoForm onSuccess={handleSuccess} contratoParaEditar={contratoParaEditar} />
+            <ContratoWizard onSuccess={handleSuccess} contratoParaEditar={contratoParaEditar} />
           </DialogContent>
         </Dialog>
         
