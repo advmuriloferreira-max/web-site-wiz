@@ -81,7 +81,7 @@ export function ContratoWizard({
   const createContrato = useCreateContrato();
   const updateContrato = useUpdateContrato();
   const { execute, isLoading } = useAsyncOperation();
-  const { data: contratoExistente } = useContratoById(contratoParaEditar);
+  const { data: contratoExistente, isLoading: loadingContrato } = useContratoById(contratoParaEditar);
 
   const form = useForm<ContratoWizardData>({
     resolver: zodResolver(contratoWizardSchema),
@@ -119,10 +119,19 @@ export function ContratoWizard({
     mode: "onChange"
   });
 
+  // Verificar se contratoParaEditar é um UUID válido
+  const isValidUUID = (str: string) => {
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    return uuidRegex.test(str);
+  };
+
+  const isEditingValidContract = contratoParaEditar && isValidUUID(contratoParaEditar) && contratoExistente;
+
   // Carregar dados do contrato para edição ou rascunho
   useEffect(() => {
-    if (contratoParaEditar && contratoExistente) {
+    if (isEditingValidContract) {
       // Carregar dados do contrato existente para edição
+      console.log("Loading contract for editing:", contratoExistente);
       form.reset({
         cliente_id: contratoExistente.cliente_id,
         banco_id: contratoExistente.banco_id,
@@ -160,7 +169,7 @@ export function ContratoWizard({
       enhancedToast.info("Contrato carregado para edição", {
         description: `${contratoExistente.numero_contrato || 'Contrato'} pronto para edição`
       });
-    } else if (!contratoParaEditar) {
+    } else if (!contratoParaEditar || !isValidUUID(contratoParaEditar)) {
       // Carregar rascunho apenas se não estiver editando
       const draft = localStorage.getItem(DRAFT_KEY);
       if (draft) {
@@ -176,7 +185,7 @@ export function ContratoWizard({
         }
       }
     }
-  }, [form, contratoParaEditar, contratoExistente]);
+  }, [form, contratoParaEditar, contratoExistente, isEditingValidContract]);
 
   // Salvar rascunho automaticamente
   const saveDraft = useCallback(() => {
@@ -244,6 +253,10 @@ export function ContratoWizard({
 
   // Submeter formulário
   const onSubmit = async (data: ContratoWizardData) => {
+    console.log("Submitting form with data:", data);
+    console.log("ContratoParaEditar:", contratoParaEditar);
+    console.log("ContratoExistente:", contratoExistente);
+    
     const success = await execute(
       async () => {
         const contratoData = {
@@ -279,20 +292,23 @@ export function ContratoWizard({
           data_reestruturacao: data.data_reestruturacao ? data.data_reestruturacao.toISOString() : null,
         };
 
+        // Verificar se é uma edição válida (contratoParaEditar deve ser UUID e contratoExistente deve existir)
         if (contratoParaEditar && contratoExistente) {
+          console.log("Updating contract with ID:", contratoExistente.id);
           return await updateContrato.mutateAsync({ ...contratoData, id: contratoExistente.id });
         } else {
+          console.log("Creating new contract");
           return await createContrato.mutateAsync(contratoData);
         }
       },
       {
-        successMessage: contratoParaEditar 
+        successMessage: contratoParaEditar && contratoExistente 
           ? "Contrato atualizado com sucesso!" 
           : "Contrato criado com sucesso!",
-        errorMessage: contratoParaEditar
+        errorMessage: contratoParaEditar && contratoExistente
           ? "Erro ao atualizar contrato"
           : "Erro ao criar contrato",
-        loadingMessage: contratoParaEditar
+        loadingMessage: contratoParaEditar && contratoExistente
           ? "Atualizando contrato..."
           : "Criando contrato..."
       }
