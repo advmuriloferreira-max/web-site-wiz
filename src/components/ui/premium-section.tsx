@@ -20,18 +20,18 @@ export function PremiumSection({
   className 
 }: PremiumSectionProps) {
   return (
-    <Card className={cn("border-slate-200 shadow-sm", className)}>
+    <Card className={cn("border-slate-200 shadow-sm interactive-card", className)}>
       <CardHeader className="pb-4">
-        <CardTitle className="flex items-center gap-2 text-lg font-semibold text-slate-800">
-          {Icon && <Icon className="h-5 w-5 text-blue-600" />}
+        <CardTitle className="flex items-center gap-2 text-lg font-semibold text-slate-800 animate-fade-in">
+          {Icon && <Icon className="h-5 w-5 text-blue-600 animate-scale-in" />}
           {title}
         </CardTitle>
         {description && (
-          <p className="text-sm text-slate-600 mt-1">{description}</p>
+          <p className="text-sm text-slate-600 mt-1 animate-fade-in animate-stagger-1">{description}</p>
         )}
         <Separator className="mt-4" />
       </CardHeader>
-      <CardContent className="pt-0">
+      <CardContent className="pt-0 animate-slide-up">
         {children}
       </CardContent>
     </Card>

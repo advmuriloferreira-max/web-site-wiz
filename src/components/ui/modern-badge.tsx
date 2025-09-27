@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { LucideIcon } from "lucide-react";
 
 const modernBadgeVariants = cva(
-  "inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+  "inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-semibold transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 animate-scale-in hover:scale-105",
   {
     variants: {
       variant: {
