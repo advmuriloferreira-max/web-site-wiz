@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { ProcessoForm } from "@/components/forms/ProcessoForm";
 import { useProcessos, Processo } from "@/hooks/useProcessos";
 import { ResponsiveContainer } from "@/components/ui/layout-consistency";
@@ -15,17 +14,6 @@ import { ColoredIcon } from "@/components/ui/color-consistency";
 import { ModernBadge } from "@/components/ui/modern-badge";
 import { EnhancedSkeleton } from "@/components/ui/enhanced-skeleton";
 import { format } from "date-fns";
-
-const getStatusColor = (status: string | null) => {
-  switch (status) {
-    case "Em andamento": return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300";
-    case "Concluído": return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
-    case "Suspenso": return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300";
-    case "Arquivado": return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300";
-    case "Acordo": return "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300";
-    default: return "bg-muted text-muted-foreground";
-  }
-};
 
 export default function Processos() {
   const { data: processos, isLoading } = useProcessos();
@@ -75,20 +63,23 @@ export default function Processos() {
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
+    <ResponsiveContainer className="py-8 animate-fade-in">
+      <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Processos Legais</h1>
+          <GradientText variant="primary" className="text-3xl font-bold mb-2 flex items-center">
+            <ColoredIcon icon={Scale} className="mr-3" />
+            Processos Legais
+          </GradientText>
           <p className="text-muted-foreground">Controle de processos judiciais e extrajudiciais</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="interactive-button">
               <Plus className="mr-2 h-4 w-4" />
               Novo Processo
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto glass-modal animate-scale-in">
             <DialogHeader>
               <DialogTitle>
                 {selectedProcesso ? "Editar Processo" : "Novo Processo"}
@@ -100,148 +91,165 @@ export default function Processos() {
       </div>
 
       {/* Estatísticas */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="flex items-center p-6">
-            <Scale className="h-8 w-8 text-blue-600" />
-            <div className="ml-4">
-              <p className="text-sm font-medium text-muted-foreground">Total</p>
-              <p className="text-2xl font-bold">{estatisticas.total}</p>
-            </div>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 animate-slide-up">
+        <GlassCard variant="subtle" className="text-center animate-scale-in">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm text-muted-foreground">Total</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-foreground">{estatisticas.total}</div>
           </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="flex items-center p-6">
-            <Clock className="h-8 w-8 text-orange-600" />
-            <div className="ml-4">
-              <p className="text-sm font-medium text-muted-foreground">Em Andamento</p>
-              <p className="text-2xl font-bold">{estatisticas.emAndamento}</p>
-            </div>
+        </GlassCard>
+        <GlassCard variant="subtle" className="text-center animate-scale-in animate-delay-1">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm text-muted-foreground">Em Andamento</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-blue-600">{estatisticas.emAndamento}</div>
           </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="flex items-center p-6">
-            <div className="h-8 w-8 rounded-full bg-green-600 flex items-center justify-center">
-              <span className="text-white text-sm font-bold">✓</span>
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-muted-foreground">Concluídos</p>
-              <p className="text-2xl font-bold">{estatisticas.concluidos}</p>
-            </div>
+        </GlassCard>
+        <GlassCard variant="subtle" className="text-center animate-scale-in animate-delay-2">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm text-muted-foreground">Concluídos</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-green-600">{estatisticas.concluidos}</div>
           </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="flex items-center p-6">
-            <div className="h-8 w-8 rounded-full bg-purple-600 flex items-center justify-center">
-              <span className="text-white text-sm font-bold">$</span>
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-muted-foreground">Acordos</p>
-              <p className="text-2xl font-bold">{estatisticas.acordos}</p>
-            </div>
+        </GlassCard>
+        <GlassCard variant="subtle" className="text-center animate-scale-in animate-delay-3">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm text-muted-foreground">Acordos</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-purple-600">{estatisticas.acordos}</div>
           </CardContent>
-        </Card>
+        </GlassCard>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Lista de Processos</CardTitle>
+      <GlassCard variant="subtle" className="animate-slide-up animate-stagger-1">
+        <CardHeader className="glass-header border-b border-white/10">
+          <CardTitle className="flex items-center space-x-3">
+            <ColoredIcon icon={Scale} className="text-primary" />
+            <GradientText variant="primary">Lista de Processos</GradientText>
+          </CardTitle>
           <div className="flex items-center space-x-2">
-            <Search className="h-4 w-4" />
+            <ColoredIcon icon={Search} className="text-muted-foreground" />
             <Input
               placeholder="Buscar por número, cliente, ação ou status..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="max-w-sm"
+              className="max-w-sm glass-input"
             />
           </div>
         </CardHeader>
-        <CardContent>
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow className="border-white/10">
+                <TableHead>
+                  <div className="flex items-center space-x-2">
+                    <ColoredIcon icon={Scale} />
+                    <span>Número do Processo</span>
+                  </div>
+                </TableHead>
+                <TableHead>Cliente</TableHead>
+                <TableHead>Ação</TableHead>
+                <TableHead>
+                  <div className="flex items-center space-x-2">
+                    <ColoredIcon icon={Clock} />
+                    <span>Status</span>
+                  </div>
+                </TableHead>
+                <TableHead>Valor do Contrato</TableHead>
+                <TableHead>Prazo</TableHead>
+                <TableHead className="text-right">Ações</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredProcessos?.length === 0 ? (
                 <TableRow>
-                  <TableHead>Número Processo</TableHead>
-                  <TableHead>Cliente</TableHead>
-                  <TableHead>Ação</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Valor</TableHead>
-                  <TableHead>Prazo</TableHead>
-                  <TableHead>Liminar</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
+                  <TableCell colSpan={7} className="text-center py-12">
+                    <div className="flex flex-col items-center space-y-4 animate-fade-in">
+                      <div className="glass-element p-4 rounded-full">
+                        <ColoredIcon icon={Scale} size="lg" className="text-muted-foreground" />
+                      </div>
+                      <div className="space-y-2 text-center">
+                        <p className="font-medium text-foreground">Nenhum processo encontrado</p>
+                        <p className="text-sm text-muted-foreground">
+                          Tente ajustar o termo de busca ou adicionar novos processos
+                        </p>
+                      </div>
+                    </div>
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredProcessos?.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
-                      Nenhum processo encontrado
+              ) : (
+                filteredProcessos?.map((processo, index) => (
+                  <TableRow 
+                    key={processo.id} 
+                    className="animate-fade-in interactive-row"
+                    style={{ animationDelay: `${index * 50}ms` }}
+                  >
+                    <TableCell className="font-medium">
+                      <ModernBadge variant="outline" size="sm">
+                        {processo.numero_processo || "N/A"}
+                      </ModernBadge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center space-x-3">
+                        <div className="glass-element w-8 h-8 rounded-full flex items-center justify-center">
+                          <span className="text-xs font-bold text-primary">
+                            {processo.contratos?.clientes?.nome?.charAt(0).toUpperCase() || "?"}
+                          </span>
+                        </div>
+                        <span>{processo.contratos?.clientes?.nome || "N/A"}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>{processo.acao || "N/A"}</TableCell>
+                    <TableCell>
+                      <ModernBadge 
+                        variant={processo.status === "Concluído" ? "success" : 
+                               processo.status === "Em andamento" ? "info" : 
+                               processo.status === "Acordo" ? "purple" : "default"}
+                        size="sm"
+                      >
+                        {processo.status || "N/A"}
+                      </ModernBadge>
+                    </TableCell>
+                    <TableCell>
+                      {processo.contratos?.valor_divida ? formatCurrency(processo.contratos.valor_divida) : "N/A"}
+                    </TableCell>
+                    <TableCell>
+                      {processo.prazo ? format(new Date(processo.prazo), "dd/MM/yyyy") : "N/A"}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center gap-1 justify-end">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 hover:bg-blue-500/10 interactive-button group"
+                        >
+                          <Eye className="h-4 w-4 text-muted-foreground group-hover:text-blue-500 transition-colors" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedProcesso(processo);
+                            setIsDialogOpen(true);
+                          }}
+                          className="h-8 w-8 p-0 hover:bg-amber-500/10 interactive-button group"
+                        >
+                          <Edit2 className="h-4 w-4 text-muted-foreground group-hover:text-amber-500 transition-colors" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
-                ) : (
-                  filteredProcessos?.map((processo) => (
-                    <TableRow key={processo.id}>
-                      <TableCell className="font-medium">
-                        {processo.numero_processo ? (
-                          <Badge variant="outline">{processo.numero_processo}</Badge>
-                        ) : (
-                          <span className="text-muted-foreground">-</span>
-                        )}
-                      </TableCell>
-                      <TableCell>{processo.contratos?.clientes?.nome}</TableCell>
-                      <TableCell>{processo.acao || <span className="text-muted-foreground">-</span>}</TableCell>
-                      <TableCell>
-                        <Badge className={getStatusColor(processo.status)}>
-                          {processo.status || "Sem status"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="font-medium">
-                        {processo.contratos?.valor_divida ? 
-                          formatCurrency(processo.contratos.valor_divida) : 
-                          <span className="text-muted-foreground">-</span>
-                        }
-                      </TableCell>
-                      <TableCell>
-                        {processo.prazo ? (
-                          <Badge variant={new Date(processo.prazo) < new Date() ? "destructive" : "secondary"}>
-                            {format(new Date(processo.prazo), "dd/MM/yyyy")}
-                          </Badge>
-                        ) : (
-                          <span className="text-muted-foreground">-</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {processo.liminar ? (
-                          <Badge variant="destructive">Sim</Badge>
-                        ) : (
-                          <Badge variant="secondary">Não</Badge>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              setSelectedProcesso(processo);
-                              setIsDialogOpen(true);
-                            }}
-                          >
-                            <Edit2 className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="sm">
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
+                ))
+              )}
+            </TableBody>
+          </Table>
         </CardContent>
-      </Card>
-    </div>
+      </GlassCard>
+    </ResponsiveContainer>
   );
 }

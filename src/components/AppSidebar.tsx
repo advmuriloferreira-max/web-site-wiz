@@ -142,7 +142,7 @@ export function AppSidebar() {
                 INTELLBANK
               </h2>
               <p className="text-xs text-slate-400 font-medium">
-                Sistema de Gestão
+                Monitoramento Inteligente
               </p>
             </div>
           </div>
