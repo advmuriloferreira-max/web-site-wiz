@@ -55,7 +55,7 @@ const App = () => {
                         <div className="flex items-center">
                           <SidebarTrigger className="mr-4" />
                           <h1 className="text-sm font-medium text-foreground">
-                            Sistema de Provisionamento Bancário - Murilo Ferreira Advocacia
+                            INTELLBANK - Sistema de Monitoramento Inteligente de Dívidas Bancárias
                           </h1>
                         </div>
                         <div className="flex items-center gap-2">

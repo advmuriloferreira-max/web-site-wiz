@@ -64,7 +64,7 @@ export function InstallPrompt() {
               <div>
                 <CardTitle className="text-sm">Instalar App</CardTitle>
                 <CardDescription className="text-xs">
-                  Murilo Ferreira Advocacia
+                  INTELLBANK
                 </CardDescription>
               </div>
             </div>

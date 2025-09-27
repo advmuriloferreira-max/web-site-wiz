@@ -97,7 +97,7 @@ function DashboardContent() {
         <div>
           <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
           <p className="text-muted-foreground">
-            Murilo Ferreira Advocacia - Monitoramento Inteligente de Provisionamento
+            INTELLBANK - Sistema de Monitoramento Inteligente de Dívidas Bancárias
           </p>
         </div>
       </div>

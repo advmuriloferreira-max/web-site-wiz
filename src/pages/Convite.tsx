@@ -198,7 +198,7 @@ export default function Convite() {
             <Shield className="h-8 w-8 text-accent" />
           </div>
           <h1 className="text-2xl font-bold text-foreground">
-            Murilo Ferreira Advocacia
+            INTELLBANK
           </h1>
           <p className="text-muted-foreground">
             Você foi convidado para acessar o sistema
@@ -281,7 +281,7 @@ export default function Convite() {
 
         {/* Footer */}
         <p className="text-center text-xs text-muted-foreground">
-          Murilo Ferreira Advocacia • Sistema interno
+          INTELLBANK • Sistema interno
         </p>
       </div>
     </div>

@@ -74,7 +74,7 @@ export const usePWANavigation = () => {
       // Try to use Web Share API if available
       if (navigator.share) {
         await navigator.share({
-          title: 'Convite - Murilo Ferreira Advocacia',
+          title: 'Convite - INTELLBANK',
           text: 'Você foi convidado para acessar o sistema',
           url: link,
         });

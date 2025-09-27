@@ -113,7 +113,7 @@ export default function Auth() {
             <Shield className="h-8 w-8 text-accent" />
           </div>
           <h1 className="text-2xl font-bold text-foreground">
-            Murilo Ferreira Advocacia
+            INTELLBANK
           </h1>
           <p className="text-muted-foreground">
             Sistema de Provisionamento Bancário
@@ -189,7 +189,7 @@ export default function Auth() {
 
         {/* Footer */}
         <p className="text-center text-xs text-muted-foreground">
-          Murilo Ferreira Advocacia • Sistema interno
+          INTELLBANK • Sistema interno
         </p>
       </div>
     </div>

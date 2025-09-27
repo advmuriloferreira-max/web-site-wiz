@@ -1,7 +1,7 @@
 {
-  "name": "Sistema de Provisionamento Bancário - Murilo Ferreira Advocacia",
-  "short_name": "Murilo Ferreira Advocacia",
-  "description": "Sistema de monitoramento e gestão de provisionamento bancário",
+  "name": "INTELLBANK - Sistema de Monitoramento Inteligente de Dívidas Bancárias",
+  "short_name": "INTELLBANK",
+  "description": "Sistema de Monitoramento Inteligente de Dívidas Bancárias",
   "theme_color": "#2563eb",
   "background_color": "#ffffff",
   "display": "standalone",
