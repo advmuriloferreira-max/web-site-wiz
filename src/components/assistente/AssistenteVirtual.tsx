@@ -168,8 +168,8 @@ ${contratoContext ? `Vejo que você está visualizando o contrato ${contratoCont
 
   return (
     <div className="fixed bottom-6 right-6 z-50 w-96 h-[600px]">
-      <Card className="h-full flex flex-col shadow-2xl">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+      <Card className="h-full flex flex-col shadow-2xl border bg-background">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 border-b">
           <CardTitle className="flex items-center gap-2 text-lg">
             <Bot className="h-5 w-5 text-primary" />
             Assistente Jurídico
@@ -185,7 +185,7 @@ ${contratoContext ? `Vejo que você está visualizando o contrato ${contratoCont
         </CardHeader>
 
         <CardContent className="flex-1 flex flex-col space-y-4 p-4">
-          <ScrollArea className="flex-1 pr-4">
+          <ScrollArea className="flex-1 h-96 pr-4">
             <div className="space-y-4">
               {messages.map((message) => (
                 <div
