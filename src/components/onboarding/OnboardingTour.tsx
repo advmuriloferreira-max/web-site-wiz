@@ -17,12 +17,27 @@ export function OnboardingTour({ startTour = false, onTourEnd }: OnboardingTourP
 
   // Verificar se o onboarding já foi completado
   useEffect(() => {
+    console.log("OnboardingTour mounted, startTour:", startTour);
     const hasCompletedOnboarding = localStorage.getItem(ONBOARDING_KEY);
+    console.log("Has completed onboarding:", hasCompletedOnboarding);
+    
     if (!hasCompletedOnboarding && !startTour) {
       // Aguardar um momento para a página carregar completamente
-      setTimeout(() => setRunTour(true), 1000);
+      console.log("Starting automatic tour...");
+      setTimeout(() => {
+        // Verificar se os elementos do tour existem
+        const dashboardStats = document.querySelector('[data-tour="dashboard-stats"]');
+        console.log("Dashboard stats element found:", !!dashboardStats);
+        setRunTour(true);
+      }, 2000);
     } else if (startTour) {
-      setRunTour(true);
+      console.log("Starting manual tour...");
+      setTimeout(() => {
+        // Verificar se os elementos do tour existem
+        const dashboardStats = document.querySelector('[data-tour="dashboard-stats"]');
+        console.log("Dashboard stats element found:", !!dashboardStats);
+        setRunTour(true);
+      }, 500);
     }
   }, [startTour]);
 
@@ -138,6 +153,7 @@ export function OnboardingTour({ startTour = false, onTourEnd }: OnboardingTourP
 
   const handleJoyrideCallback = (data: CallBackProps) => {
     const { status, type, index } = data;
+    console.log("Joyride callback:", { status, type, index });
     
     if (type === "step:after") {
       // Navegar para páginas específicas durante o tour
@@ -157,6 +173,7 @@ export function OnboardingTour({ startTour = false, onTourEnd }: OnboardingTourP
     }
 
     if (status === STATUS.FINISHED || status === STATUS.SKIPPED) {
+      console.log("Tour finished or skipped");
       setRunTour(false);
       localStorage.setItem(ONBOARDING_KEY, "true");
       onTourEnd?.();
@@ -170,7 +187,12 @@ export function OnboardingTour({ startTour = false, onTourEnd }: OnboardingTourP
     setStepIndex(index);
   };
 
-  if (!runTour) return null;
+  if (!runTour) {
+    console.log("Tour not running, runTour:", runTour);
+    return null;
+  }
+
+  console.log("Rendering Joyride with runTour:", runTour);
 
   return (
     <Joyride
@@ -180,7 +202,10 @@ export function OnboardingTour({ startTour = false, onTourEnd }: OnboardingTourP
       continuous
       showProgress
       showSkipButton
+      disableOverlayClose
+      disableScrolling={false}
       callback={handleJoyrideCallback}
+      debug
       styles={{
         options: {
           primaryColor: "hsl(var(--primary))",
@@ -188,7 +213,7 @@ export function OnboardingTour({ startTour = false, onTourEnd }: OnboardingTourP
           textColor: "hsl(var(--foreground))",
           overlayColor: "rgba(0, 0, 0, 0.4)",
           arrowColor: "hsl(var(--background))",
-          zIndex: 1000,
+          zIndex: 10000,
         },
         tooltip: {
           fontSize: "14px",

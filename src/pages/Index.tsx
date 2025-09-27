@@ -11,6 +11,7 @@ import { TendenciasChart } from "@/components/dashboard/TendenciasChart";
 import { PerformanceCard } from "@/components/dashboard/PerformanceCard";
 import { WelcomeBanner } from "@/components/onboarding/WelcomeBanner";
 import { OnboardingTour } from "@/components/onboarding/OnboardingTour";
+import { SimpleTour } from "@/components/onboarding/SimpleTour";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -256,6 +257,7 @@ function DashboardContent() {
 
       {/* Onboarding Tour Component */}
       <OnboardingTour startTour={startTour} onTourEnd={handleTourEnd} />
+      <SimpleTour />
     </div>
   );
 }

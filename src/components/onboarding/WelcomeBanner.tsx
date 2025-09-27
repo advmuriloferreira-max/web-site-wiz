@@ -13,10 +13,13 @@ export function WelcomeBanner({ onStartTour }: WelcomeBannerProps) {
   const [showTips, setShowTips] = useState(false);
 
   useEffect(() => {
+    console.log("WelcomeBanner mounted");
     const hasCompleted = hasCompletedOnboarding();
     const bannerDismissed = localStorage.getItem("welcome-banner-dismissed");
+    console.log("Welcome banner - hasCompleted:", hasCompleted, "bannerDismissed:", bannerDismissed);
     
     if (!hasCompleted && !bannerDismissed) {
+      console.log("Showing welcome banner");
       setIsVisible(true);
     }
   }, []);
@@ -27,6 +30,7 @@ export function WelcomeBanner({ onStartTour }: WelcomeBannerProps) {
   };
 
   const handleStartTour = () => {
+    console.log("Starting tour from welcome banner");
     onStartTour();
     setIsVisible(false);
   };
