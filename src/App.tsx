@@ -10,6 +10,10 @@ import { UserMenu } from "@/components/UserMenu";
 import { InstallPrompt } from "@/components/InstallPrompt";
 import { AppSidebar } from "@/components/AppSidebar";
 import { PageTransition } from "@/components/ui/page-transition";
+import { GlobalSearch } from "@/components/ui/global-search";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+import { Button } from "@/components/ui/button";
+import { Search } from "lucide-react";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Convite from "./pages/Convite";
@@ -28,10 +32,13 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <TooltipProvider>
+const App = () => {
+  const { isSearchOpen, setIsSearchOpen, openSearch } = useKeyboardShortcuts();
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <TooltipProvider>
         <Toaster />
         <Sonner />
         <BrowserRouter>
@@ -51,7 +58,21 @@ const App = () => (
                             Sistema de Provisionamento Bancário - Murilo Ferreira Advocacia
                           </h1>
                         </div>
-                        <UserMenu />
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={openSearch}
+                            className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
+                          >
+                            <Search className="h-4 w-4" />
+                            <span className="hidden sm:inline text-xs">Buscar</span>
+                            <kbd className="hidden sm:inline pointer-events-none h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 ml-1 flex">
+                              ⌘K
+                            </kbd>
+                          </Button>
+                          <UserMenu />
+                        </div>
                       </header>
                         <main className="flex-1 overflow-auto">
                           <PageTransition>
@@ -75,6 +96,7 @@ const App = () => (
                         </main>
                      </div>
                     </div>
+                    <GlobalSearch open={isSearchOpen} onOpenChange={setIsSearchOpen} />
                     <InstallPrompt />
                   </SidebarProvider>
                </ProtectedRoute>
@@ -84,6 +106,7 @@ const App = () => (
        </TooltipProvider>
      </AuthProvider>
    </QueryClientProvider>
- );
+  );
+};
 
  export default App;
