@@ -10,6 +10,7 @@ import { UserMenu } from "@/components/UserMenu";
 import { InstallPrompt } from "@/components/InstallPrompt";
 import { AppSidebar } from "@/components/AppSidebar";
 import { OnboardingTour } from "@/components/onboarding/OnboardingTour";
+import { PageTransition } from "@/components/ui/page-transition";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Convite from "./pages/Convite";
@@ -53,24 +54,26 @@ const App = () => (
                         </div>
                         <UserMenu />
                       </header>
-                       <main className="flex-1 overflow-auto">
-                        <Routes>
-                          <Route path="/" element={<Index />} />
-                          <Route path="clientes" element={<Clientes />} />
-                          <Route path="clientes/novo" element={<NovoCliente />} />
-                          <Route path="contratos" element={<Contratos />} />
-                          <Route path="contratos/novo" element={<NovoContrato />} />
-                          <Route path="contratos/:numeroContrato" element={<ContratoDetalhes />} />
-                          <Route path="calculos" element={<Calculos />} />
-                          <Route path="processos" element={<Processos />} />
-                          <Route path="acordos" element={<Acordos />} />
-                          <Route path="relatorios" element={<Relatorios />} />
-                          <Route path="relatorios-avancados" element={<RelatoriosAvancados />} />
-                          <Route path="configuracoes" element={<Configuracoes />} />
-                          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                          <Route path="*" element={<NotFound />} />
-                        </Routes>
-                       </main>
+                        <main className="flex-1 overflow-auto">
+                          <PageTransition>
+                            <Routes>
+                              <Route path="/" element={<Index />} />
+                              <Route path="clientes" element={<Clientes />} />
+                              <Route path="clientes/novo" element={<NovoCliente />} />
+                              <Route path="contratos" element={<Contratos />} />
+                              <Route path="contratos/novo" element={<NovoContrato />} />
+                              <Route path="contratos/:numeroContrato" element={<ContratoDetalhes />} />
+                              <Route path="calculos" element={<Calculos />} />
+                              <Route path="processos" element={<Processos />} />
+                              <Route path="acordos" element={<Acordos />} />
+                              <Route path="relatorios" element={<Relatorios />} />
+                              <Route path="relatorios-avancados" element={<RelatoriosAvancados />} />
+                              <Route path="configuracoes" element={<Configuracoes />} />
+                              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                              <Route path="*" element={<NotFound />} />
+                            </Routes>
+                          </PageTransition>
+                        </main>
                      </div>
                    </div>
                    <InstallPrompt />

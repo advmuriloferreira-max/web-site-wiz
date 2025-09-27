@@ -11,6 +11,9 @@ import { TendenciasChart } from "@/components/dashboard/TendenciasChart";
 import { PerformanceCard } from "@/components/dashboard/PerformanceCard";
 import { WelcomeBanner } from "@/components/onboarding/WelcomeBanner";
 import { OnboardingTour } from "@/components/onboarding/OnboardingTour";
+import { DashboardLoading } from "@/components/ui/loading-states";
+import { ListAnimation } from "@/components/ui/page-transition";
+import { useProgressBar } from "@/components/ui/progress-bar";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
