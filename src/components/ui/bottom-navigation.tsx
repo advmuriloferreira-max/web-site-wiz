@@ -57,14 +57,14 @@ export function BottomNavigation() {
               />
               
               <span className={cn(
-                "text-xs font-medium leading-none",
-                active ? "text-blue-600" : "text-slate-500"
+                "text-xs font-medium leading-none transition-colors duration-200",
+                active ? "text-primary" : "text-slate-500"
               )}>
                 {item.title}
               </span>
 
               {/* Ripple effect for touch feedback */}
-              <div className="absolute inset-0 rounded-lg bg-blue-600/10 opacity-0 transition-opacity duration-150 active:opacity-100" />
+              <div className="absolute inset-0 rounded-lg bg-primary/10 opacity-0 transition-opacity duration-150 active:opacity-100" />
             </NavLink>
           );
         })}

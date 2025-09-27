@@ -53,10 +53,10 @@ export function PremiumHeader({ onSearchClick }: PremiumHeaderProps) {
       <div className="flex items-center space-x-4">
         <SidebarTrigger className="text-white hover:bg-white/10 transition-colors duration-200" />
         <div className="flex items-center space-x-3">
-          <div className="relative">
-            <Brain className="h-8 w-8 text-blue-400 animate-pulse" />
-            <div className="absolute -top-1 -right-1 h-3 w-3 bg-blue-500 rounded-full animate-ping opacity-75" />
-          </div>
+            <div className="relative">
+              <Brain className="h-8 w-8 text-primary animate-pulse" />
+              <div className="absolute -top-1 -right-1 h-3 w-3 bg-primary rounded-full animate-ping opacity-75" />
+            </div>
           <div>
             <h1 className="text-xl font-bold text-white tracking-tight">
               INTELLBANK
@@ -78,7 +78,7 @@ export function PremiumHeader({ onSearchClick }: PremiumHeaderProps) {
                 className={cn(
                   "px-2 py-1 rounded-md transition-all duration-200",
                   index === breadcrumbs.length - 1
-                    ? "text-blue-400 font-medium bg-blue-500/10 border border-blue-500/20"
+                    ? "text-primary font-medium bg-primary/10 border border-primary/20"
                     : "text-slate-300 hover:text-white hover:bg-white/5"
                 )}
               >
@@ -103,7 +103,7 @@ export function PremiumHeader({ onSearchClick }: PremiumHeaderProps) {
         >
           <Search className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-200" />
           <span className="hidden md:inline">Buscar</span>
-          <div className="absolute inset-0 rounded-md bg-gradient-to-r from-blue-500/20 to-purple-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
+          <div className="absolute inset-0 rounded-md bg-gradient-to-r from-primary/20 to-accent/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
         </Button>
         
         {/* Notificações */}
@@ -114,10 +114,10 @@ export function PremiumHeader({ onSearchClick }: PremiumHeaderProps) {
         >
           <Bell className="h-4 w-4" />
           {notificationCount > 0 && (
-            <Badge 
-              variant="destructive" 
-              className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs animate-bounce bg-red-500 hover:bg-red-500"
-            >
+              <Badge 
+                variant="destructive" 
+                className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs animate-bounce bg-destructive hover:bg-destructive"
+              >
               {notificationCount}
             </Badge>
           )}
@@ -130,7 +130,7 @@ export function PremiumHeader({ onSearchClick }: PremiumHeaderProps) {
       </div>
       
       {/* Indicador de página ativa - linha colorida na parte inferior */}
-      <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-60" />
+      <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent opacity-60" />
     </header>
   );
 }

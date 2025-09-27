@@ -16,6 +16,10 @@ import { useContratosCountByCliente } from "@/hooks/useContratosByCliente";
 import { usePWANavigation } from "@/hooks/usePWANavigation";
 import { AnimatedList } from "@/components/ui/animated-list";
 import { EnhancedSkeleton, SkeletonTable } from "@/components/ui/enhanced-skeleton";
+import { GlassCard } from "@/components/ui/glassmorphism";
+import { GradientText } from "@/components/ui/gradient-elements";
+import { ResponsiveContainer } from "@/components/ui/layout-consistency";
+import { ColoredIcon } from "@/components/ui/color-consistency";
 import { format } from "date-fns";
 import { toast } from "sonner";
 
@@ -73,23 +77,25 @@ export default function Clientes() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto p-6">
-        <div className="animate-fade-in">
-          <h1 className="text-2xl font-bold text-foreground mb-6">Clientes</h1>
-          <Card className="shadow-sm border-slate-200">
-            <CardHeader>
-              <div className="flex items-center space-x-2">
-                <EnhancedSkeleton variant="circular" width={20} height={20} />
-                <EnhancedSkeleton className="h-6 w-32" />
+      <GradientBackground variant="subtle" className="min-h-screen">
+        <ResponsiveContainer className="space-content animate-fade-in">
+          <div className="padding-content">
+            <GradientText variant="primary" className="text-2xl font-bold mb-6">
+              Clientes
+            </GradientText>
+            <GlassCard variant="subtle">
+              <div className="padding-card">
+                <div className="flex items-center space-x-4 mb-6">
+                  <EnhancedSkeleton variant="circular" width={20} height={20} />
+                  <EnhancedSkeleton className="h-6 w-32" />
+                </div>
+                <EnhancedSkeleton className="h-10 w-80 mb-6" />
+                <SkeletonTable />
               </div>
-              <EnhancedSkeleton className="h-10 w-80" />
-            </CardHeader>
-            <CardContent className="p-0">
-              <SkeletonTable />
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+            </GlassCard>
+          </div>
+        </ResponsiveContainer>
+      </GradientBackground>
     );
   }
 
@@ -274,7 +280,7 @@ export default function Clientes() {
             </TableBody>
           </Table>
         </CardContent>
-      </Card>
-    </div>
+      </GlassCard>
+    </ResponsiveContainer>
   );
 }

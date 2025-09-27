@@ -92,74 +92,87 @@ function DashboardContent() {
   }
 
   return (
-    <GradientBackground variant="hero" className="min-h-screen">
-      <div className="p-3 sm:p-4 lg:p-6 space-y-6 lg:space-y-8">
+    <GradientBackground variant="subtle" className="min-h-screen">
+      <div className="container mx-auto p-6 space-section animate-fade-in">
         <ProgressBarComponent />
 
-        {/* Hero Section */}
+        {/* Hero Section com espaçamento consistente */}
         <EntranceAnimation animation="fade" delay={100}>
-          <HeroSection />
+          <div className="padding-content">
+            <HeroSection />
+          </div>
         </EntranceAnimation>
 
-        {/* Premium Statistics Cards */}
+        {/* Premium Statistics Cards com simetria */}
         <EntranceAnimation animation="slide" delay={200}>
-          <ResponsiveGrid 
-            cols={{ default: 1, sm: 2, lg: 4 }} 
-            gap={4} 
-            className="lg:gap-6" 
-            data-tour="dashboard-stats"
-          >
-            <PremiumStatsCard
-              title="Total de Contratos"
-              value={stats?.totalContratos || 0}
-              icon={FileText}
-              trend={{ value: 12, isPositive: true }}
-            />
-            <PremiumStatsCard
-              title="Valor Total"
-              value={`R$ ${(stats?.valorTotalDividas || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
-              icon={DollarSign}
-              trend={{ value: 8, isPositive: true }}
-            />
-            <PremiumStatsCard
-              title="Provisão Total"
-              value={`R$ ${(stats?.valorTotalProvisao || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
-              icon={AlertTriangle}
-              trend={{ value: -5, isPositive: false }}
-            />
-            <PremiumStatsCard
-              title="Taxa Média"
-              value={`${(stats?.percentualProvisao || 0).toFixed(1)}%`}
-              icon={TrendingUp}
-              trend={{ value: 3, isPositive: true }}
-            />
-          </ResponsiveGrid>
+          <div className="space-content">
+            <ResponsiveGrid 
+              cols={{ default: 1, sm: 2, lg: 4 }} 
+              gap={6} 
+              className="padding-content" 
+              data-tour="dashboard-stats"
+            >
+              <PremiumStatsCard
+                title="Total de Contratos"
+                value={stats?.totalContratos || 0}
+                description="Contratos ativos"
+                icon={FileText}
+                trend={{ value: 12, isPositive: true }}
+                color="blue"
+              />
+              <PremiumStatsCard
+                title="Valor Total"
+                value={`R$ ${(stats?.valorTotalDividas || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
+                description="Portfolio total"
+                icon={DollarSign}
+                trend={{ value: 8, isPositive: true }}
+                color="emerald"
+              />
+              <PremiumStatsCard
+                title="Provisão Total"
+                value={`R$ ${(stats?.valorTotalProvisao || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
+                description="Valor provisionado"
+                icon={AlertTriangle}
+                trend={{ value: -5, isPositive: false }}
+                color="amber"
+              />
+              <PremiumStatsCard
+                title="Taxa Média"
+                value={`${(stats?.percentualProvisao || 0).toFixed(1)}%`}
+                description="Risco do portfolio"
+                icon={TrendingUp}
+                trend={{ value: 3, isPositive: true }}
+                color={(stats?.percentualProvisao ?? 0) > 50 ? "red" : "blue"}
+              />
+            </ResponsiveGrid>
+          </div>
         </EntranceAnimation>
 
-      {/* Dashboard Tabs */}
-      <EntranceAnimation animation="scale" delay={300}>
-        <Tabs defaultValue="visao-geral" className="space-y-4 lg:space-y-6 animate-fade-in">
-          {/* Mobile: Scrollable tabs, Desktop: Grid */}
-          <div className="overflow-x-auto">
-            <TabsList className="grid w-full grid-cols-4 min-w-max md:min-w-0 interactive-button">
-              <TabsTrigger value="visao-geral" className="flex items-center space-x-1 md:space-x-2 px-2 md:px-4 transition-all duration-200">
-                <BarChart3 className="h-4 w-4 flex-shrink-0" />
-                <span className="text-xs md:text-sm">Visão Geral</span>
-            </TabsTrigger>
-            <TabsTrigger value="acordos" className="flex items-center space-x-1 md:space-x-2 px-2 md:px-4">
-              <Target className="h-4 w-4 flex-shrink-0" />
-              <span className="text-xs md:text-sm">Acordos</span>
-            </TabsTrigger>
-            <TabsTrigger value="clientes" className="flex items-center space-x-1 md:space-x-2 px-2 md:px-4">
-              <Users className="h-4 w-4 flex-shrink-0" />
-              <span className="text-xs md:text-sm">Clientes</span>
-            </TabsTrigger>
-            <TabsTrigger value="tendencias" className="flex items-center space-x-1 md:space-x-2 px-2 md:px-4">
-              <Clock className="h-4 w-4 flex-shrink-0" />
-              <span className="text-xs md:text-sm">Tendências</span>
-            </TabsTrigger>
-          </TabsList>
-        </div>
+        {/* Dashboard Tabs com espaçamento simétrico */}
+        <EntranceAnimation animation="scale" delay={300}>
+          <div className="space-content padding-content">
+            <Tabs defaultValue="visao-geral" className="space-y-6 animate-fade-in">
+              {/* Mobile: Scrollable tabs, Desktop: Grid */}
+              <div className="overflow-x-auto">
+                <TabsList className="grid w-full grid-cols-4 min-w-max md:min-w-0 interactive-button">
+                  <TabsTrigger value="visao-geral" className="flex items-center space-x-1 md:space-x-2 px-2 md:px-4 transition-all duration-200">
+                    <BarChart3 className="h-4 w-4 flex-shrink-0 text-primary" />
+                    <span className="text-xs md:text-sm">Visão Geral</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="acordos" className="flex items-center space-x-1 md:space-x-2 px-2 md:px-4 transition-all duration-200">
+                    <Target className="h-4 w-4 flex-shrink-0 text-accent" />
+                    <span className="text-xs md:text-sm">Acordos</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="clientes" className="flex items-center space-x-1 md:space-x-2 px-2 md:px-4 transition-all duration-200">
+                    <Users className="h-4 w-4 flex-shrink-0 text-success" />
+                    <span className="text-xs md:text-sm">Clientes</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="tendencias" className="flex items-center space-x-1 md:space-x-2 px-2 md:px-4 transition-all duration-200">
+                    <Clock className="h-4 w-4 flex-shrink-0 text-warning" />
+                    <span className="text-xs md:text-sm">Tendências</span>
+                  </TabsTrigger>
+                </TabsList>
+              </div>
 
         {/* Visão Geral */}
         <TabsContent value="visao-geral" className="space-y-6 lg:space-y-8">
@@ -238,16 +251,19 @@ function DashboardContent() {
         <TabsContent value="tendencias" className="space-y-4 sm:space-y-6">
           <TendenciasChart />
         </TabsContent>
-      </Tabs>
-      </EntranceAnimation>
+              </Tabs>
+            </div>
+          </EntranceAnimation>
 
-      {/* Quick Actions */}
-      <EntranceAnimation animation="fade" delay={400}>
-        <QuickActionsSection />
-      </EntranceAnimation>
-      
-      </div>
-    </GradientBackground>
+          {/* Quick Actions com padding consistente */}
+          <EntranceAnimation animation="fade" delay={400}>
+            <div className="padding-content">
+              <QuickActionsSection />
+            </div>
+          </EntranceAnimation>
+          
+        </div>
+      </GradientBackground>
   );
 }
 

@@ -81,10 +81,10 @@ export function AppSidebar() {
         end 
         data-tour={item.dataTour}
         className={`
-          flex items-center gap-3 px-3 py-2.5 mx-2 rounded-lg transition-all duration-200
+          flex items-center gap-3 px-3 py-2.5 mx-2 rounded-lg transition-all duration-200 interactive-button
           ${active 
-            ? 'bg-blue-600 text-white border-l-4 border-blue-400 shadow-lg shadow-blue-600/20' 
-            : 'text-slate-300 hover:bg-white/10 hover:text-white'
+            ? 'bg-primary text-primary-foreground border-l-4 border-primary/60 shadow-lg shadow-primary/20 scale-[1.02]' 
+            : 'text-slate-300 hover:bg-white/10 hover:text-white hover:scale-[1.01]'
           }
         `}
       >
@@ -95,7 +95,7 @@ export function AppSidebar() {
             {item.badge && (
               <Badge 
                 variant="secondary" 
-                className="ml-auto bg-blue-500 text-white text-xs px-1.5 py-0.5 h-5"
+                className="ml-auto bg-primary text-primary-foreground text-xs px-1.5 py-0.5 h-5 animate-pulse"
               >
                 {item.badge}
               </Badge>
@@ -134,12 +134,12 @@ export function AppSidebar() {
       <div className="flex items-center justify-between p-4 border-b border-slate-700/30">
         {!isCollapsed ? (
           <div className="flex items-center gap-3 group">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg">
-              <BarChart3 className="h-4 w-4 text-white" />
-            </div>
+        <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary-hover rounded-lg flex items-center justify-center shadow-lg">
+          <BarChart3 className="h-4 w-4 text-primary-foreground" />
+        </div>
             <div className="transition-all duration-300 group-hover:scale-105">
               <h2 className="text-lg font-bold text-white tracking-wide">
-                INTELBANK
+                INTELLBANK
               </h2>
               <p className="text-xs text-slate-400 font-medium">
                 Sistema de Gestão
@@ -147,8 +147,8 @@ export function AppSidebar() {
             </div>
           </div>
         ) : (
-          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg mx-auto">
-            <BarChart3 className="h-4 w-4 text-white" />
+          <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary-hover rounded-lg flex items-center justify-center shadow-lg mx-auto">
+            <BarChart3 className="h-4 w-4 text-primary-foreground" />
           </div>
         )}
         
@@ -237,8 +237,8 @@ export function AppSidebar() {
           {/* User Profile */}
           {profile && (
             <div className={`flex items-center gap-3 p-3 rounded-lg bg-white/5 backdrop-blur-sm border border-white/10 transition-all duration-200 hover:bg-white/10 ${isCollapsed ? 'justify-center' : ''}`}>
-              <Avatar className="h-9 w-9 ring-2 ring-blue-500/30">
-                <AvatarFallback className="bg-gradient-to-br from-blue-500 to-blue-600 text-white text-sm font-semibold">
+            <Avatar className="h-9 w-9 ring-2 ring-primary/30">
+              <AvatarFallback className="bg-gradient-to-br from-primary to-primary-hover text-primary-foreground text-sm font-semibold">
                   {profile.nome ? getInitials(profile.nome) : <User className="h-4 w-4" />}
                 </AvatarFallback>
               </Avatar>

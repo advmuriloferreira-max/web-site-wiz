@@ -75,7 +75,7 @@ export function PremiumStatsCard({
 
   return (
     <div className={cn(
-      "group relative overflow-hidden rounded-xl bg-white/10 backdrop-blur-md border border-white/20 p-6 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-black/10",
+      "group relative overflow-hidden rounded-xl bg-card/50 backdrop-blur-md border border-border p-6 transition-all duration-300 hover:scale-105 hover:shadow-2xl interactive-card animate-fade-in",
       colors.bg,
       colors.border,
       className
@@ -90,17 +90,17 @@ export function PremiumStatsCard({
       <div className="relative z-10">
         <div className="flex items-center justify-between mb-4">
           <div className={cn(
-            "p-3 rounded-lg bg-white/10 backdrop-blur-sm transition-transform duration-300 group-hover:scale-110",
+            "p-3 rounded-lg bg-card/50 backdrop-blur-sm transition-transform duration-300 group-hover:scale-110 animate-scale-in",
             colors.bg
           )}>
-            <Icon className={cn("h-12 w-12", colors.icon)} />
+            <Icon className={cn("h-6 w-6 animate-pulse", colors.icon)} />
           </div>
           {trend && (
             <div className={cn(
-              "flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium",
+              "flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium animate-fade-in",
               trend.isPositive 
-                ? "bg-emerald-500/20 text-emerald-600" 
-                : "bg-red-500/20 text-red-600"
+                ? "bg-success/20 text-success" 
+                : "bg-destructive/20 text-destructive"
             )}>
               <span>{trend.isPositive ? "+" : ""}{trend.value}%</span>
             </div>
@@ -108,10 +108,10 @@ export function PremiumStatsCard({
         </div>
         
         <div className="space-y-2">
-          <h3 className="text-sm font-medium text-slate-600 dark:text-slate-300 uppercase tracking-wide">
+          <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide animate-fade-in animate-stagger-1">
             {title}
           </h3>
-          <div className="text-3xl font-bold text-slate-900 dark:text-white">
+          <div className="text-3xl font-bold text-foreground animate-count-up">
             {isNumeric ? 
               (typeof value === 'string' && value.includes('R$') 
                 ? `R$ ${Math.round(animatedValue).toLocaleString('pt-BR')}${value.includes('K') ? 'K' : value.includes('M') ? 'M' : ''}`
@@ -122,12 +122,18 @@ export function PremiumStatsCard({
             }
           </div>
           {description && (
-            <p className="text-sm text-slate-500 dark:text-slate-400">
+            <p className="text-sm text-muted-foreground animate-fade-in animate-stagger-2">
               {description}
             </p>
           )}
         </div>
       </div>
+      
+      {/* Glow effect */}
+      <div className={cn(
+        "absolute inset-0 rounded-xl opacity-0 group-hover:opacity-20 transition-opacity duration-300 blur-xl",
+        colors.gradient
+      )} />
     </div>
   );
 }
