@@ -1,15 +1,15 @@
 import { UseFormReturn } from "react-hook-form";
 import { useEffect } from "react";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { PremiumInput } from "@/components/ui/premium-input";
+import { PremiumSection } from "@/components/ui/premium-section";
+import { PremiumButton } from "@/components/ui/premium-button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { useTiposOperacao } from "@/hooks/useTiposOperacao";
 import { ContratoWizardData } from "./types";
-import { DollarSign, Calendar as CalendarIcon, TrendingUp, Building2 } from "lucide-react";
+import { DollarSign, Calendar as CalendarIcon, TrendingUp, Building2, Info } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { calcularDiasAtraso, diasParaMeses } from "@/lib/calculoProvisao";
@@ -64,66 +64,129 @@ export function Etapa2({ form }: Etapa2Props) {
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <DollarSign className="h-5 w-5" />
-            Detalhes Financeiros
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Tipo de Operação e Valores */}
+      <PremiumSection 
+        title="Detalhes Financeiros" 
+        icon={DollarSign}
+        description="Configure os valores e tipo de operação do contrato"
+      >
+        <div className="space-y-6">
+          {/* Tipo de Operação */}
+          <FormField
+            control={form.control}
+            name="tipo_operacao_bcb"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="flex items-center gap-2 text-slate-700 font-medium">
+                  <TrendingUp className="h-4 w-4 text-blue-600" />
+                  Tipo de Operação BCB *
+                </FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger className="h-12 rounded-lg border-slate-300 focus:ring-blue-500 focus:border-blue-500">
+                      <SelectValue placeholder="Selecione o tipo de operação" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent className="rounded-lg border-slate-200">
+                    {tiposOperacao?.map((tipo) => (
+                      <SelectItem key={tipo.id} value={tipo.id!} className="rounded-md">
+                        <div>
+                          <div className="font-medium text-slate-800">{tipo.nome}</div>
+                          <div className="text-sm text-slate-500">
+                            Carteira: {tipo.carteira}
+                          </div>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormField
               control={form.control}
-              name="tipo_operacao_bcb"
+              name="saldo_contabil"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="flex items-center gap-2">
-                    <TrendingUp className="h-4 w-4" />
-                    Tipo de Operação BCB *
-                  </FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <PremiumInput
+                    label="Dívida Contábil *"
+                    placeholder="0,00"
+                    icon={DollarSign}
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    {...field}
+                  />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="valor_divida"
+              render={({ field }) => (
+                <FormItem>
+                  <PremiumInput
+                    label="Valor da Dívida (opcional)"
+                    placeholder="0,00"
+                    icon={DollarSign}
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    {...field}
+                  />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
+      </PremiumSection>
+
+      <PremiumSection 
+        title="Datas Importantes" 
+        icon={CalendarIcon}
+        description="Defina as datas relevantes para o contrato"
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <FormField
+            control={form.control}
+            name="data_ultimo_pagamento"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel className="text-slate-700 font-medium mb-2">Data do Último Pagamento</FormLabel>
+                <Popover>
+                  <PopoverTrigger asChild>
                     <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione o tipo de operação" />
-                      </SelectTrigger>
+                      <PremiumButton
+                        variant="outline"
+                        className={cn(
+                          "h-12 pl-3 text-left font-normal justify-start",
+                          !field.value && "text-slate-400"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4 text-blue-600" />
+                        {field.value ? (
+                          format(new Date(field.value), "dd/MM/yyyy")
+                        ) : (
+                          <span>Selecione a data</span>
+                        )}
+                      </PremiumButton>
                     </FormControl>
-                    <SelectContent>
-                      {tiposOperacao?.map((tipo) => (
-                        <SelectItem key={tipo.id} value={tipo.id!}>
-                          <div>
-                            <div className="font-medium">{tipo.nome}</div>
-                            <div className="text-sm text-muted-foreground">
-                              Carteira: {tipo.carteira}
-                            </div>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-          </div>
-
-          <FormField
-            control={form.control}
-            name="saldo_contabil"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Dívida Contábil *</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="0,00"
-                    {...field}
-                    type="number"
-                    min="0"
-                    step="0.01"
-                  />
-                </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0 rounded-lg border-slate-200" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={field.value ? new Date(field.value) : undefined}
+                      onSelect={(date) => field.onChange(date?.toISOString().split('T')[0])}
+                      disabled={(date) => date > new Date()}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
                 <FormMessage />
               </FormItem>
             )}
@@ -131,137 +194,62 @@ export function Etapa2({ form }: Etapa2Props) {
 
           <FormField
             control={form.control}
-            name="valor_divida"
+            name="data_entrada_escritorio"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>Valor da Dívida (opcional)</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="0,00"
-                    {...field}
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    className="max-w-md"
-                  />
-                </FormControl>
+              <FormItem className="flex flex-col">
+                <FormLabel className="flex items-center gap-2 text-slate-700 font-medium mb-2">
+                  <Building2 className="h-4 w-4 text-blue-600" />
+                  Data de Entrada no Escritório
+                </FormLabel>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <PremiumButton
+                        variant="outline"
+                        className={cn(
+                          "h-12 pl-3 text-left font-normal justify-start",
+                          !field.value && "text-slate-400"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4 text-blue-600" />
+                        {field.value ? (
+                          format(new Date(field.value), "dd/MM/yyyy")
+                        ) : (
+                          <span>Selecione a data</span>
+                        )}
+                      </PremiumButton>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0 rounded-lg border-slate-200" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={field.value ? new Date(field.value) : undefined}
+                      onSelect={(date) => field.onChange(date?.toISOString().split('T')[0])}
+                      disabled={(date) => date > new Date()}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
                 <FormMessage />
               </FormItem>
             )}
           />
-        </CardContent>
-      </Card>
+        </div>
+      </PremiumSection>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <CalendarIcon className="h-5 w-5" />
-            Datas Importantes
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FormField
-              control={form.control}
-              name="data_ultimo_pagamento"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Data do Último Pagamento</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          {field.value ? (
-                            format(new Date(field.value), "dd/MM/yyyy")
-                          ) : (
-                            <span>Selecione a data</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value ? new Date(field.value) : undefined}
-                        onSelect={(date) => field.onChange(date?.toISOString().split('T')[0])}
-                        disabled={(date) => date > new Date()}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="data_entrada_escritorio"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel className="flex items-center gap-2">
-                    <Building2 className="h-4 w-4" />
-                    Data de Entrada no Escritório
-                  </FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          {field.value ? (
-                            format(new Date(field.value), "dd/MM/yyyy")
-                          ) : (
-                            <span>Selecione a data</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value ? new Date(field.value) : undefined}
-                        onSelect={(date) => field.onChange(date?.toISOString().split('T')[0])}
-                        disabled={(date) => date > new Date()}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+      <div className="rounded-lg bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-200 p-4">
+        <div className="flex items-start gap-3">
+          <Info className="h-5 w-5 text-emerald-600 mt-0.5 flex-shrink-0" />
+          <div className="text-sm">
+            <p className="font-semibold text-emerald-800 mb-2">Cálculos automáticos:</p>
+            <ul className="list-disc list-inside text-emerald-700 space-y-1">
+              <li>Os dias de atraso são calculados automaticamente com base na data do último pagamento</li>
+              <li>O tempo no escritório é calculado a partir da data de entrada</li>
+              <li>A classificação será definida com base no tipo de operação BCB selecionado</li>
+            </ul>
           </div>
-        </CardContent>
-      </Card>
-
-      <Card className="bg-muted/50">
-        <CardContent className="p-4">
-          <div className="flex items-start gap-3">
-            <div className="w-2 h-2 rounded-full bg-green-500 mt-2 flex-shrink-0" />
-            <div className="text-sm">
-              <p className="font-medium">Cálculos automáticos:</p>
-              <ul className="list-disc list-inside text-muted-foreground mt-1 space-y-1">
-                <li>Os dias de atraso são calculados automaticamente com base na data do último pagamento</li>
-                <li>O tempo no escritório é calculado a partir da data de entrada</li>
-                <li>A classificação será definida com base no tipo de operação BCB selecionado</li>
-              </ul>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,11 +1,12 @@
 import { UseFormReturn } from "react-hook-form";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PremiumSection } from "@/components/ui/premium-section";
+import { PremiumInput } from "@/components/ui/premium-input";
 import { useClientes } from "@/hooks/useClientes";
 import { useBancos } from "@/hooks/useBancos";
 import { ContratoWizardData } from "./types";
-import { Users, Building, FileText } from "lucide-react";
+import { Users, Building, FileText, Info } from "lucide-react";
 import { useEffect } from "react";
 
 interface Etapa1Props {
@@ -54,14 +55,12 @@ export function Etapa1({ form }: Etapa1Props) {
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5" />
-            Dados Básicos do Contrato
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
+      <PremiumSection 
+        title="Dados Básicos do Contrato" 
+        icon={FileText}
+        description="Configure as informações principais do contrato"
+      >
+        <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Cliente */}
             <FormField
@@ -69,22 +68,22 @@ export function Etapa1({ form }: Etapa1Props) {
               name="cliente_id"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="flex items-center gap-2">
-                    <Users className="h-4 w-4" />
+                  <FormLabel className="flex items-center gap-2 text-slate-700 font-medium">
+                    <Users className="h-4 w-4 text-blue-600" />
                     Cliente *
                   </FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="h-12 rounded-lg border-slate-300 focus:ring-blue-500 focus:border-blue-500">
                         <SelectValue placeholder="Selecione o cliente" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
+                    <SelectContent className="rounded-lg border-slate-200">
                       {clientes?.map((cliente) => (
-                        <SelectItem key={cliente.id} value={cliente.id!}>
+                        <SelectItem key={cliente.id} value={cliente.id!} className="rounded-md">
                           <div>
-                            <div className="font-medium">{cliente.nome}</div>
-                            <div className="text-sm text-muted-foreground">{cliente.email}</div>
+                            <div className="font-medium text-slate-800">{cliente.nome}</div>
+                            <div className="text-sm text-slate-500">{cliente.email}</div>
                           </div>
                         </SelectItem>
                       ))}
@@ -101,21 +100,21 @@ export function Etapa1({ form }: Etapa1Props) {
               name="banco_id"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="flex items-center gap-2">
-                    <Building className="h-4 w-4" />
+                  <FormLabel className="flex items-center gap-2 text-slate-700 font-medium">
+                    <Building className="h-4 w-4 text-blue-600" />
                     Instituição Financeira *
                   </FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="h-12 rounded-lg border-slate-300 focus:ring-blue-500 focus:border-blue-500">
                         <SelectValue placeholder="Selecione o banco" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
+                    <SelectContent className="rounded-lg border-slate-200">
                       {bancos?.map((banco) => (
-                        <SelectItem key={banco.id} value={banco.id!}>
+                        <SelectItem key={banco.id} value={banco.id!} className="rounded-md">
                           <div>
-                            <div className="font-medium">{banco.nome}</div>
+                            <div className="font-medium text-slate-800">{banco.nome}</div>
                           </div>
                         </SelectItem>
                       ))}
@@ -135,49 +134,40 @@ export function Etapa1({ form }: Etapa1Props) {
               const validation = validarNumeroContrato(field.value || "");
               return (
                 <FormItem>
-                  <FormLabel>Número do Contrato</FormLabel>
-                  <FormControl>
-                    <div className="space-y-2">
-                      <input
-                        placeholder="Ex: 123456789, 123.456.789-0"
-                        {...field}
-                        className={`flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 max-w-md ${
-                          !validation.isValid ? 'border-destructive focus-visible:ring-destructive' : ''
-                        }`}
-                        onChange={(e) => {
-                          // Filtrar caracteres não permitidos em tempo real
-                          const value = e.target.value.replace(/[^0-9\-.\s]/g, '');
-                          field.onChange(value);
-                        }}
-                      />
-                      {!validation.isValid && (
-                        <p className="text-sm text-destructive">{validation.message}</p>
-                      )}
-                    </div>
-                  </FormControl>
+                  <PremiumInput
+                    label="Número do Contrato"
+                    placeholder="Ex: 123456789, 123.456.789-0"
+                    icon={FileText}
+                    error={!validation.isValid ? validation.message : undefined}
+                    className="max-w-md"
+                    {...field}
+                    onChange={(e) => {
+                      // Filtrar caracteres não permitidos em tempo real
+                      const value = e.target.value.replace(/[^0-9\-.\s]/g, '');
+                      field.onChange(value);
+                    }}
+                  />
                   <FormMessage />
                 </FormItem>
               );
             }}
           />
-        </CardContent>
-      </Card>
+        </div>
+      </PremiumSection>
 
-      <Card className="bg-muted/50">
-        <CardContent className="p-4">
-          <div className="flex items-start gap-3">
-            <div className="w-2 h-2 rounded-full bg-blue-500 mt-2 flex-shrink-0" />
-            <div className="text-sm">
-              <p className="font-medium">Informações importantes:</p>
-              <ul className="list-disc list-inside text-muted-foreground mt-1 space-y-1">
-                <li>Certifique-se de que o cliente já está cadastrado no sistema</li>
-                <li>Use apenas NÚMEROS no campo contrato. Evite nomes de operações</li>
-                <li>Campos marcados com * são obrigatórios</li>
-              </ul>
-            </div>
+      <div className="rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 p-4">
+        <div className="flex items-start gap-3">
+          <Info className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+          <div className="text-sm">
+            <p className="font-semibold text-blue-800 mb-2">Informações importantes:</p>
+            <ul className="list-disc list-inside text-blue-700 space-y-1">
+              <li>Certifique-se de que o cliente já está cadastrado no sistema</li>
+              <li>Use apenas NÚMEROS no campo contrato. Evite nomes de operações</li>
+              <li>Campos marcados com * são obrigatórios</li>
+            </ul>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }
