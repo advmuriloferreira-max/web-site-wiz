@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Eye, Edit, Trash2 } from "lucide-react";
+import { Eye, Edit, Trash2, Clock, Shield, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { ModernBadge } from "@/components/ui/modern-badge";
 import { ContratoWizard } from "@/components/forms/ContratoWizard";
 import { useContratos, Contrato } from "@/hooks/useContratos";
 import { useDeleteContrato } from "@/hooks/useDeleteContrato";
@@ -20,21 +21,21 @@ import { format } from "date-fns";
 
 const getClassificacaoColor = (classificacao: string | null) => {
   switch (classificacao) {
-    case "C1": return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
-    case "C2": return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300";
-    case "C3": return "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300";
-    case "C4": return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300";
-    case "C5": return "bg-red-200 text-red-900 dark:bg-red-800 dark:text-red-200";
-    default: return "bg-muted text-muted-foreground";
+    case "C1": return "success";
+    case "C2": return "warning";
+    case "C3": return "info";
+    case "C4": return "danger";
+    case "C5": return "danger";
+    default: return "default";
   }
 };
 
 const getEstagioRiscoColor = (estagio: number | null) => {
   switch (estagio) {
-    case 1: return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
-    case 2: return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300";
-    case 3: return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300";
-    default: return "bg-muted text-muted-foreground";
+    case 1: return "success";
+    case 2: return "warning";
+    case 3: return "danger";
+    default: return "default";
   }
 };
 
@@ -203,199 +204,213 @@ export default function Contratos() {
           emptyMessage="Nenhum contrato encontrado"
         />
       ) : (
-        <Card>
+        <Card className="shadow-sm border-slate-200">
           <CardContent className="p-0">
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>
+                    <SortableHeader
+                      field="clientes.nome"
+                      label="Cliente"
+                      sortConfigs={filters.sortConfigs}
+                      onSort={filters.addSort}
+                      onRemoveSort={filters.removeSort}
+                    />
+                  </TableHead>
+                  <TableHead>
+                    <SortableHeader
+                      field="bancos.nome"
+                      label="Banco"
+                      sortConfigs={filters.sortConfigs}
+                      onSort={filters.addSort}
+                      onRemoveSort={filters.removeSort}
+                    />
+                  </TableHead>
+                  <TableHead>
+                    <SortableHeader
+                      field="tipos_operacao_bcb.nome"
+                      label="Tipo de Operação"
+                      sortConfigs={filters.sortConfigs}
+                      onSort={filters.addSort}
+                      onRemoveSort={filters.removeSort}
+                    />
+                  </TableHead>
+                  <TableHead>
+                    <SortableHeader
+                      field="saldo_contabil"
+                      label="Dívida Contábil"
+                      sortConfigs={filters.sortConfigs}
+                      onSort={filters.addSort}
+                      onRemoveSort={filters.removeSort}
+                    />
+                  </TableHead>
+                  <TableHead>
+                    <SortableHeader
+                      field="classificacao"
+                      label="Classificação"
+                      sortConfigs={filters.sortConfigs}
+                      onSort={filters.addSort}
+                      onRemoveSort={filters.removeSort}
+                    />
+                  </TableHead>
+                  <TableHead>
+                    <SortableHeader
+                      field="estagio_risco"
+                      label="Estágio"
+                      sortConfigs={filters.sortConfigs}
+                      onSort={filters.addSort}
+                      onRemoveSort={filters.removeSort}
+                    />
+                  </TableHead>
+                  <TableHead><Shield className="h-4 w-4 inline mr-1" />Garantia</TableHead>
+                  <TableHead>
+                    <SortableHeader
+                      field="situacao"
+                      label="Situação"
+                      sortConfigs={filters.sortConfigs}
+                      onSort={filters.addSort}
+                      onRemoveSort={filters.removeSort}
+                    />
+                  </TableHead>
+                  <TableHead>
+                    <SortableHeader
+                      field="dias_atraso"
+                      label="Atraso"
+                      sortConfigs={filters.sortConfigs}
+                      onSort={filters.addSort}
+                      onRemoveSort={filters.removeSort}
+                    />
+                  </TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filters.filteredData.length === 0 ? (
                   <TableRow>
-                    <TableHead>
-                      <SortableHeader
-                        field="clientes.nome"
-                        label="Cliente"
-                        sortConfigs={filters.sortConfigs}
-                        onSort={filters.addSort}
-                        onRemoveSort={filters.removeSort}
-                      />
-                    </TableHead>
-                    <TableHead>
-                      <SortableHeader
-                        field="bancos.nome"
-                        label="Banco"
-                        sortConfigs={filters.sortConfigs}
-                        onSort={filters.addSort}
-                        onRemoveSort={filters.removeSort}
-                      />
-                    </TableHead>
-                    <TableHead>
-                      <SortableHeader
-                        field="tipos_operacao_bcb.nome"
-                        label="Tipo de Operação"
-                        sortConfigs={filters.sortConfigs}
-                        onSort={filters.addSort}
-                        onRemoveSort={filters.removeSort}
-                      />
-                    </TableHead>
-                    <TableHead>
-                      <SortableHeader
-                        field="saldo_contabil"
-                        label="Dívida Contábil"
-                        sortConfigs={filters.sortConfigs}
-                        onSort={filters.addSort}
-                        onRemoveSort={filters.removeSort}
-                      />
-                    </TableHead>
-                    <TableHead>
-                      <SortableHeader
-                        field="classificacao"
-                        label="Classificação"
-                        sortConfigs={filters.sortConfigs}
-                        onSort={filters.addSort}
-                        onRemoveSort={filters.removeSort}
-                      />
-                    </TableHead>
-                    <TableHead>
-                      <SortableHeader
-                        field="estagio_risco"
-                        label="Estágio"
-                        sortConfigs={filters.sortConfigs}
-                        onSort={filters.addSort}
-                        onRemoveSort={filters.removeSort}
-                      />
-                    </TableHead>
-                    <TableHead>Garantia</TableHead>
-                    <TableHead>
-                      <SortableHeader
-                        field="situacao"
-                        label="Situação"
-                        sortConfigs={filters.sortConfigs}
-                        onSort={filters.addSort}
-                        onRemoveSort={filters.removeSort}
-                      />
-                    </TableHead>
-                    <TableHead>
-                      <SortableHeader
-                        field="dias_atraso"
-                        label="Atraso"
-                        sortConfigs={filters.sortConfigs}
-                        onSort={filters.addSort}
-                        onRemoveSort={filters.removeSort}
-                      />
-                    </TableHead>
-                    <TableHead className="text-right">Ações</TableHead>
+                    <TableCell colSpan={10} className="text-center py-12 text-slate-500">
+                      <div className="flex flex-col items-center space-y-3">
+                        <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center">
+                          <TrendingUp className="h-6 w-6 text-slate-400" />
+                        </div>
+                        <p className="font-medium">Nenhum contrato encontrado</p>
+                        <p className="text-sm">Tente ajustar os filtros ou adicionar novos contratos</p>
+                      </div>
+                    </TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filters.filteredData.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={10} className="text-center py-8 text-muted-foreground">
-                        Nenhum contrato encontrado
+                ) : (
+                  filters.filteredData.map((contrato) => (
+                    <TableRow 
+                      key={contrato.id} 
+                      className="cursor-pointer"
+                      onClick={() => handleContratoClick(contrato)}
+                    >
+                      <TableCell className="font-semibold text-slate-900">
+                        {contrato.clientes?.nome}
+                      </TableCell>
+                      <TableCell className="text-slate-700">{contrato.bancos?.nome}</TableCell>
+                      <TableCell>
+                        <TipoOperacaoDisplay 
+                          tipoOperacaoId={(contrato as any).tipo_operacao_bcb}
+                          fallback={contrato.tipo_operacao || "-"}
+                        />
+                      </TableCell>
+                      <TableCell className="font-semibold text-slate-900">
+                        {formatCurrency(contrato.saldo_contabil || contrato.valor_divida)}
+                      </TableCell>
+                      <TableCell>
+                        {contrato.classificacao ? (
+                          <ModernBadge variant={getClassificacaoColor(contrato.classificacao)}>
+                            {contrato.classificacao}
+                          </ModernBadge>
+                        ) : (
+                          <span className="text-slate-400">-</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {(contrato as any).estagio_risco ? (
+                          <ModernBadge variant={getEstagioRiscoColor((contrato as any).estagio_risco)}>
+                            {getEstagioRiscoLabel((contrato as any).estagio_risco)}
+                          </ModernBadge>
+                        ) : (
+                          <span className="text-slate-400">-</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <GarantiaIndicator contratoId={contrato.id} />
+                      </TableCell>
+                      <TableCell>
+                        <ModernBadge variant="info" size="sm">
+                          {contrato.situacao}
+                        </ModernBadge>
+                      </TableCell>
+                      <TableCell>
+                        {contrato.dias_atraso > 0 ? (
+                          <ModernBadge variant="danger" icon={Clock} size="sm">
+                            {contrato.dias_atraso}d
+                          </ModernBadge>
+                        ) : (
+                          <ModernBadge variant="success" size="sm">
+                            0d
+                          </ModernBadge>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center gap-1 justify-end">
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => handleContratoClick(contrato)}
+                            className="h-8 w-8 p-0 text-slate-500 hover:text-blue-600 hover:bg-blue-50"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => handleEditarContratoEspecifico(contrato)}
+                            className="h-8 w-8 p-0 text-slate-500 hover:text-amber-600 hover:bg-amber-50"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0 text-slate-500 hover:text-red-600 hover:bg-red-50"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent className="rounded-xl border-slate-200">
+                              <AlertDialogHeader>
+                                <AlertDialogTitle className="text-slate-900">Confirmar exclusão</AlertDialogTitle>
+                                <AlertDialogDescription className="text-slate-600">
+                                  Tem certeza que deseja excluir o contrato de "{contrato.clientes?.nome}" do banco "{contrato.bancos?.nome}"?
+                                  Esta ação não pode ser desfeita.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel className="border-slate-200 hover:bg-slate-50">
+                                  Cancelar
+                                </AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => handleDeleteContrato(contrato)}
+                                  className="bg-red-500 text-white hover:bg-red-600"
+                                >
+                                  Excluir
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
                       </TableCell>
                     </TableRow>
-                  ) : (
-                    filters.filteredData.map((contrato) => (
-                      <TableRow 
-                        key={contrato.id} 
-                        className="cursor-pointer hover:bg-muted/50"
-                        onClick={() => handleContratoClick(contrato)}
-                      >
-                        <TableCell className="font-medium">
-                          {contrato.clientes?.nome}
-                        </TableCell>
-                        <TableCell>{contrato.bancos?.nome}</TableCell>
-                        <TableCell>
-                          <TipoOperacaoDisplay 
-                            tipoOperacaoId={(contrato as any).tipo_operacao_bcb}
-                            fallback={contrato.tipo_operacao || "-"}
-                          />
-                        </TableCell>
-                        <TableCell className="font-medium">
-                          {formatCurrency(contrato.saldo_contabil || contrato.valor_divida)}
-                        </TableCell>
-                        <TableCell>
-                          {contrato.classificacao ? (
-                            <Badge className={getClassificacaoColor(contrato.classificacao)}>
-                              {contrato.classificacao}
-                            </Badge>
-                          ) : (
-                            <span className="text-muted-foreground">-</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {(contrato as any).estagio_risco ? (
-                            <Badge className={getEstagioRiscoColor((contrato as any).estagio_risco)}>
-                              {getEstagioRiscoLabel((contrato as any).estagio_risco)}
-                            </Badge>
-                          ) : (
-                            <span className="text-muted-foreground">-</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <GarantiaIndicator contratoId={contrato.id} />
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="secondary">{contrato.situacao}</Badge>
-                        </TableCell>
-                        <TableCell>
-                          {contrato.dias_atraso > 0 ? (
-                            <Badge variant="destructive">{contrato.dias_atraso}</Badge>
-                          ) : (
-                            <Badge variant="secondary">0</Badge>
-                          )}
-                        </TableCell>
-                        <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
-                          <div className="flex items-center gap-1 justify-end">
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              onClick={() => handleContratoClick(contrato)}
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              onClick={() => handleEditarContratoEspecifico(contrato)}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="text-destructive hover:text-destructive"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    Tem certeza que deseja excluir o contrato de "{contrato.clientes?.nome}" do banco "{contrato.bancos?.nome}"?
-                                    Esta ação não pode ser desfeita.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                  <AlertDialogAction
-                                    onClick={() => handleDeleteContrato(contrato)}
-                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                  >
-                                    Excluir
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </div>
+                  ))
+                )}
+              </TableBody>
+            </Table>
           </CardContent>
         </Card>
       )}
