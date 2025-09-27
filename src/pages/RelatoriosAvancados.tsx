@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RefreshCw, TrendingUp, LineChart, BarChart3, Calendar, Clock, Target, AlertTriangle } from "lucide-react";
-import { format, addMonths, differenceInDays, subDays } from "date-fns";
+import { format, addMonths, subDays } from "date-fns";
 import { useContratos } from "@/hooks/useContratos";
 import { useClientes } from "@/hooks/useClientes";
 import { useContratosByCliente } from "@/hooks/useContratosByCliente";
@@ -18,9 +18,9 @@ import { ColoredIcon } from "@/components/ui/color-consistency";
 import { PremiumStatsCard } from "@/components/dashboard/PremiumStatsCard";
 
 export default function RelatoriosAvancados() {
-  // Estados para análise individual
-  const [selectedClienteId, setSelectedClienteId] = useState<string>();
-  const [selectedContratoId, setSelectedContratoId] = useState<string>();
+  // Estados para análise individual - inicializados como string vazia para evitar warnings
+  const [selectedClienteId, setSelectedClienteId] = useState<string>("");
+  const [selectedContratoId, setSelectedContratoId] = useState<string>("");
   const [contractAnalysisData, setContractAnalysisData] = useState<any[]>([]);
   const [analysisResults, setAnalysisResults] = useState<any>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -43,9 +43,7 @@ export default function RelatoriosAvancados() {
       if (!contrato) return;
       
       // Calcular a evolução do provisionamento baseado na lógica real
-      const dataEntrada = new Date(contrato.data_entrada);
       const hoje = new Date();
-      const mesesPassados = differenceInDays(hoje, dataEntrada) / 30;
       
       // Determinar estágio atual e calcular provisão atual
       const estagioAtual = determinarEstagio(contrato.dias_atraso || 0);
@@ -57,36 +55,54 @@ export default function RelatoriosAvancados() {
         tabelaIncorrida: tabelaIncorrida || []
       });
       
-      // Simular evolução mensal até 100%
+      // Gerar evolução baseada na lógica real de provisão
       const analysisData = [];
-      let provisaoAcumulada = provisaoAtual.percentualProvisao;
-      let mesAtual = 0;
       
-      // Dados históricos (simulados baseados na lógica real)
+      // Dados históricos - calcular provisão real para cada mês anterior
       for (let i = 12; i >= 0; i--) {
         const dataSimulada = subDays(hoje, i * 30);
-        const diasAtrasoSimulado = Math.max(0, (contrato.dias_atraso || 0) - (i * 30));
-        const provisaoSimulada = Math.min(100, (diasAtrasoSimulado / 365) * 100);
+        const diasAtrasoHistorico = Math.max(0, (contrato.dias_atraso || 0) - (i * 30));
+        
+        // Calcular provisão real para esse período
+        const provisaoHistorica = calcularProvisao({
+          valorDivida: contrato.valor_divida,
+          diasAtraso: diasAtrasoHistorico,
+          classificacao: (contrato.classificacao as ClassificacaoRisco) || 'C1',
+          tabelaPerda: tabelaPerda,
+          tabelaIncorrida: tabelaIncorrida || []
+        });
         
         analysisData.push({
           mes: format(dataSimulada, 'MMM/yy'),
-          provisao: provisaoSimulada,
-          diasAtraso: diasAtrasoSimulado,
-          valor: (contrato.valor_divida * provisaoSimulada) / 100
+          provisao: provisaoHistorica.percentualProvisao,
+          diasAtraso: diasAtrasoHistorico,
+          valor: provisaoHistorica.valorProvisao,
+          isProjection: false
         });
       }
       
-      // Projeção futura
+      // Projeção futura - simular evolução baseada no aumento dos dias de atraso
       let provisaoProjecao = provisaoAtual.percentualProvisao;
       let mesesPara50 = null;
       let mesesPara100 = null;
       let mesProjecao = 0;
+      const diasAtrasoAtual = contrato.dias_atraso || 0;
       
-      while (provisaoProjecao < 100 && mesProjecao < 24) {
+      // Projetar evolução baseada no aumento real dos dias de atraso
+      while (provisaoProjecao < 100 && mesProjecao < 36) {
         mesProjecao++;
-        // Incremento baseado no estágio de risco
-        const incrementoMensal = estagioAtual <= 2 ? 2 : estagioAtual <= 4 ? 5 : 8;
-        provisaoProjecao = Math.min(100, provisaoProjecao + incrementoMensal);
+        const diasAtrasoFuturo = diasAtrasoAtual + (mesProjecao * 30);
+        
+        // Calcular provisão real para esse período futuro
+        const provisaoFutura = calcularProvisao({
+          valorDivida: contrato.valor_divida,
+          diasAtraso: diasAtrasoFuturo,
+          classificacao: (contrato.classificacao as ClassificacaoRisco) || 'C1',
+          tabelaPerda: tabelaPerda,
+          tabelaIncorrida: tabelaIncorrida || []
+        });
+        
+        provisaoProjecao = provisaoFutura.percentualProvisao;
         
         const dataFutura = addMonths(hoje, mesProjecao);
         
@@ -101,10 +117,13 @@ export default function RelatoriosAvancados() {
         analysisData.push({
           mes: format(dataFutura, 'MMM/yy'),
           provisao: provisaoProjecao,
-          diasAtraso: (contrato.dias_atraso || 0) + (mesProjecao * 30),
-          valor: (contrato.valor_divida * provisaoProjecao) / 100,
+          diasAtraso: diasAtrasoFuturo,
+          valor: provisaoFutura.valorProvisao,
           isProjection: true
         });
+        
+        // Se já chegou a 100%, não precisa continuar
+        if (provisaoProjecao >= 100) break;
       }
       
       setContractAnalysisData(analysisData);
