@@ -126,8 +126,8 @@ export default function Acordos() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Cliente</TableHead>
                   <TableHead>Ação</TableHead>
+                  <TableHead>Cliente</TableHead>
                   <TableHead>Banco</TableHead>
                   <TableHead>Valor Original</TableHead>
                   <TableHead>Proposta</TableHead>
@@ -146,9 +146,6 @@ export default function Acordos() {
                 ) : (
                   filteredContratos?.map((contrato) => (
                     <TableRow key={contrato.id}>
-                      <TableCell className="font-medium">
-                        {contrato.clientes?.nome}
-                      </TableCell>
                       <TableCell>
                         <Dialog open={isDialogOpen && selectedContrato?.id === contrato.id} onOpenChange={(open) => {
                           setIsDialogOpen(open);
@@ -177,6 +174,9 @@ export default function Acordos() {
                             )}
                           </DialogContent>
                         </Dialog>
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        {contrato.clientes?.nome}
                       </TableCell>
                       <TableCell>{contrato.bancos?.nome}</TableCell>
                       <TableCell className="font-medium">
