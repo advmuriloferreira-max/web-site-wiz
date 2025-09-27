@@ -9,6 +9,8 @@ import { ClienteSelector } from "@/components/dashboard/ClienteSelector";
 import { ClienteAnalysisDetails } from "@/components/dashboard/ClienteAnalysisDetails";
 import { TendenciasChart } from "@/components/dashboard/TendenciasChart";
 import { PerformanceCard } from "@/components/dashboard/PerformanceCard";
+import { WelcomeBanner } from "@/components/onboarding/WelcomeBanner";
+import { OnboardingTour } from "@/components/onboarding/OnboardingTour";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -27,6 +29,15 @@ import {
 function DashboardContent() {
   const { data: stats, isLoading, error } = useContratosStats();
   const [selectedClienteId, setSelectedClienteId] = useState<string | null>(null);
+  const [startTour, setStartTour] = useState(false);
+
+  const handleStartTour = () => {
+    setStartTour(true);
+  };
+
+  const handleTourEnd = () => {
+    setStartTour(false);
+  };
 
   if (error) {
     return (
@@ -81,6 +92,9 @@ function DashboardContent() {
 
   return (
     <div className="p-6 space-y-6">
+      {/* Welcome Banner */}
+      <WelcomeBanner onStartTour={handleStartTour} />
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -91,8 +105,8 @@ function DashboardContent() {
         </div>
       </div>
 
-      {/* KPI Cards Principais */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      {/* Estatísticas Principais */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4" data-tour="dashboard-stats">
         <StatsCard
           title="Total de Contratos"
           value={stats?.totalContratos || 0}
@@ -239,6 +253,9 @@ function DashboardContent() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Onboarding Tour Component */}
+      <OnboardingTour startTour={startTour} onTourEnd={handleTourEnd} />
     </div>
   );
 }

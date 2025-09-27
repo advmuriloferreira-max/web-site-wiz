@@ -9,6 +9,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { UserMenu } from "@/components/UserMenu";
 import { InstallPrompt } from "@/components/InstallPrompt";
 import { AppSidebar } from "@/components/AppSidebar";
+import { OnboardingTour } from "@/components/onboarding/OnboardingTour";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Convite from "./pages/Convite";
@@ -69,18 +70,19 @@ const App = () => (
                           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                           <Route path="*" element={<NotFound />} />
                         </Routes>
-                      </main>
-                    </div>
-                  </div>
-                  <InstallPrompt />
-                </SidebarProvider>
-              </ProtectedRoute>
-            } />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </AuthProvider>
-  </QueryClientProvider>
-);
+                       </main>
+                     </div>
+                   </div>
+                   <InstallPrompt />
+                   <OnboardingTour />
+                 </SidebarProvider>
+               </ProtectedRoute>
+             } />
+           </Routes>
+         </BrowserRouter>
+       </TooltipProvider>
+     </AuthProvider>
+   </QueryClientProvider>
+ );
 
-export default App;
+ export default App;

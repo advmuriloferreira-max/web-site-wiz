@@ -30,12 +30,12 @@ import {
 
 const navigationItems = [
   { title: "Dashboard", url: "/", icon: BarChart3 },
-  { title: "Clientes", url: "/clientes", icon: Users },
-  { title: "Contratos", url: "/contratos", icon: FileText },
+  { title: "Clientes", url: "/clientes", icon: Users, dataTour: "sidebar-clientes" },
+  { title: "Contratos", url: "/contratos", icon: FileText, dataTour: "sidebar-contratos" },
   { title: "Processos", url: "/processos", icon: AlertTriangle },
-  { title: "Acordos", url: "/acordos", icon: Handshake },
-  { title: "Cálculos", url: "/calculos", icon: Calculator },
-  { title: "Relatórios", url: "/relatorios", icon: TrendingUp },
+  { title: "Acordos", url: "/acordos", icon: Handshake, dataTour: "sidebar-acordos" },
+  { title: "Cálculos", url: "/calculos", icon: Calculator, dataTour: "sidebar-calculos" },
+  { title: "Relatórios", url: "/relatorios", icon: TrendingUp, dataTour: "sidebar-relatorios" },
   { title: "Relatórios Avançados", url: "/relatorios-avancados", icon: LineChart },
 ];
 
@@ -89,7 +89,12 @@ export function AppSidebar() {
               {navigationItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <NavLink to={item.url} end className={getNavCls}>
+                    <NavLink 
+                      to={item.url} 
+                      end 
+                      className={getNavCls}
+                      data-tour={item.dataTour}
+                    >
                       <item.icon className="h-4 w-4" />
                       {!isCollapsed && <span>{item.title}</span>}
                     </NavLink>

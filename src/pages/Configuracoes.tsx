@@ -2,20 +2,40 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Settings, Database, Calculator, Shield, ArrowLeft, Users } from "lucide-react";
+import { Settings, Database, Calculator, Shield, ArrowLeft, Users, RefreshCw, Play } from "lucide-react";
 import { ConfiguracoesGerais } from "@/components/configuracoes/ConfiguracoesGerais";
 import { TabelasReferencia } from "@/components/configuracoes/TabelasReferencia";
 import { ParametrosCalculo } from "@/components/configuracoes/ParametrosCalculo";
 import { ControleAcesso } from "@/components/configuracoes/ControleAcesso";
 import { GerenciarUsuarios } from "@/components/admin/GerenciarUsuarios";
+import { hasCompletedOnboarding, resetOnboarding } from "@/components/onboarding/OnboardingTour";
+import { OnboardingTour } from "@/components/onboarding/OnboardingTour";
 import { useAuth } from "@/hooks/useAuth";
 import { Separator } from "@/components/ui/separator";
+import { Label } from "@/components/ui/label";
 
 type ConfiguracaoTipo = "usuarios" | "gerais" | "tabelas" | "calculos" | "acesso" | null;
 
 export default function Configuracoes() {
   const [configuracaoAtiva, setConfiguracaoAtiva] = useState<ConfiguracaoTipo>(null);
+  const [startTour, setStartTour] = useState(false);
+  const [hasCompletedTour, setHasCompletedTour] = useState(hasCompletedOnboarding());
   const { isAdmin } = useAuth();
+
+  const handleStartTour = () => {
+    setStartTour(true);
+  };
+
+  const handleTourEnd = () => {
+    setStartTour(false);
+    setHasCompletedTour(true);
+  };
+
+  const handleResetOnboarding = () => {
+    resetOnboarding();
+    setHasCompletedTour(false);
+    handleStartTour();
+  };
 
   const configuracoes = [
     ...(isAdmin ? [{
@@ -154,6 +174,53 @@ export default function Configuracoes() {
         </Card>
       </div>
 
+      {/* Seção de Onboarding */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Play className="h-5 w-5" />
+            Tour Interativo do Sistema
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <Label className="font-medium">Status do Tour</Label>
+              <p className="text-sm text-muted-foreground">
+                {hasCompletedTour 
+                  ? "Você já completou o tour de apresentação do sistema" 
+                  : "Faça um tour pelas principais funcionalidades"}
+              </p>
+            </div>
+            <Badge variant={hasCompletedTour ? "default" : "secondary"}>
+              {hasCompletedTour ? "Concluído" : "Pendente"}
+            </Badge>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={handleResetOnboarding}
+              className="flex items-center gap-2"
+            >
+              <RefreshCw className="h-4 w-4" />
+              {hasCompletedTour ? "Refazer Tour" : "Iniciar Tour"}
+            </Button>
+            {hasCompletedTour && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  resetOnboarding();
+                  setHasCompletedTour(false);
+                }}
+              >
+                Resetar Status
+              </Button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Cards de Configuração */}
       <div className="grid gap-6 md:grid-cols-2">
         {configuracoes.map((config) => (
@@ -217,6 +284,9 @@ export default function Configuracoes() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Tour Component */}
+      <OnboardingTour startTour={startTour} onTourEnd={handleTourEnd} />
     </div>
   );
 }
