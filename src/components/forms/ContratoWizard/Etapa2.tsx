@@ -107,25 +107,6 @@ export function Etapa2({ form }: Etapa2Props) {
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="valor_divida"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Valor da Dívida *</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="0,00"
-                      {...field}
-                      type="number"
-                      min="0"
-                      step="0.01"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
           </div>
 
           <FormField
@@ -133,7 +114,7 @@ export function Etapa2({ form }: Etapa2Props) {
             name="saldo_contabil"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Dívida Contábil (opcional)</FormLabel>
+                <FormLabel>Dívida Contábil *</FormLabel>
                 <FormControl>
                   <Input
                     placeholder="0,00"

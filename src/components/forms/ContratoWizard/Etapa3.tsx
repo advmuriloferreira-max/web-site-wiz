@@ -25,7 +25,6 @@ export function Etapa3({ form }: Etapa3Props) {
 
   // Dados do formulário
   const tipoOperacaoBcb = form.watch("tipo_operacao_bcb");
-  const valorDivida = form.watch("valor_divida");
   const saldoContabil = form.watch("saldo_contabil");
   const diasAtraso = form.watch("dias_atraso");
   const classificacao = form.watch("classificacao");
@@ -46,9 +45,9 @@ export function Etapa3({ form }: Etapa3Props) {
   }, [tipoOperacaoSelecionado, classificacao, form]);
 
   const calcularProvisaoAutomatica = () => {
-    if (!valorDivida || !classificacao) {
+    if (!saldoContabil || !classificacao) {
       enhancedToast.warning("Dados insuficientes", {
-        description: "Informe pelo menos o valor da dívida e a classificação"
+        description: "Informe pelo menos a dívida contábil e a classificação"
       });
       return;
     }
@@ -60,9 +59,7 @@ export function Etapa3({ form }: Etapa3Props) {
 
     try {
       const diasAtrasoNum = diasAtraso ? parseInt(diasAtraso) : 0;
-      const valorDiv = parseFloat(valorDivida);
-      const saldoCont = saldoContabil ? parseFloat(saldoContabil) : null;
-      const valorParaCalculo = saldoCont || valorDiv;
+      const valorParaCalculo = parseFloat(saldoContabil);
 
       const resultado = calcularProvisao({
         valorDivida: valorParaCalculo,
@@ -171,7 +168,7 @@ export function Etapa3({ form }: Etapa3Props) {
           <div className="flex gap-4">
             <Button 
               onClick={calcularProvisaoAutomatica}
-              disabled={!valorDivida || !classificacao}
+              disabled={!saldoContabil || !classificacao}
               className="flex items-center gap-2"
             >
               <Calculator className="h-4 w-4" />
@@ -200,9 +197,9 @@ export function Etapa3({ form }: Etapa3Props) {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="text-center p-4 bg-background rounded-lg">
-                <div className="text-sm text-muted-foreground">Valor da Dívida</div>
+                <div className="text-sm text-muted-foreground">Dívida Contábil</div>
                 <div className="text-xl font-bold">
-                  R$ {parseFloat(valorDivida || "0").toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  R$ {parseFloat(saldoContabil || "0").toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </div>
               </div>
               
