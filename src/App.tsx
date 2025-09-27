@@ -82,7 +82,7 @@ const App = () => {
                               <Route path="clientes/novo" element={<NovoCliente />} />
                               <Route path="contratos" element={<Contratos />} />
                               <Route path="contratos/novo" element={<NovoContrato />} />
-                              <Route path="contratos/:numeroContrato" element={<ContratoDetalhes />} />
+                              <Route path="contratos/:contratoId" element={<ContratoDetalhes />} />
                               <Route path="calculos" element={<Calculos />} />
                               <Route path="processos" element={<Processos />} />
                               <Route path="acordos" element={<Acordos />} />

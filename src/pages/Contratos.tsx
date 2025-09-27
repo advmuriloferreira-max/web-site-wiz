@@ -143,9 +143,8 @@ export default function Contratos() {
   };
 
   const handleContratoClick = (contrato: Contrato) => {
-    if (contrato.numero_contrato) {
-      navigate(`/contratos/${encodeURIComponent(contrato.numero_contrato)}`);
-    }
+    // Usar o ID do contrato para navegação
+    navigate(`/contratos/${contrato.id}`);
   };
 
   const formatCurrency = (value: number) => {
@@ -297,7 +296,7 @@ export default function Contratos() {
                     filters.filteredData.map((contrato) => (
                       <TableRow 
                         key={contrato.id} 
-                        className={`${contrato.numero_contrato ? 'cursor-pointer hover:bg-muted/50' : ''}`}
+                        className="cursor-pointer hover:bg-muted/50"
                         onClick={() => handleContratoClick(contrato)}
                       >
                         <TableCell className="font-medium">

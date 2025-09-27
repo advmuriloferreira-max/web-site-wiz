@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ContratoWizard } from "@/components/forms/ContratoWizard";
 import { GarantiaImpactDisplay } from "@/components/garantias/GarantiaImpactDisplay";
-import { useContratoByNumero } from "@/hooks/useContratoByNumero";
+import { useContratoById } from "@/hooks/useContratoById";
 import { useProvisaoPerda, useProvisaoPerdaIncorrida } from "@/hooks/useProvisao";
 import { 
   verificarPeriodoObservacaoReestruturacao, 
@@ -60,12 +60,12 @@ const getSituacaoColor = (situacao: string | null) => {
 };
 
 export default function ContratoDetalhes() {
-  const { numeroContrato } = useParams<{ numeroContrato: string }>();
+  const { contratoId } = useParams<{ contratoId: string }>();
   const navigate = useNavigate();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [resultadoProvisao, setResultadoProvisao] = useState<ResultadoCalculo | null>(null);
   
-  const { data: contrato, isLoading, error } = useContratoByNumero(numeroContrato || null);
+  const { data: contrato, isLoading, error } = useContratoById(contratoId || null);
   const { data: tabelaPerda } = useProvisaoPerda();
   const { data: tabelaIncorrida } = useProvisaoPerdaIncorrida();
 
@@ -126,7 +126,7 @@ export default function ContratoDetalhes() {
         <div className="text-center">
           <h2 className="text-xl font-semibold mb-2">Contrato não encontrado</h2>
           <p className="text-muted-foreground mb-4">
-            O contrato "{numeroContrato}" não pôde ser encontrado.
+            O contrato com ID "{contratoId}" não pôde ser encontrado.
           </p>
           <Button onClick={() => navigate("/contratos")}>
             <ArrowLeft className="mr-2 h-4 w-4" />
