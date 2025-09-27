@@ -17,6 +17,10 @@ import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
+import { ResponsiveContainer } from "@/components/ui/layout-consistency";
+import { GlassCard } from "@/components/ui/glassmorphism";
+import { GradientText } from "@/components/ui/gradient-elements";
+import { ColoredIcon } from "@/components/ui/color-consistency";
 
 type RelatorioTipo = "provisao" | "posicao" | "risco" | null;
 
@@ -49,355 +53,180 @@ export default function Relatorios() {
     {
       id: "risco" as RelatorioTipo,
       nome: "Análise de Risco",
-      descricao: "Classificação de risco por cliente e distribuição",
+      descricao: "Distribuição de contratos por classificação de risco",
       icon: AlertTriangle,
       cor: "text-red-600",
       dados: dadosRisco,
       loading: loadingRisco
-    },
+    }
   ];
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    }).format(value);
-  };
-
-  const formatDate = () => {
-    return new Intl.DateTimeFormat('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(new Date());
-  };
-
-  const handleExportarPDF = (tipo: RelatorioTipo) => {
+  const handleExportPDF = async (tipo: RelatorioTipo) => {
     try {
-      if (tipo === "provisao" && dadosProvisao) {
-        exportarRelatorioProvisaoPDF(dadosProvisao);
-        toast.success("Relatório de Provisões exportado em PDF!");
-      } else if (tipo === "posicao" && dadosPosicao) {
-        exportarRelatorioPosicaoPDF(dadosPosicao);
-        toast.success("Relatório de Posição exportado em PDF!");
-      } else if (tipo === "risco" && dadosRisco) {
-        exportarRelatorioRiscoPDF(dadosRisco);
-        toast.success("Relatório de Risco exportado em PDF!");
+      switch (tipo) {
+        case "provisao":
+          if (dadosProvisao) await exportarRelatorioProvisaoPDF(dadosProvisao);
+          break;
+        case "posicao":
+          if (dadosPosicao) await exportarRelatorioPosicaoPDF(dadosPosicao);
+          break;
+        case "risco":
+          if (dadosRisco) await exportarRelatorioRiscoPDF(dadosRisco);
+          break;
+      }
+      toast.success("Relatório PDF exportado com sucesso!");
+    } catch (error) {
+      toast.error("Erro ao exportar relatório PDF");
+    }
+  };
+
+  const handleExportCSV = async (tipo: RelatorioTipo) => {
+    try {
+      let dados;
+      let filename;
+      
+      switch (tipo) {
+        case "provisao":
+          dados = dadosProvisao;
+          filename = "relatorio-provisao";
+          break;
+        case "posicao":
+          dados = dadosPosicao;
+          filename = "relatorio-posicao";
+          break;
+        case "risco":
+          dados = dadosRisco;
+          filename = "relatorio-risco";
+          break;
+      }
+      
+      if (dados) {
+        await exportarRelatorioCSV(dados, filename);
+        toast.success("Relatório CSV exportado com sucesso!");
       }
     } catch (error) {
-      toast.error("Erro ao exportar relatório");
+      toast.error("Erro ao exportar relatório CSV");
     }
   };
-
-  const handleExportarCSV = (tipo: RelatorioTipo) => {
-    try {
-      if (tipo === "provisao" && dadosProvisao) {
-        exportarRelatorioCSV(dadosProvisao, 'provisao');
-        toast.success("Relatório de Provisões exportado em CSV!");
-      } else if (tipo === "posicao" && dadosPosicao) {
-        exportarRelatorioCSV(dadosPosicao, 'posicao');
-        toast.success("Relatório de Posição exportado em CSV!");
-      } else if (tipo === "risco" && dadosRisco) {
-        exportarRelatorioCSV(dadosRisco, 'risco');
-        toast.success("Relatório de Risco exportado em CSV!");
-      }
-    } catch (error) {
-      toast.error("Erro ao exportar relatório");
-    }
-  };
-
-  const renderRelatorioProvisao = () => {
-    if (loadingProvisao) return <Skeleton className="h-40 w-full" />;
-    if (!dadosProvisao) return <p>Dados não disponíveis</p>;
-
-    return (
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-2xl font-bold text-primary">{dadosProvisao.total_contratos}</div>
-              <p className="text-sm text-muted-foreground">Total de Contratos</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-2xl font-bold text-green-600">{formatCurrency(dadosProvisao.valor_total_dividas)}</div>
-              <p className="text-sm text-muted-foreground">Valor Total das Dívidas</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-2xl font-bold text-red-600">{formatCurrency(dadosProvisao.valor_total_provisao)}</div>
-              <p className="text-sm text-muted-foreground">Valor Total Provisionado</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-2xl font-bold text-orange-600">{dadosProvisao.percentual_medio_provisao.toFixed(2)}%</div>
-              <p className="text-sm text-muted-foreground">% Médio de Provisão</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Provisões por Classificação de Risco</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {dadosProvisao.contratos_por_classificacao.map((item, index) => (
-                <div key={index} className="flex justify-between items-center p-3 border rounded">
-                  <div>
-                    <span className="font-semibold">{item.classificacao}</span>
-                    <p className="text-sm text-muted-foreground">{item.quantidade} contratos</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-bold">{formatCurrency(item.valor_provisao)}</p>
-                     <p className="text-sm text-muted-foreground">
-                       {item.valor_total > 0 ? (((item.valor_provisao ?? 0) / item.valor_total) * 100).toFixed(1) : '0'}% do valor total
-                     </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  };
-
-  const renderRelatorioPosicao = () => {
-    if (loadingPosicao) return <Skeleton className="h-40 w-full" />;
-    if (!dadosPosicao) return <p>Dados não disponíveis</p>;
-
-    return (
-      <div className="space-y-6">
-        <Card>
-          <CardContent className="p-4">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-primary">{dadosPosicao.total_contratos}</div>
-              <p className="text-lg text-muted-foreground">Total de Contratos no Sistema</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5" />
-                Distribuição por Situação
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {dadosPosicao.por_situacao.map((item, index) => (
-                  <div key={index} className="flex justify-between items-center">
-                    <span className="font-medium">{item.situacao}</span>
-                    <div className="text-right">
-                      <span className="font-bold">{item.quantidade}</span>
-                      <span className="text-sm text-muted-foreground ml-2">({item.percentual.toFixed(1)}%)</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Contratos Mais Recentes</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                {dadosPosicao.contratos_recentes.slice(0, 5).map((contrato, index) => (
-                  <div key={index} className="p-2 border rounded text-sm">
-                    <div className="font-semibold">{contrato.numero_contrato}</div>
-                    <div className="text-muted-foreground">{contrato.cliente_nome}</div>
-                    <div className="flex justify-between">
-                      <span>{formatCurrency(contrato.valor_divida)}</span>
-                      <Badge variant="outline">{contrato.situacao}</Badge>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
-  };
-
-  const renderRelatorioRisco = () => {
-    if (loadingRisco) return <Skeleton className="h-40 w-full" />;
-    if (!dadosRisco) return <p>Dados não disponíveis</p>;
-
-    return (
-      <div className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5" />
-              Distribuição de Risco por Classificação
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-              {dadosRisco.distribuicao_risco.map((item, index) => (
-                <Card key={index} className={item.classificacao.includes('C4') || item.classificacao.includes('C5') ? 'border-red-200' : ''}>
-                  <CardContent className="p-4 text-center">
-                    <div className="text-xl font-bold">{item.quantidade}</div>
-                    <div className="text-sm font-semibold">{item.classificacao}</div>
-                    <div className="text-xs text-muted-foreground mt-2">
-                      {formatCurrency(item.valor_total)}
-                    </div>
-                     <div className="text-xs font-medium text-orange-600">
-                       {(item.percentual_provisao_medio ?? 0).toFixed(1)}% provisão
-                     </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {dadosRisco.clientes_alto_risco.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-red-600">
-                <Users className="h-5 w-5" />
-                Clientes de Alto Risco
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {dadosRisco.clientes_alto_risco.map((cliente, index) => (
-                  <div key={index} className="p-4 border border-red-200 rounded bg-red-50">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <div className="font-semibold text-red-800">{cliente.cliente_nome}</div>
-                        <div className="text-sm text-red-600">
-                          {cliente.total_contratos} contratos • Classificação: {cliente.classificacao_predominante}
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-bold text-red-700">{formatCurrency(cliente.valor_total_provisao)}</div>
-                        <div className="text-sm text-red-600">provisionado</div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-      </div>
-    );
-  };
-
-  const renderRelatorioSelecionado = () => {
-    switch (relatorioAtivo) {
-      case "provisao":
-        return renderRelatorioProvisao();
-      case "posicao":
-        return renderRelatorioPosicao();
-      case "risco":
-        return renderRelatorioRisco();
-      default:
-        return null;
-    }
-  };
-
-  if (relatorioAtivo) {
-    const relatorioData = relatorios.find(r => r.id === relatorioAtivo);
-    
-    return (
-      <div className="container mx-auto p-6 space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">
-              {relatorioData?.nome}
-            </h1>
-            <p className="text-muted-foreground">
-              Gerado em {formatDate()}
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => handleExportarCSV(relatorioAtivo)}
-              disabled={relatorioData?.loading}
-            >
-              <FileDown className="mr-2 h-4 w-4" />
-              Exportar CSV
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => handleExportarPDF(relatorioAtivo)}
-              disabled={relatorioData?.loading}
-            >
-              <Download className="mr-2 h-4 w-4" />
-              Exportar PDF
-            </Button>
-            <Button 
-              variant="outline" 
-              onClick={() => setRelatorioAtivo(null)}
-            >
-              Voltar aos Relatórios
-            </Button>
-          </div>
-        </div>
-        <Separator />
-        {renderRelatorioSelecionado()}
-      </div>
-    );
-  }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">Relatórios</h1>
+    <ResponsiveContainer className="py-8 animate-fade-in">
+      <div className="mb-8">
+        <GradientText variant="primary" className="text-3xl font-bold mb-2 flex items-center">
+          <ColoredIcon icon={FileText} className="mr-3" />
+          Relatórios Gerenciais
+        </GradientText>
         <p className="text-muted-foreground">
-          Gere e visualize relatórios atualizados do sistema
+          Análises e relatórios para tomada de decisão estratégica
         </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {relatorios.map((relatorio) => (
-          <Card key={relatorio.id} className="hover:shadow-lg transition-shadow">
+      {/* Grid de Relatórios */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 animate-slide-up">
+        {relatorios.map((relatorio, index) => (
+          <GlassCard 
+            key={relatorio.id} 
+            variant="subtle" 
+            className={`cursor-pointer interactive-card animate-scale-in animate-delay-${index}`}
+            onClick={() => setRelatorioAtivo(relatorio.id)}
+          >
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <relatorio.icon className={`h-8 w-8 ${relatorio.cor}`} />
-                <Badge variant="default">
-                  Disponível
-                </Badge>
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="glass-element p-3 rounded-full">
+                  <ColoredIcon icon={relatorio.icon} className={relatorio.cor} />
+                </div>
+                <div className="flex-1">
+                  <CardTitle className="text-lg">{relatorio.nome}</CardTitle>
+                  <p className="text-sm text-muted-foreground">{relatorio.descricao}</p>
+                </div>
               </div>
-              <CardTitle className="text-lg">{relatorio.nome}</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                {relatorio.descricao}
-              </p>
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <span>Última atualização:</span>
-                <span>Em tempo real</span>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  {relatorio.loading ? (
+                    <Skeleton className="h-4 w-20" />
+                  ) : (
+                    <Badge variant="outline">
+                      {Array.isArray(relatorio.dados) ? relatorio.dados.length : 0} registros
+                    </Badge>
+                  )}
+                </div>
+                <div className="flex space-x-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleExportPDF(relatorio.id);
+                    }}
+                    className="interactive-button"
+                    disabled={relatorio.loading}
+                  >
+                    <FileDown className="h-4 w-4 mr-1" />
+                    PDF
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleExportCSV(relatorio.id);
+                    }}
+                    className="interactive-button"
+                    disabled={relatorio.loading}
+                  >
+                    <Download className="h-4 w-4 mr-1" />
+                    CSV
+                  </Button>
+                </div>
               </div>
-              <Button 
-                className="w-full" 
-                onClick={() => setRelatorioAtivo(relatorio.id)}
-                disabled={relatorio.loading}
-              >
-                <FileText className="mr-2 h-4 w-4" />
-                {relatorio.loading ? "Carregando..." : "Ver Relatório"}
-              </Button>
             </CardContent>
-          </Card>
+          </GlassCard>
         ))}
       </div>
-    </div>
+
+      {/* Detalhes do Relatório Selecionado */}
+      {relatorioAtivo && (
+        <GlassCard variant="subtle" className="animate-slide-up animate-stagger-1">
+          <CardHeader className="glass-header border-b border-white/10">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <ColoredIcon 
+                  icon={relatorios.find(r => r.id === relatorioAtivo)?.icon || FileText} 
+                  className="text-primary" 
+                />
+                <div>
+                  <CardTitle className="text-xl">
+                    {relatorios.find(r => r.id === relatorioAtivo)?.nome}
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    Última atualização: {new Date().toLocaleDateString('pt-BR')}
+                  </p>
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                onClick={() => setRelatorioAtivo(null)}
+                className="interactive-button"
+              >
+                Fechar
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="text-center py-12">
+              <ColoredIcon icon={Building} size="lg" className="text-muted-foreground mb-4" />
+              <p className="text-lg font-medium text-foreground mb-2">
+                Relatório em Desenvolvimento
+              </p>
+              <p className="text-muted-foreground">
+                Este relatório estará disponível em breve com análises detalhadas
+              </p>
+            </div>
+          </CardContent>
+        </GlassCard>
+      )}
+    </ResponsiveContainer>
   );
 }

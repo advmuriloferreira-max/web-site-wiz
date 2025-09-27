@@ -1,51 +1,43 @@
-import { useState } from "react";
-import { Search, DollarSign, TrendingDown, Handshake, AlertTriangle } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Handshake, DollarSign, TrendingDown, FileText, Eye, Edit, Search, AlertTriangle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { AcordoForm } from "@/components/acordos/AcordoForm";
-import { useContratos, Contrato } from "@/hooks/useContratos";
+import { useContratos } from "@/hooks/useContratos";
+import { ResponsiveContainer } from "@/components/ui/layout-consistency";
+import { GlassCard } from "@/components/ui/glassmorphism";
+import { GradientText } from "@/components/ui/gradient-elements";
+import { ColoredIcon } from "@/components/ui/color-consistency";
+import { ModernBadge } from "@/components/ui/modern-badge";
 import { format } from "date-fns";
+
+const formatCurrency = (valor: number) => {
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL'
+  }).format(valor);
+};
 
 export default function Acordos() {
   const { data: contratos, isLoading } = useContratos();
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedContrato, setSelectedContrato] = useState<Contrato | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const filteredContratos = contratos?.filter(contrato => 
+  // Filtrar contratos que podem ter acordo (com algum atraso ou problema)
+  const contratosParaAcordo = contratos?.filter(contrato => 
+    contrato.dias_atraso > 0 || 
+    contrato.proposta_acordo || 
+    contrato.acordo_final ||
+    contrato.situacao === 'Em negociação'
+  ) || [];
+
+  const filteredContratos = contratosParaAcordo.filter(contrato =>
     contrato.clientes?.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
     contrato.bancos?.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
     contrato.numero_contrato?.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  const handleSuccess = () => {
-    setIsDialogOpen(false);
-    setSelectedContrato(null);
-  };
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    }).format(value);
-  };
-
-  const calcularDesconto = (valorOriginal: number, valorAcordo: number) => {
-    const desconto = ((valorOriginal - valorAcordo) / valorOriginal) * 100;
-    return desconto.toFixed(1);
-  };
-
-  if (isLoading) {
-    return (
-      <div className="container mx-auto p-6">
-        <div className="text-center">Carregando contratos...</div>
-      </div>
-    );
-  }
 
   const estatisticas = {
     totalContratos: contratos?.length || 0,
@@ -56,6 +48,20 @@ export default function Acordos() {
   };
 
   const economiaTotal = estatisticas.valorTotalOriginal - estatisticas.valorTotalAcordos;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background to-background/80">
+        <ResponsiveContainer className="py-8 animate-fade-in">
+          <div className="text-center">
+            <GradientText variant="primary" className="text-2xl font-bold mb-4">
+              Carregando acordos...
+            </GradientText>
+          </div>
+        </ResponsiveContainer>
+      </div>
+    );
+  }
 
   return (
     <ResponsiveContainer className="py-8 animate-fade-in">
@@ -108,152 +114,143 @@ export default function Acordos() {
           </CardContent>
         </GlassCard>
       </div>
-          <CardContent className="flex items-center p-6">
-            <AlertTriangle className="h-8 w-8 text-orange-600" />
-            <div className="ml-4">
-              <p className="text-sm font-medium text-muted-foreground">Com Proposta</p>
-              <p className="text-2xl font-bold">{estatisticas.comProposta}</p>
-            </div>
-          </CardContent>
-        </GlassCard>
-      </div>
 
-      {/* Rest of the acordos content would continue here */}
-    </ResponsiveContainer>
-  );
-}
-
-const formatCurrency = (valor: number) => {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL'
-  }).format(valor);
-};
-        <CardHeader>
-          <CardTitle>Contratos para Acordo</CardTitle>
+      {/* Tabela de Contratos */}
+      <GlassCard variant="subtle" className="animate-slide-up animate-stagger-1">
+        <CardHeader className="glass-header border-b border-white/10">
+          <CardTitle className="flex items-center space-x-3">
+            <ColoredIcon icon={Handshake} className="text-primary" />
+            <GradientText variant="primary">Contratos para Acordo</GradientText>
+          </CardTitle>
           <div className="flex items-center space-x-2">
-            <Search className="h-4 w-4" />
+            <ColoredIcon icon={Search} className="text-muted-foreground" />
             <Input
               placeholder="Buscar por cliente, banco, número do contrato..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="max-w-sm"
+              className="max-w-sm glass-input"
             />
           </div>
         </CardHeader>
-        <CardContent>
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow className="border-white/10">
+                <TableHead>
+                  <div className="flex items-center space-x-2">
+                    <ColoredIcon icon={FileText} />
+                    <span>Contrato</span>
+                  </div>
+                </TableHead>
+                <TableHead>Cliente</TableHead>
+                <TableHead>Banco</TableHead>
+                <TableHead>Valor Original</TableHead>
+                <TableHead>Proposta</TableHead>
+                <TableHead>Acordo Final</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Ações</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredContratos?.length === 0 ? (
                 <TableRow>
-                  <TableHead>Ação</TableHead>
-                  <TableHead>Cliente</TableHead>
-                  <TableHead>Banco</TableHead>
-                  <TableHead>Valor Original</TableHead>
-                  <TableHead>Proposta</TableHead>
-                  <TableHead>Acordo Final</TableHead>
-                  <TableHead>Desconto</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableCell colSpan={8} className="text-center py-12">
+                    <div className="flex flex-col items-center space-y-4 animate-fade-in">
+                      <div className="glass-element p-4 rounded-full">
+                        <ColoredIcon icon={Handshake} size="lg" className="text-muted-foreground" />
+                      </div>
+                      <div className="space-y-2 text-center">
+                        <p className="font-medium text-foreground">Nenhum acordo encontrado</p>
+                        <p className="text-sm text-muted-foreground">
+                          Tente ajustar o termo de busca ou aguarde novos contratos
+                        </p>
+                      </div>
+                    </div>
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredContratos?.length === 0 ? (
-                <TableRow>
-                    <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
-                      Nenhum contrato encontrado
+              ) : (
+                filteredContratos?.map((contrato, index) => (
+                  <TableRow 
+                    key={contrato.id} 
+                    className="animate-fade-in interactive-row"
+                    style={{ animationDelay: `${index * 50}ms` }}
+                  >
+                    <TableCell className="font-medium">
+                      <ModernBadge variant="outline" size="sm">
+                        {contrato.numero_contrato || "N/A"}
+                      </ModernBadge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center space-x-3">
+                        <div className="glass-element w-8 h-8 rounded-full flex items-center justify-center">
+                          <span className="text-xs font-bold text-primary">
+                            {contrato.clientes?.nome?.charAt(0).toUpperCase() || "?"}
+                          </span>
+                        </div>
+                        <span>{contrato.clientes?.nome || "N/A"}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>{contrato.bancos?.nome || "N/A"}</TableCell>
+                    <TableCell className="font-medium">
+                      {formatCurrency(contrato.valor_divida)}
+                    </TableCell>
+                    <TableCell>
+                      {contrato.proposta_acordo ? (
+                        <span className="text-blue-600 font-medium">
+                          {formatCurrency(contrato.proposta_acordo)}
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {contrato.acordo_final ? (
+                        <span className="text-green-600 font-medium">
+                          {formatCurrency(contrato.acordo_final)}
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <ModernBadge 
+                        variant={
+                          contrato.acordo_final ? "success" :
+                          contrato.proposta_acordo ? "info" :
+                          contrato.situacao === "Em negociação" ? "warning" : "default"
+                        }
+                        size="sm"
+                      >
+                        {contrato.acordo_final ? "Finalizado" :
+                         contrato.proposta_acordo ? "Com Proposta" :
+                         contrato.situacao === "Em negociação" ? "Negociando" : "Pendente"}
+                      </ModernBadge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center gap-1 justify-end">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 hover:bg-blue-500/10 interactive-button group"
+                        >
+                          <Eye className="h-4 w-4 text-muted-foreground group-hover:text-blue-500 transition-colors" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 hover:bg-amber-500/10 interactive-button group"
+                        >
+                          <Edit className="h-4 w-4 text-muted-foreground group-hover:text-amber-500 transition-colors" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
-                ) : (
-                  filteredContratos?.map((contrato) => (
-                    <TableRow key={contrato.id}>
-                      <TableCell>
-                        <Dialog open={isDialogOpen && selectedContrato?.id === contrato.id} onOpenChange={(open) => {
-                          setIsDialogOpen(open);
-                          if (!open) setSelectedContrato(null);
-                        }}>
-                          <DialogTrigger asChild>
-                            <Button
-                              className="bg-green-600 hover:bg-green-700 text-white"
-                              size="sm"
-                              onClick={() => {
-                                setSelectedContrato(contrato);
-                                setIsDialogOpen(true);
-                              }}
-                            >
-                              {contrato.acordo_final ? "Ver Acordo" : "Negociar"}
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                            <DialogHeader>
-                              <DialogTitle>
-                                {contrato.acordo_final ? "Acordo Finalizado" : "Negociar Acordo"}
-                              </DialogTitle>
-                            </DialogHeader>
-                            {selectedContrato && (
-                              <AcordoForm contrato={selectedContrato} onSuccess={handleSuccess} />
-                            )}
-                          </DialogContent>
-                        </Dialog>
-                      </TableCell>
-                      <TableCell className="font-medium">
-                        {contrato.clientes?.nome}
-                      </TableCell>
-                      <TableCell>{contrato.bancos?.nome}</TableCell>
-                      <TableCell className="font-medium">
-                        {formatCurrency(contrato.valor_divida)}
-                      </TableCell>
-                      <TableCell>
-                        {contrato.proposta_acordo ? (
-                          <span className="font-medium text-blue-600">
-                            {formatCurrency(contrato.proposta_acordo)}
-                          </span>
-                        ) : (
-                          <span className="text-muted-foreground">-</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {contrato.acordo_final ? (
-                          <span className="font-medium text-green-600">
-                            {formatCurrency(contrato.acordo_final)}
-                          </span>
-                        ) : (
-                          <span className="text-muted-foreground">-</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {contrato.proposta_acordo ? (
-                          <Badge variant="secondary">
-                            {calcularDesconto(contrato.valor_divida, contrato.proposta_acordo)}%
-                          </Badge>
-                        ) : contrato.acordo_final ? (
-                          <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
-                            {calcularDesconto(contrato.valor_divida, contrato.acordo_final)}%
-                          </Badge>
-                        ) : (
-                          <span className="text-muted-foreground">-</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {contrato.acordo_final ? (
-                          <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
-                            Finalizado
-                          </Badge>
-                        ) : contrato.proposta_acordo ? (
-                          <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">
-                            Em negociação
-                          </Badge>
-                        ) : (
-                          <Badge variant="outline">Sem proposta</Badge>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
+                ))
+              )}
+            </TableBody>
+          </Table>
         </CardContent>
-      </Card>
-    </div>
+      </GlassCard>
+    </ResponsiveContainer>
   );
 }

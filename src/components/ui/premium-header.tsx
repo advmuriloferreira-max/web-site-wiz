@@ -48,7 +48,7 @@ export function PremiumHeader({ onSearchClick }: PremiumHeaderProps) {
   const breadcrumbs = getBreadcrumbs();
   
   return (
-    <header className="h-16 flex items-center justify-between bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border-b border-slate-700/50 px-6 shadow-lg backdrop-blur-sm sticky top-0 z-50">
+    <header className="h-20 flex items-center justify-between bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border-b border-slate-700/50 px-6 shadow-lg backdrop-blur-sm sticky top-0 z-50">
       {/* Logo e Sidebar Toggle */}
       <div className="flex items-center space-x-4">
         <SidebarTrigger className="text-white hover:bg-white/10 transition-colors duration-200" />
@@ -58,10 +58,10 @@ export function PremiumHeader({ onSearchClick }: PremiumHeaderProps) {
               <div className="absolute -top-1 -right-1 h-3 w-3 bg-primary rounded-full animate-ping opacity-75" />
             </div>
           <div>
-            <h1 className="text-xl font-bold text-white tracking-tight">
+            <h1 className="text-base font-bold text-white tracking-tight drop-shadow-sm leading-tight">
               SISTEMA DE GESTÃO DE DÍVIDAS BANCÁRIAS
             </h1>
-            <p className="text-xs text-slate-300 font-light">
+            <p className="text-xs text-slate-300 font-light drop-shadow-sm">
               Plataforma Completa de Provisionamento
             </p>
           </div>
