@@ -1,4 +1,5 @@
 import { ProvisaoPerda, ProvisaoPerdaIncorrida } from "@/hooks/useProvisao";
+import { supabase } from "@/integrations/supabase/client";
 
 export type ClassificacaoRisco = 'C1' | 'C2' | 'C3' | 'C4' | 'C5';
 export type EstagioRisco = 1 | 2 | 3;
@@ -15,6 +16,17 @@ export interface CalculoProvisaoParams {
   // Novos parâmetros para reestruturação
   isReestruturado?: boolean;
   dataReestruturacao?: string | null;
+  // Parâmetros para garantias
+  contratoId?: string | null;
+  fatorRecuperacaoGarantia?: number;
+}
+
+export interface GarantiaInfo {
+  id: string;
+  tipo_garantia: string;
+  valor_avaliacao: number;
+  percentual_cobertura: number;
+  descricao?: string;
 }
 
 export interface ResultadoCalculo {
@@ -26,6 +38,12 @@ export interface ResultadoCalculo {
   // Novos campos para reestruturação
   emPeriodoObservacao?: boolean;
   diasRestantesObservacao?: number;
+  // Campos para garantias
+  lgdBase?: number;
+  lgdAjustado?: number;
+  valorGarantiaTotal?: number;
+  impactoGarantia?: number;
+  garantias?: GarantiaInfo[];
 }
 
 /**
@@ -390,20 +408,84 @@ export function calcularValorPresente(
 }
 
 /**
- * Cálculo avançado de provisão conforme metodologia completa BCB
+ * Busca garantias associadas ao contrato
  */
-export function calcularProvisaoAvancada(params: CalculoProvisaoParams): ResultadoCalculo {
+async function buscarGarantias(contratoId: string): Promise<GarantiaInfo[]> {
+  try {
+    const { data, error } = await supabase
+      .from('garantias')
+      .select('id, tipo_garantia, valor_avaliacao, percentual_cobertura, descricao')
+      .eq('contrato_id', contratoId);
+
+    if (error) {
+      console.error('Erro ao buscar garantias:', error);
+      return [];
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('Erro ao buscar garantias:', error);
+    return [];
+  }
+}
+
+/**
+ * Calcula o valor total das garantias ajustado pelo percentual de cobertura
+ */
+function calcularValorGarantiaTotal(garantias: GarantiaInfo[]): number {
+  return garantias.reduce((total, garantia) => {
+    const valorAjustado = (garantia.valor_avaliacao || 0) * (garantia.percentual_cobertura || 0) / 100;
+    return total + valorAjustado;
+  }, 0);
+}
+
+/**
+ * Calcula o LGD (Loss Given Default) ajustado com base nas garantias
+ */
+function calcularLGDAjustado(
+  lgdBase: number,
+  valorGarantiaTotal: number,
+  valorDivida: number,
+  fatorRecuperacaoGarantia: number = 0.5
+): number {
+  if (valorDivida <= 0 || valorGarantiaTotal <= 0) {
+    return lgdBase;
+  }
+
+  const ratioCobertura = Math.min(1, valorGarantiaTotal / valorDivida);
+  const ajusteGarantia = ratioCobertura * fatorRecuperacaoGarantia;
+  const lgdAjustado = lgdBase * (1 - ajusteGarantia);
+  
+  // LGD não pode ser negativo ou menor que 5%
+  return Math.max(5, lgdAjustado);
+}
+
+/**
+ * Cálculo avançado de provisão conforme metodologia completa BCB com ajuste por garantias
+ */
+export async function calcularProvisaoAvancada(params: CalculoProvisaoParams): Promise<ResultadoCalculo> {
   const {
     valorDivida,
     diasAtraso,
     classificacao,
     tabelaPerda,
     tabelaIncorrida,
-    criterioIncorrida = "Dias de Atraso"
+    criterioIncorrida = "Dias de Atraso",
+    contratoId,
+    fatorRecuperacaoGarantia = 0.5
   } = params;
 
   const marco = getMarcoRegulamentar352(diasAtraso, classificacao);
   
+  // Buscar garantias se contratoId for fornecido
+  let garantias: GarantiaInfo[] = [];
+  let valorGarantiaTotal = 0;
+  
+  if (contratoId) {
+    garantias = await buscarGarantias(contratoId);
+    valorGarantiaTotal = calcularValorGarantiaTotal(garantias);
+  }
+
   // REGRA CRÍTICA: Conforme Anexo I da BCB 352/2023
   if (marco.aplica100Porcento) {
     return {
@@ -411,28 +493,45 @@ export function calcularProvisaoAvancada(params: CalculoProvisaoParams): Resulta
       valorProvisao: valorDivida,
       estagio: 3,
       regra: "100% - Marco Regulamentar BCB 352/2023",
-      detalhes: marco.detalhes
+      detalhes: marco.detalhes,
+      garantias,
+      valorGarantiaTotal,
+      lgdBase: 100,
+      lgdAjustado: 100,
+      impactoGarantia: 0
     };
   }
 
   const estagio = determinarEstagio(diasAtraso);
   const probabilidadeDefault = calcularProbabilidadeDefault(estagio, classificacao, diasAtraso);
   const taxaRecuperacao = calcularTaxaRecuperacao(classificacao, false, 0, valorDivida);
-  const perdaGivenDefault = 100 - taxaRecuperacao;
+  const lgdBase = 100 - taxaRecuperacao;
 
-  // Cálculo da perda esperada = PD × LGD × EAD
-  const perdaEsperadaPercentual = (probabilidadeDefault / 100) * (perdaGivenDefault / 100) * 100;
+  // Calcular LGD ajustado com base nas garantias
+  const lgdAjustado = calcularLGDAjustado(lgdBase, valorGarantiaTotal, valorDivida, fatorRecuperacaoGarantia);
+
+  // Cálculo da perda esperada = PD × LGD_ajustado × EAD
+  const perdaEsperadaPercentual = (probabilidadeDefault / 100) * (lgdAjustado / 100) * 100;
   
   // Aplicar regras das tabelas existentes como base mínima
   const resultadoSimples = calcularProvisao(params);
   const percentualFinal = Math.max(perdaEsperadaPercentual, resultadoSimples.percentualProvisao);
 
+  // Calcular impacto da garantia
+  const perdaSemGarantia = (probabilidadeDefault / 100) * (lgdBase / 100) * 100;
+  const impactoGarantia = perdaSemGarantia - perdaEsperadaPercentual;
+
   return {
     percentualProvisao: percentualFinal,
     valorProvisao: (valorDivida * percentualFinal) / 100,
     estagio,
-    regra: `Metodologia Avançada - PD: ${probabilidadeDefault.toFixed(1)}% | LGD: ${perdaGivenDefault.toFixed(1)}%`,
-    detalhes: `Perda Esperada: ${perdaEsperadaPercentual.toFixed(2)}% | Base Tabela: ${resultadoSimples.percentualProvisao.toFixed(2)}%`
+    regra: `Metodologia Avançada - PD: ${probabilidadeDefault.toFixed(1)}% | LGD: ${lgdAjustado.toFixed(1)}%`,
+    detalhes: `Perda Esperada: ${perdaEsperadaPercentual.toFixed(2)}% | Base Tabela: ${resultadoSimples.percentualProvisao.toFixed(2)}%${valorGarantiaTotal > 0 ? ` | Garantias: R$ ${valorGarantiaTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : ''}`,
+    garantias,
+    valorGarantiaTotal,
+    lgdBase,
+    lgdAjustado,
+    impactoGarantia
   };
 }
 

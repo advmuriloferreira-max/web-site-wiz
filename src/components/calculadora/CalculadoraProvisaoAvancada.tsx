@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { GarantiaImpactDisplay } from "@/components/garantias/GarantiaImpactDisplay";
 import { 
   calcularProvisaoAvancada, 
   calcularProvisao,
@@ -14,13 +15,14 @@ import {
   calcularDiasAtraso,
   determinarEstagio,
   calcularProbabilidadeDefault,
-  calcularTaxaRecuperacao 
+  calcularTaxaRecuperacao,
+  ResultadoCalculo
 } from "@/lib/calculoProvisao";
 import { useProvisaoPerda, useProvisaoPerdaIncorrida } from "@/hooks/useProvisao";
 import { useTiposOperacao } from "@/hooks/useTiposOperacao";
 import { Calculator, TrendingUp, AlertTriangle } from "lucide-react";
 
-export function CalculadoraProvisaoAvancada() {
+export function CalculadoraProvisaoAvancada({ contratoId }: { contratoId?: string | null }) {
   // Estados para inputs
   const [valorDivida, setValorDivida] = useState<string>('');
   const [dataVencimento, setDataVencimento] = useState<string>('');
@@ -41,7 +43,7 @@ export function CalculadoraProvisaoAvancada() {
   const { data: tabelaIncorrida } = useProvisaoPerdaIncorrida();
   const { data: tiposOperacao } = useTiposOperacao();
 
-  const calcular = () => {
+  const calcular = async () => {
     if (!valorDivida || (!dataVencimento && !diasAtrasoManual)) return;
 
     const valor = parseFloat(valorDivida);
@@ -62,14 +64,15 @@ export function CalculadoraProvisaoAvancada() {
     });
 
     // Cálculo avançado
-    const resultadoCompleto = calcularProvisaoAvancada({
+    const resultadoCompleto = await calcularProvisaoAvancada({
       valorDivida: valor,
       diasAtraso,
       classificacao: classificacaoManual,
       tabelaPerda,
       tabelaIncorrida,
       criterioIncorrida,
-      taxaJurosEfetiva: parseFloat(taxaJuros) || 2.5
+      taxaJurosEfetiva: parseFloat(taxaJuros) || 2.5,
+      contratoId: contratoId || null // Incluir contratoId se fornecido
     });
 
     setResultado(resultadoTradicional);
@@ -417,6 +420,11 @@ export function CalculadoraProvisaoAvancada() {
             </Card>
           </TabsContent>
         </Tabs>
+      )}
+
+      {/* Impacto das Garantias */}
+      {resultadoAvancado && (resultadoAvancado.garantias?.length > 0 || resultadoAvancado.lgdBase) && (
+        <GarantiaImpactDisplay resultado={resultadoAvancado} />
       )}
     </div>
   );

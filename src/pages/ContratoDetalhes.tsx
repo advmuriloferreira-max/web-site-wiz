@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Edit, FileText, Calculator, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Edit, FileText, Calculator, AlertTriangle, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -7,10 +7,17 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ContratoForm } from "@/components/forms/ContratoForm";
+import { GarantiaImpactDisplay } from "@/components/garantias/GarantiaImpactDisplay";
 import { useContratoByNumero } from "@/hooks/useContratoByNumero";
-import { verificarPeriodoObservacaoReestruturacao } from "@/lib/calculoProvisao";
+import { useProvisaoPerda, useProvisaoPerdaIncorrida } from "@/hooks/useProvisao";
+import { 
+  verificarPeriodoObservacaoReestruturacao, 
+  calcularProvisaoAvancada, 
+  ClassificacaoRisco,
+  ResultadoCalculo 
+} from "@/lib/calculoProvisao";
 import { format } from "date-fns";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const getClassificacaoColor = (classificacao: string | null) => {
   switch (classificacao) {
@@ -55,8 +62,11 @@ export default function ContratoDetalhes() {
   const { numeroContrato } = useParams<{ numeroContrato: string }>();
   const navigate = useNavigate();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [resultadoProvisao, setResultadoProvisao] = useState<ResultadoCalculo | null>(null);
   
   const { data: contrato, isLoading, error } = useContratoByNumero(numeroContrato || null);
+  const { data: tabelaPerda } = useProvisaoPerda();
+  const { data: tabelaIncorrida } = useProvisaoPerdaIncorrida();
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
@@ -73,6 +83,33 @@ export default function ContratoDetalhes() {
   const handleEditSuccess = () => {
     setIsEditDialogOpen(false);
   };
+
+  // Calcular provisão avançada com garantias quando o contrato for carregado
+  useEffect(() => {
+    const calcularProvisao = async () => {
+      if (!contrato || !tabelaPerda || !tabelaIncorrida) return;
+
+      try {
+        const resultado = await calcularProvisaoAvancada({
+          valorDivida: contrato.valor_divida,
+          diasAtraso: contrato.dias_atraso || 0,
+          classificacao: (contrato.classificacao as ClassificacaoRisco) || 'C5',
+          tabelaPerda,
+          tabelaIncorrida,
+          contratoId: contrato.id,
+          isReestruturado: (contrato as any).is_reestruturado,
+          dataReestruturacao: (contrato as any).data_reestruturacao,
+          fatorRecuperacaoGarantia: 0.5
+        });
+        
+        setResultadoProvisao(resultado);
+      } catch (error) {
+        console.error('Erro ao calcular provisão avançada:', error);
+      }
+    };
+
+    calcularProvisao();
+  }, [contrato, tabelaPerda, tabelaIncorrida]);
 
   if (isLoading) {
     return (
@@ -402,6 +439,11 @@ export default function ContratoDetalhes() {
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Cálculo Avançado de Provisão com Garantias */}
+      {resultadoProvisao && (resultadoProvisao.garantias?.length > 0 || resultadoProvisao.lgdBase) && (
+        <GarantiaImpactDisplay resultado={resultadoProvisao} />
       )}
     </div>
   );
