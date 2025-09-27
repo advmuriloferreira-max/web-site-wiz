@@ -18,6 +18,9 @@ import { useProgressBar } from "@/components/ui/progress-bar";
 import { EntranceAnimation, LoadingAnimation } from "@/components/ui/global-animations";
 import { AnimatedList } from "@/components/ui/animated-list";
 import { AnimatedCounter } from "@/components/ui/animated-counter";
+import { GlassCard } from "@/components/ui/glassmorphism";
+import { GradientBackground, GradientText } from "@/components/ui/gradient-elements";
+import { LoadingIllustration } from "@/components/ui/premium-illustrations";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -58,101 +61,80 @@ function DashboardContent() {
 
   if (isLoading) {
     return (
-      <div className="p-3 sm:p-4 lg:p-6 space-y-4 sm:space-y-6">
-        <EntranceAnimation animation="fade" className="space-y-6">
-          <LoadingAnimation variant="card" lines={4} className="animate-fade-in" />
-          
-          <ResponsiveGrid 
-            cols={{ default: 1, sm: 2, lg: 4 }} 
-            gap={4}
-          >
+      <GradientBackground variant="subtle" className="min-h-screen">
+        <div className="p-3 sm:p-4 lg:p-6 space-y-4 sm:space-y-6">
+          <EntranceAnimation animation="fade" className="space-y-6">
+            <LoadingIllustration size={100} className="mx-auto" />
+            
+            <ResponsiveGrid 
+              cols={{ default: 1, sm: 2, lg: 4 }} 
+              gap={4}
+            >
             {Array.from({ length: 4 }).map((_, i) => (
-              <Card key={i} className="animate-fade-in animate-pulse" style={{ animationDelay: `${i * 100}ms` }}>
-                <CardHeader className="pb-2">
-                  <div className="h-4 w-20 bg-muted rounded animate-shimmer" />
-                </CardHeader>
-                <CardContent>
-                  <div className="h-6 sm:h-8 w-16 sm:w-24 mb-2 bg-muted rounded animate-shimmer" />
-                  <div className="h-3 w-24 sm:w-32 bg-muted rounded animate-shimmer" />
-                </CardContent>
-              </Card>
+              <div key={i} className="animate-fade-in" style={{ animationDelay: `${i * 100}ms` }}>
+                <GlassCard variant="subtle" className="animate-pulse">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="h-4 w-20 bg-gradient-to-r from-muted to-muted-foreground/30 rounded animate-shimmer" />
+                      <div className="h-4 w-4 bg-muted rounded animate-pulse" />
+                    </div>
+                    <div className="h-6 sm:h-8 w-16 sm:w-24 bg-gradient-to-r from-primary/20 to-accent/20 rounded animate-shimmer" />
+                    <div className="h-3 w-24 sm:w-32 bg-muted rounded animate-shimmer" />
+                  </div>
+                </GlassCard>
+              </div>
             ))}
-          </ResponsiveGrid>
-          
-          <ResponsiveGrid 
-            cols={{ default: 1, md: 2 }} 
-            gap={4} 
-            className="sm:gap-6"
-          >
-            <Card className="animate-fade-in animate-stagger-1">
-              <CardHeader>
-                <div className="h-4 sm:h-6 w-32 sm:w-48 bg-muted rounded animate-shimmer" />
-              </CardHeader>
-              <CardContent>
-                <div className="h-60 sm:h-80 w-full bg-muted rounded animate-shimmer" />
-              </CardContent>
-            </Card>
-            <Card className="animate-fade-in animate-stagger-2">
-              <CardHeader>
-                <div className="h-4 sm:h-6 w-28 sm:w-40 bg-muted rounded animate-shimmer" />
-              </CardHeader>
-              <CardContent>
-                <div className="h-60 sm:h-80 w-full bg-muted rounded animate-shimmer" />
-              </CardContent>
-            </Card>
-          </ResponsiveGrid>
-        </EntranceAnimation>
-      </div>
+            </ResponsiveGrid>
+          </EntranceAnimation>
+        </div>
+      </GradientBackground>
     );
   }
 
   return (
-    <div className="p-3 sm:p-4 lg:p-6 space-y-6 lg:space-y-8">
-      <ProgressBarComponent />
+    <GradientBackground variant="hero" className="min-h-screen">
+      <div className="p-3 sm:p-4 lg:p-6 space-y-6 lg:space-y-8">
+        <ProgressBarComponent />
 
-      {/* Hero Section */}
-      <EntranceAnimation animation="fade" delay={100}>
-        <HeroSection />
-      </EntranceAnimation>
+        {/* Hero Section */}
+        <EntranceAnimation animation="fade" delay={100}>
+          <HeroSection />
+        </EntranceAnimation>
 
-      {/* Premium Statistics Cards */}
-      <EntranceAnimation animation="slide" delay={200}>
-        <ResponsiveGrid 
-          cols={{ default: 1, sm: 2, lg: 4 }} 
-          gap={4} 
-          className="lg:gap-6" 
-          data-tour="dashboard-stats"
-        >
-          <PremiumStatsCard
-            title="Total de Contratos"
-            value={stats?.totalContratos || 0}
-            icon={FileText}
-            trend={{ value: 12, isPositive: true }}
-            delay={0}
-          />
-          <PremiumStatsCard
-            title="Valor Total"
-            value={`R$ ${(stats?.valorTotal || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
-            icon={DollarSign}
-            trend={{ value: 8, isPositive: true }}
-            delay={100}
-          />
-          <PremiumStatsCard
-            title="Provisão Total"
-            value={`R$ ${(stats?.provisaoTotal || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
-            icon={AlertTriangle}
-            trend={{ value: -5, isPositive: false }}
-            delay={200}
-          />
-          <PremiumStatsCard
-            title="Taxa Média"
-            value={`${((stats?.provisaoTotal || 0) / (stats?.valorTotal || 1) * 100).toFixed(1)}%`}
-            icon={TrendingUp}
-            trend={{ value: 3, isPositive: true }}
-            delay={300}
-          />
-        </ResponsiveGrid>
-      </EntranceAnimation>
+        {/* Premium Statistics Cards */}
+        <EntranceAnimation animation="slide" delay={200}>
+          <ResponsiveGrid 
+            cols={{ default: 1, sm: 2, lg: 4 }} 
+            gap={4} 
+            className="lg:gap-6" 
+            data-tour="dashboard-stats"
+          >
+            <PremiumStatsCard
+              title="Total de Contratos"
+              value={stats?.totalContratos || 0}
+              icon={FileText}
+              trend={{ value: 12, isPositive: true }}
+            />
+            <PremiumStatsCard
+              title="Valor Total"
+              value={`R$ ${(stats?.valorTotalDividas || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
+              icon={DollarSign}
+              trend={{ value: 8, isPositive: true }}
+            />
+            <PremiumStatsCard
+              title="Provisão Total"
+              value={`R$ ${(stats?.valorTotalProvisao || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
+              icon={AlertTriangle}
+              trend={{ value: -5, isPositive: false }}
+            />
+            <PremiumStatsCard
+              title="Taxa Média"
+              value={`${(stats?.percentualProvisao || 0).toFixed(1)}%`}
+              icon={TrendingUp}
+              trend={{ value: 3, isPositive: true }}
+            />
+          </ResponsiveGrid>
+        </EntranceAnimation>
 
       {/* Dashboard Tabs */}
       <EntranceAnimation animation="scale" delay={300}>
@@ -257,11 +239,15 @@ function DashboardContent() {
           <TendenciasChart />
         </TabsContent>
       </Tabs>
+      </EntranceAnimation>
 
       {/* Quick Actions */}
-      <QuickActionsSection />
+      <EntranceAnimation animation="fade" delay={400}>
+        <QuickActionsSection />
+      </EntranceAnimation>
       
-    </div>
+      </div>
+    </GradientBackground>
   );
 }
 
