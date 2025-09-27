@@ -502,7 +502,10 @@ export default function RelatoriosAvancados() {
                   <CardContent className="p-4">
                     <div className="text-center">
                       <div className="text-2xl font-bold text-blue-600">
-                        {contractAnalysisData.find(d => !d.previsao && d.estagio)?.estagio || 1}
+                        {(() => {
+                          const contrato = clienteContratos.find(c => c.id === selectedContratoId);
+                          return contrato ? determinarEstagio(contrato.dias_atraso || 0) : 1;
+                        })()}
                       </div>
                       <div className="text-sm text-muted-foreground">Estágio Atual</div>
                     </div>
@@ -513,9 +516,9 @@ export default function RelatoriosAvancados() {
                   <CardContent className="p-4">
                     <div className="text-center">
                       <div className="text-2xl font-bold text-green-600">
-                        {contractAnalysisData.filter(d => d.melhorMomentoAcordo && d.previsao).length}
+                        {contractAnalysisData.find(d => parseFloat(d.percentualProvisao) >= 50)?.mes || 'N/A'}
                       </div>
-                      <div className="text-sm text-muted-foreground">Meses Ideais p/ Acordo</div>
+                      <div className="text-sm text-muted-foreground">Mês que atinge 50%</div>
                     </div>
                   </CardContent>
                 </Card>
