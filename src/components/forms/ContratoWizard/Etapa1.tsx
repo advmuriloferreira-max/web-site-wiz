@@ -1,12 +1,14 @@
 import { UseFormReturn } from "react-hook-form";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { SmartInput } from "@/components/ui/smart-input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useClientes } from "@/hooks/useClientes";
 import { useBancos } from "@/hooks/useBancos";
+import { useSmartValidation } from "@/hooks/useSmartValidation";
 import { ContratoWizardData } from "./types";
 import { Users, Building, FileText } from "lucide-react";
+import { useEffect } from "react";
 
 interface Etapa1Props {
   form: UseFormReturn<ContratoWizardData>;
@@ -15,6 +17,36 @@ interface Etapa1Props {
 export function Etapa1({ form }: Etapa1Props) {
   const { data: clientes } = useClientes();
   const { data: bancos } = useBancos();
+
+  // Validação inteligente para número do contrato
+  const numeroContratoValidation = useSmartValidation(
+    form.watch("numero_contrato"),
+    [
+      (value) => {
+        if (!value) return { isValid: false, message: "Número do contrato é obrigatório" };
+        if (value.length < 3) return { isValid: false, message: "Número deve ter pelo menos 3 caracteres" };
+        return { isValid: true };
+      }
+    ],
+    {
+      enableSuggestions: true,
+      suggestionTable: "contratos",
+      suggestionField: "numero_contrato",
+      minSuggestionLength: 3
+    }
+  );
+
+  // Auto-preenchimento do código do banco
+  const selectedBancoId = form.watch("banco_id");
+  useEffect(() => {
+    if (selectedBancoId && bancos) {
+      const selectedBanco = bancos.find(b => b.id === selectedBancoId);
+      if (selectedBanco?.codigo_banco) {
+        // Aqui você pode usar o código do banco para outros campos se necessário
+        console.log("Banco selecionado:", selectedBanco.nome, selectedBanco.codigo_banco);
+      }
+    }
+  }, [selectedBancoId, bancos]);
 
   return (
     <div className="space-y-6">
@@ -99,10 +131,17 @@ export function Etapa1({ form }: Etapa1Props) {
               <FormItem>
                 <FormLabel>Número do Contrato *</FormLabel>
                 <FormControl>
-                  <Input
+                  <SmartInput
                     placeholder="Ex: 123456789"
                     {...field}
                     className="max-w-md"
+                    suggestions={numeroContratoValidation.suggestions}
+                    validationResult={numeroContratoValidation.validationResult}
+                    isValidating={numeroContratoValidation.isValidating}
+                    onSuggestionSelect={(suggestion) => {
+                      form.setValue('numero_contrato', suggestion);
+                      numeroContratoValidation.clearSuggestions();
+                    }}
                   />
                 </FormControl>
                 <FormMessage />
