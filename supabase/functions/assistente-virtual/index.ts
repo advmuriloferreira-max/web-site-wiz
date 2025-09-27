@@ -47,17 +47,24 @@ Sempre que possível, relacione suas respostas ao contexto específico dos contr
 
 serve(async (req) => {
   console.log('Assistente Virtual function called');
+  console.log('Request method:', req.method);
+  console.log('Request headers:', Object.fromEntries(req.headers.entries()));
 
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
+    console.log('Handling CORS preflight request');
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { message, contratoContext, userId } = await req.json();
-    console.log('Received request:', { message, contratoContext, userId });
+    const requestBody = await req.json();
+    console.log('Request body received:', requestBody);
+    
+    const { message, contratoContext, userId } = requestBody;
+    console.log('Parsed request:', { message, contratoContext, userId });
 
     if (!openAIApiKey) {
+      console.error('OPENAI_API_KEY not configured');
       throw new Error('OPENAI_API_KEY não configurada');
     }
 

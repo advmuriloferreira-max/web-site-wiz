@@ -4,4 +4,4 @@ project_id = "uemxacekhtyvmmcuzhef"
 verify_jwt = false
 
 [functions.assistente-virtual]
-verify_jwt = true
+verify_jwt = false

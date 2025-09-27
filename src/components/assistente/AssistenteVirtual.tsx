@@ -60,6 +60,10 @@ ${contratoContext ? `Vejo que você está visualizando o contrato ${contratoCont
   const sendMessage = async () => {
     if (!inputMessage.trim() || isLoading) return;
 
+    console.log('AssistenteVirtual: Enviando mensagem:', inputMessage);
+    console.log('AssistenteVirtual: User ID:', user?.id);
+    console.log('AssistenteVirtual: Contrato Context:', contratoContext);
+
     const userMessage: Message = {
       id: Date.now().toString(),
       content: inputMessage,
@@ -72,6 +76,7 @@ ${contratoContext ? `Vejo que você está visualizando o contrato ${contratoCont
     setIsLoading(true);
 
     try {
+      console.log('AssistenteVirtual: Chamando edge function...');
       const { data, error } = await supabase.functions.invoke('assistente-virtual', {
         body: {
           message: inputMessage,
@@ -80,11 +85,15 @@ ${contratoContext ? `Vejo que você está visualizando o contrato ${contratoCont
         },
       });
 
+      console.log('AssistenteVirtual: Resposta da edge function:', { data, error });
+
       if (error) {
+        console.error('AssistenteVirtual: Erro da edge function:', error);
         throw error;
       }
 
       if (!data.success) {
+        console.error('AssistenteVirtual: Edge function retornou erro:', data.error);
         throw new Error(data.error || 'Erro desconhecido');
       }
 
@@ -99,15 +108,16 @@ ${contratoContext ? `Vejo que você está visualizando o contrato ${contratoCont
 
     } catch (error) {
       console.error('Erro ao enviar mensagem:', error);
+      console.log('Erro completo:', JSON.stringify(error, null, 2));
       toast({
         title: "Erro",
-        description: "Não foi possível enviar a mensagem. Tente novamente.",
+        description: `Não foi possível enviar a mensagem: ${error.message || 'Erro desconhecido'}`,
         variant: "destructive",
       });
 
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: "Desculpe, ocorreu um erro ao processar sua mensagem. Tente novamente em alguns instantes.",
+        content: `Erro: ${error.message || 'Desculpe, ocorreu um erro ao processar sua mensagem. Tente novamente em alguns instantes.'}`,
         sender: 'assistant',
         timestamp: new Date(),
       };
