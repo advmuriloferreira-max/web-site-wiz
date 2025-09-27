@@ -11,7 +11,7 @@ import { useState } from "react";
 import { InstallPrompt } from "@/components/InstallPrompt";
 import { AppSidebar } from "@/components/AppSidebar";
 import { PageTransition } from "@/components/ui/page-transition";
-import { GlobalSearch } from "@/components/ui/global-search";
+import { SimpleSearch } from "@/components/ui/simple-search";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import Index from "./pages/Index";
@@ -96,7 +96,7 @@ const App = () => {
                         </main>
                      </div>
                     </div>
-                    <GlobalSearch open={isSearchOpen} onOpenChange={setIsSearchOpen} />
+                    <SimpleSearch open={isSearchOpen} onOpenChange={setIsSearchOpen} />
                     <InstallPrompt />
                   </SidebarProvider>
                </ProtectedRoute>
