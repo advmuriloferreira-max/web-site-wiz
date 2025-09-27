@@ -2,14 +2,12 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Settings, Database, Calculator, Shield, ArrowLeft, Users, RefreshCw, Play } from "lucide-react";
+import { Settings, Database, Calculator, Shield, ArrowLeft, Users, RefreshCw } from "lucide-react";
 import { ConfiguracoesGerais } from "@/components/configuracoes/ConfiguracoesGerais";
 import { TabelasReferencia } from "@/components/configuracoes/TabelasReferencia";
 import { ParametrosCalculo } from "@/components/configuracoes/ParametrosCalculo";
 import { ControleAcesso } from "@/components/configuracoes/ControleAcesso";
 import { GerenciarUsuarios } from "@/components/admin/GerenciarUsuarios";
-import { hasCompletedOnboarding, resetOnboarding } from "@/components/onboarding/OnboardingTour";
-import { OnboardingTour } from "@/components/onboarding/OnboardingTour";
 import { useAuth } from "@/hooks/useAuth";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
@@ -18,49 +16,32 @@ type ConfiguracaoTipo = "usuarios" | "gerais" | "tabelas" | "calculos" | "acesso
 
 export default function Configuracoes() {
   const [configuracaoAtiva, setConfiguracaoAtiva] = useState<ConfiguracaoTipo>(null);
-  const [startTour, setStartTour] = useState(false);
-  const [hasCompletedTour, setHasCompletedTour] = useState(hasCompletedOnboarding());
   const { isAdmin } = useAuth();
-
-  const handleStartTour = () => {
-    setStartTour(true);
-  };
-
-  const handleTourEnd = () => {
-    setStartTour(false);
-    setHasCompletedTour(true);
-  };
-
-  const handleResetOnboarding = () => {
-    resetOnboarding();
-    setHasCompletedTour(false);
-    handleStartTour();
-  };
 
   const configuracoes = [
     ...(isAdmin ? [{
       id: "usuarios" as ConfiguracaoTipo,
       nome: "Gerenciar Usuários",
-      descricao: "Adicionar, remover e gerenciar permissões dos usuários",
+      descricao: "Controle de usuários e permissões do sistema",
       categoria: "Administração",
       icon: Users,
-      cor: "text-purple-600",
+      cor: "text-blue-600",
       disponivel: true
     }] : []),
     {
       id: "gerais" as ConfiguracaoTipo,
       nome: "Configurações Gerais",
-      descricao: "Informações da empresa e configurações básicas do sistema",
+      descricao: "Configurações básicas do sistema e personalização",
       categoria: "Sistema",
       icon: Settings,
-      cor: "text-blue-600",
+      cor: "text-gray-600",
       disponivel: true
     },
     {
       id: "tabelas" as ConfiguracaoTipo,
       nome: "Tabelas de Referência",
-      descricao: "Gerenciar tabelas oficiais BCB para cálculo de provisões",
-      categoria: "Banco de Dados",
+      descricao: "Bancos, tipos de operação e outras referências",
+      categoria: "Dados",
       icon: Database,
       cor: "text-green-600",
       disponivel: true
@@ -68,24 +49,24 @@ export default function Configuracoes() {
     {
       id: "calculos" as ConfiguracaoTipo,
       nome: "Parâmetros de Cálculo",
-      descricao: "Configurar regras automáticas para cálculos e provisões",
-      categoria: "Cálculos",
+      descricao: "Regras e percentuais para cálculo de provisão",
+      categoria: "Negócio",
       icon: Calculator,
-      cor: "text-orange-600",
+      cor: "text-purple-600",
       disponivel: true
     },
     {
       id: "acesso" as ConfiguracaoTipo,
       nome: "Controle de Acesso",
-      descricao: "Gerenciar usuários, permissões e segurança do sistema",
+      descricao: "Permissões e níveis de acesso por usuário",
       categoria: "Segurança",
       icon: Shield,
       cor: "text-red-600",
-      disponivel: true
-    },
+      disponivel: isAdmin
+    }
   ];
 
-  const renderConfiguracaoSelecionada = () => {
+  const renderConfiguracao = () => {
     switch (configuracaoAtiva) {
       case "usuarios":
         return <GerenciarUsuarios />;
@@ -103,29 +84,29 @@ export default function Configuracoes() {
   };
 
   if (configuracaoAtiva) {
-    const config = configuracoes.find(c => c.id === configuracaoAtiva);
-    
     return (
       <div className="container mx-auto p-6 space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">
-              {config?.nome}
-            </h1>
-            <p className="text-muted-foreground">
-              {config?.descricao}
-            </p>
-          </div>
+        <div className="flex items-center gap-4 mb-6">
           <Button 
             variant="outline" 
+            size="sm"
             onClick={() => setConfiguracaoAtiva(null)}
+            className="flex items-center gap-2"
           >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Voltar às Configurações
+            <ArrowLeft className="h-4 w-4" />
+            Voltar
           </Button>
+          <div>
+            <h1 className="text-2xl font-bold">
+              {configuracoes.find(c => c.id === configuracaoAtiva)?.nome}
+            </h1>
+            <p className="text-muted-foreground">
+              {configuracoes.find(c => c.id === configuracaoAtiva)?.descricao}
+            </p>
+          </div>
         </div>
-        <Separator />
-        {renderConfiguracaoSelecionada()}
+        
+        {renderConfiguracao()}
       </div>
     );
   }
@@ -151,75 +132,28 @@ export default function Configuracoes() {
         
         <Card>
           <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-green-600">✓</div>
-            <div className="text-sm font-medium">Banco de Dados</div>
-            <div className="text-xs text-muted-foreground">Conectado</div>
+            <div className="text-2xl font-bold text-blue-600">{configuracoes.filter(c => c.disponivel).length}</div>
+            <div className="text-sm font-medium">Módulos</div>
+            <div className="text-xs text-muted-foreground">Disponíveis</div>
           </CardContent>
         </Card>
         
         <Card>
           <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-green-600">✓</div>
-            <div className="text-sm font-medium">Cálculos BCB</div>
-            <div className="text-xs text-muted-foreground">Atualizados</div>
+            <div className="text-2xl font-bold text-purple-600">100%</div>
+            <div className="text-sm font-medium">Sincronizado</div>
+            <div className="text-xs text-muted-foreground">Base de dados</div>
           </CardContent>
         </Card>
         
         <Card>
           <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-blue-600">1</div>
-            <div className="text-sm font-medium">Usuários Ativos</div>
-            <div className="text-xs text-muted-foreground">Sistema</div>
+            <div className="text-2xl font-bold text-orange-600">v2.0</div>
+            <div className="text-sm font-medium">Versão</div>
+            <div className="text-xs text-muted-foreground">Atualizada</div>
           </CardContent>
         </Card>
       </div>
-
-      {/* Seção de Onboarding */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Play className="h-5 w-5" />
-            Tour Interativo do Sistema
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <Label className="font-medium">Status do Tour</Label>
-              <p className="text-sm text-muted-foreground">
-                {hasCompletedTour 
-                  ? "Você já completou o tour de apresentação do sistema" 
-                  : "Faça um tour pelas principais funcionalidades"}
-              </p>
-            </div>
-            <Badge variant={hasCompletedTour ? "default" : "secondary"}>
-              {hasCompletedTour ? "Concluído" : "Pendente"}
-            </Badge>
-          </div>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              onClick={handleResetOnboarding}
-              className="flex items-center gap-2"
-            >
-              <RefreshCw className="h-4 w-4" />
-              {hasCompletedTour ? "Refazer Tour" : "Iniciar Tour"}
-            </Button>
-            {hasCompletedTour && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  resetOnboarding();
-                  setHasCompletedTour(false);
-                }}
-              >
-                Resetar Status
-              </Button>
-            )}
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Cards de Configuração */}
       <div className="grid gap-6 md:grid-cols-2">
@@ -237,56 +171,56 @@ export default function Configuracoes() {
                   </div>
                 </div>
                 <Badge variant={config.disponivel ? "default" : "secondary"}>
-                  {config.disponivel ? "Disponível" : "Em breve"}
+                  {config.disponivel ? "Disponível" : "Restrito"}
                 </Badge>
               </div>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-sm text-muted-foreground">
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
                 {config.descricao}
               </p>
               <Button 
-                className="w-full" 
                 onClick={() => setConfiguracaoAtiva(config.id)}
                 disabled={!config.disponivel}
+                className="w-full"
+                variant={config.disponivel ? "default" : "secondary"}
               >
-                <Settings className="mr-2 h-4 w-4" />
-                {config.disponivel ? "Configurar" : "Em breve"}
+                {config.disponivel ? "Configurar" : "Acesso Restrito"}
               </Button>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {/* Informações do Sistema */}
+      {/* Informações Adicionais */}
       <Card>
         <CardHeader>
-          <CardTitle>Informações do Sistema</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <RefreshCw className="h-5 w-5" />
+            Informações do Sistema
+          </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <div>
-              <span className="font-semibold">Versão:</span>
-              <p className="text-muted-foreground">1.0.0</p>
+              <Label className="font-medium">Última Sincronização</Label>
+              <p className="text-muted-foreground">Agora mesmo</p>
             </div>
             <div>
-              <span className="font-semibold">Ambiente:</span>
+              <Label className="font-medium">Backup Automático</Label>
+              <p className="text-muted-foreground">Ativo (Diário às 02:00)</p>
+            </div>
+            <div>
+              <Label className="font-medium">Modo de Operação</Label>
               <p className="text-muted-foreground">Produção</p>
             </div>
             <div>
-              <span className="font-semibold">Última Atualização:</span>
-              <p className="text-muted-foreground">{new Date().toLocaleDateString('pt-BR')}</p>
-            </div>
-            <div>
-              <span className="font-semibold">Conformidade BCB:</span>
-              <p className="text-green-600 font-medium">✓ Atualizado</p>
+              <Label className="font-medium">Suporte Técnico</Label>
+              <p className="text-muted-foreground">Disponível 24/7</p>
             </div>
           </div>
         </CardContent>
       </Card>
-
-      {/* Tour Component */}
-      <OnboardingTour startTour={startTour} onTourEnd={handleTourEnd} />
     </div>
   );
 }

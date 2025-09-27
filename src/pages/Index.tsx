@@ -9,8 +9,6 @@ import { ClienteSelector } from "@/components/dashboard/ClienteSelector";
 import { ClienteAnalysisDetails } from "@/components/dashboard/ClienteAnalysisDetails";
 import { TendenciasChart } from "@/components/dashboard/TendenciasChart";
 import { PerformanceCard } from "@/components/dashboard/PerformanceCard";
-import { WelcomeBanner } from "@/components/onboarding/WelcomeBanner";
-import { OnboardingTour } from "@/components/onboarding/OnboardingTour";
 import { DashboardLoading } from "@/components/ui/loading-states";
 import { ListAnimation } from "@/components/ui/page-transition";
 import { useProgressBar } from "@/components/ui/progress-bar";
@@ -33,15 +31,11 @@ import {
 function DashboardContent() {
   const { data: stats, isLoading, error } = useContratosStats();
   const [selectedClienteId, setSelectedClienteId] = useState<string | null>(null);
-  const [startTour, setStartTour] = useState(false);
 
-  const handleStartTour = () => {
-    setStartTour(true);
-  };
-
-  const handleTourEnd = () => {
-    setStartTour(false);
-  };
+  const { ProgressBarComponent } = useProgressBar(isLoading, {
+    label: "Carregando dados do dashboard...",
+    minDuration: 1500
+  });
 
   if (error) {
     return (
@@ -96,8 +90,7 @@ function DashboardContent() {
 
   return (
     <div className="p-6 space-y-6">
-      {/* Welcome Banner */}
-      <WelcomeBanner onStartTour={handleStartTour} />
+      <ProgressBarComponent />
 
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -257,9 +250,6 @@ function DashboardContent() {
           </div>
         </CardContent>
       </Card>
-
-      {/* Onboarding Tour Component */}
-      <OnboardingTour startTour={startTour} onTourEnd={handleTourEnd} />
       
     </div>
   );

@@ -9,7 +9,6 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { UserMenu } from "@/components/UserMenu";
 import { InstallPrompt } from "@/components/InstallPrompt";
 import { AppSidebar } from "@/components/AppSidebar";
-import { OnboardingTour } from "@/components/onboarding/OnboardingTour";
 import { PageTransition } from "@/components/ui/page-transition";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -75,10 +74,9 @@ const App = () => (
                           </PageTransition>
                         </main>
                      </div>
-                   </div>
-                   <InstallPrompt />
-                   <OnboardingTour />
-                 </SidebarProvider>
+                    </div>
+                    <InstallPrompt />
+                  </SidebarProvider>
                </ProtectedRoute>
              } />
            </Routes>
