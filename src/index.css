@@ -302,23 +302,40 @@ All colors MUST be HSL format for optimal theming.
 
   /* Interactive elements */
   .interactive-hover {
-    @apply transition-all duration-200 ease-in-out hover:scale-105 hover:shadow-premium hover:-translate-y-1;
+    @apply transition-all duration-300 ease-in-out hover:scale-[1.02] hover:-translate-y-1 hover:shadow-premium;
   }
 
   .interactive-press {
-    @apply transition-all duration-150 ease-out active:scale-95;
+    @apply transition-transform duration-100 ease-in-out active:scale-[0.98];
   }
 
   .interactive-card {
-    @apply transition-all duration-200 ease-in-out hover:shadow-lg hover:-translate-y-1 hover:scale-[1.02];
+    @apply transition-all duration-300 ease-out hover:shadow-premium-xl hover:-translate-y-1 hover:scale-[1.02];
   }
 
   .interactive-button {
-    @apply transition-all duration-200 ease-in-out hover:scale-105 active:scale-95 hover:shadow-md;
+    @apply interactive-hover interactive-press relative overflow-hidden;
   }
 
   .interactive-link {
     @apply transition-colors duration-200 ease-in-out hover:text-primary;
+  }
+
+  /* Advanced hover states */
+  .card-lift {
+    @apply transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.02] hover:shadow-premium-xl;
+  }
+
+  .button-ripple {
+    @apply relative overflow-hidden before:absolute before:top-1/2 before:left-1/2 before:w-0 before:h-0 before:bg-white/20 before:rounded-full before:transition-all before:duration-300 before:-translate-x-1/2 before:-translate-y-1/2 active:before:w-full active:before:h-full active:before:scale-150;
+  }
+
+  .input-glow {
+    @apply transition-all duration-300 ease-in-out focus:shadow-[0_0_0_3px_hsl(var(--primary)/0.1)] focus:border-primary focus:ring-2 focus:ring-primary/20 focus:ring-offset-2;
+  }
+
+  .link-slide {
+    @apply relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary after:transition-all after:duration-300 hover:after:w-full;
   }
 
   /* Focus rings for accessibility */
@@ -385,7 +402,36 @@ All colors MUST be HSL format for optimal theming.
   }
 
   .animate-shimmer {
-    animation: shimmer 1.5s ease-in-out infinite;
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.2) 20%,
+      rgba(255, 255, 255, 0.5) 60%,
+      rgba(255, 255, 255, 0)
+    );
+    background-size: 200px 100%;
+    animation: shimmer 2s infinite;
+  }
+
+  .animate-shimmer-wave {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .animate-shimmer-wave::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.4),
+      transparent
+    );
+    animation: shimmer-wave 1.5s infinite;
   }
 
   .animate-spin-slow {
@@ -395,6 +441,34 @@ All colors MUST be HSL format for optimal theming.
   /* Number counting animation */
   .animate-count-up {
     animation: countUp 1s ease-out forwards;
+  }
+
+  .animate-ripple {
+    animation: ripple 0.6s linear;
+  }
+
+  .animate-gradient {
+    background-size: 200% 200%;
+    animation: gradient-shift 3s ease infinite;
+  }
+
+  .animate-typing {
+    overflow: hidden;
+    white-space: nowrap;
+    border-right: 2px solid hsl(var(--primary));
+    animation: typing 2s steps(40, end), blink 0.75s step-end infinite;
+  }
+
+  .animate-slide-in-left {
+    animation: slide-in-left 0.3s ease-out forwards;
+  }
+
+  .animate-slide-in-right {
+    animation: slide-in-right 0.3s ease-out forwards;
+  }
+
+  .animate-backdrop-blur {
+    animation: backdrop-blur 0.3s ease-out forwards;
   }
 
   /* Page transitions */
@@ -498,6 +572,15 @@ All colors MUST be HSL format for optimal theming.
   }
 }
 
+@keyframes shimmer-wave {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
 @keyframes countUp {
   from {
     transform: translateY(20px);
@@ -506,6 +589,69 @@ All colors MUST be HSL format for optimal theming.
   to {
     transform: translateY(0);
     opacity: 1;
+  }
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes typing {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes backdrop-blur {
+  from {
+    backdrop-filter: blur(0px);
+  }
+  to {
+    backdrop-filter: blur(8px);
   }
 }
 

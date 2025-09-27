@@ -148,6 +148,14 @@ export default {
             "background-position": "calc(200px + 100%) 0",
           },
         },
+        "shimmer-wave": {
+          "0%": {
+            transform: "translateX(-100%)",
+          },
+          "100%": {
+            transform: "translateX(100%)",
+          },
+        },
         "pulse-soft": {
           "0%, 100%": {
             opacity: "1",
@@ -166,6 +174,63 @@ export default {
             opacity: "1",
           },
         },
+        "ripple": {
+          "0%": {
+            transform: "scale(0)",
+            opacity: "1",
+          },
+          "100%": {
+            transform: "scale(4)",
+            opacity: "0",
+          },
+        },
+        "gradient-shift": {
+          "0%": {
+            "background-position": "0% 50%",
+          },
+          "50%": {
+            "background-position": "100% 50%",
+          },
+          "100%": {
+            "background-position": "0% 50%",
+          },
+        },
+        "typing": {
+          from: {
+            width: "0",
+          },
+          to: {
+            width: "100%",
+          },
+        },
+        "slide-in-left": {
+          from: {
+            opacity: "0",
+            transform: "translateX(-20px)",
+          },
+          to: {
+            opacity: "1",
+            transform: "translateX(0)",
+          },
+        },
+        "slide-in-right": {
+          from: {
+            opacity: "0",
+            transform: "translateX(20px)",
+          },
+          to: {
+            opacity: "1",
+            transform: "translateX(0)",
+          },
+        },
+        "backdrop-blur": {
+          from: {
+            "backdrop-filter": "blur(0px)",
+          },
+          to: {
+            "backdrop-filter": "blur(8px)",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -174,13 +239,17 @@ export default {
         "slide-up": "slide-up 0.3s ease-out forwards",
         "scale-in": "scale-in 0.2s ease-out forwards",
         "shimmer": "shimmer 1.5s ease-in-out infinite",
+        "shimmer-wave": "shimmer-wave 1.5s ease-in-out infinite",
         "pulse-soft": "pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
         "count-up": "count-up 1s ease-out forwards",
+        "ripple": "ripple 0.6s linear",
+        "gradient-shift": "gradient-shift 3s ease infinite",
+        "typing": "typing 2s steps(40, end)",
+        "slide-in-left": "slide-in-left 0.3s ease-out forwards",
+        "slide-in-right": "slide-in-right 0.3s ease-out forwards",
+        "backdrop-blur": "backdrop-blur 0.3s ease-out forwards",
         "spin-slow": "spin 3s linear infinite",
         "bounce-subtle": "bounce 2s infinite",
-        "wiggle": "wiggle 0.5s ease-in-out",
-        "slide-in": "slideIn 0.3s ease-out",
-        "slide-out": "slideOut 0.3s ease-out",
       },
     },
   },

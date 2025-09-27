@@ -1,38 +1,62 @@
+import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 
 interface PageTransitionProps {
-  children: ReactNode;
+  children: React.ReactNode;
   className?: string;
 }
 
+// Determina a direção da transição baseada na rota
+function getTransitionDirection(pathname: string, previousPath?: string) {
+  const routes = ['/', '/clientes', '/contratos', '/calculos', '/relatorios', '/acordos', '/configuracoes'];
+  const currentIndex = routes.findIndex(route => pathname.startsWith(route));
+  const previousIndex = previousPath ? routes.findIndex(route => previousPath.startsWith(route)) : -1;
+  
+  if (currentIndex > previousIndex) {
+    return 'forward';
+  } else if (currentIndex < previousIndex) {
+    return 'backward';
+  }
+  
+  return 'fade';
+}
+
 const pageVariants = {
-  initial: {
-    opacity: 0,
-    y: 20,
-    scale: 0.98
+  forward: {
+    initial: { opacity: 0, x: 50, scale: 0.98 },
+    in: { opacity: 1, x: 0, scale: 1 },
+    out: { opacity: 0, x: -50, scale: 1.02 }
   },
-  in: {
-    opacity: 1,
-    y: 0,
-    scale: 1
+  backward: {
+    initial: { opacity: 0, x: -50, scale: 0.98 },
+    in: { opacity: 1, x: 0, scale: 1 },
+    out: { opacity: 0, x: 50, scale: 1.02 }
   },
-  out: {
-    opacity: 0,
-    y: -20,
-    scale: 1.02
+  fade: {
+    initial: { opacity: 0, y: 20, scale: 0.98 },
+    in: { opacity: 1, y: 0, scale: 1 },
+    out: { opacity: 0, y: -20, scale: 1.02 }
   }
 };
 
 const pageTransition = {
-  type: "tween" as const,
-  ease: [0.43, 0.13, 0.23, 0.96] as const,
-  duration: 0.3
+  type: "spring" as const,
+  damping: 25,
+  stiffness: 300,
+  mass: 0.8
 };
+
+let previousPath: string | undefined;
 
 export function PageTransition({ children, className = "" }: PageTransitionProps) {
   const location = useLocation();
+  const direction = getTransitionDirection(location.pathname, previousPath);
+  const variants = pageVariants[direction];
+  
+  React.useEffect(() => {
+    previousPath = location.pathname;
+  }, [location.pathname]);
 
   return (
     <AnimatePresence mode="wait">
@@ -41,7 +65,7 @@ export function PageTransition({ children, className = "" }: PageTransitionProps
         initial="initial"
         animate="in"
         exit="out"
-        variants={pageVariants}
+        variants={variants}
         transition={pageTransition}
         className={`min-h-screen ${className}`}
       >
@@ -53,7 +77,7 @@ export function PageTransition({ children, className = "" }: PageTransitionProps
 
 // Componente para animações de lista
 interface ListAnimationProps {
-  children: ReactNode;
+  children: React.ReactNode;
   className?: string;
   delay?: number;
 }
@@ -81,7 +105,7 @@ export function FadeInOut({
   show = true, 
   className = "" 
 }: { 
-  children: ReactNode; 
+  children: React.ReactNode; 
   show?: boolean; 
   className?: string; 
 }) {
@@ -108,7 +132,7 @@ export function ScaleAnimation({
   className = "",
   delay = 0 
 }: { 
-  children: ReactNode; 
+  children: React.ReactNode; 
   className?: string;
   delay?: number;
 }) {
