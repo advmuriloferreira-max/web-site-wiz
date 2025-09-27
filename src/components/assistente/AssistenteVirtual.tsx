@@ -184,8 +184,8 @@ ${contratoContext ? `Vejo que você está visualizando o contrato ${contratoCont
           </Button>
         </CardHeader>
 
-        <CardContent className="flex-1 flex flex-col space-y-4 p-4">
-          <ScrollArea className="flex-1 h-96 pr-4">
+        <CardContent className="flex-1 flex flex-col p-4 h-full">
+          <div className="flex-1 overflow-y-auto max-h-96 pr-2 mb-4">
             <div className="space-y-4">
               {messages.map((message) => (
                 <div
@@ -229,10 +229,10 @@ ${contratoContext ? `Vejo que você está visualizando o contrato ${contratoCont
               )}
               <div ref={messagesEndRef} />
             </div>
-          </ScrollArea>
+          </div>
 
           {messages.length === 1 && (
-            <div className="space-y-2">
+            <div className="space-y-2 mb-4">
               <p className="text-xs text-muted-foreground">Perguntas sugeridas:</p>
               <div className="grid grid-cols-1 gap-1">
                 {getQuickQuestions().slice(0, 3).map((question, index) => (
@@ -257,7 +257,7 @@ ${contratoContext ? `Vejo que você está visualizando o contrato ${contratoCont
             </div>
           )}
 
-          <div className="flex gap-2 mt-4">
+          <div className="flex gap-2">
             <Input
               placeholder="Digite sua pergunta..."
               value={inputMessage}
