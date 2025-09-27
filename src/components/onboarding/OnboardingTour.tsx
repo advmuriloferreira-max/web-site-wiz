@@ -4,6 +4,12 @@ import { useNavigate, useLocation } from "react-router-dom";
 
 const ONBOARDING_KEY = "murilo-advocacia-onboarding-completed";
 
+// Função para resetar o onboarding (para testes)
+const resetOnboardingForTesting = () => {
+  localStorage.removeItem(ONBOARDING_KEY);
+  localStorage.removeItem("welcome-banner-dismissed");
+};
+
 interface OnboardingTourProps {
   startTour?: boolean;
   onTourEnd?: () => void;
@@ -18,24 +24,24 @@ export function OnboardingTour({ startTour = false, onTourEnd }: OnboardingTourP
   // Verificar se o onboarding já foi completado
   useEffect(() => {
     console.log("OnboardingTour mounted, startTour:", startTour);
-    const hasCompletedOnboarding = localStorage.getItem(ONBOARDING_KEY);
-    console.log("Has completed onboarding:", hasCompletedOnboarding);
     
-    // Resetar para testar - remover depois
-    localStorage.removeItem(ONBOARDING_KEY);
+    // Para desenvolvimento: resetar localStorage automaticamente
+    resetOnboardingForTesting();
     
     if (startTour) {
       console.log("Starting manual tour...");
-      setTimeout(() => {
-        console.log("Setting runTour to true");
-        setRunTour(true);
-      }, 1000);
-    } else if (!hasCompletedOnboarding) {
-      console.log("Starting automatic tour...");
-      setTimeout(() => {
-        console.log("Setting runTour to true automatically");
-        setRunTour(true);
-      }, 3000);
+      setRunTour(true);
+    } else {
+      // Iniciar automaticamente para novos usuários após delay
+      const timer = setTimeout(() => {
+        const hasCompleted = localStorage.getItem(ONBOARDING_KEY);
+        if (!hasCompleted) {
+          console.log("Starting automatic tour...");
+          setRunTour(true);
+        }
+      }, 2000);
+      
+      return () => clearTimeout(timer);
     }
   }, [startTour]);
 
@@ -152,37 +158,15 @@ export function OnboardingTour({ startTour = false, onTourEnd }: OnboardingTourP
   const handleJoyrideCallback = (data: CallBackProps) => {
     const { status, type, index } = data;
     console.log("Joyride callback:", { status, type, index });
-    
-    if (type === "step:after") {
-      // Navegar para páginas específicas durante o tour
-      if (index === 1 && location.pathname !== "/") {
-        navigate("/");
-      } else if (index === 2 && location.pathname !== "/clientes") {
-        navigate("/clientes");
-      } else if (index === 3 && location.pathname !== "/contratos") {
-        navigate("/contratos");
-      } else if (index === 4 && location.pathname !== "/calculos") {
-        navigate("/calculos");
-      } else if (index === 5 && location.pathname !== "/acordos") {
-        navigate("/acordos");
-      } else if (index === 6 && location.pathname !== "/relatorios") {
-        navigate("/relatorios");
-      }
-    }
 
     if (status === STATUS.FINISHED || status === STATUS.SKIPPED) {
       console.log("Tour finished or skipped");
       setRunTour(false);
       localStorage.setItem(ONBOARDING_KEY, "true");
       onTourEnd?.();
-      
-      // Voltar para o dashboard no final
-      if (location.pathname !== "/") {
-        navigate("/");
-      }
+    } else if (type === "step:after") {
+      setStepIndex(index + 1);
     }
-
-    setStepIndex(index);
   };
 
   if (!runTour) {
@@ -257,4 +241,5 @@ export const hasCompletedOnboarding = (): boolean => {
 // Função para resetar o onboarding
 export const resetOnboarding = (): void => {
   localStorage.removeItem(ONBOARDING_KEY);
+  localStorage.removeItem("welcome-banner-dismissed");
 };
