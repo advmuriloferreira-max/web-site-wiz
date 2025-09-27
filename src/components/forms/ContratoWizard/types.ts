@@ -9,11 +9,11 @@ export const etapa1Schema = z.object({
 
 export const etapa2Schema = z.object({
   tipo_operacao_bcb: z.string().min(1, "Tipo de operação BCB é obrigatório"),
-  valor_divida: z.string().min(1, "Valor da dívida é obrigatório").refine(
+  saldo_contabil: z.string().min(1, "Dívida contábil é obrigatória").refine(
     (val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0,
-    { message: "Valor da dívida deve ser um número válido maior que zero" }
+    { message: "Dívida contábil deve ser um número válido maior que zero" }
   ),
-  saldo_contabil: z.string().optional(),
+  valor_divida: z.string().optional(),
   data_ultimo_pagamento: z.string().optional(),
   data_entrada_escritorio: z.string().optional(),
 });

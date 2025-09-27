@@ -74,7 +74,7 @@ export const useCreateContrato = () => {
       // Calcular provisão automaticamente se temos dados suficientes e tabelas carregadas
       // A classificação deve ser informada pelo usuário (vem no contrato original)
       if (tabelaPerda && tabelaIncorrida && contratoInput.classificacao) {
-        // Regra: usar dívida contábil (Registrato) quando presente, senão usar valor da dívida
+        // Usar dívida contábil (obrigatória) ou valor da dívida como fallback
         const valorParaCalculo = contratoInput.saldo_contabil || contratoInput.valor_divida;
         
         const resultado = calcularProvisao({
