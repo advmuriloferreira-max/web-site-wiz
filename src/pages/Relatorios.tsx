@@ -124,12 +124,15 @@ export default function Relatorios() {
       {/* Grid de Relatórios */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 animate-slide-up">
         {relatorios.map((relatorio, index) => (
-          <GlassCard 
+          <div 
             key={relatorio.id} 
-            variant="subtle" 
-            className={`cursor-pointer interactive-card animate-scale-in animate-delay-${index}`}
+            className="cursor-pointer group"
             onClick={() => setRelatorioAtivo(relatorio.id)}
           >
+            <GlassCard 
+              variant="subtle" 
+              className={`h-full interactive-card animate-scale-in animate-delay-${index} group-hover:shadow-xl transition-all duration-300`}
+            >
             <CardHeader>
               <div className="flex items-center space-x-3 mb-4">
                 <div className="glass-element p-3 rounded-full">
@@ -183,6 +186,7 @@ export default function Relatorios() {
               </div>
             </CardContent>
           </GlassCard>
+          </div>
         ))}
       </div>
 

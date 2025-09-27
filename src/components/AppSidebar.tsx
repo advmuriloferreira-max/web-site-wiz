@@ -164,14 +164,15 @@ export function AppSidebar() {
       
       <SidebarContent className="px-0 overflow-y-auto scrollbar-thin scrollbar-track-slate-800 scrollbar-thumb-slate-600">
         {/* Navegação Principal */}
-        <SidebarGroup className="py-4">
+        <SidebarGroup className="py-6">
           {!isCollapsed && (
-            <SidebarGroupLabel className="px-4 text-xs uppercase tracking-wide text-slate-500 font-semibold mb-2">
+            <SidebarGroupLabel className="px-4 text-xs uppercase tracking-wide text-slate-300 font-bold mb-4 flex items-center">
+              <div className="w-2 h-2 bg-primary rounded-full mr-2"></div>
               NAVEGAÇÃO
             </SidebarGroupLabel>
           )}
           <SidebarGroupContent>
-            <div className="space-y-1">
+            <div className="space-y-2">
               {navigationItems.map((item) => (
                 <MenuItem key={item.title} item={item} tooltip />
               ))}
@@ -180,17 +181,18 @@ export function AppSidebar() {
         </SidebarGroup>
 
         {/* Separador */}
-        <div className="mx-4 h-px bg-gradient-to-r from-transparent via-slate-600 to-transparent my-4" />
+        <div className="mx-4 h-px bg-gradient-to-r from-transparent via-slate-500 to-transparent my-6" />
 
         {/* Relatórios */}
-        <SidebarGroup className="py-2">
+        <SidebarGroup className="py-4">
           {!isCollapsed && (
-            <SidebarGroupLabel className="px-4 text-xs uppercase tracking-wide text-slate-500 font-semibold mb-2">
+            <SidebarGroupLabel className="px-4 text-xs uppercase tracking-wide text-slate-300 font-bold mb-4 flex items-center">
+              <div className="w-2 h-2 bg-blue-400 rounded-full mr-2"></div>
               RELATÓRIOS
             </SidebarGroupLabel>
           )}
           <SidebarGroupContent>
-            <div className="space-y-1">
+            <div className="space-y-2">
               {reportItems.map((item) => (
                 <MenuItem key={item.title} item={item} tooltip />
               ))}
@@ -199,17 +201,18 @@ export function AppSidebar() {
         </SidebarGroup>
 
         {/* Separador */}
-        <div className="mx-4 h-px bg-gradient-to-r from-transparent via-slate-600 to-transparent my-4" />
+        <div className="mx-4 h-px bg-gradient-to-r from-transparent via-slate-500 to-transparent my-6" />
 
         {/* Ações Rápidas */}
-        <SidebarGroup className="py-2">
+        <SidebarGroup className="py-4">
           {!isCollapsed && (
-            <SidebarGroupLabel className="px-4 text-xs uppercase tracking-wide text-slate-500 font-semibold mb-2">
+            <SidebarGroupLabel className="px-4 text-xs uppercase tracking-wide text-slate-300 font-bold mb-4 flex items-center">
+              <div className="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
               AÇÕES RÁPIDAS
             </SidebarGroupLabel>
           )}
           <SidebarGroupContent>
-            <div className="space-y-1">
+            <div className="space-y-2">
               {quickActions.map((item) => (
                 <MenuItem key={item.title} item={item} tooltip />
               ))}
