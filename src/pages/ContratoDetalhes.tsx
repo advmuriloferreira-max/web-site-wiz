@@ -18,6 +18,7 @@ import {
 } from "@/lib/calculoProvisao";
 import { format } from "date-fns";
 import { useState, useEffect } from "react";
+import { PropostasTimeline } from "@/components/acordos/PropostasTimeline";
 
 const getClassificacaoColor = (classificacao: string | null) => {
   switch (classificacao) {
@@ -372,18 +373,6 @@ export default function ContratoDetalhes() {
               </div>
             )}
 
-            {contrato.proposta_acordo > 0 && (
-              <>
-                <Separator />
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">Proposta de Acordo</label>
-                  <p className="text-xl font-semibold text-green-600">
-                    {formatCurrency(contrato.proposta_acordo)}
-                  </p>
-                </div>
-              </>
-            )}
-
             {contrato.acordo_final > 0 && (
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Acordo Final</label>
@@ -440,6 +429,9 @@ export default function ContratoDetalhes() {
           </CardContent>
         </Card>
       )}
+
+      {/* Histórico de Propostas de Acordo */}
+      <PropostasTimeline contratoId={contrato.id} />
 
       {/* Cálculo Avançado de Provisão com Garantias */}
       {resultadoProvisao && (resultadoProvisao.garantias?.length > 0 || resultadoProvisao.lgdBase) && (

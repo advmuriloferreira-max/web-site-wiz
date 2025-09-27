@@ -396,6 +396,50 @@ export type Database = {
         }
         Relationships: []
       }
+      propostas_acordo: {
+        Row: {
+          contrato_id: string
+          created_at: string
+          data_proposta: string
+          id: string
+          observacoes: string | null
+          status: Database["public"]["Enums"]["status_proposta"]
+          tipo_proposta: Database["public"]["Enums"]["tipo_proposta"]
+          updated_at: string
+          valor_proposta: number
+        }
+        Insert: {
+          contrato_id: string
+          created_at?: string
+          data_proposta?: string
+          id?: string
+          observacoes?: string | null
+          status?: Database["public"]["Enums"]["status_proposta"]
+          tipo_proposta: Database["public"]["Enums"]["tipo_proposta"]
+          updated_at?: string
+          valor_proposta: number
+        }
+        Update: {
+          contrato_id?: string
+          created_at?: string
+          data_proposta?: string
+          id?: string
+          observacoes?: string | null
+          status?: Database["public"]["Enums"]["status_proposta"]
+          tipo_proposta?: Database["public"]["Enums"]["tipo_proposta"]
+          updated_at?: string
+          valor_proposta?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "propostas_acordo_contrato_id_fkey"
+            columns: ["contrato_id"]
+            isOneToOne: false
+            referencedRelation: "contratos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       provisao_perda_esperada: {
         Row: {
           c1_percentual: number
@@ -570,6 +614,8 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "advogado" | "assistente"
+      status_proposta: "pendente" | "aceita" | "recusada"
+      tipo_proposta: "enviada" | "recebida"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -698,6 +744,8 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "advogado", "assistente"],
+      status_proposta: ["pendente", "aceita", "recusada"],
+      tipo_proposta: ["enviada", "recebida"],
     },
   },
 } as const
