@@ -192,7 +192,7 @@ export function ContratosComCalculos() {
                       </TableCell>
                       <TableCell>
                         {contrato.percentual_provisao ? 
-                          `${contrato.percentual_provisao.toFixed(2)}%` : 
+                          `${(contrato.percentual_provisao).toFixed(2)}%` : 
                           <span className="text-muted-foreground">-</span>
                         }
                       </TableCell>

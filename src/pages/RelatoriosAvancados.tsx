@@ -160,7 +160,7 @@ export default function RelatoriosAvancados() {
         
         // Verificar se é mês de fechamento trimestral/anual
         const isClosingMonth = [3, 6, 9, 12].includes(currentDate.getMonth() + 1);
-        const percentualProvisaoNum = provisao.percentualProvisao * 100; // Corrigir para mostrar 100% ao invés de 0%
+        const percentualProvisaoNum = provisao.percentualProvisao; // Valor já está correto (0-100)
         
         // Calcular probabilidade de acordo baseada na provisão (>= 50% é favorável)
         const probabilidadeAcordo = Math.min(100, Math.max(0, 
@@ -198,7 +198,7 @@ export default function RelatoriosAvancados() {
         
         // Verificar se é mês de fechamento trimestral/anual (previsão)
         const isClosingMonth = [3, 6, 9, 12].includes(currentDate.getMonth() + 1);
-        const percentualProvisaoNum = provisao.percentualProvisao * 100; // Corrigir para mostrar 100% ao invés de 0%
+        const percentualProvisaoNum = provisao.percentualProvisao; // Valor já está correto (0-100)
         
         // Calcular probabilidade de acordo baseada na provisão (>= 50% é favorável)
         const probabilidadeAcordo = Math.min(100, Math.max(0, 
