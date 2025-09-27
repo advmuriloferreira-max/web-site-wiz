@@ -516,20 +516,23 @@ export default function RelatoriosAvancados() {
                   <CardContent className="p-4">
                     <div className="text-center">
                       <div className="text-2xl font-bold text-green-600">
-                        {contractAnalysisData.find(d => parseFloat(d.percentualProvisao) >= 50)?.mes || 'N/A'}
+                        {(() => {
+                          const data50 = contractAnalysisData.find(d => parseFloat(d.percentualProvisao) >= 50);
+                          return data50 ? `${data50.diasAtraso || 'N/A'}` : 'N/A';
+                        })()}
                       </div>
-                      <div className="text-sm text-muted-foreground">Mês que atinge 50%</div>
+                      <div className="text-sm text-muted-foreground">Dias que atinge 50% de provisionamento</div>
                     </div>
                   </CardContent>
                 </Card>
-                
+
                 <Card>
                   <CardContent className="p-4">
                     <div className="text-center">
                       <div className="text-2xl font-bold text-red-600">
                         {contractAnalysisData.find(d => d.atinge100Porcento)?.data || 'N/A'}
                       </div>
-                      <div className="text-sm text-muted-foreground">Mês que Atinge 100%</div>
+                      <div className="text-sm text-muted-foreground">Mês que atinge 100% de provisionamento</div>
                     </div>
                   </CardContent>
                 </Card>
