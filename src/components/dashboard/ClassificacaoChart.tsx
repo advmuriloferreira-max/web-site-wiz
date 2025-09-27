@@ -6,11 +6,11 @@ interface ClassificacaoChartProps {
 }
 
 const COLORS = {
-  C1: '#10B981', // green-500
+  C1: '#10B981', // emerald-500
   C2: '#F59E0B', // amber-500
   C3: '#EF4444', // red-500
-  C4: '#8B5CF6', // violet-500
-  C5: '#EC4899', // pink-500
+  C4: '#3B82F6', // blue-500
+  C5: '#8B5CF6', // violet-500
 };
 
 export function ClassificacaoChart({ data }: ClassificacaoChartProps) {
@@ -34,13 +34,13 @@ export function ClassificacaoChart({ data }: ClassificacaoChartProps) {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg font-semibold">
+    <div className="rounded-xl bg-white/10 backdrop-blur-md border border-white/20 overflow-hidden">
+      <div className="bg-gradient-to-r from-slate-50/50 to-white/50 dark:from-slate-800/50 dark:to-slate-700/50 p-6 border-b border-white/20">
+        <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
           Distribuição por Classificação de Risco
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
+        </h3>
+      </div>
+      <div className="p-6">
         <div className="h-80">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
@@ -52,6 +52,8 @@ export function ClassificacaoChart({ data }: ClassificacaoChartProps) {
                 outerRadius={120}
                 paddingAngle={2}
                 dataKey="value"
+                animationBegin={0}
+                animationDuration={800}
               >
                 {chartData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.color} />
@@ -61,7 +63,7 @@ export function ClassificacaoChart({ data }: ClassificacaoChartProps) {
               <Legend 
                 verticalAlign="bottom" 
                 height={36}
-                formatter={(value) => <span className="text-sm text-foreground">{value}</span>}
+                formatter={(value) => <span className="text-sm text-slate-900 dark:text-white">{value}</span>}
               />
             </PieChart>
           </ResponsiveContainer>
@@ -70,16 +72,16 @@ export function ClassificacaoChart({ data }: ClassificacaoChartProps) {
           {Object.entries(COLORS).map(([key, color]) => (
             <div key={key} className="flex items-center space-x-2">
               <div 
-                className="w-3 h-3 rounded-full" 
+                className="w-3 h-3 rounded-full shadow-sm" 
                 style={{ backgroundColor: color }}
               />
-              <span className="text-xs text-muted-foreground">
+              <span className="text-xs text-slate-600 dark:text-slate-300">
                 {key}: {data[key] || 0}
               </span>
             </div>
           ))}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

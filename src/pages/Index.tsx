@@ -1,7 +1,9 @@
 import { Suspense, useState } from "react";
 import { Link } from "react-router-dom";
 import { useContratosStats } from "@/hooks/useContratos";
-import { StatsCard } from "@/components/dashboard/StatsCard";
+import { HeroSection } from "@/components/dashboard/HeroSection";
+import { PremiumStatsCard } from "@/components/dashboard/PremiumStatsCard";
+import { QuickActionsSection } from "@/components/dashboard/QuickActionsSection";
 import { ClassificacaoChart } from "@/components/dashboard/ClassificacaoChart";
 import { AcordosChart } from "@/components/dashboard/AcordosChart";
 import { ClientesAnalysisChart } from "@/components/dashboard/ClientesAnalysisChart";
@@ -89,49 +91,41 @@ function DashboardContent() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-8">
       <ProgressBarComponent />
 
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
-          <p className="text-muted-foreground">
-            INTELLBANK - Sistema de Monitoramento Inteligente de Dívidas Bancárias
-          </p>
-        </div>
-      </div>
+      {/* Hero Section */}
+      <HeroSection />
 
-      {/* Estatísticas Principais */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4" data-tour="dashboard-stats">
-        <StatsCard
+      {/* Premium Statistics Cards */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4" data-tour="dashboard-stats">
+        <PremiumStatsCard
           title="Total de Contratos"
           value={stats?.totalContratos || 0}
           description="Contratos ativos"
           icon={FileText}
+          color="blue"
         />
-        <StatsCard
-          title="Valor Total da Dívida Contábil"
+        <PremiumStatsCard
+          title="Valor Total da Dívida"
           value={`R$ ${((stats?.valorTotalDividas || 0) / 1000).toFixed(0)}K`}
           description="Portfolio total"
           icon={DollarSign}
+          color="emerald"
         />
-        <StatsCard
+        <PremiumStatsCard
           title="Provisão Total"
           value={`R$ ${((stats?.valorTotalProvisao || 0) / 1000).toFixed(0)}K`}
           description="Valor provisionado"
           icon={Calculator}
+          color="amber"
         />
-        <StatsCard
+        <PremiumStatsCard
           title="% Provisão Média"
           value={`${(stats?.percentualProvisao ?? 0).toFixed(1)}%`}
           description="Risco do portfolio"
           icon={TrendingUp}
-          className={
-            (stats?.percentualProvisao ?? 0) > 50 
-              ? "border-destructive/20 bg-destructive/5" 
-              : "border-primary/20 bg-primary/5"
-          }
+          color={(stats?.percentualProvisao ?? 0) > 50 ? "red" : "blue"}
         />
       </div>
 
@@ -157,38 +151,38 @@ function DashboardContent() {
         </TabsList>
 
         {/* Visão Geral */}
-        <TabsContent value="visao-geral" className="space-y-6">
-          <div className="grid gap-6 lg:grid-cols-3">
+        <TabsContent value="visao-geral" className="space-y-8">
+          <div className="grid gap-8 lg:grid-cols-3">
             <div className="lg:col-span-2">
               <ClassificacaoChart data={stats?.porClassificacao || {}} />
             </div>
             <PerformanceCard />
           </div>
           
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold flex items-center space-x-2">
+          <div className="rounded-xl bg-white/10 backdrop-blur-md border border-white/20 overflow-hidden">
+            <div className="bg-gradient-to-r from-slate-50/50 to-white/50 dark:from-slate-800/50 dark:to-slate-700/50 p-6 border-b border-white/20">
+              <h3 className="text-lg font-semibold flex items-center space-x-2 text-slate-900 dark:text-white">
                 <AlertTriangle className="h-5 w-5" />
                 <span>Status dos Contratos</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              </h3>
+            </div>
+            <div className="p-6">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                 {Object.entries(stats?.porSituacao || {}).map(([situacao, quantidade]) => (
-                  <div key={situacao} className="text-center p-3 border border-border rounded-lg">
-                    <div className={`w-4 h-4 rounded-full mx-auto mb-2 ${
-                      situacao === 'Concluído' ? 'bg-green-500' :
-                      situacao === 'Em análise' ? 'bg-yellow-500' :
+                  <div key={situacao} className="group text-center p-4 rounded-lg bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all duration-300 hover:scale-105">
+                    <div className={`w-5 h-5 rounded-full mx-auto mb-3 shadow-lg ${
+                      situacao === 'Concluído' ? 'bg-emerald-500' :
+                      situacao === 'Em análise' ? 'bg-amber-500' :
                       situacao === 'Cancelado' ? 'bg-red-500' :
                       'bg-blue-500'
                     }`} />
-                    <p className="text-2xl font-bold text-foreground">{quantidade}</p>
-                    <p className="text-sm text-muted-foreground">{situacao}</p>
+                    <p className="text-2xl font-bold text-slate-900 dark:text-white group-hover:scale-110 transition-transform duration-300">{quantidade}</p>
+                    <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">{situacao}</p>
                   </div>
                 ))}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </TabsContent>
 
         {/* Análise de Acordos */}
@@ -220,36 +214,7 @@ function DashboardContent() {
       </Tabs>
 
       {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold">Ações Rápidas</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-3">
-            <Link to="/clientes/novo" className="flex items-center space-x-3 p-4 border border-border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors">
-              <Users className="h-8 w-8 text-primary" />
-              <div>
-                <h3 className="font-medium text-foreground">Novo Cliente</h3>
-                <p className="text-sm text-muted-foreground">Cadastrar cliente</p>
-              </div>
-            </Link>
-            <Link to="/contratos/novo" className="flex items-center space-x-3 p-4 border border-border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors">
-              <FileText className="h-8 w-8 text-primary" />
-              <div>
-                <h3 className="font-medium text-foreground">Novo Contrato</h3>
-                <p className="text-sm text-muted-foreground">Registrar dívida</p>
-              </div>
-            </Link>
-            <Link to="/calculos" className="flex items-center space-x-3 p-4 border border-border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors">
-              <Calculator className="h-8 w-8 text-primary" />
-              <div>
-                <h3 className="font-medium text-foreground">Calculadora</h3>
-                <p className="text-sm text-muted-foreground">Calcular provisões</p>
-              </div>
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
+      <QuickActionsSection />
       
     </div>
   );
