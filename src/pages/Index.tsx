@@ -1,6 +1,7 @@
 import { Suspense, useState } from "react";
 import { Link } from "react-router-dom";
 import { useContratosStats } from "@/hooks/useContratos";
+import { ResponsiveGrid, AdaptiveCard } from "@/components/ui/responsive-grid";
 import { HeroSection } from "@/components/dashboard/HeroSection";
 import { PremiumStatsCard } from "@/components/dashboard/PremiumStatsCard";
 import { QuickActionsSection } from "@/components/dashboard/QuickActionsSection";
@@ -54,51 +55,63 @@ function DashboardContent() {
 
   if (isLoading) {
     return (
-      <div className="p-6 space-y-6">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="p-3 sm:p-4 lg:p-6 space-y-4 sm:space-y-6">
+        <ResponsiveGrid 
+          cols={{ default: 1, sm: 2, lg: 4 }} 
+          gap={4}
+        >
           {Array.from({ length: 4 }).map((_, i) => (
             <Card key={i}>
               <CardHeader className="pb-2">
                 <Skeleton className="h-4 w-20" />
               </CardHeader>
               <CardContent>
-                <Skeleton className="h-8 w-24 mb-2" />
-                <Skeleton className="h-3 w-32" />
+                <Skeleton className="h-6 sm:h-8 w-16 sm:w-24 mb-2" />
+                <Skeleton className="h-3 w-24 sm:w-32" />
               </CardContent>
             </Card>
           ))}
-        </div>
-        <div className="grid gap-6 md:grid-cols-2">
+        </ResponsiveGrid>
+        <ResponsiveGrid 
+          cols={{ default: 1, md: 2 }} 
+          gap={4} 
+          className="sm:gap-6"
+        >
           <Card>
             <CardHeader>
-              <Skeleton className="h-6 w-48" />
+              <Skeleton className="h-4 sm:h-6 w-32 sm:w-48" />
             </CardHeader>
             <CardContent>
-              <Skeleton className="h-80 w-full" />
+              <Skeleton className="h-60 sm:h-80 w-full" />
             </CardContent>
           </Card>
           <Card>
             <CardHeader>
-              <Skeleton className="h-6 w-40" />
+              <Skeleton className="h-4 sm:h-6 w-28 sm:w-40" />
             </CardHeader>
             <CardContent>
-              <Skeleton className="h-80 w-full" />
+              <Skeleton className="h-60 sm:h-80 w-full" />
             </CardContent>
           </Card>
-        </div>
+        </ResponsiveGrid>
       </div>
     );
   }
 
   return (
-    <div className="p-6 space-y-8">
+    <div className="p-3 sm:p-4 lg:p-6 space-y-6 lg:space-y-8">
       <ProgressBarComponent />
 
       {/* Hero Section */}
       <HeroSection />
 
       {/* Premium Statistics Cards */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4" data-tour="dashboard-stats">
+      <ResponsiveGrid 
+        cols={{ default: 1, sm: 2, lg: 4 }} 
+        gap={4} 
+        className="lg:gap-6" 
+        data-tour="dashboard-stats"
+      >
         <PremiumStatsCard
           title="Total de Contratos"
           value={stats?.totalContratos || 0}
@@ -127,76 +140,95 @@ function DashboardContent() {
           icon={TrendingUp}
           color={(stats?.percentualProvisao ?? 0) > 50 ? "red" : "blue"}
         />
-      </div>
+      </ResponsiveGrid>
 
       {/* Dashboard Tabs */}
-      <Tabs defaultValue="visao-geral" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="visao-geral" className="flex items-center space-x-2">
-            <BarChart3 className="h-4 w-4" />
-            <span>Visão Geral</span>
-          </TabsTrigger>
-          <TabsTrigger value="acordos" className="flex items-center space-x-2">
-            <Target className="h-4 w-4" />
-            <span>Acordos</span>
-          </TabsTrigger>
-          <TabsTrigger value="clientes" className="flex items-center space-x-2">
-            <Users className="h-4 w-4" />
-            <span>Clientes</span>
-          </TabsTrigger>
-          <TabsTrigger value="tendencias" className="flex items-center space-x-2">
-            <Clock className="h-4 w-4" />
-            <span>Tendências</span>
-          </TabsTrigger>
-        </TabsList>
+      <Tabs defaultValue="visao-geral" className="space-y-4 lg:space-y-6">
+        {/* Mobile: Scrollable tabs, Desktop: Grid */}
+        <div className="overflow-x-auto">
+          <TabsList className="grid w-full grid-cols-4 min-w-max md:min-w-0">
+            <TabsTrigger value="visao-geral" className="flex items-center space-x-1 md:space-x-2 px-2 md:px-4">
+              <BarChart3 className="h-4 w-4 flex-shrink-0" />
+              <span className="text-xs md:text-sm">Visão Geral</span>
+            </TabsTrigger>
+            <TabsTrigger value="acordos" className="flex items-center space-x-1 md:space-x-2 px-2 md:px-4">
+              <Target className="h-4 w-4 flex-shrink-0" />
+              <span className="text-xs md:text-sm">Acordos</span>
+            </TabsTrigger>
+            <TabsTrigger value="clientes" className="flex items-center space-x-1 md:space-x-2 px-2 md:px-4">
+              <Users className="h-4 w-4 flex-shrink-0" />
+              <span className="text-xs md:text-sm">Clientes</span>
+            </TabsTrigger>
+            <TabsTrigger value="tendencias" className="flex items-center space-x-1 md:space-x-2 px-2 md:px-4">
+              <Clock className="h-4 w-4 flex-shrink-0" />
+              <span className="text-xs md:text-sm">Tendências</span>
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         {/* Visão Geral */}
-        <TabsContent value="visao-geral" className="space-y-8">
-          <div className="grid gap-8 lg:grid-cols-3">
+        <TabsContent value="visao-geral" className="space-y-6 lg:space-y-8">
+          <ResponsiveGrid 
+            cols={{ default: 1, lg: 3 }} 
+            gap={6} 
+            className="lg:gap-8"
+          >
             <div className="lg:col-span-2">
               <ClassificacaoChart data={stats?.porClassificacao || {}} />
             </div>
-            <PerformanceCard />
-          </div>
+            <div className="lg:col-span-1">
+              <PerformanceCard />
+            </div>
+          </ResponsiveGrid>
           
-          <div className="rounded-xl bg-white/10 backdrop-blur-md border border-white/20 overflow-hidden">
-            <div className="bg-gradient-to-r from-slate-50/50 to-white/50 dark:from-slate-800/50 dark:to-slate-700/50 p-6 border-b border-white/20">
-              <h3 className="text-lg font-semibold flex items-center space-x-2 text-slate-900 dark:text-white">
-                <AlertTriangle className="h-5 w-5" />
+          <AdaptiveCard className="overflow-hidden">
+            <div className="bg-gradient-to-r from-slate-50/50 to-white/50 dark:from-slate-800/50 dark:to-slate-700/50 p-4 sm:p-6 border-b border-slate-200">
+              <h3 className="text-base sm:text-lg font-semibold flex items-center space-x-2 text-slate-900 dark:text-white">
+                <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
                 <span>Status dos Contratos</span>
               </h3>
             </div>
-            <div className="p-6">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="p-4 sm:p-6">
+              <ResponsiveGrid 
+                cols={{ default: 2, md: 4 }} 
+                gap={4} 
+                className="sm:gap-6"
+              >
                 {Object.entries(stats?.porSituacao || {}).map(([situacao, quantidade]) => (
-                  <div key={situacao} className="group text-center p-4 rounded-lg bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all duration-300 hover:scale-105">
-                    <div className={`w-5 h-5 rounded-full mx-auto mb-3 shadow-lg ${
+                  <div key={situacao} className="group text-center p-3 sm:p-4 rounded-lg bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all duration-300 hover:scale-105">
+                    <div className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full mx-auto mb-2 sm:mb-3 shadow-lg ${
                       situacao === 'Concluído' ? 'bg-emerald-500' :
                       situacao === 'Em análise' ? 'bg-amber-500' :
                       situacao === 'Cancelado' ? 'bg-red-500' :
                       'bg-blue-500'
                     }`} />
-                    <p className="text-2xl font-bold text-slate-900 dark:text-white group-hover:scale-110 transition-transform duration-300">{quantidade}</p>
-                    <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">{situacao}</p>
+                    <p className="text-lg sm:text-2xl font-bold text-slate-900 dark:text-white group-hover:scale-110 transition-transform duration-300">{quantidade}</p>
+                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-medium">{situacao}</p>
                   </div>
                 ))}
-              </div>
+              </ResponsiveGrid>
             </div>
-          </div>
+          </AdaptiveCard>
         </TabsContent>
 
         {/* Análise de Acordos */}
-        <TabsContent value="acordos" className="space-y-6">
+        <TabsContent value="acordos" className="space-y-4 sm:space-y-6">
           <AcordosChart />
         </TabsContent>
 
         {/* Análise de Clientes */}
-        <TabsContent value="clientes" className="space-y-6">
-          <div className="grid gap-6 lg:grid-cols-3">
-            <ClienteSelector 
-              selectedClienteId={selectedClienteId}
-              onClienteSelect={setSelectedClienteId}
-            />
+        <TabsContent value="clientes" className="space-y-4 sm:space-y-6">
+          <ResponsiveGrid 
+            cols={{ default: 1, lg: 3 }} 
+            gap={4} 
+            className="sm:gap-6"
+          >
+            <div className="lg:col-span-1">
+              <ClienteSelector 
+                selectedClienteId={selectedClienteId}
+                onClienteSelect={setSelectedClienteId}
+              />
+            </div>
             <div className="lg:col-span-2">
               {selectedClienteId ? (
                 <ClienteAnalysisDetails clienteId={selectedClienteId} />
@@ -204,11 +236,11 @@ function DashboardContent() {
                 <ClientesAnalysisChart />
               )}
             </div>
-          </div>
+          </ResponsiveGrid>
         </TabsContent>
 
         {/* Tendências */}
-        <TabsContent value="tendencias" className="space-y-6">
+        <TabsContent value="tendencias" className="space-y-4 sm:space-y-6">
           <TendenciasChart />
         </TabsContent>
       </Tabs>

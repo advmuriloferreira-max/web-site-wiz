@@ -13,6 +13,8 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { PageTransition } from "@/components/ui/page-transition";
 import { SimpleSearch } from "@/components/ui/simple-search";
 import { PremiumHeader } from "@/components/ui/premium-header";
+import { BottomNavigation } from "@/components/ui/bottom-navigation";
+import { ResponsiveDrawer } from "@/components/ui/responsive-drawer";
 import AssistenteVirtual from "@/components/assistente/AssistenteVirtual";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -49,38 +51,52 @@ const App = () => {
               <ProtectedRoute>
                 <SidebarProvider>
                   <div className="min-h-screen flex w-full bg-background">
-                    <AppSidebar />
+                    {/* Desktop Sidebar */}
+                    <div className="hidden md:flex">
+                      <AppSidebar />
+                    </div>
+                    
+                    {/* Mobile Drawer */}
+                    <ResponsiveDrawer className="md:hidden" />
+                    
                     <div className="flex-1 flex flex-col">
-                      <PremiumHeader onSearchClick={() => setIsSearchOpen(true)} />
-                        <main className="flex-1 overflow-auto">
-                          <PageTransition>
-                            <Routes>
-                              <Route path="/" element={<Index />} />
-                              <Route path="clientes" element={<Clientes />} />
-                              <Route path="clientes/novo" element={<NovoCliente />} />
-                              <Route path="contratos" element={<Contratos />} />
-                              <Route path="contratos/novo" element={<NovoContrato />} />
-                              <Route path="contratos/:contratoId" element={<ContratoDetalhes />} />
-                              <Route path="calculos" element={<Calculos />} />
-                              <Route path="processos" element={<Processos />} />
-                              <Route path="acordos" element={<Acordos />} />
-                              <Route path="relatorios" element={<Relatorios />} />
-                              <Route path="relatorios-avancados" element={<RelatoriosAvancados />} />
-                              <Route path="configuracoes" element={<Configuracoes />} />
-                              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                              <Route path="*" element={<NotFound />} />
-                            </Routes>
-                          </PageTransition>
-                        </main>
-                     </div>
-                     </div>
+                      {/* Header - hidden on mobile, shown on desktop */}
+                      <div className="hidden md:block">
+                        <PremiumHeader onSearchClick={() => setIsSearchOpen(true)} />
+                      </div>
+                      
+                      <main className="flex-1 overflow-auto pb-20 md:pb-0">
+                        <PageTransition>
+                          <Routes>
+                            <Route path="/" element={<Index />} />
+                            <Route path="clientes" element={<Clientes />} />
+                            <Route path="clientes/novo" element={<NovoCliente />} />
+                            <Route path="contratos" element={<Contratos />} />
+                            <Route path="contratos/novo" element={<NovoContrato />} />
+                            <Route path="contratos/:contratoId" element={<ContratoDetalhes />} />
+                            <Route path="calculos" element={<Calculos />} />
+                            <Route path="processos" element={<Processos />} />
+                            <Route path="acordos" element={<Acordos />} />
+                            <Route path="relatorios" element={<Relatorios />} />
+                            <Route path="relatorios-avancados" element={<RelatoriosAvancados />} />
+                            <Route path="configuracoes" element={<Configuracoes />} />
+                            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                            <Route path="*" element={<NotFound />} />
+                          </Routes>
+                        </PageTransition>
+                      </main>
+                    </div>
+                    
+                    {/* Bottom Navigation - mobile only */}
+                    <BottomNavigation />
+                    
+                    {/* Global components */}
                     <SimpleSearch open={isSearchOpen} onOpenChange={setIsSearchOpen} />
                     <InstallPrompt />
-                    
-                    {/* Assistente Virtual global */}
                     <AssistenteVirtual />
-                  </SidebarProvider>
-               </ProtectedRoute>
+                  </div>
+                </SidebarProvider>
+              </ProtectedRoute>
              } />
            </Routes>
          </BrowserRouter>
