@@ -20,6 +20,45 @@ export interface SortConfig {
   priority: number;
 }
 
+// Helper functions
+const getNestedValue = (obj: any, path: string) => {
+  return path.split('.').reduce((current, key) => current?.[key], obj);
+};
+
+const applyFilterRule = (value: any, rule: FilterRule): boolean => {
+  if (value == null) return false;
+
+  const stringValue = String(value).toLowerCase();
+  const ruleValue = String(rule.value).toLowerCase();
+
+  switch (rule.operator) {
+    case 'equals':
+      return stringValue === ruleValue;
+    case 'contains':
+      return stringValue.includes(ruleValue);
+    case 'startsWith':
+      return stringValue.startsWith(ruleValue);
+    case 'endsWith':
+      return stringValue.endsWith(ruleValue);
+    case 'gt':
+      return Number(value) > Number(rule.value);
+    case 'lt':
+      return Number(value) < Number(rule.value);
+    case 'gte':
+      return Number(value) >= Number(rule.value);
+    case 'lte':
+      return Number(value) <= Number(rule.value);
+    case 'in':
+      return Array.isArray(rule.value) && rule.value.includes(value);
+    case 'between':
+      return Array.isArray(rule.value) && 
+             Number(value) >= Number(rule.value[0]) && 
+             Number(value) <= Number(rule.value[1]);
+    default:
+      return true;
+  }
+};
+
 export const useAdvancedFilters = <T extends Record<string, any>>(
   data: T[],
   storageKey: string
@@ -75,44 +114,6 @@ export const useAdvancedFilters = <T extends Record<string, any>>(
 
     return result;
   }, [data, activeFilters, sortConfigs, searchQuery]);
-
-  const getNestedValue = (obj: any, path: string) => {
-    return path.split('.').reduce((current, key) => current?.[key], obj);
-  };
-
-  const applyFilterRule = (value: any, rule: FilterRule): boolean => {
-    if (value == null) return false;
-
-    const stringValue = String(value).toLowerCase();
-    const ruleValue = String(rule.value).toLowerCase();
-
-    switch (rule.operator) {
-      case 'equals':
-        return stringValue === ruleValue;
-      case 'contains':
-        return stringValue.includes(ruleValue);
-      case 'startsWith':
-        return stringValue.startsWith(ruleValue);
-      case 'endsWith':
-        return stringValue.endsWith(ruleValue);
-      case 'gt':
-        return Number(value) > Number(rule.value);
-      case 'lt':
-        return Number(value) < Number(rule.value);
-      case 'gte':
-        return Number(value) >= Number(rule.value);
-      case 'lte':
-        return Number(value) <= Number(rule.value);
-      case 'in':
-        return Array.isArray(rule.value) && rule.value.includes(value);
-      case 'between':
-        return Array.isArray(rule.value) && 
-               Number(value) >= Number(rule.value[0]) && 
-               Number(value) <= Number(rule.value[1]);
-      default:
-        return true;
-    }
-  };
 
   const addFilter = useCallback((filter: FilterRule) => {
     setActiveFilters(prev => {
