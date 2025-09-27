@@ -45,17 +45,17 @@ export function PerformanceCard() {
 
       // Métricas de provisionamento
       const provisaoMedia = data.length > 0
-        ? data.reduce((sum, c) => sum + (Number(c.percentual_provisao) || 0), 0) / data.length
+        ? data.reduce((sum, c) => sum + ((c.percentual_provisao ?? 0)), 0) / data.length
         : 0;
 
       // Contratos críticos (provisão > 70%)
-      const contratosCriticos = data.filter(c => (Number(c.percentual_provisao) || 0) > 70).length;
+      const contratosCriticos = data.filter(c => ((c.percentual_provisao ?? 0)) > 70).length;
 
       // Receita de honorários
       const receitaHonorarios = data.reduce((sum, c) => sum + (Number(c.valor_honorarios) || 0), 0);
       const receitaPotencial = data.reduce((sum, c) => {
         const valorDivida = Number(c.valor_divida) || 0;
-        const percentualHonorarios = Number(c.percentual_honorarios) || 20; // Assumindo 20% padrão
+        const percentualHonorarios = (c.percentual_honorarios ?? 20); // Assumindo 20% padrão
         return sum + (valorDivida * (percentualHonorarios / 100));
       }, 0);
 

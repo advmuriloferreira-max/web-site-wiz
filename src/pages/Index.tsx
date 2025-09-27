@@ -113,11 +113,11 @@ function DashboardContent() {
         />
         <StatsCard
           title="% Provisão Média"
-          value={`${(stats?.percentualProvisao || 0).toFixed(1)}%`}
+          value={`${(stats?.percentualProvisao ?? 0).toFixed(1)}%`}
           description="Risco do portfolio"
           icon={TrendingUp}
           className={
-            (stats?.percentualProvisao || 0) > 50 
+            (stats?.percentualProvisao ?? 0) > 50 
               ? "border-destructive/20 bg-destructive/5" 
               : "border-primary/20 bg-primary/5"
           }

@@ -351,11 +351,11 @@ export default function ContratoDetalhes() {
             <Separator />
 
             {contrato.valor_provisao > 0 && (
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Provisão</label>
-                <p className="text-lg font-medium">
-                  {contrato.percentual_provisao.toFixed(2)}%
-                </p>
+               <div>
+                 <label className="text-sm font-medium text-muted-foreground">Provisão</label>
+                 <p className="text-lg font-medium">
+                   {(contrato.percentual_provisao ?? 0).toFixed(2)}%
+                 </p>
                 <p className="text-xl font-semibold text-orange-600">
                   {formatCurrency(contrato.valor_provisao)}
                 </p>

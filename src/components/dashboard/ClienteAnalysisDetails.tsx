@@ -203,10 +203,10 @@ export function ClienteAnalysisDetails({ clienteId }: ClienteAnalysisDetailsProp
                 </div>
                 <div className="text-right">
                   <p className="font-medium text-sm">R$ {Number(contrato.valor_divida || 0).toLocaleString('pt-BR')}</p>
-                  <p className="text-xs text-muted-foreground">
-                    Provisão: R$ {Number(contrato.valor_provisao || 0).toLocaleString('pt-BR')} 
-                    ({((Number(contrato.valor_provisao || 0) / Number(contrato.valor_divida || 1)) * 100).toFixed(1)}%)
-                  </p>
+                   <p className="text-xs text-muted-foreground">
+                     Provisão: R$ {Number(contrato.valor_provisao || 0).toLocaleString('pt-BR')} 
+                     ({(((contrato.valor_provisao ?? 0) / (contrato.valor_divida || 1)) * 100).toFixed(1)}%)
+                   </p>
                 </div>
               </div>
             ))}

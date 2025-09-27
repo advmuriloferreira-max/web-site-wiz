@@ -197,10 +197,10 @@ export function GarantiasSection({ contratoId }: GarantiasSectionProps) {
                     <span className="font-medium">Valor da Avaliação:</span>
                     <p>{formatCurrency(garantia.valor_avaliacao)}</p>
                   </div>
-                  <div>
-                    <span className="font-medium">Percentual de Cobertura:</span>
-                    <p>{garantia.percentual_cobertura || 0}%</p>
-                  </div>
+                   <div>
+                     <span className="font-medium">Percentual de Cobertura:</span>
+                     <p>{(garantia.percentual_cobertura ?? 0).toFixed(2)}%</p>
+                   </div>
                 </div>
               </CardContent>
             </Card>

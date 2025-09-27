@@ -106,9 +106,9 @@ export function GarantiaImpactDisplay({ resultado }: GarantiaImpactDisplayProps)
                         </div>
                         <div className="text-right">
                           <div className="font-semibold">{formatCurrency(valorAjustado)}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {garantia.percentual_cobertura}% de {formatCurrency(garantia.valor_avaliacao)}
-                          </div>
+                           <div className="text-xs text-muted-foreground">
+                             {garantia.percentual_cobertura || 0}% de {formatCurrency(garantia.valor_avaliacao)}
+                           </div>
                         </div>
                       </div>
                       

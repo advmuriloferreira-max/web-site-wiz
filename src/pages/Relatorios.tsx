@@ -155,9 +155,9 @@ export default function Relatorios() {
                   </div>
                   <div className="text-right">
                     <p className="font-bold">{formatCurrency(item.valor_provisao)}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {item.valor_total > 0 ? ((item.valor_provisao / item.valor_total) * 100).toFixed(1) : 0}% do valor total
-                    </p>
+                     <p className="text-sm text-muted-foreground">
+                       {item.valor_total > 0 ? (((item.valor_provisao ?? 0) / item.valor_total) * 100).toFixed(1) : '0'}% do valor total
+                     </p>
                   </div>
                 </div>
               ))}
@@ -253,9 +253,9 @@ export default function Relatorios() {
                     <div className="text-xs text-muted-foreground mt-2">
                       {formatCurrency(item.valor_total)}
                     </div>
-                    <div className="text-xs font-medium text-orange-600">
-                      {item.percentual_provisao_medio.toFixed(1)}% provisão
-                    </div>
+                     <div className="text-xs font-medium text-orange-600">
+                       {(item.percentual_provisao_medio ?? 0).toFixed(1)}% provisão
+                     </div>
                   </CardContent>
                 </Card>
               ))}

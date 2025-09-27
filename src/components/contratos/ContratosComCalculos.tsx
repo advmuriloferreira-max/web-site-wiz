@@ -190,12 +190,12 @@ export function ContratosComCalculos() {
                           <Badge variant="outline">-</Badge>
                         )}
                       </TableCell>
-                      <TableCell>
-                        {contrato.percentual_provisao ? 
-                          `${(contrato.percentual_provisao).toFixed(2)}%` : 
-                          <span className="text-muted-foreground">-</span>
-                        }
-                      </TableCell>
+                       <TableCell>
+                         {(contrato.percentual_provisao ?? 0) > 0 ? 
+                           `${(contrato.percentual_provisao ?? 0).toFixed(2)}%` : 
+                           <span className="text-muted-foreground">-</span>
+                         }
+                       </TableCell>
                       <TableCell className="font-medium">
                         {contrato.valor_provisao ? 
                           formatCurrency(contrato.valor_provisao) : 
