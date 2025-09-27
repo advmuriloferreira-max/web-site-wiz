@@ -11,6 +11,7 @@ import { ContratoWizard } from "@/components/forms/ContratoWizard";
 import { useContratos, Contrato } from "@/hooks/useContratos";
 import { useDeleteContrato } from "@/hooks/useDeleteContrato";
 import { GarantiaIndicator } from "@/components/contratos/GarantiaIndicator";
+import { TipoOperacaoDisplay } from "@/components/ui/tipo-operacao-display";
 import { useAdvancedFilters } from "@/hooks/useAdvancedFilters";
 import { DataToolbar } from "@/components/ui/data-toolbar";
 import { DataCards, ContratoCard } from "@/components/ui/data-cards";
@@ -229,17 +230,8 @@ export default function Contratos() {
                     </TableHead>
                     <TableHead>
                       <SortableHeader
-                        field="numero_contrato"
-                        label="Contrato"
-                        sortConfigs={filters.sortConfigs}
-                        onSort={filters.addSort}
-                        onRemoveSort={filters.removeSort}
-                      />
-                    </TableHead>
-                    <TableHead>
-                      <SortableHeader
-                        field="tipo_operacao"
-                        label="Tipo"
+                        field="tipos_operacao_bcb.nome"
+                        label="Tipo de Operação"
                         sortConfigs={filters.sortConfigs}
                         onSort={filters.addSort}
                         onRemoveSort={filters.removeSort}
@@ -297,7 +289,7 @@ export default function Contratos() {
                 <TableBody>
                   {filters.filteredData.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={11} className="text-center py-8 text-muted-foreground">
+                      <TableCell colSpan={10} className="text-center py-8 text-muted-foreground">
                         Nenhum contrato encontrado
                       </TableCell>
                     </TableRow>
@@ -313,13 +305,11 @@ export default function Contratos() {
                         </TableCell>
                         <TableCell>{contrato.bancos?.nome}</TableCell>
                         <TableCell>
-                          {contrato.numero_contrato ? (
-                            <Badge variant="outline">{contrato.numero_contrato}</Badge>
-                          ) : (
-                            <span className="text-muted-foreground">-</span>
-                          )}
+                          <TipoOperacaoDisplay 
+                            tipoOperacaoId={(contrato as any).tipo_operacao_bcb}
+                            fallback={contrato.tipo_operacao || "-"}
+                          />
                         </TableCell>
-                        <TableCell className="text-sm">{contrato.tipo_operacao}</TableCell>
                         <TableCell className="font-medium">
                           {formatCurrency(contrato.valor_divida)}
                         </TableCell>
