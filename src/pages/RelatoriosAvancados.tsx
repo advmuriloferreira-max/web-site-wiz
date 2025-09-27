@@ -451,6 +451,7 @@ export default function RelatoriosAvancados() {
                               <p className="text-sm">Risco: {data.risco}</p>
                               <p className="text-sm">Prob. Acordo: {data.probabilidadeAcordo}%</p>
                               {data.previsao && <Badge variant="outline">Previsão</Badge>}
+                              {data.atinge100Porcento && <Badge className="bg-red-100 text-red-800">Atinge 100%</Badge>}
                               {data.melhorMomentoAcordo && <Badge className="bg-green-100 text-green-800">Favorável para Acordo</Badge>}
                               {data.isClosingMonth && <Badge className="bg-blue-100 text-blue-800">Fechamento Trimestral</Badge>}
                             </div>
@@ -498,9 +499,9 @@ export default function RelatoriosAvancados() {
                   <CardContent className="p-4">
                     <div className="text-center">
                       <div className="text-2xl font-bold text-red-600">
-                        {Math.max(...contractAnalysisData.map(d => parseFloat(d.percentualProvisao)))}%
+                        {contractAnalysisData.find(d => d.atinge100Porcento)?.data || 'N/A'}
                       </div>
-                      <div className="text-sm text-muted-foreground">Provisão Máxima Prevista</div>
+                      <div className="text-sm text-muted-foreground">Mês que Atinge 100%</div>
                     </div>
                   </CardContent>
                 </Card>
@@ -523,12 +524,13 @@ export default function RelatoriosAvancados() {
                   Insights da Análise:
                 </h4>
                 <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
-                  <li>• <strong>Evolução histórica:</strong> Baseada nos dados reais do contrato</li>
-                  <li>• <strong>Previsões futuras:</strong> Calculadas com base nos parâmetros de risco atuais</li>
+                  <li>• <strong>Linha evolutiva completa:</strong> Desde o início do atraso até atingir 100% de provisão</li>
+                  <li>• <strong>Marco dos 100%:</strong> Indica exatamente quando o contrato atingirá provisão máxima</li>
+                  <li>• <strong>Evolução histórica:</strong> Baseada nos dias reais de atraso do contrato</li>
+                  <li>• <strong>Previsões futuras:</strong> Projeção mês a mês até o provisionamento completo</li>
                   <li>• <strong>Momentos ideais:</strong> A partir de 50% de provisão é favorável para acordos</li>
-                  <li>• <strong>Fechamentos trimestrais:</strong> Março, junho, setembro e dezembro são melhores para negociação</li>
+                  <li>• <strong>Fechamentos trimestrais:</strong> Março, junho, setembro e dezembro têm maior probabilidade de acordo</li>
                   <li>• <strong>Correlação direta:</strong> Quanto maior a provisão e atraso, maior a probabilidade de acordo</li>
-                  <li>• <strong>Provisão máxima:</strong> Indica quando o contrato atinge o maior nível de provisão</li>
                 </ul>
               </div>
             </div>
