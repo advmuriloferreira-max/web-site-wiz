@@ -27,9 +27,9 @@ export function BottomNavigation() {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-slate-200 md:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-slate-200 md:hidden animate-slide-up">
       <div className="grid grid-cols-5 h-16">
-        {navigationItems.map((item) => {
+        {navigationItems.map((item, index) => {
           const active = isActive(item.url);
           return (
             <NavLink
@@ -37,17 +37,19 @@ export function BottomNavigation() {
               to={item.url}
               className={cn(
                 "flex flex-col items-center justify-center space-y-1 transition-all duration-200 relative",
-                "min-h-[44px] px-2 py-2",
+                "min-h-[44px] px-2 py-2 interactive-button focus-ring",
+                "animate-fade-in",
                 active
-                  ? "text-blue-600"
-                  : "text-slate-500 hover:text-slate-700 active:scale-95"
+                  ? "text-primary scale-110"
+                  : "text-slate-500 hover:text-slate-700 hover:scale-105"
               )}
+              style={{ animationDelay: `${index * 50}ms` }}
             >
               {active && (
-                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-8 h-1 bg-blue-600 rounded-b-full" />
+                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-8 h-1 bg-primary rounded-b-full animate-scale-in" />
               )}
               
-              <item.icon 
+              <item.icon
                 className={cn(
                   "h-5 w-5 transition-transform duration-200",
                   active && "scale-110"

@@ -14,6 +14,8 @@ import { ContratosCliente } from "@/components/cliente/ContratosCliente";
 import { useClientes, useDeleteCliente, Cliente } from "@/hooks/useClientes";
 import { useContratosCountByCliente } from "@/hooks/useContratosByCliente";
 import { usePWANavigation } from "@/hooks/usePWANavigation";
+import { AnimatedList } from "@/components/ui/animated-list";
+import { EnhancedSkeleton, SkeletonTable } from "@/components/ui/enhanced-skeleton";
 import { format } from "date-fns";
 import { toast } from "sonner";
 
@@ -72,7 +74,21 @@ export default function Clientes() {
   if (isLoading) {
     return (
       <div className="container mx-auto p-6">
-        <div className="text-center">Carregando clientes...</div>
+        <div className="animate-fade-in">
+          <h1 className="text-2xl font-bold text-foreground mb-6">Clientes</h1>
+          <Card className="shadow-sm border-slate-200">
+            <CardHeader>
+              <div className="flex items-center space-x-2">
+                <EnhancedSkeleton variant="circular" width={20} height={20} />
+                <EnhancedSkeleton className="h-6 w-32" />
+              </div>
+              <EnhancedSkeleton className="h-10 w-80" />
+            </CardHeader>
+            <CardContent className="p-0">
+              <SkeletonTable />
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
@@ -134,34 +150,38 @@ export default function Clientes() {
               {filteredClientes?.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-12 text-slate-500">
-                    <div className="flex flex-col items-center space-y-3">
-                      <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center">
+                    <div className="flex flex-col items-center space-y-3 animate-fade-in">
+                      <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center animate-scale-in">
                         <Users className="h-6 w-6 text-slate-400" />
                       </div>
-                      <p className="font-medium">Nenhum cliente encontrado</p>
-                      <p className="text-sm">Tente ajustar o termo de busca ou adicionar novos clientes</p>
+                      <p className="font-medium animate-slide-up animate-stagger-1">Nenhum cliente encontrado</p>
+                      <p className="text-sm animate-slide-up animate-stagger-2">Tente ajustar o termo de busca ou adicionar novos clientes</p>
                     </div>
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredClientes?.map((cliente) => {
+                filteredClientes?.map((cliente, index) => {
                   const isExpanded = expandedClientes.has(cliente.id);
                   const contratosDoCliente = contratosCount?.[cliente.id] || 0;
                   
                   return (
                     <>
-                      <TableRow key={cliente.id}>
+                      <TableRow 
+                        key={cliente.id} 
+                        className="animate-fade-in hover:bg-slate-50/50 transition-colors duration-200"
+                        style={{ animationDelay: `${index * 50}ms` }}
+                      >
                         <TableCell>
                           <Button 
                             variant="ghost" 
                             size="sm" 
-                            className="p-0 h-8 w-8 text-slate-500 hover:text-slate-700 hover:bg-slate-100"
+                            className="p-0 h-8 w-8 text-slate-500 hover:text-slate-700 hover:bg-slate-100 interactive-button transition-all duration-200"
                             onClick={() => toggleClienteExpanded(cliente.id)}
                           >
                             {isExpanded ? (
-                              <ChevronDown className="h-4 w-4" />
+                              <ChevronDown className="h-4 w-4 transition-transform duration-200" />
                             ) : (
-                              <ChevronRight className="h-4 w-4" />
+                              <ChevronRight className="h-4 w-4 transition-transform duration-200" />
                             )}
                           </Button>
                         </TableCell>
@@ -194,7 +214,7 @@ export default function Clientes() {
                               variant="ghost"
                               size="sm"
                               onClick={() => toggleClienteExpanded(cliente.id)}
-                              className="h-8 w-8 p-0 text-slate-500 hover:text-blue-600 hover:bg-blue-50"
+                              className="h-8 w-8 p-0 text-slate-500 hover:text-blue-600 hover:bg-blue-50 interactive-button"
                             >
                               <Building2 className="h-4 w-4" />
                             </Button>
@@ -202,7 +222,7 @@ export default function Clientes() {
                               variant="ghost"
                               size="sm"
                               onClick={() => handleEditarCliente(cliente)}
-                              className="h-8 w-8 p-0 text-slate-500 hover:text-amber-600 hover:bg-amber-50"
+                              className="h-8 w-8 p-0 text-slate-500 hover:text-amber-600 hover:bg-amber-50 interactive-button"
                             >
                               <Edit2 className="h-4 w-4" />
                             </Button>
@@ -211,12 +231,12 @@ export default function Clientes() {
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  className="h-8 w-8 p-0 text-slate-500 hover:text-red-600 hover:bg-red-50"
+                                  className="h-8 w-8 p-0 text-slate-500 hover:text-red-600 hover:bg-red-50 interactive-button"
                                 >
                                   <Trash2 className="h-4 w-4" />
                                 </Button>
                               </AlertDialogTrigger>
-                              <AlertDialogContent className="rounded-xl border-slate-200">
+                              <AlertDialogContent className="rounded-xl border-slate-200 animate-scale-in">
                                 <AlertDialogHeader>
                                   <AlertDialogTitle className="text-slate-900">Confirmar exclusão</AlertDialogTitle>
                                   <AlertDialogDescription className="text-slate-600">
@@ -225,10 +245,10 @@ export default function Clientes() {
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
-                                  <AlertDialogCancel className="border-slate-200 hover:bg-slate-50">Cancelar</AlertDialogCancel>
+                                  <AlertDialogCancel className="border-slate-200 hover:bg-slate-50 interactive-button">Cancelar</AlertDialogCancel>
                                   <AlertDialogAction
                                     onClick={() => handleDeleteCliente(cliente)}
-                                    className="bg-red-500 text-white hover:bg-red-600"
+                                    className="bg-red-500 text-white hover:bg-red-600 interactive-button"
                                   >
                                     Excluir
                                   </AlertDialogAction>
@@ -241,7 +261,7 @@ export default function Clientes() {
                       {isExpanded && (
                         <TableRow key={`${cliente.id}-expanded`}>
                           <TableCell colSpan={7} className="p-0">
-                            <div className="p-6 bg-slate-50/50 border-t border-slate-100">
+                            <div className="p-6 bg-slate-50/50 border-t border-slate-100 animate-slide-up">
                               <ContratosCliente cliente={cliente} />
                             </div>
                           </TableCell>

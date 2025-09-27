@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { AnimatedCounter } from "@/components/ui/animated-counter";
 
 interface StatsCardProps {
   title: string;
@@ -12,6 +13,7 @@ interface StatsCardProps {
     isPositive: boolean;
   };
   className?: string;
+  delay?: number;
 }
 
 export function StatsCard({ 
@@ -20,30 +22,41 @@ export function StatsCard({
   description, 
   icon: Icon, 
   trend, 
-  className 
+  className,
+  delay = 0
 }: StatsCardProps) {
+  const numericValue = typeof value === 'number' ? value : parseFloat(value.toString().replace(/[^\d.-]/g, ''));
+  const isNumeric = !isNaN(numericValue);
+
   return (
-    <Card className={cn("hover:shadow-md transition-shadow", className)}>
+    <Card className={cn("interactive-card animate-fade-in", className)} style={{ animationDelay: `${delay}ms` }}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">
+        <CardTitle className="text-sm font-medium text-muted-foreground animate-fade-in animate-stagger-1">
           {title}
         </CardTitle>
-        <Icon className="h-4 w-4 text-muted-foreground" />
+        <Icon className="h-4 w-4 text-muted-foreground animate-scale-in animate-stagger-2" />
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold text-foreground">
-          {typeof value === 'number' ? value.toLocaleString('pt-BR') : value}
+          {isNumeric ? (
+            <AnimatedCounter 
+              value={numericValue} 
+              className="text-numeric"
+            />
+          ) : (
+            <span className="animate-fade-in animate-stagger-2">{value}</span>
+          )}
         </div>
         {description && (
-          <p className="text-xs text-muted-foreground mt-1">
+          <p className="text-xs text-muted-foreground mt-1 animate-fade-in animate-stagger-3">
             {description}
           </p>
         )}
         {trend && (
-          <div className="flex items-center mt-2">
+          <div className="flex items-center mt-2 animate-slide-up animate-stagger-4">
             <span className={cn(
-              "text-xs font-medium",
-              trend.isPositive ? "text-green-600" : "text-red-600"
+              "text-xs font-medium transition-colors duration-200",
+              trend.isPositive ? "text-success" : "text-destructive"
             )}>
               {trend.isPositive ? "+" : ""}{trend.value}%
             </span>

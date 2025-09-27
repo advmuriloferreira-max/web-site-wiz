@@ -15,6 +15,9 @@ import { PerformanceCard } from "@/components/dashboard/PerformanceCard";
 import { DashboardLoading } from "@/components/ui/loading-states";
 import { ListAnimation } from "@/components/ui/page-transition";
 import { useProgressBar } from "@/components/ui/progress-bar";
+import { EntranceAnimation, LoadingAnimation } from "@/components/ui/global-animations";
+import { AnimatedList } from "@/components/ui/animated-list";
+import { AnimatedCounter } from "@/components/ui/animated-counter";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -56,44 +59,49 @@ function DashboardContent() {
   if (isLoading) {
     return (
       <div className="p-3 sm:p-4 lg:p-6 space-y-4 sm:space-y-6">
-        <ResponsiveGrid 
-          cols={{ default: 1, sm: 2, lg: 4 }} 
-          gap={4}
-        >
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Card key={i}>
-              <CardHeader className="pb-2">
-                <Skeleton className="h-4 w-20" />
+        <EntranceAnimation animation="fade" className="space-y-6">
+          <LoadingAnimation variant="card" lines={4} className="animate-fade-in" />
+          
+          <ResponsiveGrid 
+            cols={{ default: 1, sm: 2, lg: 4 }} 
+            gap={4}
+          >
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Card key={i} className="animate-fade-in animate-pulse" style={{ animationDelay: `${i * 100}ms` }}>
+                <CardHeader className="pb-2">
+                  <div className="h-4 w-20 bg-muted rounded animate-shimmer" />
+                </CardHeader>
+                <CardContent>
+                  <div className="h-6 sm:h-8 w-16 sm:w-24 mb-2 bg-muted rounded animate-shimmer" />
+                  <div className="h-3 w-24 sm:w-32 bg-muted rounded animate-shimmer" />
+                </CardContent>
+              </Card>
+            ))}
+          </ResponsiveGrid>
+          
+          <ResponsiveGrid 
+            cols={{ default: 1, md: 2 }} 
+            gap={4} 
+            className="sm:gap-6"
+          >
+            <Card className="animate-fade-in animate-stagger-1">
+              <CardHeader>
+                <div className="h-4 sm:h-6 w-32 sm:w-48 bg-muted rounded animate-shimmer" />
               </CardHeader>
               <CardContent>
-                <Skeleton className="h-6 sm:h-8 w-16 sm:w-24 mb-2" />
-                <Skeleton className="h-3 w-24 sm:w-32" />
+                <div className="h-60 sm:h-80 w-full bg-muted rounded animate-shimmer" />
               </CardContent>
             </Card>
-          ))}
-        </ResponsiveGrid>
-        <ResponsiveGrid 
-          cols={{ default: 1, md: 2 }} 
-          gap={4} 
-          className="sm:gap-6"
-        >
-          <Card>
-            <CardHeader>
-              <Skeleton className="h-4 sm:h-6 w-32 sm:w-48" />
-            </CardHeader>
-            <CardContent>
-              <Skeleton className="h-60 sm:h-80 w-full" />
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <Skeleton className="h-4 sm:h-6 w-28 sm:w-40" />
-            </CardHeader>
-            <CardContent>
-              <Skeleton className="h-60 sm:h-80 w-full" />
-            </CardContent>
-          </Card>
-        </ResponsiveGrid>
+            <Card className="animate-fade-in animate-stagger-2">
+              <CardHeader>
+                <div className="h-4 sm:h-6 w-28 sm:w-40 bg-muted rounded animate-shimmer" />
+              </CardHeader>
+              <CardContent>
+                <div className="h-60 sm:h-80 w-full bg-muted rounded animate-shimmer" />
+              </CardContent>
+            </Card>
+          </ResponsiveGrid>
+        </EntranceAnimation>
       </div>
     );
   }
@@ -103,53 +111,58 @@ function DashboardContent() {
       <ProgressBarComponent />
 
       {/* Hero Section */}
-      <HeroSection />
+      <EntranceAnimation animation="fade" delay={100}>
+        <HeroSection />
+      </EntranceAnimation>
 
       {/* Premium Statistics Cards */}
-      <ResponsiveGrid 
-        cols={{ default: 1, sm: 2, lg: 4 }} 
-        gap={4} 
-        className="lg:gap-6" 
-        data-tour="dashboard-stats"
-      >
-        <PremiumStatsCard
-          title="Total de Contratos"
-          value={stats?.totalContratos || 0}
-          description="Contratos ativos"
-          icon={FileText}
-          color="blue"
-        />
-        <PremiumStatsCard
-          title="Valor Total da Dívida"
-          value={`R$ ${((stats?.valorTotalDividas || 0) / 1000).toFixed(0)}K`}
-          description="Portfolio total"
-          icon={DollarSign}
-          color="emerald"
-        />
-        <PremiumStatsCard
-          title="Provisão Total"
-          value={`R$ ${((stats?.valorTotalProvisao || 0) / 1000).toFixed(0)}K`}
-          description="Valor provisionado"
-          icon={Calculator}
-          color="amber"
-        />
-        <PremiumStatsCard
-          title="% Provisão Média"
-          value={`${(stats?.percentualProvisao ?? 0).toFixed(1)}%`}
-          description="Risco do portfolio"
-          icon={TrendingUp}
-          color={(stats?.percentualProvisao ?? 0) > 50 ? "red" : "blue"}
-        />
-      </ResponsiveGrid>
+      <EntranceAnimation animation="slide" delay={200}>
+        <ResponsiveGrid 
+          cols={{ default: 1, sm: 2, lg: 4 }} 
+          gap={4} 
+          className="lg:gap-6" 
+          data-tour="dashboard-stats"
+        >
+          <PremiumStatsCard
+            title="Total de Contratos"
+            value={stats?.totalContratos || 0}
+            icon={FileText}
+            trend={{ value: 12, isPositive: true }}
+            delay={0}
+          />
+          <PremiumStatsCard
+            title="Valor Total"
+            value={`R$ ${(stats?.valorTotal || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
+            icon={DollarSign}
+            trend={{ value: 8, isPositive: true }}
+            delay={100}
+          />
+          <PremiumStatsCard
+            title="Provisão Total"
+            value={`R$ ${(stats?.provisaoTotal || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
+            icon={AlertTriangle}
+            trend={{ value: -5, isPositive: false }}
+            delay={200}
+          />
+          <PremiumStatsCard
+            title="Taxa Média"
+            value={`${((stats?.provisaoTotal || 0) / (stats?.valorTotal || 1) * 100).toFixed(1)}%`}
+            icon={TrendingUp}
+            trend={{ value: 3, isPositive: true }}
+            delay={300}
+          />
+        </ResponsiveGrid>
+      </EntranceAnimation>
 
       {/* Dashboard Tabs */}
-      <Tabs defaultValue="visao-geral" className="space-y-4 lg:space-y-6">
-        {/* Mobile: Scrollable tabs, Desktop: Grid */}
-        <div className="overflow-x-auto">
-          <TabsList className="grid w-full grid-cols-4 min-w-max md:min-w-0">
-            <TabsTrigger value="visao-geral" className="flex items-center space-x-1 md:space-x-2 px-2 md:px-4">
-              <BarChart3 className="h-4 w-4 flex-shrink-0" />
-              <span className="text-xs md:text-sm">Visão Geral</span>
+      <EntranceAnimation animation="scale" delay={300}>
+        <Tabs defaultValue="visao-geral" className="space-y-4 lg:space-y-6 animate-fade-in">
+          {/* Mobile: Scrollable tabs, Desktop: Grid */}
+          <div className="overflow-x-auto">
+            <TabsList className="grid w-full grid-cols-4 min-w-max md:min-w-0 interactive-button">
+              <TabsTrigger value="visao-geral" className="flex items-center space-x-1 md:space-x-2 px-2 md:px-4 transition-all duration-200">
+                <BarChart3 className="h-4 w-4 flex-shrink-0" />
+                <span className="text-xs md:text-sm">Visão Geral</span>
             </TabsTrigger>
             <TabsTrigger value="acordos" className="flex items-center space-x-1 md:space-x-2 px-2 md:px-4">
               <Target className="h-4 w-4 flex-shrink-0" />
