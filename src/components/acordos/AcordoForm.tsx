@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { useUpdateContrato } from "@/hooks/useProvisao";
 import { Contrato } from "@/hooks/useContratos";
 import { Calculator, TrendingDown, TrendingUp } from "lucide-react";
+import { PropostasTimeline } from "./PropostasTimeline";
 
 const acordoSchema = z.object({
   proposta_acordo: z.string().min(1, "Valor da proposta é obrigatório"),
@@ -242,6 +243,9 @@ export function AcordoForm({ contrato, onSuccess }: AcordoFormProps) {
           </CardContent>
         </Card>
       )}
+
+      {/* Timeline de Propostas */}
+      <PropostasTimeline contratoId={contrato.id} />
     </div>
   );
 }

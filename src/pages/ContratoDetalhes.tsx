@@ -18,7 +18,7 @@ import {
 } from "@/lib/calculoProvisao";
 import { format } from "date-fns";
 import { useState, useEffect } from "react";
-import { PropostasTimeline } from "@/components/acordos/PropostasTimeline";
+
 
 const getClassificacaoColor = (classificacao: string | null) => {
   switch (classificacao) {
@@ -429,9 +429,6 @@ export default function ContratoDetalhes() {
           </CardContent>
         </Card>
       )}
-
-      {/* Histórico de Propostas de Acordo */}
-      <PropostasTimeline contratoId={contrato.id} />
 
       {/* Cálculo Avançado de Provisão com Garantias */}
       {resultadoProvisao && (resultadoProvisao.garantias?.length > 0 || resultadoProvisao.lgdBase) && (
