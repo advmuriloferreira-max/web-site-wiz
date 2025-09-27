@@ -626,6 +626,13 @@ export function ContratoForm({ onSuccess, contratoParaEditar, clienteIdPredefini
           />
         </div>
 
+        {/* SEÇÃO: Garantias */}
+        {isEditing && contratoExistente ? (
+          <GarantiasSection contratoId={contratoExistente.id} />
+        ) : (
+          <GarantiasSection contratoId={null} />
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
@@ -1106,13 +1113,6 @@ export function ContratoForm({ onSuccess, contratoParaEditar, clienteIdPredefini
             </FormItem>
           )}
         />
-
-        {/* SEÇÃO: Garantias */}
-        {isEditing && contratoExistente ? (
-          <GarantiasSection contratoId={contratoExistente.id} />
-        ) : (
-          <GarantiasSection contratoId={null} />
-        )}
 
         <div className="flex gap-2">
           <Button 
