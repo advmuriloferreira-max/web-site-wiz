@@ -127,18 +127,18 @@ export default function Acordos() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Cliente</TableHead>
+                  <TableHead>Ação</TableHead>
                   <TableHead>Banco</TableHead>
                   <TableHead>Valor Original</TableHead>
                   <TableHead>Proposta</TableHead>
                   <TableHead>Acordo Final</TableHead>
                   <TableHead>Desconto</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredContratos?.length === 0 ? (
-                  <TableRow>
+                <TableRow>
                     <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                       Nenhum contrato encontrado
                     </TableCell>
@@ -148,6 +148,35 @@ export default function Acordos() {
                     <TableRow key={contrato.id}>
                       <TableCell className="font-medium">
                         {contrato.clientes?.nome}
+                      </TableCell>
+                      <TableCell>
+                        <Dialog open={isDialogOpen && selectedContrato?.id === contrato.id} onOpenChange={(open) => {
+                          setIsDialogOpen(open);
+                          if (!open) setSelectedContrato(null);
+                        }}>
+                          <DialogTrigger asChild>
+                            <Button
+                              className="bg-green-600 hover:bg-green-700 text-white"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedContrato(contrato);
+                                setIsDialogOpen(true);
+                              }}
+                            >
+                              {contrato.acordo_final ? "Ver Acordo" : "Negociar"}
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                            <DialogHeader>
+                              <DialogTitle>
+                                {contrato.acordo_final ? "Acordo Finalizado" : "Negociar Acordo"}
+                              </DialogTitle>
+                            </DialogHeader>
+                            {selectedContrato && (
+                              <AcordoForm contrato={selectedContrato} onSuccess={handleSuccess} />
+                            )}
+                          </DialogContent>
+                        </Dialog>
                       </TableCell>
                       <TableCell>{contrato.bancos?.nome}</TableCell>
                       <TableCell className="font-medium">
@@ -196,35 +225,6 @@ export default function Acordos() {
                         ) : (
                           <Badge variant="outline">Sem proposta</Badge>
                         )}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Dialog open={isDialogOpen && selectedContrato?.id === contrato.id} onOpenChange={(open) => {
-                          setIsDialogOpen(open);
-                          if (!open) setSelectedContrato(null);
-                        }}>
-                          <DialogTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => {
-                                setSelectedContrato(contrato);
-                                setIsDialogOpen(true);
-                              }}
-                            >
-                              {contrato.acordo_final ? "Ver Acordo" : "Negociar"}
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                            <DialogHeader>
-                              <DialogTitle>
-                                {contrato.acordo_final ? "Acordo Finalizado" : "Negociar Acordo"}
-                              </DialogTitle>
-                            </DialogHeader>
-                            {selectedContrato && (
-                              <AcordoForm contrato={selectedContrato} onSuccess={handleSuccess} />
-                            )}
-                          </DialogContent>
-                        </Dialog>
                       </TableCell>
                     </TableRow>
                   ))
