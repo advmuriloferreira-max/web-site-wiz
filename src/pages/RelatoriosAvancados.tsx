@@ -146,25 +146,42 @@ export default function RelatoriosAvancados() {
       
       console.log('Analisando contrato:', contrato);
       
-      // Calcular evolução desde o início do atraso (data de vencimento) até atingir 100%
-      const dataVencimento = contrato.data_vencimento ? new Date(contrato.data_vencimento) : null;
-      if (!dataVencimento) {
-        toast.error("Data de vencimento não encontrada para calcular evolução");
+      // Calcular data de início do atraso baseado nos dados do contrato
+      let dataInicioAtraso: Date;
+      const diasAtrasoAtual = contrato.dias_atraso || 0;
+      
+      if (contrato.data_ultimo_pagamento) {
+        // Se tem data do último pagamento, o atraso começou no dia seguinte
+        dataInicioAtraso = addDays(new Date(contrato.data_ultimo_pagamento), 1);
+      } else if (contrato.data_vencimento) {
+        // Se não tem último pagamento, mas tem vencimento, usar vencimento + 1 dia
+        dataInicioAtraso = addDays(new Date(contrato.data_vencimento), 1);
+      } else if (diasAtrasoAtual > 0) {
+        // Se não tem nem último pagamento nem vencimento, calcular baseado nos dias de atraso
+        dataInicioAtraso = subDays(new Date(), diasAtrasoAtual);
+      } else {
+        toast.error("Não foi possível determinar o início do atraso para este contrato");
         return;
       }
       
       const hoje = new Date();
-      const diasAtrasoAtual = Math.max(0, differenceInDays(hoje, dataVencimento));
+      
+      console.log('Contrato:', contrato.numero_contrato);
+      console.log('Dias atraso atual:', diasAtrasoAtual);
+      console.log('Data início atraso calculada:', dataInicioAtraso);
+      console.log('Data último pagamento:', contrato.data_ultimo_pagamento);
+      console.log('Data vencimento:', contrato.data_vencimento);
       
       let mes100Porcento = null;
       const evolutionData: any[] = [];
       
-      console.log('Data vencimento:', dataVencimento);
-      console.log('Dias atraso atual:', diasAtrasoAtual);
+      console.log('Data início atraso calculada:', dataInicioAtraso);
+      console.log('Data último pagamento:', contrato.data_ultimo_pagamento);
+      console.log('Data vencimento:', contrato.data_vencimento);
       
-      // Começar da data de vencimento e simular quinzenalmente até atingir 100%
-      for (let diasAtraso = 0; diasAtraso <= Math.max(diasAtrasoAtual + 365, 1095); diasAtraso += 15) {
-        const dataAtual = addDays(dataVencimento, diasAtraso);
+      // Começar do dia 0 de atraso e simular quinzenalmente até atingir 100%
+      for (let diasAtraso = 0; diasAtraso <= Math.max(diasAtrasoAtual + 730, 1095); diasAtraso += 15) {
+        const dataAtual = addDays(dataInicioAtraso, diasAtraso);
         const mesRelativo = Math.floor(diasAtraso / 30) + 1;
         
         // Determinar estágio
