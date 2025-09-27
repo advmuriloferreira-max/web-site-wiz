@@ -158,15 +158,28 @@ export default function RelatoriosAvancados() {
           tabelaIncorrida: []
         });
         
+        // Verificar se é mês de fechamento trimestral/anual
+        const isClosingMonth = [3, 6, 9, 12].includes(currentDate.getMonth() + 1);
+        const percentualProvisaoNum = provisao.percentualProvisao * 100; // Corrigir para mostrar 100% ao invés de 0%
+        
+        // Calcular probabilidade de acordo baseada na provisão (>= 50% é favorável)
+        const probabilidadeAcordo = Math.min(100, Math.max(0, 
+          (percentualProvisaoNum - 30) * 2 + // Base: 30% provisão = 40% prob
+          (isClosingMonth ? 20 : 0) + // Bônus trimestral
+          (diasAtraso > 180 ? 15 : 0) // Bônus atraso alto
+        ));
+        
         evolutionData.push({
           mes: month,
           data: format(currentDate, 'MMM/yy'),
           diasAtraso,
           estagio,
-          percentualProvisao: (provisao.percentualProvisao).toFixed(1),
+          percentualProvisao: percentualProvisaoNum.toFixed(1),
           valorProvisao: provisao.valorProvisao,
           risco: estagio === 1 ? 'Baixo' : estagio === 2 ? 'Médio' : 'Alto',
-          melhorMomentoAcordo: diasAtraso >= 60 && diasAtraso <= 120
+          melhorMomentoAcordo: percentualProvisaoNum >= 50,
+          probabilidadeAcordo: probabilidadeAcordo.toFixed(1),
+          isClosingMonth
         });
       }
       
@@ -183,15 +196,28 @@ export default function RelatoriosAvancados() {
           tabelaIncorrida: []
         });
         
+        // Verificar se é mês de fechamento trimestral/anual (previsão)
+        const isClosingMonth = [3, 6, 9, 12].includes(currentDate.getMonth() + 1);
+        const percentualProvisaoNum = provisao.percentualProvisao * 100; // Corrigir para mostrar 100% ao invés de 0%
+        
+        // Calcular probabilidade de acordo baseada na provisão (>= 50% é favorável)
+        const probabilidadeAcordo = Math.min(100, Math.max(0, 
+          (percentualProvisaoNum - 30) * 2 + // Base: 30% provisão = 40% prob
+          (isClosingMonth ? 20 : 0) + // Bônus trimestral
+          (diasAtrasoPrevisto > 180 ? 15 : 0) // Bônus atraso alto
+        ));
+        
         evolutionData.push({
           mes: month,
           data: format(currentDate, 'MMM/yy'),
           diasAtraso: diasAtrasoPrevisto,
           estagio,
-          percentualProvisao: (provisao.percentualProvisao).toFixed(1),
+          percentualProvisao: percentualProvisaoNum.toFixed(1),
           valorProvisao: provisao.valorProvisao,
           risco: estagio === 1 ? 'Baixo' : estagio === 2 ? 'Médio' : 'Alto',
-          melhorMomentoAcordo: diasAtrasoPrevisto >= 60 && diasAtrasoPrevisto <= 120,
+          melhorMomentoAcordo: percentualProvisaoNum >= 50,
+          probabilidadeAcordo: probabilidadeAcordo.toFixed(1),
+          isClosingMonth,
           previsao: month > monthsActive
         });
       }
@@ -423,8 +449,10 @@ export default function RelatoriosAvancados() {
                               <p className="text-sm">Estágio: {data.estagio}</p>
                               <p className="text-sm">Provisão: {data.percentualProvisao}%</p>
                               <p className="text-sm">Risco: {data.risco}</p>
+                              <p className="text-sm">Prob. Acordo: {data.probabilidadeAcordo}%</p>
                               {data.previsao && <Badge variant="outline">Previsão</Badge>}
-                              {data.melhorMomentoAcordo && <Badge className="bg-green-100 text-green-800">Momento Ideal para Acordo</Badge>}
+                              {data.melhorMomentoAcordo && <Badge className="bg-green-100 text-green-800">Favorável para Acordo</Badge>}
+                              {data.isClosingMonth && <Badge className="bg-blue-100 text-blue-800">Fechamento Trimestral</Badge>}
                             </div>
                           );
                         }
@@ -497,9 +525,10 @@ export default function RelatoriosAvancados() {
                 <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
                   <li>• <strong>Evolução histórica:</strong> Baseada nos dados reais do contrato</li>
                   <li>• <strong>Previsões futuras:</strong> Calculadas com base nos parâmetros de risco atuais</li>
-                  <li>• <strong>Momentos ideais:</strong> Períodos entre 60-120 dias de atraso são ótimos para acordos</li>
+                  <li>• <strong>Momentos ideais:</strong> A partir de 50% de provisão é favorável para acordos</li>
+                  <li>• <strong>Fechamentos trimestrais:</strong> Março, junho, setembro e dezembro são melhores para negociação</li>
+                  <li>• <strong>Correlação direta:</strong> Quanto maior a provisão e atraso, maior a probabilidade de acordo</li>
                   <li>• <strong>Provisão máxima:</strong> Indica quando o contrato atinge o maior nível de provisão</li>
-                  <li>• <strong>Áreas verdes:</strong> Representam os melhores momentos para negociação</li>
                 </ul>
               </div>
             </div>
