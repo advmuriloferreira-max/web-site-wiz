@@ -12,8 +12,7 @@ import { InstallPrompt } from "@/components/InstallPrompt";
 import { AppSidebar } from "@/components/AppSidebar";
 import { PageTransition } from "@/components/ui/page-transition";
 import { SimpleSearch } from "@/components/ui/simple-search";
-import { Button } from "@/components/ui/button";
-import { Search } from "lucide-react";
+import { PremiumHeader } from "@/components/ui/premium-header";
 import AssistenteVirtual from "@/components/assistente/AssistenteVirtual";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -52,29 +51,7 @@ const App = () => {
                   <div className="min-h-screen flex w-full bg-background">
                     <AppSidebar />
                     <div className="flex-1 flex flex-col">
-                      <header className="h-12 flex items-center justify-between border-b border-border bg-background px-4">
-                        <div className="flex items-center">
-                          <SidebarTrigger className="mr-4" />
-                          <h1 className="text-sm font-medium text-foreground">
-                            INTELLBANK - Sistema de Monitoramento Inteligente de Dívidas Bancárias
-                          </h1>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              console.log('Search button clicked, opening dialog');
-                              setIsSearchOpen(true);
-                            }}
-                            className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
-                          >
-                            <Search className="h-4 w-4" />
-                            <span className="hidden sm:inline text-xs">Buscar</span>
-                          </Button>
-                          <UserMenu />
-                        </div>
-                      </header>
+                      <PremiumHeader onSearchClick={() => setIsSearchOpen(true)} />
                         <main className="flex-1 overflow-auto">
                           <PageTransition>
                             <Routes>

@@ -139,21 +139,21 @@ export const SimpleSearch: React.FC<SimpleSearchProps> = ({ open, onOpenChange }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden p-0">
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden p-0 bg-slate-900/95 backdrop-blur-xl border-slate-700/50 shadow-2xl">
         <DialogTitle className="sr-only">Busca Global</DialogTitle>
         <DialogDescription className="sr-only">
           Busque por contratos, clientes e bancos no sistema
         </DialogDescription>
         
         {/* Campo de busca */}
-        <div className="p-4 border-b">
-          <div className="flex items-center gap-2">
-            <Search className="h-4 w-4 text-muted-foreground" />
+        <div className="p-4 border-b border-slate-700/50 bg-gradient-to-r from-slate-800/50 to-slate-900/50">
+          <div className="flex items-center gap-3">
+            <Search className="h-5 w-5 text-blue-400 animate-pulse" />
             <Input
               placeholder="Busque por contratos, clientes, bancos..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="border-0 focus-visible:ring-0 text-base"
+              className="border-0 focus-visible:ring-2 focus-visible:ring-blue-500/50 text-base bg-transparent text-white placeholder:text-slate-400"
               autoFocus
             />
             {query && (
@@ -161,6 +161,7 @@ export const SimpleSearch: React.FC<SimpleSearchProps> = ({ open, onOpenChange }
                 variant="ghost"
                 size="sm"
                 onClick={() => setQuery('')}
+                className="text-slate-400 hover:text-white hover:bg-slate-700/50"
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -169,12 +170,16 @@ export const SimpleSearch: React.FC<SimpleSearchProps> = ({ open, onOpenChange }
         </div>
 
         {/* Filtros por tipo */}
-        <div className="flex gap-1 p-2 border-b bg-muted/30">
+        <div className="flex gap-2 p-3 border-b border-slate-700/50 bg-slate-800/30">
           <Button
             variant={selectedType === 'all' ? 'secondary' : 'ghost'}
             size="sm"
             onClick={() => setSelectedType('all')}
-            className="h-6 text-xs"
+            className={`h-7 text-xs transition-all duration-200 ${
+              selectedType === 'all' 
+                ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
+            }`}
           >
             Todos
           </Button>
@@ -182,7 +187,11 @@ export const SimpleSearch: React.FC<SimpleSearchProps> = ({ open, onOpenChange }
             variant={selectedType === 'contrato' ? 'secondary' : 'ghost'}
             size="sm"
             onClick={() => setSelectedType('contrato')}
-            className="h-6 text-xs"
+            className={`h-7 text-xs transition-all duration-200 ${
+              selectedType === 'contrato' 
+                ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
+            }`}
           >
             <FileText className="mr-1 h-3 w-3" />
             Contratos
@@ -191,7 +200,11 @@ export const SimpleSearch: React.FC<SimpleSearchProps> = ({ open, onOpenChange }
             variant={selectedType === 'cliente' ? 'secondary' : 'ghost'}
             size="sm"
             onClick={() => setSelectedType('cliente')}
-            className="h-6 text-xs"
+            className={`h-7 text-xs transition-all duration-200 ${
+              selectedType === 'cliente' 
+                ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
+            }`}
           >
             <Users className="mr-1 h-3 w-3" />
             Clientes
@@ -200,23 +213,27 @@ export const SimpleSearch: React.FC<SimpleSearchProps> = ({ open, onOpenChange }
             variant={selectedType === 'banco' ? 'secondary' : 'ghost'}
             size="sm"
             onClick={() => setSelectedType('banco')}
-            className="h-6 text-xs"
+            className={`h-7 text-xs transition-all duration-200 ${
+              selectedType === 'banco' 
+                ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
+            }`}
           >
             <Building2 className="mr-1 h-3 w-3" />
             Bancos
           </Button>
         </div>
 
-        <div className="overflow-y-auto max-h-[500px]">
+        <div className="overflow-y-auto max-h-[500px] bg-slate-900/50">
           {!hasQuery && recentSearches.length > 0 && (
-            <div className="p-4 border-b">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium">Buscas Recentes</span>
+            <div className="p-4 border-b border-slate-700/30">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-sm font-medium text-white">Buscas Recentes</span>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setRecentSearches([])}
-                  className="h-6 text-xs"
+                  className="h-6 text-xs text-slate-400 hover:text-white hover:bg-slate-700/50"
                 >
                   Limpar
                 </Button>
@@ -226,9 +243,9 @@ export const SimpleSearch: React.FC<SimpleSearchProps> = ({ open, onOpenChange }
                   <button
                     key={index}
                     onClick={() => handleRecentSearch(search)}
-                    className="flex items-center gap-2 w-full p-2 text-left hover:bg-muted/50 rounded text-sm"
+                    className="flex items-center gap-2 w-full p-2 text-left hover:bg-slate-700/30 rounded-lg text-sm text-slate-300 hover:text-white transition-all duration-200"
                   >
-                    <Clock className="h-3 w-3 text-muted-foreground" />
+                    <Clock className="h-3 w-3 text-slate-500" />
                     {search}
                   </button>
                 ))}
@@ -238,7 +255,7 @@ export const SimpleSearch: React.FC<SimpleSearchProps> = ({ open, onOpenChange }
 
           {hasQuery && (
             <div className="p-4">
-              <div className="text-sm text-muted-foreground mb-3">
+              <div className="text-sm text-slate-400 mb-3">
                 {filteredResults.length} resultado(s) encontrado(s)
               </div>
               
@@ -249,22 +266,22 @@ export const SimpleSearch: React.FC<SimpleSearchProps> = ({ open, onOpenChange }
                     <button
                       key={index}
                       onClick={() => handleSelect(result)}
-                      className="w-full p-3 text-left hover:bg-muted/50 rounded-lg border transition-colors"
+                      className="w-full p-3 text-left hover:bg-slate-700/30 rounded-lg border border-slate-700/30 transition-all duration-200 hover:border-slate-600/50 hover:scale-[1.02] bg-slate-800/20"
                     >
                       <div className="flex items-center gap-3">
-                        <Icon className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                        <Icon className="h-4 w-4 text-blue-400 flex-shrink-0" />
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="font-medium truncate">{result.title}</span>
+                            <span className="font-medium truncate text-white">{result.title}</span>
                             <Badge 
                               variant="outline" 
-                              className={`text-xs ${typeColors[result.type as keyof typeof typeColors]} flex-shrink-0`}
+                              className={`text-xs border-blue-500/30 bg-blue-500/10 text-blue-300 flex-shrink-0`}
                             >
                               {result.type === 'contrato' ? 'Contrato' : 
                                result.type === 'cliente' ? 'Cliente' : 'Banco'}
                             </Badge>
                           </div>
-                          <p className="text-sm text-muted-foreground truncate">
+                          <p className="text-sm text-slate-400 truncate">
                             {result.subtitle}
                           </p>
                         </div>
@@ -274,9 +291,9 @@ export const SimpleSearch: React.FC<SimpleSearchProps> = ({ open, onOpenChange }
                 })}
                 
                 {filteredResults.length === 0 && (
-                  <div className="text-center py-8 text-muted-foreground">
+                  <div className="text-center py-8 text-slate-400">
                     <Search className="mx-auto h-8 w-8 mb-2 opacity-50" />
-                    <p>Nenhum resultado encontrado</p>
+                    <p className="text-white">Nenhum resultado encontrado</p>
                     <p className="text-xs mt-1">Tente usar termos diferentes</p>
                   </div>
                 )}
@@ -285,9 +302,9 @@ export const SimpleSearch: React.FC<SimpleSearchProps> = ({ open, onOpenChange }
           )}
 
           {!hasQuery && recentSearches.length === 0 && (
-            <div className="p-8 text-center text-muted-foreground">
-              <Search className="mx-auto h-12 w-12 mb-4 opacity-30" />
-              <p className="text-lg font-medium mb-2">Busca Global</p>
+            <div className="p-8 text-center text-slate-400">
+              <Search className="mx-auto h-12 w-12 mb-4 opacity-30 text-blue-400" />
+              <p className="text-lg font-medium mb-2 text-white">Busca Global</p>
               <p className="text-sm">
                 Digite para buscar contratos, clientes ou bancos
               </p>
@@ -296,16 +313,16 @@ export const SimpleSearch: React.FC<SimpleSearchProps> = ({ open, onOpenChange }
         </div>
 
         {/* Footer com atalhos */}
-        <div className="border-t bg-muted/30 px-3 py-2">
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
+        <div className="border-t border-slate-700/50 bg-slate-800/30 px-3 py-2">
+          <div className="flex items-center justify-between text-xs text-slate-400">
             <span className="flex items-center gap-1">
-              <kbd className="pointer-events-none h-4 select-none items-center gap-1 rounded border bg-muted px-1 font-mono text-xs font-medium opacity-100 flex">
+              <kbd className="pointer-events-none h-4 select-none items-center gap-1 rounded border border-slate-600 bg-slate-700 px-1 font-mono text-xs font-medium opacity-100 flex text-slate-300">
                 ↵
               </kbd>
               para selecionar
             </span>
             <span className="flex items-center gap-1">
-              <kbd className="pointer-events-none h-4 select-none items-center gap-1 rounded border bg-muted px-1 font-mono text-xs font-medium opacity-100 flex">
+              <kbd className="pointer-events-none h-4 select-none items-center gap-1 rounded border border-slate-600 bg-slate-700 px-1 font-mono text-xs font-medium opacity-100 flex text-slate-300">
                 Esc
               </kbd>
               para fechar
