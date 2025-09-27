@@ -197,9 +197,15 @@ export function ContratoWizard({
     const formData = form.getValues();
     
     try {
+      // Para a etapa 4, sempre permitir passar mesmo com campos vazios
+      if (currentStep === 4) {
+        return true;
+      }
+      
       await currentStepSchema.parseAsync(formData);
       return true;
     } catch (error) {
+      console.log("Validation error for step", currentStep, error);
       return false;
     }
   };

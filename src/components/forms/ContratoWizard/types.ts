@@ -37,7 +37,7 @@ export const etapa4Schema = z.object({
   observacoes: z.string().optional(),
   is_reestruturado: z.boolean().optional(),
   data_reestruturacao: z.date().optional(),
-});
+}).partial(); // Tornar todos os campos completamente opcionais
 
 export const etapa5Schema = z.object({
   acordo_final: z.string().optional(),
