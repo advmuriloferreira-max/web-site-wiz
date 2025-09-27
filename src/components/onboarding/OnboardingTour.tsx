@@ -21,23 +21,21 @@ export function OnboardingTour({ startTour = false, onTourEnd }: OnboardingTourP
     const hasCompletedOnboarding = localStorage.getItem(ONBOARDING_KEY);
     console.log("Has completed onboarding:", hasCompletedOnboarding);
     
-    if (!hasCompletedOnboarding && !startTour) {
-      // Aguardar um momento para a página carregar completamente
-      console.log("Starting automatic tour...");
-      setTimeout(() => {
-        // Verificar se os elementos do tour existem
-        const dashboardStats = document.querySelector('[data-tour="dashboard-stats"]');
-        console.log("Dashboard stats element found:", !!dashboardStats);
-        setRunTour(true);
-      }, 2000);
-    } else if (startTour) {
+    // Resetar para testar - remover depois
+    localStorage.removeItem(ONBOARDING_KEY);
+    
+    if (startTour) {
       console.log("Starting manual tour...");
       setTimeout(() => {
-        // Verificar se os elementos do tour existem
-        const dashboardStats = document.querySelector('[data-tour="dashboard-stats"]');
-        console.log("Dashboard stats element found:", !!dashboardStats);
+        console.log("Setting runTour to true");
         setRunTour(true);
-      }, 500);
+      }, 1000);
+    } else if (!hasCompletedOnboarding) {
+      console.log("Starting automatic tour...");
+      setTimeout(() => {
+        console.log("Setting runTour to true automatically");
+        setRunTour(true);
+      }, 3000);
     }
   }, [startTour]);
 
