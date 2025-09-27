@@ -18,6 +18,7 @@ import {
 } from "@/lib/calculoProvisao";
 import { format } from "date-fns";
 import { useState, useEffect } from "react";
+import AssistenteVirtual from "@/components/assistente/AssistenteVirtual";
 
 
 const getClassificacaoColor = (classificacao: string | null) => {
@@ -434,6 +435,9 @@ export default function ContratoDetalhes() {
       {resultadoProvisao && (resultadoProvisao.garantias?.length > 0 || resultadoProvisao.lgdBase) && (
         <GarantiaImpactDisplay resultado={resultadoProvisao} />
       )}
+
+      {/* Assistente Virtual com contexto do contrato */}
+      <AssistenteVirtual contratoContext={contrato} />
     </div>
   );
 }

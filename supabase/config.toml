@@ -2,3 +2,6 @@ project_id = "uemxacekhtyvmmcuzhef"
 
 [functions.send-invite]
 verify_jwt = false
+
+[functions.assistente-virtual]
+verify_jwt = true

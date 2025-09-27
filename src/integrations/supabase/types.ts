@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      assistente_logs: {
+        Row: {
+          contexto_contrato: string | null
+          created_at: string
+          id: string
+          pergunta: string
+          resposta: string
+          user_id: string | null
+        }
+        Insert: {
+          contexto_contrato?: string | null
+          created_at?: string
+          id?: string
+          pergunta: string
+          resposta: string
+          user_id?: string | null
+        }
+        Update: {
+          contexto_contrato?: string | null
+          created_at?: string
+          id?: string
+          pergunta?: string
+          resposta?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       bancos: {
         Row: {
           codigo_banco: string | null

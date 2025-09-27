@@ -14,6 +14,7 @@ import { PageTransition } from "@/components/ui/page-transition";
 import { SimpleSearch } from "@/components/ui/simple-search";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
+import AssistenteVirtual from "@/components/assistente/AssistenteVirtual";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Convite from "./pages/Convite";
@@ -95,9 +96,12 @@ const App = () => {
                           </PageTransition>
                         </main>
                      </div>
-                    </div>
+                     </div>
                     <SimpleSearch open={isSearchOpen} onOpenChange={setIsSearchOpen} />
                     <InstallPrompt />
+                    
+                    {/* Assistente Virtual global */}
+                    <AssistenteVirtual />
                   </SidebarProvider>
                </ProtectedRoute>
              } />
