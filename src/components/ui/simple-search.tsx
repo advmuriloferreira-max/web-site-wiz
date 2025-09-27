@@ -104,7 +104,7 @@ export const SimpleSearch: React.FC<SimpleSearchProps> = ({ open, onOpenChange }
             id: contrato.id,
             type: 'contrato',
             title: `Contrato ${contrato.numero_contrato || 'S/N'}`,
-            subtitle: `${contrato.clientes?.nome} - R$ ${contrato.valor_divida?.toLocaleString('pt-BR') || '0'}`,
+            subtitle: `${contrato.clientes?.nome} - R$ ${(contrato.saldo_contabil || contrato.valor_divida)?.toLocaleString('pt-BR') || '0'}`,
             url: `/contratos/${contrato.id}`,
             data: contrato
           });
