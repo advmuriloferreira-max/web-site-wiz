@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Plus, Edit2, Search, Building2, ChevronDown, ChevronRight, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,12 +17,13 @@ import { format } from "date-fns";
 import { toast } from "sonner";
 
 export default function Clientes() {
+  const navigate = useNavigate();
   const { data: clientes, isLoading } = useClientes();
   const { data: contratosCount } = useContratosCountByCliente();
   const deleteClienteMutation = useDeleteCliente();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCliente, setSelectedCliente] = useState<Cliente | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [expandedClientes, setExpandedClientes] = useState<Set<string>>(new Set());
 
   // Initialize PWA navigation
@@ -34,8 +36,17 @@ export default function Clientes() {
   );
 
   const handleSuccess = () => {
-    setIsDialogOpen(false);
+    setIsEditDialogOpen(false);
     setSelectedCliente(null);
+  };
+
+  const handleNovoCliente = () => {
+    navigate("/clientes/novo");
+  };
+
+  const handleEditarCliente = (cliente: Cliente) => {
+    setSelectedCliente(cliente);
+    setIsEditDialogOpen(true);
   };
 
   const toggleClienteExpanded = (clienteId: string) => {
@@ -72,18 +83,17 @@ export default function Clientes() {
           <h1 className="text-2xl font-bold text-foreground">Clientes</h1>
           <p className="text-muted-foreground">Gerencie o cadastro de clientes</p>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Novo Cliente
-            </Button>
-          </DialogTrigger>
+        <div className="flex gap-2">
+          <Button onClick={handleNovoCliente}>
+            <Plus className="mr-2 h-4 w-4" />
+            Novo Cliente
+          </Button>
+        </div>
+        
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>
-                {selectedCliente ? "Editar Cliente" : "Novo Cliente"}
-              </DialogTitle>
+              <DialogTitle>Editar Cliente</DialogTitle>
             </DialogHeader>
             <ClienteForm cliente={selectedCliente || undefined} onSuccess={handleSuccess} />
           </DialogContent>
@@ -180,10 +190,7 @@ export default function Clientes() {
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => {
-                                  setSelectedCliente(cliente);
-                                  setIsDialogOpen(true);
-                                }}
+                                onClick={() => handleEditarCliente(cliente)}
                               >
                                 <Edit2 className="h-4 w-4" />
                               </Button>
