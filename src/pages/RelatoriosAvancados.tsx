@@ -22,6 +22,7 @@ interface MigrationMatrix {
   [key: string]: MigrationData;
 }
 
+// Página de Relatórios Avançados com Matriz de Migração de Risco
 export default function RelatoriosAvancados() {
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
