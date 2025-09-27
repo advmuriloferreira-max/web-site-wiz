@@ -76,7 +76,7 @@ export function AppSidebar() {
               INTELLBANK
             </h2>
             <p className="text-sm text-muted-foreground">
-              Advocacia & Provisionamento
+              Monitoramento de Dívidas Bancárias
             </p>
           </div>
         )}
