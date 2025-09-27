@@ -27,16 +27,16 @@ interface Etapa5Props {
 
 export function Etapa5({ form }: Etapa5Props) {
   // Watchers para cálculos automáticos
-  const saldoContabil = form.watch("saldo_contabil");
+  const valorDivida = form.watch("valor_divida");
   const acordoFinal = form.watch("acordo_final");
   const reducaoDivida = form.watch("reducao_divida");
   const percentualHonorarios = form.watch("percentual_honorarios");
 
   // Calcular redução da dívida automaticamente
   useEffect(() => {
-    if (saldoContabil && acordoFinal) {
+    if (valorDivida && acordoFinal) {
       try {
-        const valorDiv = parseFloat(saldoContabil);
+        const valorDiv = parseFloat(valorDivida);
         const valorAcordo = parseFloat(acordoFinal);
         
         if (valorDiv > 0 && valorAcordo > 0) {
@@ -47,7 +47,7 @@ export function Etapa5({ form }: Etapa5Props) {
         console.error("Erro ao calcular redução da dívida:", error);
       }
     }
-  }, [saldoContabil, acordoFinal, form]);
+  }, [valorDivida, acordoFinal, form]);
 
   // Calcular honorários automaticamente
   useEffect(() => {
@@ -278,8 +278,8 @@ export function Etapa5({ form }: Etapa5Props) {
             </h4>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="text-center p-4 bg-muted rounded-lg">
-                <div className="text-sm text-muted-foreground">Dívida Contábil</div>
-                <div className="text-lg font-bold">{formatCurrency(formData.saldo_contabil)}</div>
+                <div className="text-sm text-muted-foreground">Valor da Dívida</div>
+                <div className="text-lg font-bold">{formatCurrency(formData.valor_divida)}</div>
               </div>
               <div className="text-center p-4 bg-red-50 border border-red-200 rounded-lg">
                 <div className="text-sm text-muted-foreground">Provisão Necessária</div>

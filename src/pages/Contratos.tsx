@@ -239,8 +239,8 @@ export default function Contratos() {
                     </TableHead>
                     <TableHead>
                       <SortableHeader
-                        field="valor_divida"
-                        label="Valor Dívida"
+                        field="saldo_contabil"
+                        label="Dívida Contábil"
                         sortConfigs={filters.sortConfigs}
                         onSort={filters.addSort}
                         onRemoveSort={filters.removeSort}
@@ -311,7 +311,7 @@ export default function Contratos() {
                           />
                         </TableCell>
                         <TableCell className="font-medium">
-                          {formatCurrency(contrato.valor_divida)}
+                          {formatCurrency(contrato.saldo_contabil || contrato.valor_divida)}
                         </TableCell>
                         <TableCell>
                           {contrato.classificacao ? (

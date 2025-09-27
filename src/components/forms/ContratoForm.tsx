@@ -35,8 +35,8 @@ const contratoSchema = z.object({
   banco_id: z.string().min(1, "Banco é obrigatório"),
   numero_contrato: z.string().optional(),
   tipo_operacao_bcb: z.string().min(1, "Tipo de operação BCB é obrigatório"),
-  saldo_contabil: z.string().min(1, "Dívida contábil é obrigatória"),
-  valor_divida: z.string().optional(),
+  valor_divida: z.string().min(1, "Valor da dívida é obrigatório"),
+  saldo_contabil: z.string().optional(),
   data_ultimo_pagamento: z.string().optional(),
   dias_atraso: z.string().optional(),
   meses_atraso: z.string().optional(),
@@ -128,8 +128,8 @@ export function ContratoForm({ onSuccess, contratoParaEditar, clienteIdPredefini
         numero_contrato: data.numero_contrato || null,
         tipo_operacao: null, // Campo legado, manter como null
         tipo_operacao_bcb: data.tipo_operacao_bcb,
-        valor_divida: data.saldo_contabil ? parseFloat(data.saldo_contabil) : null,
-        saldo_contabil: parseFloat(data.saldo_contabil),
+        valor_divida: parseFloat(data.valor_divida),
+        saldo_contabil: data.saldo_contabil ? parseFloat(data.saldo_contabil) : null,
         data_ultimo_pagamento: data.data_ultimo_pagamento || null,
         dias_atraso: data.dias_atraso ? parseInt(data.dias_atraso) : undefined,
         meses_atraso: data.meses_atraso ? parseFloat(data.meses_atraso) : undefined,
@@ -174,8 +174,8 @@ export function ContratoForm({ onSuccess, contratoParaEditar, clienteIdPredefini
     const valores = form.getValues();
     
     // Verificar se temos os dados essenciais
-    if (!valores.saldo_contabil || !valores.classificacao) {
-      toast.error("Para calcular a provisão, informe pelo menos a dívida contábil e a classificação");
+    if (!valores.valor_divida || !valores.classificacao) {
+      toast.error("Para calcular a provisão, informe pelo menos o valor da dívida e a classificação");
       return;
     }
 
@@ -191,9 +191,10 @@ export function ContratoForm({ onSuccess, contratoParaEditar, clienteIdPredefini
         diasAtraso = calcularDiasAtraso(valores.data_ultimo_pagamento);
       }
 
-      // Determinar valor para cálculo (usar dívida contábil)
-      const saldoContabil = parseFloat(valores.saldo_contabil);
-      const valorParaCalculo = saldoContabil;
+      // Determinar valor para cálculo (priorizar dívida contábil)
+      const valorDivida = parseFloat(valores.valor_divida);
+      const saldoContabil = valores.saldo_contabil ? parseFloat(valores.saldo_contabil) : null;
+      const valorParaCalculo = saldoContabil || valorDivida;
 
       // Calcular provisão
       const resultado = calcularProvisao({
@@ -242,8 +243,8 @@ export function ContratoForm({ onSuccess, contratoParaEditar, clienteIdPredefini
       banco_id: contratoExistente.banco_id,
       numero_contrato: contratoExistente.numero_contrato || "",
       tipo_operacao_bcb: (contratoExistente as any).tipo_operacao_bcb || "",
-      saldo_contabil: (contratoExistente.saldo_contabil || contratoExistente.valor_divida)?.toString() || "",
-      valor_divida: "",
+      valor_divida: contratoExistente.valor_divida.toString(),
+      saldo_contabil: contratoExistente.saldo_contabil?.toString() || "",
       data_ultimo_pagamento: contratoExistente.data_ultimo_pagamento || "",
       dias_atraso: contratoExistente.dias_atraso?.toString() || "0",
       meses_atraso: contratoExistente.meses_atraso?.toString() || "0",
@@ -293,6 +294,7 @@ export function ContratoForm({ onSuccess, contratoParaEditar, clienteIdPredefini
   const numeroParcelas = form.watch("numero_parcelas");
   const propostaAcordo = form.watch("proposta_acordo");
   const acordoFinal = form.watch("acordo_final");
+  const valorDivida = form.watch("valor_divida");
   const saldoContabil = form.watch("saldo_contabil");
   const reducaoDivida = form.watch("reducao_divida");
   const percentualHonorarios = form.watch("percentual_honorarios");
@@ -372,9 +374,9 @@ export function ContratoForm({ onSuccess, contratoParaEditar, clienteIdPredefini
 
   // Calcular redução da dívida automaticamente
   useEffect(() => {
-    if (saldoContabil && acordoFinal) {
+    if (valorDivida && acordoFinal) {
       try {
-        const valorDiv = parseFloat(saldoContabil);
+        const valorDiv = parseFloat(valorDivida);
         const valorAcordo = parseFloat(acordoFinal);
         
         if (valorDiv > 0 && valorAcordo > 0) {
@@ -387,7 +389,7 @@ export function ContratoForm({ onSuccess, contratoParaEditar, clienteIdPredefini
     } else {
       form.setValue("reducao_divida", "0");
     }
-  }, [saldoContabil, acordoFinal, form]);
+  }, [valorDivida, acordoFinal, form]);
 
   // Calcular honorários de êxito automaticamente
   useEffect(() => {
@@ -410,7 +412,7 @@ export function ContratoForm({ onSuccess, contratoParaEditar, clienteIdPredefini
 
   // Calcular provisão automaticamente quando campos relevantes mudarem
   useEffect(() => {
-    if (saldoContabil && classificacao && tabelaPerda && tabelaIncorrida) {
+    if (valorDivida && classificacao && tabelaPerda && tabelaIncorrida) {
       try {
         // Usar dias de atraso do formulário ou calcular se não disponível
         let diasCalculados = diasAtraso ? parseInt(diasAtraso) : 0;
@@ -418,8 +420,10 @@ export function ContratoForm({ onSuccess, contratoParaEditar, clienteIdPredefini
           diasCalculados = calcularDiasAtraso(dataUltimoPagamento);
         }
 
-        // Determinar valor para cálculo (usar dívida contábil)
-        const valorParaCalculo = parseFloat(saldoContabil);
+        // Determinar valor para cálculo (priorizar dívida contábil)
+        const valorDividaNum = parseFloat(valorDivida);
+        const saldoContabilNum = saldoContabil ? parseFloat(saldoContabil) : null;
+        const valorParaCalculo = saldoContabilNum || valorDividaNum;
 
         // Calcular provisão
         const resultado = calcularProvisao({
@@ -443,7 +447,7 @@ export function ContratoForm({ onSuccess, contratoParaEditar, clienteIdPredefini
         console.error("Erro no cálculo automático de provisão:", error);
       }
     }
-  }, [saldoContabil, classificacao, diasAtraso, dataUltimoPagamento, tabelaPerda, tabelaIncorrida, form]);
+  }, [valorDivida, classificacao, diasAtraso, saldoContabil, dataUltimoPagamento, tabelaPerda, tabelaIncorrida, form]);
 
   // Carregar contrato automaticamente quando contratoParaEditar muda
   useEffect(() => {
@@ -631,10 +635,23 @@ export function ContratoForm({ onSuccess, contratoParaEditar, clienteIdPredefini
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
+            name="valor_divida"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Valor da Dívida *</FormLabel>
+                <FormControl>
+                  <Input type="number" step="0.01" placeholder="0.00" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
             name="saldo_contabil"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Dívida Contábil *</FormLabel>
+                <FormLabel>Dívida Contábil</FormLabel>
                 <FormControl>
                   <Input type="number" step="0.01" placeholder="0.00" {...field} />
                 </FormControl>
