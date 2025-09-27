@@ -1,230 +1,172 @@
-import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RefreshCw, TrendingUp, LineChart, BarChart3, PieChart, Calendar } from "lucide-react";
-import { format, subDays } from "date-fns";
-import { useContratos } from "@/hooks/useContratos";
-import { useClientes } from "@/hooks/useClientes";
-import { useContratosByCliente } from "@/hooks/useContratosByCliente";
-import { useProvisaoPerda, useProvisaoPerdaIncorrida } from "@/hooks/useProvisao";
-import { toast } from "sonner";
-import { LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer as RechartsResponsiveContainer, Area, AreaChart, BarChart, Bar, PieChart as RechartsPieChart, Cell } from "recharts";
-import { ResponsiveContainer } from "@/components/ui/layout-consistency";
+import { BarChart3, TrendingUp, DollarSign, PieChart, FileText } from "lucide-react";
+import { useRelatorioProvisao, useRelatorioPosicaoContratos, useRelatorioRisco } from "@/hooks/useRelatorios";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, BarChart, Bar, PieChart as RechartsPieChart, Cell, Pie } from "recharts";
 import { GlassCard } from "@/components/ui/glassmorphism";
 import { GradientText } from "@/components/ui/gradient-elements";
 import { ColoredIcon } from "@/components/ui/color-consistency";
-import { ModernBadge } from "@/components/ui/modern-badge";
+import { PremiumStatsCard } from "@/components/dashboard/PremiumStatsCard";
+import { ResponsiveContainer as LayoutResponsiveContainer } from "@/components/ui/layout-consistency";
+
+const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
 
 export default function RelatoriosAvancados() {
-  // Estados para análise individual
-  const [selectedClienteId, setSelectedClienteId] = useState<string>();
-  const [selectedContratoId, setSelectedContratoId] = useState<string>();
-  const [contractAnalysisData, setContractAnalysisData] = useState<any[]>([]);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [selectedAnalysis, setSelectedAnalysis] = useState<string>("evolucao");
+  const { data: relatorioProvisao, isLoading: loadingProvisao } = useRelatorioProvisao();
+  const { data: relatorioPosicao, isLoading: loadingPosicao } = useRelatorioPosicaoContratos();
+  const { data: relatorioRisco, isLoading: loadingRisco } = useRelatorioRisco();
 
-  const { data: contratos } = useContratos();
-  const { data: clientes } = useClientes();
-  const { data: clienteContratos } = useContratosByCliente(selectedClienteId || null);
-  
-  // Hooks para tabelas de provisão
-  const tabelaPerda = useProvisaoPerda();
-  const tabelaIncorrida = useProvisaoPerdaIncorrida();
-
-  const analyzeContractEvolution = async () => {
-    if (!selectedContratoId || !clienteContratos) return;
-    
-    setIsAnalyzing(true);
-    
-    try {
-      const contrato = clienteContratos.find(c => c.id === selectedContratoId);
-      if (!contrato) return;
-      
-      // Análise simulada baseada nos dados reais do contrato - em um cenário real, isso viria do backend
-      const analysisData = Array.from({ length: 12 }, (_, i) => ({
-        mes: format(subDays(new Date(), (11 - i) * 30), 'MMM/yy'),
-        provisao: Math.random() * 50000 + 10000,
-        risco: Math.random() * 100,
-        classificacao: ['C1', 'C2', 'C3', 'C4', 'C5'][Math.floor(Math.random() * 5)]
-      }));
-      
-      setContractAnalysisData(analysisData);
-      toast.success("Análise concluída com sucesso!");
-    } catch (error) {
-      toast.error("Erro ao realizar análise");
-    } finally {
-      setIsAnalyzing(false);
-    }
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(value);
   };
 
-  const analysisTypes = [
-    {
-      id: "evolucao",
-      name: "Evolução Temporal",
-      description: "Análise da evolução de contratos ao longo do tempo",
-      icon: LineChart,
-      color: "text-blue-600"
-    },
-    {
-      id: "comparativo",
-      name: "Análise Comparativa",
-      description: "Comparação entre diferentes contratos e clientes",
-      icon: BarChart3,
-      color: "text-green-600"
-    },
-    {
-      id: "distribuicao",
-      name: "Distribuição de Risco",
-      description: "Análise da distribuição de risco por classificação",
-      icon: PieChart,
-      color: "text-purple-600"
-    },
-    {
-      id: "tendencias",
-      name: "Tendências Futuras",
-      description: "Projeções e tendências baseadas em dados históricos",
-      icon: TrendingUp,
-      color: "text-orange-600"
-    }
-  ];
-
   return (
-    <ResponsiveContainer className="py-8 animate-fade-in">
+    <LayoutResponsiveContainer className="py-8 animate-fade-in">
       <div className="mb-8">
         <GradientText variant="primary" className="text-3xl font-bold mb-2 flex items-center">
           <ColoredIcon icon={BarChart3} className="mr-3" />
           Relatórios Avançados
         </GradientText>
         <p className="text-muted-foreground">
-          Análises avançadas e projeções inteligentes para tomada de decisão
+          Análise detalhada da evolução do provisionamento e distribuição de risco
         </p>
       </div>
 
-      {/* Tipos de Análise */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 animate-slide-up">
-        {analysisTypes.map((analysis, index) => (
-          <div
-            key={analysis.id}
-            className={`cursor-pointer group animate-scale-in animate-delay-${index}`}
-            onClick={() => setSelectedAnalysis(analysis.id)}
-          >
-            <GlassCard 
-              variant="subtle" 
-              className={`h-full interactive-card transition-all duration-300 ${
-                selectedAnalysis === analysis.id ? 'ring-2 ring-primary/50 bg-primary/5' : ''
-              }`}
-            >
-              <CardHeader className="text-center pb-3">
-                <div className="flex justify-center mb-3">
-                  <div className="glass-element p-3 rounded-full">
-                    <ColoredIcon icon={analysis.icon} className={analysis.color} />
-                  </div>
-                </div>
-                <CardTitle className="text-lg">{analysis.name}</CardTitle>
-                <p className="text-sm text-muted-foreground">{analysis.description}</p>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <ModernBadge 
-                  variant={selectedAnalysis === analysis.id ? "success" : "outline"}
-                  size="sm"
-                  className="w-full justify-center"
-                >
-                  {selectedAnalysis === analysis.id ? "Selecionado" : "Selecionar"}
-                </ModernBadge>
-              </CardContent>
-            </GlassCard>
-          </div>
-        ))}
+      {/* Cards de Estatísticas */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 animate-slide-up">
+        <PremiumStatsCard
+          title="Total Contratos"
+          value={relatorioProvisao?.total_contratos?.toString() || "0"}
+          icon={FileText}
+          color="blue"
+        />
+        <PremiumStatsCard
+          title="Valor Total Dívidas"
+          value={formatCurrency(relatorioProvisao?.valor_total_dividas || 0)}
+          icon={DollarSign}
+          color="emerald"
+        />
+        <PremiumStatsCard
+          title="Valor Total Provisão"
+          value={formatCurrency(relatorioProvisao?.valor_total_provisao || 0)}
+          icon={TrendingUp}
+          color="amber"
+          trend={relatorioProvisao?.percentual_medio_provisao ? {
+            value: relatorioProvisao.percentual_medio_provisao,
+            isPositive: relatorioProvisao.percentual_medio_provisao > 0
+          } : undefined}
+        />
+        <PremiumStatsCard
+          title="% Médio Provisão"
+          value={`${relatorioProvisao?.percentual_medio_provisao?.toFixed(2) || 0}%`}
+          icon={PieChart}
+          color="red"
+        />
       </div>
 
-      {/* Filtros de Análise */}
+      {/* Gráfico de Evolução de Provisão por Classificação */}
       <GlassCard variant="subtle" className="mb-8 animate-slide-up animate-stagger-1">
         <CardHeader className="glass-header border-b border-white/10">
           <CardTitle className="flex items-center space-x-3">
-            <ColoredIcon icon={Calendar} className="text-primary" />
-            <GradientText variant="primary">Parâmetros de Análise</GradientText>
+            <ColoredIcon icon={BarChart3} className="text-primary" />
+            <GradientText variant="primary">Evolução do Provisionamento por Classificação</GradientText>
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Cliente</label>
-              <Select value={selectedClienteId} onValueChange={setSelectedClienteId}>
-                <SelectTrigger className="glass-input">
-                  <SelectValue placeholder="Selecione um cliente" />
-                </SelectTrigger>
-                <SelectContent>
-                  {clientes?.map((cliente) => (
-                    <SelectItem key={cliente.id} value={cliente.id}>
-                      {cliente.nome}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Contrato</label>
-              <Select value={selectedContratoId} onValueChange={setSelectedContratoId} disabled={!selectedClienteId}>
-                <SelectTrigger className="glass-input">
-                  <SelectValue placeholder="Selecione um contrato" />
-                </SelectTrigger>
-                <SelectContent>
-                  {clienteContratos?.map((contrato) => (
-                    <SelectItem key={contrato.id} value={contrato.id}>
-                      {contrato.numero_contrato || `Contrato ${contrato.id.slice(0, 8)}`}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="flex items-end">
-              <Button 
-                onClick={analyzeContractEvolution}
-                disabled={!selectedContratoId || isAnalyzing}
-                className="w-full interactive-button"
-              >
-                {isAnalyzing ? (
-                  <>
-                    <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                    Analisando...
-                  </>
-                ) : (
-                  <>
-                    <TrendingUp className="mr-2 h-4 w-4" />
-                    Analisar
-                  </>
-                )}
-              </Button>
-            </div>
+          <div className="h-80 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={relatorioProvisao?.contratos_por_classificacao || []}>
+                <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+                <XAxis 
+                  dataKey="classificacao" 
+                  tick={{ fontSize: 12 }}
+                  className="text-muted-foreground"
+                />
+                <YAxis 
+                  tick={{ fontSize: 12 }}
+                  className="text-muted-foreground"
+                  tickFormatter={formatCurrency}
+                />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'hsl(var(--background))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px'
+                  }}
+                  formatter={(value, name) => [
+                    name === 'valor_provisao' ? formatCurrency(value as number) : formatCurrency(value as number),
+                    name === 'valor_provisao' ? 'Valor Provisão' : 'Valor Total'
+                  ]}
+                />
+                <Bar dataKey="valor_total" fill="hsl(var(--chart-1))" name="Valor Total" />
+                <Bar dataKey="valor_provisao" fill="hsl(var(--chart-2))" name="Valor Provisão" />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         </CardContent>
       </GlassCard>
 
-      {/* Resultados da Análise */}
-      {contractAnalysisData.length > 0 && (
+      {/* Distribuição de Risco */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <GlassCard variant="subtle" className="animate-slide-up animate-stagger-2">
           <CardHeader className="glass-header border-b border-white/10">
             <CardTitle className="flex items-center space-x-3">
-              <ColoredIcon icon={TrendingUp} className="text-primary" />
-              <GradientText variant="primary">Resultados da Análise</GradientText>
+              <ColoredIcon icon={PieChart} className="text-primary" />
+              <GradientText variant="primary">Distribuição por Situação</GradientText>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
             <div className="h-80 w-full">
-              <RechartsResponsiveContainer width="100%" height="100%">
-                <AreaChart data={contractAnalysisData}>
+              <ResponsiveContainer width="100%" height="100%">
+                <RechartsPieChart>
+                  <Pie
+                    dataKey="quantidade"
+                    data={relatorioPosicao?.por_situacao || []}
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={80}
+                    fill="hsl(var(--chart-1))"
+                    label={({ situacao, percentual }) => `${situacao}: ${percentual.toFixed(1)}%`}
+                  >
+                    {(relatorioPosicao?.por_situacao || []).map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'hsl(var(--background))',
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px'
+                    }}
+                  />
+                </RechartsPieChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </GlassCard>
+
+        <GlassCard variant="subtle" className="animate-slide-up animate-stagger-3">
+          <CardHeader className="glass-header border-b border-white/10">
+            <CardTitle className="flex items-center space-x-3">
+              <ColoredIcon icon={TrendingUp} className="text-primary" />
+              <GradientText variant="primary">Distribuição de Risco</GradientText>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="h-80 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={relatorioRisco?.distribuicao_risco || []}>
                   <defs>
-                    <linearGradient id="colorProvisao" x1="0" y1="0" x2="0" y2="1">
+                    <linearGradient id="colorRisco" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.8}/>
                       <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0.1}/>
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
                   <XAxis 
-                    dataKey="mes" 
+                    dataKey="classificacao" 
                     tick={{ fontSize: 12 }}
                     className="text-muted-foreground"
                   />
@@ -238,39 +180,51 @@ export default function RelatoriosAvancados() {
                       border: '1px solid hsl(var(--border))',
                       borderRadius: '8px'
                     }}
+                    formatter={(value) => [`${(value as number).toFixed(2)}%`, 'Percentual Provisão Médio']}
                   />
                   <Area
                     type="monotone"
-                    dataKey="provisao"
+                    dataKey="percentual_provisao_medio"
                     stroke="hsl(var(--primary))"
                     strokeWidth={2}
-                    fill="url(#colorProvisao)"
+                    fill="url(#colorRisco)"
                   />
                 </AreaChart>
-              </RechartsResponsiveContainer>
+              </ResponsiveContainer>
             </div>
           </CardContent>
         </GlassCard>
-      )}
+      </div>
 
-      {/* Estado Vazio */}
-      {contractAnalysisData.length === 0 && (
-        <GlassCard variant="subtle" className="animate-slide-up animate-stagger-2">
-          <CardContent className="p-12">
-            <div className="text-center">
-              <div className="glass-element p-4 rounded-full w-fit mx-auto mb-4">
-                <ColoredIcon icon={BarChart3} size="lg" className="text-muted-foreground" />
-              </div>
-              <h3 className="text-lg font-medium text-foreground mb-2">
-                Nenhuma análise executada
-              </h3>
-              <p className="text-muted-foreground max-w-md mx-auto">
-                Selecione um cliente e contrato, depois clique em "Analisar" para gerar relatórios avançados com insights inteligentes
-              </p>
+      {/* Lista de Clientes Alto Risco */}
+      {relatorioRisco?.clientes_alto_risco && relatorioRisco.clientes_alto_risco.length > 0 && (
+        <GlassCard variant="subtle" className="animate-slide-up animate-stagger-4">
+          <CardHeader className="glass-header border-b border-white/10">
+            <CardTitle className="flex items-center space-x-3">
+              <ColoredIcon icon={TrendingUp} className="text-destructive" />
+              <GradientText variant="primary">Clientes de Alto Risco</GradientText>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="space-y-4">
+              {relatorioRisco.clientes_alto_risco.slice(0, 5).map((cliente, index) => (
+                <div key={index} className="flex items-center justify-between p-4 rounded-lg bg-gradient-to-r from-background/50 to-background/20 border border-border/50">
+                  <div>
+                    <h4 className="font-medium text-foreground">{cliente.cliente_nome}</h4>
+                    <p className="text-sm text-muted-foreground">
+                      {cliente.total_contratos} contratos • Classificação: {cliente.classificacao_predominante}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium text-foreground">{formatCurrency(cliente.valor_total_provisao)}</p>
+                    <p className="text-sm text-muted-foreground">Provisão Total</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </CardContent>
         </GlassCard>
       )}
-    </ResponsiveContainer>
+    </LayoutResponsiveContainer>
   );
 }
