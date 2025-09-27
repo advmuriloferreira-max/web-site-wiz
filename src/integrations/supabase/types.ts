@@ -269,6 +269,47 @@ export type Database = {
         }
         Relationships: []
       }
+      garantias: {
+        Row: {
+          contrato_id: string
+          created_at: string
+          descricao: string | null
+          id: string
+          percentual_cobertura: number | null
+          tipo_garantia: string
+          updated_at: string
+          valor_avaliacao: number | null
+        }
+        Insert: {
+          contrato_id: string
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          percentual_cobertura?: number | null
+          tipo_garantia: string
+          updated_at?: string
+          valor_avaliacao?: number | null
+        }
+        Update: {
+          contrato_id?: string
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          percentual_cobertura?: number | null
+          tipo_garantia?: string
+          updated_at?: string
+          valor_avaliacao?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "garantias_contrato_id_fkey"
+            columns: ["contrato_id"]
+            isOneToOne: false
+            referencedRelation: "contratos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       processos: {
         Row: {
           acao: string | null

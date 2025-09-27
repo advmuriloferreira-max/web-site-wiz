@@ -28,6 +28,7 @@ import { Calculator, Info, Search, Edit, CalendarIcon } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { GarantiasSection } from "@/components/garantias/GarantiasSection";
 
 const contratoSchema = z.object({
   cliente_id: z.string().min(1, "Cliente é obrigatório"),
@@ -1105,6 +1106,11 @@ export function ContratoForm({ onSuccess, contratoParaEditar, clienteIdPredefini
             </FormItem>
           )}
         />
+
+        {/* SEÇÃO: Garantias */}
+        {isEditing && contratoExistente && (
+          <GarantiasSection contratoId={contratoExistente.id} />
+        )}
 
         <div className="flex gap-2">
           <Button 
