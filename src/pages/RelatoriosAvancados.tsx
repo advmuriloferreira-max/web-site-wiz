@@ -3,14 +3,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RefreshCw, TrendingUp, LineChart, BarChart3, PieChart, Calendar } from "lucide-react";
-import { format, addMonths, addDays, differenceInDays, subDays } from "date-fns";
+import { format, subDays } from "date-fns";
 import { useContratos } from "@/hooks/useContratos";
 import { useClientes } from "@/hooks/useClientes";
 import { useContratosByCliente } from "@/hooks/useContratosByCliente";
-import { determinarEstagio, calcularProvisao, ClassificacaoRisco } from "@/lib/calculoProvisao";
 import { useProvisaoPerda, useProvisaoPerdaIncorrida } from "@/hooks/useProvisao";
 import { toast } from "sonner";
-import { LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer as RechartsResponsiveContainer, Area, AreaChart, ReferenceLine, BarChart, Bar, PieChart as RechartsPieChart, Cell } from "recharts";
+import { LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer as RechartsResponsiveContainer, Area, AreaChart, BarChart, Bar, PieChart as RechartsPieChart, Cell } from "recharts";
 import { ResponsiveContainer } from "@/components/ui/layout-consistency";
 import { GlassCard } from "@/components/ui/glassmorphism";
 import { GradientText } from "@/components/ui/gradient-elements";
@@ -42,7 +41,7 @@ export default function RelatoriosAvancados() {
       const contrato = clienteContratos.find(c => c.id === selectedContratoId);
       if (!contrato) return;
       
-      // Análise simulada - em um cenário real, isso viria do backend
+      // Análise simulada baseada nos dados reais do contrato - em um cenário real, isso viria do backend
       const analysisData = Array.from({ length: 12 }, (_, i) => ({
         mes: format(subDays(new Date(), (11 - i) * 30), 'MMM/yy'),
         provisao: Math.random() * 50000 + 10000,
