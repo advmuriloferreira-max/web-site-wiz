@@ -61,7 +61,10 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ open, onOpenChange }
     popularSuggestions
   } = useGlobalSearch();
 
+  console.log('GlobalSearch component - open:', open, 'searchQuery:', searchQuery, 'results:', searchResults.length);
+
   const handleSelect = (result: any) => {
+    console.log('Selecting result:', result);
     if (result.url) {
       navigate(result.url);
       addToRecentSearches(searchQuery);
@@ -80,6 +83,8 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ open, onOpenChange }
 
   const hasQuery = searchQuery.trim().length > 0;
   const hasResults = searchResults.length > 0;
+
+  console.log('Dialog state:', { open, hasQuery, hasResults, searchResultsLength: searchResults.length });
 
   return (
     <CommandDialog open={open} onOpenChange={onOpenChange}>

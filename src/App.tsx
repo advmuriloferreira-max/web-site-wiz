@@ -62,7 +62,10 @@ const App = () => {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => setIsSearchOpen(true)}
+                            onClick={() => {
+                              console.log('Search button clicked, opening dialog');
+                              setIsSearchOpen(true);
+                            }}
                             className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
                           >
                             <Search className="h-4 w-4" />
