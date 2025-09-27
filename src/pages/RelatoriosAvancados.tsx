@@ -236,18 +236,11 @@ export default function RelatoriosAvancados() {
       {analysisResults && (
         <>
           {/* Cards de Estatísticas */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 animate-slide-up animate-stagger-1">
-            <PremiumStatsCard
-              title="Tempo para 50%"
-              value={analysisResults.mesesPara50 ? `${analysisResults.mesesPara50} meses` : "Já atingido"}
-              description={analysisResults.diasPara50 ? `${analysisResults.diasPara50} dias` : ""}
-              icon={Clock}
-              color="amber"
-            />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 animate-slide-up animate-stagger-1">
             <PremiumStatsCard
               title="Tempo para 100%"
-              value={analysisResults.mesesPara100 ? `${analysisResults.mesesPara100} meses` : "Já atingido"}
-              description={analysisResults.diasPara100 ? `${analysisResults.diasPara100} dias` : ""}
+              value={analysisResults.diasPara100 ? `${analysisResults.diasPara100} dias` : "Já atingido"}
+              description="Dias para atingir provisionamento total"
               icon={Target}
               color="red"
             />
