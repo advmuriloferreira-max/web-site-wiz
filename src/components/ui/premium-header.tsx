@@ -59,7 +59,7 @@ export function PremiumHeader({ onSearchClick }: PremiumHeaderProps) {
           </div>
           <div>
             <h1 className="text-xl font-bold text-white tracking-tight">
-              INTELBANK
+              INTELLBANK
             </h1>
             <p className="text-xs text-slate-300 font-light">
               Inteligência em Provisionamento Bancário
