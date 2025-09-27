@@ -9,7 +9,8 @@ import {
   AlertTriangle,
   Calculator,
   Handshake,
-  User
+  User,
+  LineChart
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -35,6 +36,7 @@ const navigationItems = [
   { title: "Acordos", url: "/acordos", icon: Handshake },
   { title: "Cálculos", url: "/calculos", icon: Calculator },
   { title: "Relatórios", url: "/relatorios", icon: TrendingUp },
+  { title: "Relatórios Avançados", url: "/relatorios-avancados", icon: LineChart },
 ];
 
 const quickActions = [
