@@ -7,11 +7,11 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/components/AuthProvider";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { UserMenu } from "@/components/UserMenu";
+import { useState } from "react";
 import { InstallPrompt } from "@/components/InstallPrompt";
 import { AppSidebar } from "@/components/AppSidebar";
 import { PageTransition } from "@/components/ui/page-transition";
 import { GlobalSearch } from "@/components/ui/global-search";
-import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import Index from "./pages/Index";
@@ -33,7 +33,7 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const App = () => {
-  const { isSearchOpen, setIsSearchOpen, openSearch } = useKeyboardShortcuts();
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -62,14 +62,11 @@ const App = () => {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={openSearch}
+                            onClick={() => setIsSearchOpen(true)}
                             className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
                           >
                             <Search className="h-4 w-4" />
                             <span className="hidden sm:inline text-xs">Buscar</span>
-                            <kbd className="hidden sm:inline pointer-events-none h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 ml-1 flex">
-                              ⌘K
-                            </kbd>
                           </Button>
                           <UserMenu />
                         </div>

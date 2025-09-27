@@ -30,6 +30,9 @@ export const useGlobalSearch = () => {
   const searchResults = useMemo(() => {
     if (!debouncedQuery.trim()) return [];
 
+    console.log('Searching for:', debouncedQuery);
+    console.log('Available data:', { contratos: contratos.length, clientes: clientes.length, bancos: bancos.length });
+
     const results: SearchResult[] = [];
 
     // Buscar em contratos
@@ -102,6 +105,7 @@ export const useGlobalSearch = () => {
       });
     }
 
+    console.log('Search results found:', results.length);
     return results.slice(0, 50); // Limitar resultados
   }, [debouncedQuery, selectedType, contratos, clientes, bancos]);
 

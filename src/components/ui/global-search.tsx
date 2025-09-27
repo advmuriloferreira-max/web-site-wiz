@@ -10,6 +10,7 @@ import {
   CommandList,
   CommandSeparator,
 } from '@/components/ui/command';
+import { DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useGlobalSearch } from '@/hooks/useGlobalSearch';
@@ -82,6 +83,10 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ open, onOpenChange }
 
   return (
     <CommandDialog open={open} onOpenChange={onOpenChange}>
+      <DialogTitle className="sr-only">Busca Global</DialogTitle>
+      <DialogDescription className="sr-only">
+        Busque por contratos, clientes e bancos no sistema
+      </DialogDescription>
       <div className="flex items-center border-b px-3">
         <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
         <CommandInput
