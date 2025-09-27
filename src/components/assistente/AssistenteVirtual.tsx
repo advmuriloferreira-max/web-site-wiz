@@ -241,7 +241,14 @@ ${contratoContext ? `Vejo que você está visualizando o contrato ${contratoCont
                     variant="outline"
                     size="sm"
                     className="text-xs h-auto py-2 px-3 text-left justify-start"
-                    onClick={() => setInputMessage(question)}
+                    onClick={() => {
+                      console.log('Clicou na pergunta:', question);
+                      setInputMessage(question);
+                      // Enviar automaticamente a pergunta
+                      setTimeout(() => {
+                        sendMessage();
+                      }, 100);
+                    }}
                   >
                     {question}
                   </Button>
@@ -250,17 +257,23 @@ ${contratoContext ? `Vejo que você está visualizando o contrato ${contratoCont
             </div>
           )}
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 mt-4">
             <Input
               placeholder="Digite sua pergunta..."
               value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
+              onChange={(e) => {
+                console.log('Input mudou:', e.target.value);
+                setInputMessage(e.target.value);
+              }}
               onKeyPress={handleKeyPress}
               disabled={isLoading}
               className="flex-1"
             />
             <Button
-              onClick={sendMessage}
+              onClick={() => {
+                console.log('Botão enviar clicado');
+                sendMessage();
+              }}
               disabled={!inputMessage.trim() || isLoading}
               size="icon"
             >
