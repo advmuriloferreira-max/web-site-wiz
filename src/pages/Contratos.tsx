@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Eye, Edit, Trash2, Clock, Shield, TrendingUp } from "lucide-react";
+import { Eye, Edit, Trash2, Clock, Shield, TrendingUp, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -17,6 +17,8 @@ import { useAdvancedFilters } from "@/hooks/useAdvancedFilters";
 import { DataToolbar } from "@/components/ui/data-toolbar";
 import { DataCards, ContratoCard } from "@/components/ui/data-cards";
 import { SortableHeader } from "@/components/ui/sortable-header";
+import { PremiumComponentsDemo } from "@/components/ui/premium-components-demo";
+import { notifications } from "@/lib/premium-notifications";
 import { format } from "date-fns";
 
 const getClassificacaoColor = (classificacao: string | null) => {
