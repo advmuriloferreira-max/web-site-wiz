@@ -65,7 +65,7 @@ export function ContratosComCalculos() {
         classificacao = classificarRisco(diasAtraso);
       }
 
-      // Regra: usar saldo contábil (Registrato) quando presente, senão usar valor da dívida
+      // Regra: usar dívida contábil (Registrato) quando presente, senão usar valor da dívida
       const valorParaCalculo = contrato.saldo_contabil || contrato.valor_divida;
 
       const resultado = calcularProvisao({

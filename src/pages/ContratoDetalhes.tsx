@@ -341,7 +341,7 @@ export default function ContratoDetalhes() {
             
             {contrato.saldo_contabil && (
               <div>
-                <label className="text-sm font-medium text-muted-foreground">Saldo Contábil</label>
+                <label className="text-sm font-medium text-muted-foreground">Dívida Contábil</label>
                 <p className="text-xl font-semibold">
                   {formatCurrency(contrato.saldo_contabil)}
                 </p>

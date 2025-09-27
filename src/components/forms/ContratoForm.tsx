@@ -191,7 +191,7 @@ export function ContratoForm({ onSuccess, contratoParaEditar, clienteIdPredefini
         diasAtraso = calcularDiasAtraso(valores.data_ultimo_pagamento);
       }
 
-      // Determinar valor para cálculo (priorizar saldo contábil)
+      // Determinar valor para cálculo (priorizar dívida contábil)
       const valorDivida = parseFloat(valores.valor_divida);
       const saldoContabil = valores.saldo_contabil ? parseFloat(valores.saldo_contabil) : null;
       const valorParaCalculo = saldoContabil || valorDivida;
@@ -421,7 +421,7 @@ export function ContratoForm({ onSuccess, contratoParaEditar, clienteIdPredefini
           diasCalculados = calcularDiasAtraso(dataUltimoPagamento);
         }
 
-        // Determinar valor para cálculo (priorizar saldo contábil)
+        // Determinar valor para cálculo (priorizar dívida contábil)
         const valorDividaNum = parseFloat(valorDivida);
         const saldoContabilNum = saldoContabil ? parseFloat(saldoContabil) : null;
         const valorParaCalculo = saldoContabilNum || valorDividaNum;
@@ -652,7 +652,7 @@ export function ContratoForm({ onSuccess, contratoParaEditar, clienteIdPredefini
             name="saldo_contabil"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Saldo Contábil</FormLabel>
+                <FormLabel>Dívida Contábil</FormLabel>
                 <FormControl>
                   <Input type="number" step="0.01" placeholder="0.00" {...field} />
                 </FormControl>

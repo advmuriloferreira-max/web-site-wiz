@@ -98,9 +98,9 @@ export function ParametrosCalculo() {
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <Label className="font-medium">Usar Saldo Contábil como Prioritário</Label>
+              <Label className="font-medium">Usar Dívida Contábil como Prioritário</Label>
               <p className="text-sm text-muted-foreground">
-                Quando disponível, usar saldo contábil em vez do valor da dívida para cálculos
+                Quando disponível, usar dívida contábil em vez do valor da dívida para cálculos
               </p>
             </div>
             <Switch

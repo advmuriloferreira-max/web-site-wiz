@@ -111,7 +111,7 @@ function DashboardContent() {
           icon={FileText}
         />
         <StatsCard
-          title="Valor Total do Saldo Contábil"
+          title="Valor Total da Dívida Contábil"
           value={`R$ ${((stats?.valorTotalDividas || 0) / 1000).toFixed(0)}K`}
           description="Portfolio total"
           icon={DollarSign}

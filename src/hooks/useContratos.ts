@@ -73,7 +73,7 @@ export const useContratosStats = () => {
 
       const totalContratos = contratos.length;
       const valorTotalDividas = contratos.reduce((sum, c) => {
-        // Se tem saldo contábil, usar ele; senão usar valor da dívida
+        // Se tem dívida contábil, usar ele; senão usar valor da dívida
         const valorBase = c.saldo_contabil ? c.saldo_contabil : (c.valor_divida || 0);
         return sum + valorBase;
       }, 0);

@@ -133,7 +133,7 @@ export function Etapa2({ form }: Etapa2Props) {
             name="saldo_contabil"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Saldo Contábil (opcional)</FormLabel>
+                <FormLabel>Dívida Contábil (opcional)</FormLabel>
                 <FormControl>
                   <Input
                     placeholder="0,00"
