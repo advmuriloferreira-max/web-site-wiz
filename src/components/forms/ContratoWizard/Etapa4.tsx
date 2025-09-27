@@ -52,6 +52,9 @@ export function Etapa4({ form }: Etapa4Props) {
             <CreditCard className="h-5 w-5" />
             Informações de Pagamento
           </CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Todos os campos desta seção são opcionais
+          </p>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -123,6 +126,9 @@ export function Etapa4({ form }: Etapa4Props) {
             <User className="h-5 w-5" />
             Informações de Contato
           </CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Preencha apenas se houver informações específicas de contato
+          </p>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -190,6 +196,9 @@ export function Etapa4({ form }: Etapa4Props) {
             <RefreshCw className="h-5 w-5" />
             Reestruturação
           </CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Marque apenas se o contrato foi reestruturado
+          </p>
         </CardHeader>
         <CardContent className="space-y-6">
           <FormField
@@ -266,6 +275,9 @@ export function Etapa4({ form }: Etapa4Props) {
             <Shield className="h-5 w-5" />
             Garantias
           </CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Adicione garantias apenas se houver
+          </p>
         </CardHeader>
         <CardContent>
           <GarantiasSection contratoId={form.watch("numero_contrato")} />
@@ -275,6 +287,9 @@ export function Etapa4({ form }: Etapa4Props) {
       <Card>
         <CardHeader>
           <CardTitle>Observações</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Campo opcional para informações adicionais
+          </p>
         </CardHeader>
         <CardContent>
           <FormField

@@ -4,7 +4,7 @@ import { z } from "zod";
 export const etapa1Schema = z.object({
   cliente_id: z.string().min(1, "Cliente é obrigatório"),
   banco_id: z.string().min(1, "Banco é obrigatório"),
-  numero_contrato: z.string().min(1, "Número do contrato é obrigatório"),
+  numero_contrato: z.string().optional(),
 });
 
 export const etapa2Schema = z.object({
