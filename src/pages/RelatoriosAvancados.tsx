@@ -532,7 +532,7 @@ export default function RelatoriosAvancados() {
                       <div className="text-2xl font-bold text-red-600">
                         {contractAnalysisData.find(d => d.atinge100Porcento)?.data || 'N/A'}
                       </div>
-                      <div className="text-sm text-muted-foreground">Mês que atinge 100% de provisionamento</div>
+                      <div className="text-sm text-muted-foreground">Mês no qual atinge 100% de provisionamento</div>
                     </div>
                   </CardContent>
                 </Card>
