@@ -46,7 +46,7 @@ export const etapa5Schema = z.object({
   valor_honorarios: z.string().optional(),
   situacao: z.enum(["Em análise", "Em negociação", "Em processo judicial", "Acordo Finalizado"]).optional(),
   tempo_escritorio: z.string().optional(),
-});
+}).partial(); // Tornar todos os campos completamente opcionais
 
 // Schema completo
 export const contratoWizardSchema = etapa1Schema

@@ -206,12 +206,14 @@ export function ContratoWizard({
     const formData = form.getValues();
     
     try {
-      // Para a etapa 4, sempre permitir passar mesmo com campos vazios
-      if (currentStep === 4) {
+      // Para a etapa 4 e 5, sempre permitir passar mesmo com campos vazios
+      if (currentStep === 4 || currentStep === 5) {
+        console.log(`Step ${currentStep} validation: PASSED (optional step)`);
         return true;
       }
       
       await currentStepSchema.parseAsync(formData);
+      console.log(`Step ${currentStep} validation: PASSED`);
       return true;
     } catch (error) {
       console.log("Validation error for step", currentStep, error);
@@ -366,7 +368,9 @@ export function ContratoWizard({
 
       {/* Conteúdo da Etapa */}
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+        <form onSubmit={form.handleSubmit(onSubmit, (errors) => {
+          console.log("Form submission failed with errors:", errors);
+        })}>
           <Card>
             <CardContent className="p-6">
               {renderCurrentStep()}
@@ -409,13 +413,19 @@ export function ContratoWizard({
               ) : (
                 <Button
                   type="submit"
-                  disabled={isLoading}
+                  disabled={isLoading || loadingContrato}
                   className="flex items-center gap-2"
+                  onClick={() => {
+                    console.log("Submit button clicked");
+                    console.log("Form is valid:", form.formState.isValid);
+                    console.log("Form errors:", form.formState.errors);
+                    console.log("Current form values:", form.getValues());
+                  }}
                 >
                   <Send className="h-4 w-4" />
                   {isLoading 
-                    ? (contratoParaEditar ? "Atualizando..." : "Criando...")
-                    : (contratoParaEditar ? "Atualizar Contrato" : "Criar Contrato")
+                    ? (isEditingValidContract ? "Atualizando..." : "Criando...")
+                    : (isEditingValidContract ? "Atualizar Contrato" : "Criar Contrato")
                   }
                 </Button>
               )}
