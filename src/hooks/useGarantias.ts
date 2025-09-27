@@ -27,10 +27,14 @@ export interface UpdateGarantiaInput extends CreateGarantiaInput {
 }
 
 // Hook para buscar garantias por contrato
-export const useGarantiasByContrato = (contratoId: string) => {
+export const useGarantiasByContrato = (contratoId: string | null) => {
   return useRealtimeQuery({
     queryKey: ["garantias", contratoId],
     queryFn: async () => {
+      if (!contratoId) {
+        return [] as Garantia[];
+      }
+      
       const { data, error } = await supabase
         .from("garantias")
         .select("*")

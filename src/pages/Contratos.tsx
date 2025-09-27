@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { ContratoForm } from "@/components/forms/ContratoForm";
 import { useContratos, Contrato } from "@/hooks/useContratos";
 import { useDeleteContrato } from "@/hooks/useDeleteContrato";
+import { GarantiaIndicator } from "@/components/contratos/GarantiaIndicator";
 import { format } from "date-fns";
 
 const getClassificacaoColor = (classificacao: string | null) => {
@@ -165,6 +166,7 @@ export default function Contratos() {
                   <TableHead>Valor Dívida</TableHead>
                   <TableHead>Classificação</TableHead>
                   <TableHead>Estágio Risco</TableHead>
+                  <TableHead>Garantia</TableHead>
                   <TableHead>Situação</TableHead>
                   <TableHead>Atraso (dias)</TableHead>
                   <TableHead className="text-right">Ações</TableHead>
@@ -173,7 +175,7 @@ export default function Contratos() {
               <TableBody>
                 {filteredContratos?.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={10} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={11} className="text-center py-8 text-muted-foreground">
                       Nenhum contrato encontrado
                     </TableCell>
                   </TableRow>
@@ -219,6 +221,9 @@ export default function Contratos() {
                         ) : (
                           <span className="text-muted-foreground">-</span>
                         )}
+                      </TableCell>
+                      <TableCell>
+                        <GarantiaIndicator contratoId={contrato.id} />
                       </TableCell>
                       <TableCell>
                         <Badge variant="secondary">{contrato.situacao}</Badge>

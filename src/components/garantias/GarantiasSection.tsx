@@ -26,7 +26,7 @@ import {
 import { GarantiaForm, type GarantiaFormData } from "./GarantiaForm";
 
 interface GarantiasSectionProps {
-  contratoId: string;
+  contratoId: string | null;
 }
 
 export function GarantiasSection({ contratoId }: GarantiasSectionProps) {
@@ -39,7 +39,7 @@ export function GarantiasSection({ contratoId }: GarantiasSectionProps) {
   const deleteGarantia = useDeleteGarantia();
 
   const handleCreateGarantia = (data: GarantiaFormData) => {
-    if (!data.tipo_garantia) return;
+    if (!data.tipo_garantia || !contratoId) return;
 
     const garantiaInput: CreateGarantiaInput = {
       contrato_id: contratoId,
@@ -57,7 +57,7 @@ export function GarantiasSection({ contratoId }: GarantiasSectionProps) {
   };
 
   const handleUpdateGarantia = (data: GarantiaFormData) => {
-    if (!editingGarantia || !data.tipo_garantia) return;
+    if (!editingGarantia || !data.tipo_garantia || !contratoId) return;
 
     updateGarantia.mutate({
       id: editingGarantia.id,
@@ -115,7 +115,12 @@ export function GarantiasSection({ contratoId }: GarantiasSectionProps) {
         <h3 className="text-lg font-semibold">Garantias</h3>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={openCreateDialog} size="sm" className="flex items-center gap-2">
+            <Button 
+              onClick={openCreateDialog} 
+              size="sm" 
+              className="flex items-center gap-2"
+              disabled={!contratoId}
+            >
               <Plus className="h-4 w-4" />
               Adicionar Garantia
             </Button>
@@ -204,7 +209,11 @@ export function GarantiasSection({ contratoId }: GarantiasSectionProps) {
       ) : (
         <div className="text-center py-8 text-muted-foreground">
           <p>Nenhuma garantia cadastrada</p>
-          <p className="text-sm">Clique em "Adicionar Garantia" para começar</p>
+          {contratoId ? (
+            <p className="text-sm">Clique em "Adicionar Garantia" para começar</p>
+          ) : (
+            <p className="text-sm">Salve o contrato primeiro para adicionar garantias</p>
+          )}
         </div>
       )}
     </div>

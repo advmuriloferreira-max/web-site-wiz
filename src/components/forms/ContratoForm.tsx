@@ -1108,8 +1108,10 @@ export function ContratoForm({ onSuccess, contratoParaEditar, clienteIdPredefini
         />
 
         {/* SEÇÃO: Garantias */}
-        {isEditing && contratoExistente && (
+        {isEditing && contratoExistente ? (
           <GarantiasSection contratoId={contratoExistente.id} />
+        ) : (
+          <GarantiasSection contratoId={null} />
         )}
 
         <div className="flex gap-2">
