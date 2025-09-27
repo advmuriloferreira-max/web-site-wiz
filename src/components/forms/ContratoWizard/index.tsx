@@ -23,13 +23,14 @@ import { Etapa4 } from "./Etapa4";
 import { Etapa5 } from "./Etapa5";
 import { useCreateContrato } from "@/hooks/useCreateContrato";
 import { useUpdateContrato } from "@/hooks/useUpdateContrato";
+import { useContratoById } from "@/hooks/useContratoById";
 import { useAsyncOperation } from "@/hooks/useAsyncOperation";
 import { enhancedToast } from "@/components/ui/enhanced-toast";
 import { ChevronLeft, ChevronRight, Save, Send, AlertCircle } from "lucide-react";
 
 interface ContratoWizardProps {
   onSuccess?: () => void;
-  contratoParaEditar?: string | null;
+  contratoParaEditar?: string | null; // ID do contrato para edição
   clienteIdPredefinido?: string;
 }
 
@@ -80,6 +81,7 @@ export function ContratoWizard({
   const createContrato = useCreateContrato();
   const updateContrato = useUpdateContrato();
   const { execute, isLoading } = useAsyncOperation();
+  const { data: contratoExistente } = useContratoById(contratoParaEditar);
 
   const form = useForm<ContratoWizardData>({
     resolver: zodResolver(contratoWizardSchema),
@@ -117,22 +119,64 @@ export function ContratoWizard({
     mode: "onChange"
   });
 
-  // Carregar rascunho do localStorage
+  // Carregar dados do contrato para edição ou rascunho
   useEffect(() => {
-    const draft = localStorage.getItem(DRAFT_KEY);
-    if (draft && !contratoParaEditar) {
-      try {
-        const draftData = JSON.parse(draft);
-        form.reset(draftData);
-        setIsDraftSaved(true);
-        enhancedToast.info("Rascunho carregado", {
-          description: "Seus dados foram restaurados automaticamente"
-        });
-      } catch (error) {
-        console.error("Erro ao carregar rascunho:", error);
+    if (contratoParaEditar && contratoExistente) {
+      // Carregar dados do contrato existente para edição
+      form.reset({
+        cliente_id: contratoExistente.cliente_id,
+        banco_id: contratoExistente.banco_id,
+        numero_contrato: contratoExistente.numero_contrato || "",
+        tipo_operacao_bcb: (contratoExistente as any).tipo_operacao_bcb || "",
+        valor_divida: contratoExistente.valor_divida.toString(),
+        saldo_contabil: contratoExistente.saldo_contabil?.toString() || "",
+        data_ultimo_pagamento: contratoExistente.data_ultimo_pagamento || "",
+        data_entrada_escritorio: (contratoExistente as any).data_entrada_escritorio || "",
+        dias_atraso: (contratoExistente.dias_atraso || 0).toString(),
+        meses_atraso: (contratoExistente.meses_atraso || 0).toString(),
+        classificacao: contratoExistente.classificacao as any,
+        percentual_provisao: (contratoExistente.percentual_provisao || 0).toString(),
+        valor_provisao: (contratoExistente.valor_provisao || 0).toString(),
+        proposta_acordo: (contratoExistente.proposta_acordo || 0).toString(),
+        forma_pagamento: (contratoExistente as any).forma_pagamento,
+        numero_parcelas: ((contratoExistente as any).numero_parcelas || "").toString(),
+        valor_parcela: ((contratoExistente as any).valor_parcela || 0).toString(),
+        escritorio_banco_acordo: (contratoExistente as any).escritorio_banco_acordo || "",
+        contato_acordo_nome: (contratoExistente as any).contato_acordo_nome || "",
+        contato_acordo_telefone: (contratoExistente as any).contato_acordo_telefone || "",
+        observacoes: contratoExistente.observacoes || "",
+        is_reestruturado: (contratoExistente as any).is_reestruturado || false,
+        data_reestruturacao: (contratoExistente as any).data_reestruturacao 
+          ? new Date((contratoExistente as any).data_reestruturacao) 
+          : undefined,
+        acordo_final: (contratoExistente.acordo_final || 0).toString(),
+        reducao_divida: ((contratoExistente as any).reducao_divida || 0).toString(),
+        percentual_honorarios: (contratoExistente as any).percentual_honorarios?.toString() as any,
+        valor_honorarios: ((contratoExistente as any).valor_honorarios || 0).toString(),
+        situacao: (contratoExistente.situacao as any) || "Em análise",
+        tempo_escritorio: ((contratoExistente as any).tempo_escritorio || 0).toString(),
+      });
+      
+      enhancedToast.info("Contrato carregado para edição", {
+        description: `${contratoExistente.numero_contrato || 'Contrato'} pronto para edição`
+      });
+    } else if (!contratoParaEditar) {
+      // Carregar rascunho apenas se não estiver editando
+      const draft = localStorage.getItem(DRAFT_KEY);
+      if (draft) {
+        try {
+          const draftData = JSON.parse(draft);
+          form.reset(draftData);
+          setIsDraftSaved(true);
+          enhancedToast.info("Rascunho carregado", {
+            description: "Seus dados foram restaurados automaticamente"
+          });
+        } catch (error) {
+          console.error("Erro ao carregar rascunho:", error);
+        }
       }
     }
-  }, [form, contratoParaEditar]);
+  }, [form, contratoParaEditar, contratoExistente]);
 
   // Salvar rascunho automaticamente
   const saveDraft = useCallback(() => {
@@ -229,8 +273,8 @@ export function ContratoWizard({
           data_reestruturacao: data.data_reestruturacao ? data.data_reestruturacao.toISOString() : null,
         };
 
-        if (contratoParaEditar) {
-          return await updateContrato.mutateAsync({ ...contratoData, id: contratoParaEditar });
+        if (contratoParaEditar && contratoExistente) {
+          return await updateContrato.mutateAsync({ ...contratoData, id: contratoExistente.id });
         } else {
           return await createContrato.mutateAsync(contratoData);
         }

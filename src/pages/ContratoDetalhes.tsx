@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { ContratoForm } from "@/components/forms/ContratoForm";
+import { ContratoWizard } from "@/components/forms/ContratoWizard";
 import { GarantiaImpactDisplay } from "@/components/garantias/GarantiaImpactDisplay";
 import { useContratoByNumero } from "@/hooks/useContratoByNumero";
 import { useProvisaoPerda, useProvisaoPerdaIncorrida } from "@/hooks/useProvisao";
@@ -172,9 +172,9 @@ export default function ContratoDetalhes() {
             <DialogHeader>
               <DialogTitle>Editar Contrato</DialogTitle>
             </DialogHeader>
-            <ContratoForm 
+            <ContratoWizard 
               onSuccess={handleEditSuccess} 
-              contratoParaEditar={contrato.numero_contrato} 
+              contratoParaEditar={contrato.id} 
             />
           </DialogContent>
         </Dialog>

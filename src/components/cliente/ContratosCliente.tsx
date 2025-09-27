@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { ContratoForm } from "@/components/forms/ContratoForm";
+import { ContratoWizard } from "@/components/forms/ContratoWizard";
 import { useContratosByCliente } from "@/hooks/useContratosByCliente";
 import { Cliente } from "@/hooks/useClientes";
 import { format } from "date-fns";
@@ -69,11 +69,11 @@ export function ContratosCliente({ cliente }: ContratosClienteProps) {
                   Novo Contrato para {cliente.nome}
                 </DialogTitle>
               </DialogHeader>
-              <ContratoForm 
-                onSuccess={handleContratoSuccess}
-                contratoParaEditar={contratoParaEditar}
-                clienteIdPredefinido={cliente.id}
-              />
+          <ContratoWizard
+            onSuccess={handleContratoSuccess}
+            contratoParaEditar={contratoParaEditar}
+            clienteIdPredefinido={cliente.id}
+          />
             </DialogContent>
           </Dialog>
 
@@ -82,10 +82,10 @@ export function ContratosCliente({ cliente }: ContratosClienteProps) {
             <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>
-                  Editar Contrato {contratoParaEditar}
+                  Editar Contrato
                 </DialogTitle>
               </DialogHeader>
-              <ContratoForm 
+              <ContratoWizard
                 onSuccess={handleContratoSuccess}
                 contratoParaEditar={contratoParaEditar}
                 clienteIdPredefinido={cliente.id}
@@ -164,7 +164,7 @@ export function ContratosCliente({ cliente }: ContratosClienteProps) {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => setContratoParaEditar(contrato.numero_contrato || contrato.id)}
+                        onClick={() => setContratoParaEditar(contrato.id)}
                       >
                         <Edit2 className="h-4 w-4" />
                       </Button>

@@ -1,11 +1,9 @@
 import { UseFormReturn } from "react-hook-form";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { SmartInput } from "@/components/ui/smart-input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useClientes } from "@/hooks/useClientes";
 import { useBancos } from "@/hooks/useBancos";
-import { useSmartValidation } from "@/hooks/useSmartValidation";
 import { ContratoWizardData } from "./types";
 import { Users, Building, FileText } from "lucide-react";
 import { useEffect } from "react";
@@ -18,23 +16,29 @@ export function Etapa1({ form }: Etapa1Props) {
   const { data: clientes } = useClientes();
   const { data: bancos } = useBancos();
 
-  // Validação inteligente para número do contrato
-  const numeroContratoValidation = useSmartValidation(
-    form.watch("numero_contrato"),
-    [
-      (value) => {
-        if (!value) return { isValid: false, message: "Número do contrato é obrigatório" };
-        if (value.length < 3) return { isValid: false, message: "Número deve ter pelo menos 3 caracteres" };
-        return { isValid: true };
-      }
-    ],
-    {
-      enableSuggestions: true,
-      suggestionTable: "contratos",
-      suggestionField: "numero_contrato",
-      minSuggestionLength: 3
+  // Validação para número do contrato (apenas números, hífens e pontos)
+  const validarNumeroContrato = (value: string) => {
+    if (!value) return { isValid: true }; // Campo opcional
+    
+    // Permitir apenas números, hífens, pontos e espaços
+    const regex = /^[0-9\-.\s]+$/;
+    if (!regex.test(value)) {
+      return { 
+        isValid: false, 
+        message: "Use apenas números, hífens e pontos. Evite nomes de operações." 
+      };
     }
-  );
+    
+    // Verificar se não são apenas espaços ou caracteres especiais
+    if (value.replace(/[\-.\s]/g, '').length < 3) {
+      return { 
+        isValid: false, 
+        message: "Número deve ter pelo menos 3 dígitos válidos" 
+      };
+    }
+    
+    return { isValid: true };
+  };
 
   // Auto-preenchimento do código do banco
   const selectedBancoId = form.watch("banco_id");
@@ -127,26 +131,34 @@ export function Etapa1({ form }: Etapa1Props) {
           <FormField
             control={form.control}
             name="numero_contrato"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Número do Contrato *</FormLabel>
-                <FormControl>
-                  <SmartInput
-                    placeholder="Ex: 123456789"
-                    {...field}
-                    className="max-w-md"
-                    suggestions={numeroContratoValidation.suggestions}
-                    validationResult={numeroContratoValidation.validationResult}
-                    isValidating={numeroContratoValidation.isValidating}
-                    onSuggestionSelect={(suggestion) => {
-                      form.setValue('numero_contrato', suggestion);
-                      numeroContratoValidation.clearSuggestions();
-                    }}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            render={({ field }) => {
+              const validation = validarNumeroContrato(field.value || "");
+              return (
+                <FormItem>
+                  <FormLabel>Número do Contrato</FormLabel>
+                  <FormControl>
+                    <div className="space-y-2">
+                      <input
+                        placeholder="Ex: 123456789, 123.456.789-0"
+                        {...field}
+                        className={`flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 max-w-md ${
+                          !validation.isValid ? 'border-destructive focus-visible:ring-destructive' : ''
+                        }`}
+                        onChange={(e) => {
+                          // Filtrar caracteres não permitidos em tempo real
+                          const value = e.target.value.replace(/[^0-9\-.\s]/g, '');
+                          field.onChange(value);
+                        }}
+                      />
+                      {!validation.isValid && (
+                        <p className="text-sm text-destructive">{validation.message}</p>
+                      )}
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
           />
         </CardContent>
       </Card>
@@ -159,8 +171,8 @@ export function Etapa1({ form }: Etapa1Props) {
               <p className="font-medium">Informações importantes:</p>
               <ul className="list-disc list-inside text-muted-foreground mt-1 space-y-1">
                 <li>Certifique-se de que o cliente já está cadastrado no sistema</li>
-                <li>O número do contrato deve ser único e exato conforme documentação</li>
-                <li>Todos os campos marcados com * são obrigatórios</li>
+                <li>Use apenas NÚMEROS no campo contrato. Evite nomes de operações</li>
+                <li>Campos marcados com * são obrigatórios</li>
               </ul>
             </div>
           </div>

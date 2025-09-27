@@ -130,10 +130,10 @@ export default function Contratos() {
     setIsDialogOpen(true);
   };
 
-  const handleEditarContratoEspecifico = (numeroContrato: string | null) => {
-    if (!numeroContrato) return;
+  const handleEditarContratoEspecifico = (contrato: Contrato) => {
+    if (!contrato.id) return;
     setDialogTitle("Editar Contrato");
-    setContratoParaEditar(numeroContrato);
+    setContratoParaEditar(contrato.id); // Usar ID do contrato
     setIsDialogOpen(true);
   };
 
@@ -197,7 +197,7 @@ export default function Contratos() {
               key={contrato.id}
               contrato={contrato}
               onView={() => handleContratoClick(contrato)}
-              onEdit={() => handleEditarContratoEspecifico(contrato.numero_contrato)}
+              onEdit={() => handleEditarContratoEspecifico(contrato)}
             />
           )}
           emptyMessage="Nenhum contrato encontrado"
@@ -366,8 +366,7 @@ export default function Contratos() {
                             <Button 
                               variant="ghost" 
                               size="sm"
-                              onClick={() => handleEditarContratoEspecifico(contrato.numero_contrato)}
-                              disabled={!contrato.numero_contrato}
+                              onClick={() => handleEditarContratoEspecifico(contrato)}
                             >
                               <Edit className="h-4 w-4" />
                             </Button>
