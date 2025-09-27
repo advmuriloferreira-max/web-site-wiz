@@ -99,14 +99,19 @@ export default function Contratos() {
       rule: { field: 'dias_atraso', operator: 'gt' as const, value: 0, label: 'Com atraso' }
     },
     {
-      id: 'sem-acordo',
-      label: 'Sem Acordo',
-      rule: { field: 'situacao', operator: 'equals' as const, value: 'Sem acordo', label: 'Sem acordo' }
+      id: 'em-negociacao',
+      label: 'Em Negociação',
+      rule: { field: 'situacao', operator: 'equals' as const, value: 'Em negociação', label: 'Em negociação' }
     },
     {
-      id: 'c4-c5',
-      label: 'C4/C5',
-      rule: { field: 'classificacao', operator: 'in' as const, value: ['C4', 'C5'], label: 'Classificação C4/C5' }
+      id: 'c4',
+      label: 'C4',
+      rule: { field: 'classificacao', operator: 'equals' as const, value: 'C4', label: 'Classificação C4' }
+    },
+    {
+      id: 'c5',
+      label: 'C5',
+      rule: { field: 'classificacao', operator: 'equals' as const, value: 'C5', label: 'Classificação C5' }
     },
     {
       id: 'alto-valor',
