@@ -122,7 +122,7 @@ export function AppSidebar() {
             </div>
             <div className="transition-all duration-300">
               <h2 className="text-xl font-bold text-white tracking-wider">
-                SISTEMA JURÍDICO INTELIGENTE
+                PROVISIONAMENTO BANCÁRIO INTELIGENTE
               </h2>
             </div>
           </div>
