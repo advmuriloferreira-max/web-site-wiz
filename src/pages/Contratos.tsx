@@ -206,20 +206,12 @@ export default function Contratos() {
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (confirm(`Confirma a exclusão do contrato ${contrato.numero_contrato || 'selecionado'}?`)) {
-                                handleDeleteContrato(contrato.id);
-                              }
-                            }}
-                            className="h-8 w-8 p-0 hover:bg-destructive/10 text-destructive"
-                            title="Excluir contrato"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          <DeleteConfirmation
+                            itemName={contrato.numero_contrato || contrato.clientes?.nome || "contrato"}
+                            itemType="contrato"
+                            onConfirm={() => handleDeleteContrato(contrato.id)}
+                            className="group"
+                          />
                         </div>
                       </TableCell>
                     </TableRow>
