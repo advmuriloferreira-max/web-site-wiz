@@ -29,26 +29,26 @@ export function StatsCard({
   const isNumeric = !isNaN(numericValue);
 
   return (
-    <Card className={cn("interactive-card animate-fade-in", className)} style={{ animationDelay: `${delay}ms` }}>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground animate-fade-in animate-stagger-1">
+    <Card className={cn("hover:shadow-lg transition-all duration-200 border-border/50 animate-fade-in", className)} style={{ animationDelay: `${delay}ms` }}>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+        <CardTitle className="text-sm font-medium text-muted-foreground/80 animate-fade-in animate-stagger-1">
           {title}
         </CardTitle>
-        <Icon className="h-4 w-4 text-muted-foreground animate-scale-in animate-stagger-2" />
+        <Icon className="h-5 w-5 text-muted-foreground/60 animate-scale-in animate-stagger-2" />
       </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold text-foreground">
+      <CardContent className="pt-0">
+        <div className="text-2xl font-bold text-foreground tracking-tight">
           {isNumeric ? (
             <AnimatedCounter 
               value={numericValue} 
-              className="text-numeric"
+              className="text-foreground"
             />
           ) : (
             <span className="animate-fade-in animate-stagger-2">{value}</span>
           )}
         </div>
         {description && (
-          <p className="text-xs text-muted-foreground mt-1 animate-fade-in animate-stagger-3">
+          <p className="text-xs text-muted-foreground/70 mt-2 animate-fade-in animate-stagger-3">
             {description}
           </p>
         )}

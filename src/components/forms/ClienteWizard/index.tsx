@@ -150,16 +150,16 @@ export function ClienteWizard({ onSuccess, clienteParaEditar }: ClienteWizardPro
     <div className="max-w-2xl mx-auto">
       {/* Header com Progress */}
       <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold text-foreground tracking-tight">
             {clienteParaEditar ? "Editar Cliente" : "Novo Cliente"}
           </h2>
-          <div className="text-sm text-muted-foreground">
+          <div className="text-sm text-muted-foreground/70 font-medium">
             Etapa {etapaAtual} de {etapas.length}
           </div>
         </div>
         
-        <Progress value={progress} className="h-2 mb-4" />
+        <Progress value={progress} className="h-2 mb-6" />
         
         {/* Timeline das Etapas */}
         <div className="flex items-center justify-between">
@@ -175,12 +175,12 @@ export function ClienteWizard({ onSuccess, clienteParaEditar }: ClienteWizardPro
                 }`}
               >
                 <div className={`
-                  flex items-center justify-center w-8 h-8 rounded-full border-2 mb-2
+                  flex items-center justify-center w-8 h-8 rounded-full border-2 mb-2 transition-all duration-200
                   ${completa 
-                    ? 'bg-green-500 border-green-500 text-white' 
+                    ? 'bg-success border-success text-white shadow-sm' 
                     : ativa 
-                    ? 'border-primary bg-primary text-white' 
-                    : 'border-gray-300 text-gray-400'
+                    ? 'border-primary bg-primary text-white shadow-sm' 
+                    : 'border-muted-foreground/30 text-muted-foreground/60'
                   }
                 `}>
                   {completa ? (
@@ -191,20 +191,20 @@ export function ClienteWizard({ onSuccess, clienteParaEditar }: ClienteWizardPro
                 </div>
                 
                 <div className="text-center">
-                  <div className={`text-sm font-medium ${
-                    ativa ? 'text-primary' : completa ? 'text-green-600' : 'text-gray-500'
+                  <div className={`text-sm font-medium transition-colors duration-200 ${
+                    ativa ? 'text-primary' : completa ? 'text-success' : 'text-muted-foreground/60'
                   }`}>
                     {etapa.titulo}
                   </div>
-                  <div className="text-xs text-muted-foreground">
+                  <div className="text-xs text-muted-foreground/70">
                     {etapa.descricao}
                   </div>
                 </div>
                 
                 {index < etapas.length - 1 && (
                   <div className={`
-                    absolute top-4 left-1/2 w-full h-0.5 -z-10
-                    ${completa ? 'bg-green-500' : 'bg-gray-300'}
+                    absolute top-4 left-1/2 w-full h-0.5 -z-10 transition-colors duration-200
+                    ${completa ? 'bg-success' : 'bg-muted-foreground/20'}
                   `} />
                 )}
               </div>
@@ -214,9 +214,9 @@ export function ClienteWizard({ onSuccess, clienteParaEditar }: ClienteWizardPro
       </div>
 
       {/* Conteúdo da Etapa */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+      <Card className="shadow-sm border-border/50">
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center gap-2 text-lg">
             <Circle className="w-5 h-5 text-primary" />
             {etapas[etapaAtual - 1]?.titulo}
           </CardTitle>
@@ -227,23 +227,23 @@ export function ClienteWizard({ onSuccess, clienteParaEditar }: ClienteWizardPro
       </Card>
 
       {/* Botões de Navegação */}
-      <div className="flex justify-between mt-6">
+      <div className="flex justify-between mt-8">
         <Button
           variant="outline"
           onClick={voltarEtapa}
           disabled={etapaAtual === 1}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 px-6"
         >
           <ArrowLeft className="w-4 h-4" />
           Voltar
         </Button>
 
-        <div className="flex gap-2">
+        <div className="flex gap-3">
           {etapaAtual < etapas.length ? (
             <Button
               onClick={avancarEtapa}
               disabled={!podeAvancar()}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 px-6"
             >
               Próximo
               <ArrowRight className="w-4 h-4" />
@@ -252,7 +252,7 @@ export function ClienteWizard({ onSuccess, clienteParaEditar }: ClienteWizardPro
             <Button
               onClick={finalizarCadastro}
               disabled={createClienteMutation.isPending}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 px-6"
             >
               <Save className="w-4 h-4" />
               {createClienteMutation.isPending ? "Salvando..." : "Finalizar Cadastro"}
