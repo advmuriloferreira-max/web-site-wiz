@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Users } from "lucide-react";
-import { ClienteForm } from "@/components/forms/ClienteForm";
+import { ClienteWizard } from "@/components/forms/ClienteWizard";
 import { ResponsiveContainer } from "@/components/ui/layout-consistency";
 import { GlassCard } from "@/components/ui/glassmorphism";
 import { GradientText } from "@/components/ui/gradient-elements";
@@ -39,14 +39,8 @@ export default function NovoCliente() {
       </div>
 
       <GlassCard variant="subtle" className="animate-slide-up">
-        <CardHeader className="glass-header border-b border-white/10">
-          <CardTitle className="flex items-center space-x-3">
-            <ColoredIcon icon={Users} className="text-primary" />
-            <GradientText variant="primary">Dados do Cliente</GradientText>
-          </CardTitle>
-        </CardHeader>
         <CardContent className="p-6">
-          <ClienteForm onSuccess={handleSuccess} />
+          <ClienteWizard onSuccess={handleSuccess} />
         </CardContent>
       </GlassCard>
     </ResponsiveContainer>
