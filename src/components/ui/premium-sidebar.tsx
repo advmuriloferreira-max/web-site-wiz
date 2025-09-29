@@ -22,7 +22,8 @@ import {
   Edit3,
   MoreHorizontal,
   Star,
-  Archive
+  Archive,
+  Upload
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -150,8 +151,6 @@ const defaultSections: NavigationSection[] = [
   }
 ];
 
-// Import for Upload icon  
-const Upload = Plus;
 
 export function PremiumSidebar() {
   const { state, toggleSidebar } = useSidebar();
