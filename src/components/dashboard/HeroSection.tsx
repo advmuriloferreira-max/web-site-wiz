@@ -11,21 +11,34 @@ export function HeroSection() {
       <div className="absolute top-0 right-0 w-96 h-96 bg-accent/10 rounded-full blur-3xl -translate-y-48 translate-x-48" />
       <div className="absolute bottom-0 left-0 w-72 h-72 bg-primary-glow/10 rounded-full blur-3xl translate-y-36 -translate-x-36" />
       
-      <div className="relative flex flex-col lg:flex-row items-center justify-between">
-        <div className="flex-1 space-y-8">
-          <div className="space-y-4">
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-white">
-              INTELLBANK
-              <span className="block text-xl md:text-2xl lg:text-3xl text-accent/90 font-medium mt-2">
-                Sistema Jurídico Especializado
+      <div className="relative flex flex-col items-center justify-center text-center min-h-[300px]">
+        <div className="space-y-6">
+          {/* Logo com Brain Icon */}
+          <div className="flex items-center justify-center gap-4">
+            <div className="relative">
+              <div className="w-16 h-16 bg-accent/20 backdrop-blur-sm rounded-lg border border-accent/40 flex items-center justify-center shadow-lg">
+                <LegalIcons.justice className="h-10 w-10 text-accent animate-pulse" />
+              </div>
+              <div className="absolute -top-2 -right-2 w-6 h-6 bg-accent rounded-full flex items-center justify-center animate-ping opacity-75">
+                <div className="w-2 h-2 bg-white rounded-full" />
+              </div>
+            </div>
+            
+            <div>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white">
+                INTELLBANK
+              </h1>
+              <span className="block text-lg md:text-xl lg:text-2xl text-accent/90 font-medium mt-2">
+                Provisionamento Bancário Inteligente
               </span>
-            </h1>
-            <p className="text-lg text-white/90 font-medium max-w-2xl">
-              Plataforma de gestão de provisões bancárias em conformidade com as regulamentações do Banco Central do Brasil
-            </p>
+            </div>
           </div>
           
-          <div className="flex items-center space-x-8 text-white/90">
+          <p className="text-lg text-white/90 font-medium max-w-3xl mx-auto">
+            Plataforma de gestão de provisões bancárias em conformidade com as regulamentações do Banco Central do Brasil
+          </p>
+          
+          <div className="flex flex-wrap items-center justify-center gap-8 text-white/90">
             <div className="flex items-center space-x-3">
               <div className="p-3 bg-white/10 backdrop-blur-sm rounded-lg border border-accent/30">
                 <LegalIcons.justice className="h-6 w-6 text-accent" />
@@ -54,25 +67,12 @@ export function HeroSection() {
           </div>
           
           {/* Compliance badge */}
-          <div className="flex items-center space-x-2 px-4 py-2 bg-success/20 border border-success/40 rounded-lg inline-flex shadow-sm">
-            <LegalIcons.compliance className="h-5 w-5 text-success" />
-            <span className="text-sm font-semibold text-success uppercase tracking-wider">
-              Conforme Resolução BCB 4966/2021
-            </span>
-          </div>
-        </div>
-        
-        {/* Legal illustration */}
-        <div className="flex-shrink-0 mt-8 lg:mt-0 lg:ml-12">
-          <div className="relative">
-            <div className="w-40 h-40 bg-accent/20 backdrop-blur-sm rounded-lg border border-accent/40 flex items-center justify-center shadow-lg">
-              <LegalIcons.justice className="h-24 w-24 text-accent" />
-            </div>
-            <div className="absolute -top-3 -right-3 w-8 h-8 bg-success rounded-full flex items-center justify-center animate-pulse">
-              <LegalIcons.completed className="h-4 w-4 text-white" />
-            </div>
-            <div className="absolute -bottom-3 -left-3 w-6 h-6 bg-warning rounded-full flex items-center justify-center animate-ping">
-              <LegalIcons.pending className="h-3 w-3 text-white" />
+          <div className="flex items-center justify-center">
+            <div className="flex items-center space-x-2 px-4 py-2 bg-success/20 border border-success/40 rounded-lg shadow-sm">
+              <LegalIcons.compliance className="h-5 w-5 text-success" />
+              <span className="text-sm font-semibold text-success uppercase tracking-wider">
+                Conforme Resolução BCB 4966/2021
+              </span>
             </div>
           </div>
         </div>
