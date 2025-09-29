@@ -132,13 +132,15 @@ export function EnterpriseMobileNav() {
       const currentScrollY = window.scrollY;
       const isScrollingDown = currentScrollY > lastScrollY;
       
-      setShowFAB(!isScrollingDown || currentScrollY < 100);
+      // Only hide after scrolling more than 200px and don't hide on contract details page
+      const hideNavigation = isScrollingDown && currentScrollY > 200 && !location.pathname.includes('/contratos/');
+      setShowFAB(!hideNavigation);
       setLastScrollY(currentScrollY);
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY]);
+  }, [lastScrollY, location.pathname]);
 
   // Swipe gestures for navigation
   useEffect(() => {

@@ -27,5 +27,7 @@ export const useContratoById = (contratoId: string | null) => {
       return data as Contrato | null;
     },
     enabled: !!contratoId?.trim(),
+    staleTime: 0, // Always fetch fresh data
+    gcTime: 0, // Don't keep in cache
   });
 };
