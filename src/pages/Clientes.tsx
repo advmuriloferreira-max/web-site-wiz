@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ClienteForm } from "@/components/forms/ClienteForm";
+import { ClienteWizard } from "@/components/forms/ClienteWizard";
 import { ContratosCliente } from "@/components/cliente/ContratosCliente";
 import { useClientes, useDeleteCliente, Cliente } from "@/hooks/useClientes";
 import { useContratosCountByCliente } from "@/hooks/useContratosByCliente";
@@ -123,7 +123,7 @@ export default function Clientes() {
                 Editar Cliente
               </DialogTitle>
             </DialogHeader>
-            <ClienteForm cliente={selectedCliente || undefined} onSuccess={handleSuccess} />
+            <ClienteWizard onSuccess={handleSuccess} clienteParaEditar={selectedCliente} />
           </DialogContent>
         </Dialog>
       </div>
@@ -308,7 +308,7 @@ export default function Clientes() {
             </Table>
           </div>
         </CardContent>
-      </div>
-    </ResponsiveContainer>
+      </Card>
+    </div>
   );
 }

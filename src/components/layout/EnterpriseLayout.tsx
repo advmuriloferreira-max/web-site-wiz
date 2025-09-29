@@ -1,5 +1,7 @@
 import React, { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
+import { GlobalSearchButton } from "@/components/ui/global-search";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { SmartBreadcrumbs } from "@/components/ui/smart-breadcrumbs";
