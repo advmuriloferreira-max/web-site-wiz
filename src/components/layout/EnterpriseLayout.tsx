@@ -79,7 +79,7 @@ export function EnterpriseLayout() {
                 <LegalIcons.justice className="h-8 w-8 text-accent" />
                 <div className="hidden lg:block">
                   <h2 className="text-xl font-bold text-white tracking-wider">INTELLBANK</h2>
-                  <p className="text-xs text-accent font-semibold uppercase">Sistema Jurídico</p>
+                  <p className="text-xs text-accent font-semibold uppercase">Provisionamento de Dívidas Bancárias</p>
                 </div>
               </div>
 
