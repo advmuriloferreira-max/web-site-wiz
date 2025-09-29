@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { PremiumSidebar } from "@/components/ui/premium-sidebar";
+import { AppSidebar } from "@/components/AppSidebar";
 import { SmartBreadcrumbs } from "@/components/ui/smart-breadcrumbs";
 import { EnhancedSearch } from "@/components/ui/enhanced-search";
 import { EnterpriseMobileNav } from "@/components/ui/enterprise-mobile-nav";
@@ -10,7 +10,7 @@ import { PageTransition } from "@/components/ui/page-transition";
 import { InstallPrompt } from "@/components/InstallPrompt";
 import AssistenteVirtual from "@/components/assistente/AssistenteVirtual";
 import { Button } from "@/components/ui/button";
-import { Search, Bell, Settings } from "lucide-react";
+import { LegalIcons } from "@/components/ui/legal-icons";
 import { useEnterpriseNavigation } from "@/hooks/useEnterpriseNavigation";
 import { cn } from "@/lib/utils";
 
@@ -61,17 +61,26 @@ export function EnterpriseLayout() {
       <div className="min-h-screen flex w-full bg-background">
         {/* Desktop Sidebar */}
         <div className="hidden md:block">
-          <PremiumSidebar />
+          <AppSidebar />
         </div>
 
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col min-w-0">
-          {/* Top Header */}
-          <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <div className="flex h-14 items-center px-4 gap-4">
+          {/* Top Header - Estilo Executivo */}
+          <header className="executive-header sticky top-0 z-40 w-full border-b-2 border-accent/20 bg-primary/95 backdrop-blur supports-[backdrop-filter]:bg-primary/60">
+            <div className="flex h-20 items-center px-6 gap-6">
               {/* Mobile Sidebar Trigger */}
               <div className="md:hidden">
-                <SidebarTrigger />
+                <SidebarTrigger className="text-white hover:text-accent" />
+              </div>
+
+              {/* Logo Jurídico */}
+              <div className="flex items-center space-x-3">
+                <LegalIcons.justice className="h-8 w-8 text-accent" />
+                <div className="hidden lg:block">
+                  <h2 className="text-xl font-bold text-white tracking-wider">INTELLBANK</h2>
+                  <p className="text-xs text-accent font-semibold uppercase">Sistema Jurídico</p>
+                </div>
               </div>
 
               {/* Breadcrumbs */}
@@ -80,17 +89,17 @@ export function EnterpriseLayout() {
               </div>
 
               {/* Header Actions */}
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-3">
                 {/* Global Search */}
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
                   onClick={() => setSearchOpen(true)}
-                  className="hidden sm:flex items-center space-x-2 text-muted-foreground"
+                  className="hidden sm:flex items-center space-x-2 text-white/80 hover:text-white hover:bg-white/10 border border-white/20"
                 >
-                  <Search className="h-4 w-4" />
+                  <LegalIcons.search className="h-4 w-4" />
                   <span className="hidden lg:inline">Buscar...</span>
-                  <kbd className="pointer-events-none h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-xs font-medium opacity-100 hidden lg:flex">
+                  <kbd className="pointer-events-none h-5 select-none items-center gap-1 rounded border border-white/20 bg-white/10 px-1.5 font-mono text-xs font-medium text-white/70 hidden lg:flex">
                     Ctrl+K
                   </kbd>
                 </Button>
@@ -100,39 +109,39 @@ export function EnterpriseLayout() {
                   variant="ghost"
                   size="sm"
                   onClick={() => setSearchOpen(true)}
-                  className="sm:hidden"
+                  className="sm:hidden text-white hover:bg-white/10"
                 >
-                  <Search className="h-4 w-4" />
+                  <LegalIcons.search className="h-4 w-4" />
                 </Button>
 
                 {/* Notifications */}
-                <Button variant="ghost" size="sm" className="relative">
-                  <Bell className="h-4 w-4" />
-                  <span className="absolute -top-1 -right-1 h-2 w-2 bg-red-500 rounded-full animate-pulse" />
+                <Button variant="ghost" size="sm" className="relative text-white hover:bg-white/10">
+                  <LegalIcons.compliance className="h-4 w-4" />
+                  <span className="absolute -top-1 -right-1 h-2 w-2 bg-accent rounded-full animate-pulse" />
                 </Button>
 
                 {/* Theme Toggle */}
                 <ThemeToggle size="sm" />
 
                 {/* Settings (Desktop) */}
-                <Button variant="ghost" size="sm" className="hidden md:flex">
-                  <Settings className="h-4 w-4" />
+                <Button variant="ghost" size="sm" className="hidden md:flex text-white hover:bg-white/10">
+                  <LegalIcons.settings className="h-4 w-4" />
                 </Button>
               </div>
             </div>
 
             {/* Mobile Breadcrumbs */}
-            <div className="px-4 py-2 border-t sm:hidden">
+            <div className="px-4 py-2 border-t border-accent/20 sm:hidden">
               <SmartBreadcrumbs showKeyboardShortcuts={false} />
             </div>
           </header>
 
           {/* Page Content */}
-          <main className="flex-1 overflow-auto">
-            <div className="container mx-auto px-4 py-6 pb-20 md:pb-6">
+          <main className="flex-1 overflow-auto bg-background">
+            <div className="container mx-auto padding-content pb-20 md:pb-6">
               <PageTransition>
                 <Routes>
-                  <Route path="/" element={<Home />} />
+                  <Route path="/" element={<Index />} />
                   <Route path="/dashboard" element={<Index />} />
                   <Route path="clientes" element={<Clientes />} />
                   <Route path="clientes/novo" element={<NovoCliente />} />
@@ -145,13 +154,13 @@ export function EnterpriseLayout() {
                   <Route path="relatorios" element={<Relatorios />} />
                   <Route path="relatorios-avancados" element={<RelatoriosAvancados />} />
                   <Route path="configuracoes" element={<Configuracoes />} />
-          <Route path="workspace" element={<WorkspacePage />} />
-          <Route path="visual-effects" element={
-            <div className="container mx-auto">
-              <VisualEffectsDemo />
-            </div>
-          } />
-          <Route path="*" element={<NotFound />} />
+                  <Route path="workspace" element={<WorkspacePage />} />
+                  <Route path="visual-effects" element={
+                    <div className="container mx-auto">
+                      <VisualEffectsDemo />
+                    </div>
+                  } />
+                  <Route path="*" element={<NotFound />} />
                 </Routes>
               </PageTransition>
             </div>
