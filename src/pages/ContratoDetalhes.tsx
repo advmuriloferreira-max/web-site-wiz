@@ -20,6 +20,11 @@ import { format } from "date-fns";
 import { useState, useEffect } from "react";
 import AssistenteVirtual from "@/components/assistente/AssistenteVirtual";
 
+// Import visual effects components
+import { HeroParticleBackground, SuccessConfetti } from "@/components/ui/particle-effects";
+import { AdvancedGlassmorphism } from "@/components/ui/advanced-glassmorphism";
+import { GlowEffect, MouseShadowCaster, SpotlightEffect } from "@/components/ui/lighting-effects";
+import { MorphingButton, MorphingNumber } from "@/components/ui/morphing-elements";
 
 const getClassificacaoColor = (classificacao: string | null) => {
   switch (classificacao) {
@@ -65,6 +70,7 @@ export default function ContratoDetalhes() {
   const navigate = useNavigate();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [resultadoProvisao, setResultadoProvisao] = useState<ResultadoCalculo | null>(null);
+  const [showSuccessEffect, setShowSuccessEffect] = useState(false);
   
   const { data: contrato, isLoading, error } = useContratoById(contratoId || null);
   const { data: tabelaPerda } = useProvisaoPerda();
@@ -84,6 +90,7 @@ export default function ContratoDetalhes() {
 
   const handleEditSuccess = () => {
     setIsEditDialogOpen(false);
+    setShowSuccessEffect(true);
   };
 
   // Calcular provisão avançada com garantias quando o contrato for carregado
@@ -139,305 +146,299 @@ export default function ContratoDetalhes() {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate("/contratos")}
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Voltar
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">
-              Contrato {contrato.numero_contrato || "Sem número"}
-            </h1>
-            <p className="text-muted-foreground">
-              Cliente: {contrato.clientes?.nome} • Banco: {contrato.bancos?.nome}
-            </p>
-          </div>
-        </div>
+    <HeroParticleBackground className="min-h-screen bg-gradient-to-br from-background via-muted/10 to-background">
+      <div className="container mx-auto p-6 space-y-6">
         
-        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Edit className="mr-2 h-4 w-4" />
-              Editar Contrato
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Editar Contrato</DialogTitle>
-            </DialogHeader>
-            <ContratoWizard 
-              onSuccess={handleEditSuccess} 
-              contratoParaEditar={contrato.id} 
-            />
-          </DialogContent>
-        </Dialog>
-      </div>
+        {/* Success Confetti */}
+        <SuccessConfetti 
+          trigger={showSuccessEffect} 
+          onComplete={() => setShowSuccessEffect(false)} 
+        />
 
-      {/* Alerta para contratos reestruturados em período de observação */}
-      {(contrato as any).is_reestruturado && (contrato as any).data_reestruturacao && (() => {
-        const observacao = verificarPeriodoObservacaoReestruturacao((contrato as any).data_reestruturacao);
-        if (observacao.emPeriodo) {
-          return (
-            <Alert className="border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-950">
-              <AlertTriangle className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
-              <AlertDescription className="text-yellow-800 dark:text-yellow-200">
-                <strong>Operação Reestruturada - Período de Observação</strong>
-                <br />
-                Este contrato está em período de observação regulamentar de 6 meses. 
-                Mantido em Estágio de Risco mínimo 2 conforme normativas.
-                <br />
-                <span className="text-sm">
-                  Restam {observacao.diasRestantes} dias para conclusão do período de observação.
-                  Data da reestruturação: {format(new Date((contrato as any).data_reestruturacao), "dd/MM/yyyy")}
-                </span>
-              </AlertDescription>
-            </Alert>
-          );
-        }
-        return null;
-      })()}
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Informações Básicas */}
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              Informações do Contrato
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Cliente</label>
-                <p className="text-lg font-medium">{contrato.clientes?.nome}</p>
-                <p className="text-sm text-muted-foreground">{contrato.clientes?.cpf_cnpj}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Banco</label>
-                <p className="text-lg font-medium">{contrato.bancos?.nome}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Número do Contrato</label>
-                <p className="text-lg font-medium">{contrato.numero_contrato || "-"}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Tipo de Operação</label>
-                <p className="text-lg font-medium">{contrato.tipo_operacao || "-"}</p>
-              </div>
-            </div>
-
-            <Separator />
-
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Situação</label>
-                <div className="mt-1">
-                  <Badge className={getSituacaoColor(contrato.situacao)}>
-                    {contrato.situacao}
-                  </Badge>
-                </div>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Classificação</label>
-                <div className="mt-1">
-                  {contrato.classificacao ? (
-                    <Badge className={getClassificacaoColor(contrato.classificacao)}>
-                      {contrato.classificacao}
-                    </Badge>
-                  ) : (
-                    <span className="text-muted-foreground">-</span>
-                  )}
-                </div>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Estágio de Risco</label>
-                <div className="mt-1">
-                  {(contrato as any).estagio_risco ? (
-                    <Badge className={getEstagioRiscoColor((contrato as any).estagio_risco)}>
-                      {getEstagioRiscoLabel((contrato as any).estagio_risco)}
-                    </Badge>
-                  ) : (
-                    <span className="text-muted-foreground">-</span>
-                  )}
-                </div>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Dias de Atraso</label>
-                <div className="mt-1">
-                  {contrato.dias_atraso > 0 ? (
-                    <Badge variant="destructive">{contrato.dias_atraso} dias</Badge>
-                  ) : (
-                    <Badge variant="secondary">Em dia</Badge>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <Separator />
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Data de Entrada</label>
-                <p className="text-lg">{formatDate(contrato.data_entrada)}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Data Último Pagamento</label>
-                <p className="text-lg">{formatDate(contrato.data_ultimo_pagamento)}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Data de Vencimento</label>
-                <p className="text-lg">{formatDate(contrato.data_vencimento)}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Data de Conclusão</label>
-                <p className="text-lg">{formatDate(contrato.data_conclusao)}</p>
-              </div>
-              {(contrato as any).is_reestruturado && (
+        {/* Header */}
+        <MouseShadowCaster>
+          <AdvancedGlassmorphism variant="frost" animated className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigate("/contratos")}
+                  className="flex items-center gap-2 hover-glow"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Voltar
+                </Button>
                 <div>
-                  <label className="text-sm font-medium text-muted-foreground">Data da Reestruturação</label>
-                  <p className="text-lg">{formatDate((contrato as any).data_reestruturacao)}</p>
-                  <Badge variant="outline" className="mt-1">
-                    Operação Reestruturada
-                  </Badge>
-                </div>
-              )}
-            </div>
-
-            {contrato.observacoes && (
-              <>
-                <Separator />
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">Observações</label>
-                  <p className="text-sm mt-1 p-3 bg-muted rounded-md">{contrato.observacoes}</p>
-                </div>
-              </>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Informações Financeiras */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calculator className="h-5 w-5" />
-              Valores Financeiros
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <label className="text-sm font-medium text-muted-foreground">Valor da Dívida</label>
-              <p className="text-2xl font-bold text-foreground">
-                {formatCurrency(contrato.valor_divida)}
-              </p>
-            </div>
-            
-            {contrato.saldo_contabil && (
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Dívida Contábil</label>
-                <p className="text-xl font-semibold">
-                  {formatCurrency(contrato.saldo_contabil)}
-                </p>
-              </div>
-            )}
-
-            <Separator />
-
-            {contrato.valor_provisao > 0 && (
-               <div>
-                 <label className="text-sm font-medium text-muted-foreground">Provisão</label>
-                 <p className="text-lg font-medium">
-                   {(contrato.percentual_provisao ?? 0).toFixed(2)}%
-                 </p>
-                <p className="text-xl font-semibold text-orange-600">
-                  {formatCurrency(contrato.valor_provisao)}
-                </p>
-                {(contrato as any).is_reestruturado && (contrato as any).data_reestruturacao && (() => {
-                  const observacao = verificarPeriodoObservacaoReestruturacao((contrato as any).data_reestruturacao);
-                  if (observacao.emPeriodo) {
-                    return (
-                      <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
-                        ⚠️ Provisão ajustada por reestruturação
-                      </p>
-                    );
-                  }
-                  return null;
-                })()}
-              </div>
-            )}
-
-            {contrato.acordo_final > 0 && (
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Acordo Final</label>
-                <p className="text-xl font-semibold text-green-700">
-                  {formatCurrency(contrato.acordo_final)}
-                </p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Informações de Acordo (se houver) */}
-      {((contrato as any).forma_pagamento || (contrato as any).contato_acordo_nome) && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Informações do Acordo</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {(contrato as any).forma_pagamento && (
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">Forma de Pagamento</label>
-                  <p className="text-lg font-medium capitalize">
-                    {(contrato as any).forma_pagamento.replace("_", " ")}
+                  <h1 className="text-3xl font-bold text-foreground">
+                    Contrato {contrato.numero_contrato || "Sem número"}
+                  </h1>
+                  <p className="text-muted-foreground text-lg">
+                    Cliente: {contrato.clientes?.nome} • Banco: {contrato.bancos?.nome}
                   </p>
                 </div>
-              )}
+              </div>
               
-              {(contrato as any).numero_parcelas && (
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">Número de Parcelas</label>
-                  <p className="text-lg font-medium">{(contrato as any).numero_parcelas}x</p>
-                </div>
-              )}
-              
-              {(contrato as any).valor_parcela > 0 && (
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">Valor da Parcela</label>
-                  <p className="text-lg font-medium">{formatCurrency((contrato as any).valor_parcela)}</p>
-                </div>
-              )}
+              <SpotlightEffect>
+                <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+                  <DialogTrigger asChild>
+                    <MorphingButton className="bg-primary hover:bg-primary/90">
+                      <Edit className="mr-2 h-4 w-4" />
+                      Editar Contrato
+                    </MorphingButton>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>Editar Contrato</DialogTitle>
+                    </DialogHeader>
+                    <ContratoWizard 
+                      onSuccess={handleEditSuccess} 
+                      contratoParaEditar={contrato.id} 
+                    />
+                  </DialogContent>
+                </Dialog>
+              </SpotlightEffect>
+            </div>
+          </AdvancedGlassmorphism>
+        </MouseShadowCaster>
 
-              {(contrato as any).contato_acordo_nome && (
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">Contato do Acordo</label>
-                  <p className="text-lg font-medium">{(contrato as any).contato_acordo_nome}</p>
-                  {(contrato as any).contato_acordo_telefone && (
-                    <p className="text-sm text-muted-foreground">{(contrato as any).contato_acordo_telefone}</p>
+        {/* Alerta para contratos reestruturados */}
+        {(contrato as any).is_reestruturado && (contrato as any).data_reestruturacao && (() => {
+          const observacao = verificarPeriodoObservacaoReestruturacao((contrato as any).data_reestruturacao);
+          if (observacao.emPeriodo) {
+            return (
+              <GlowEffect intensity="medium" color="accent">
+                <Alert className="border-yellow-200 bg-yellow-50/80 dark:border-yellow-800 dark:bg-yellow-950/80 backdrop-blur-sm">
+                  <AlertTriangle className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+                  <AlertDescription className="text-yellow-800 dark:text-yellow-200">
+                    <strong>Operação Reestruturada - Período de Observação</strong>
+                    <br />
+                    Este contrato está em período de observação regulamentar de 6 meses. 
+                    Mantido em Estágio de Risco mínimo 2 conforme normativas.
+                    <br />
+                    <span className="text-sm">
+                      Restam {observacao.diasRestantes} dias para conclusão do período de observação.
+                      Data da reestruturação: {format(new Date((contrato as any).data_reestruturacao), "dd/MM/yyyy")}
+                    </span>
+                  </AlertDescription>
+                </Alert>
+              </GlowEffect>
+            );
+          }
+          return null;
+        })()}
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Informações Básicas */}
+          <AdvancedGlassmorphism variant="medium" animated className="lg:col-span-2">
+            <Card className="border-0 bg-transparent shadow-none">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Informações do Contrato
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Cliente</label>
+                    <p className="text-lg font-medium">{contrato.clientes?.nome}</p>
+                    <p className="text-sm text-muted-foreground">{contrato.clientes?.cpf_cnpj}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Banco</label>
+                    <p className="text-lg font-medium">{contrato.bancos?.nome}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Número do Contrato</label>
+                    <p className="text-lg font-medium">{contrato.numero_contrato || "-"}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Tipo de Operação</label>
+                    <p className="text-lg font-medium">{contrato.tipo_operacao || "-"}</p>
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Situação</label>
+                    <div className="mt-1">
+                      <Badge className={getSituacaoColor(contrato.situacao)}>
+                        {contrato.situacao}
+                      </Badge>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Classificação</label>
+                    <div className="mt-1">
+                      {contrato.classificacao ? (
+                        <Badge className={getClassificacaoColor(contrato.classificacao)}>
+                          {contrato.classificacao}
+                        </Badge>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Estágio de Risco</label>
+                    <div className="mt-1">
+                      {(contrato as any).estagio_risco ? (
+                        <Badge className={getEstagioRiscoColor((contrato as any).estagio_risco)}>
+                          {getEstagioRiscoLabel((contrato as any).estagio_risco)}
+                        </Badge>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Dias de Atraso</label>
+                    <div className="mt-1">
+                      {contrato.dias_atraso > 0 ? (
+                        <Badge variant="destructive">{contrato.dias_atraso} dias</Badge>
+                      ) : (
+                        <Badge variant="secondary">Em dia</Badge>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Data de Entrada</label>
+                    <p className="text-lg">{formatDate(contrato.data_entrada)}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Data Último Pagamento</label>
+                    <p className="text-lg">{formatDate(contrato.data_ultimo_pagamento)}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Data de Vencimento</label>
+                    <p className="text-lg">{formatDate(contrato.data_vencimento)}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Data de Conclusão</label>
+                    <p className="text-lg">{formatDate(contrato.data_conclusao)}</p>
+                  </div>
+                  {(contrato as any).is_reestruturado && (
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Data da Reestruturação</label>
+                      <p className="text-lg">{formatDate((contrato as any).data_reestruturacao)}</p>
+                      <Badge variant="outline" className="mt-1">
+                        Operação Reestruturada
+                      </Badge>
+                    </div>
                   )}
                 </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
-      {/* Cálculo Avançado de Provisão com Garantias */}
-      {resultadoProvisao && (resultadoProvisao.garantias?.length > 0 || resultadoProvisao.lgdBase) && (
-        <GarantiaImpactDisplay resultado={resultadoProvisao} />
-      )}
+                {contrato.observacoes && (
+                  <>
+                    <Separator />
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Observações</label>
+                      <p className="text-sm mt-1 p-3 bg-muted rounded-md">{contrato.observacoes}</p>
+                    </div>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          </AdvancedGlassmorphism>
 
-      {/* Assistente Virtual com contexto do contrato */}
-      <AssistenteVirtual contratoContext={contrato} />
-    </div>
+          {/* Informações Financeiras */}
+          <GlowEffect intensity="strong" color="primary">
+            <AdvancedGlassmorphism variant="premium" gradient>
+              <Card className="border-0 bg-transparent shadow-none">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Calculator className="h-5 w-5" />
+                    Valores Financeiros
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Valor da Dívida</label>
+                    <p className="text-3xl font-bold text-foreground">
+                      <MorphingNumber 
+                        value={contrato.valor_divida} 
+                        prefix="R$ " 
+                        className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"
+                      />
+                    </p>
+                  </div>
+
+                  {contrato.saldo_contabil && (
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Dívida Contábil</label>
+                      <p className="text-xl font-semibold">
+                        <MorphingNumber 
+                          value={contrato.saldo_contabil} 
+                          prefix="R$ "
+                        />
+                      </p>
+                    </div>
+                  )}
+
+                  <Separator />
+
+                  {contrato.valor_provisao > 0 && (
+                     <div>
+                       <label className="text-sm font-medium text-muted-foreground">Provisão</label>
+                       <p className="text-lg font-medium">
+                         <MorphingNumber 
+                           value={contrato.percentual_provisao ?? 0} 
+                           suffix="%" 
+                         />
+                       </p>
+                      <p className="text-xl font-semibold text-orange-600">
+                        <MorphingNumber 
+                          value={contrato.valor_provisao} 
+                          prefix="R$ "
+                        />
+                      </p>
+                      {(contrato as any).is_reestruturado && (contrato as any).data_reestruturacao && (() => {
+                        const observacao = verificarPeriodoObservacaoReestruturacao((contrato as any).data_reestruturacao);
+                        if (observacao.emPeriodo) {
+                          return (
+                            <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
+                              ⚠️ Provisão ajustada por reestruturação
+                            </p>
+                          );
+                        }
+                        return null;
+                      })()}
+                    </div>
+                  )}
+
+                  {contrato.acordo_final > 0 && (
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Acordo Final</label>
+                      <p className="text-xl font-semibold text-green-700">
+                        <MorphingNumber 
+                          value={contrato.acordo_final} 
+                          prefix="R$ "
+                        />
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </AdvancedGlassmorphism>
+          </GlowEffect>
+        </div>
+
+        {/* Cálculo Avançado de Provisão com Garantias */}
+        {resultadoProvisao && (resultadoProvisao.garantias?.length > 0 || resultadoProvisao.lgdBase) && (
+          <GarantiaImpactDisplay resultado={resultadoProvisao} />
+        )}
+
+        {/* Assistente Virtual com contexto do contrato */}
+        <AssistenteVirtual contratoContext={contrato} />
+      </div>
+    </HeroParticleBackground>
   );
 }
