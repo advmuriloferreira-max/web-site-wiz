@@ -103,7 +103,7 @@ export function ComplianceAlert() {
     <LegalNotification
       type="compliance"
       title="Sistema em Conformidade"
-      message="Todos os cálculos estão em conformidade com a Resolução BCB 2.682/99. Última verificação realizada em tempo real."
+      message="Todos os cálculos estão em conformidade com a Resolução BCB 352/2023 e BCB 4966/2021. Última verificação realizada em tempo real."
       timestamp={new Date().toLocaleString('pt-BR')}
       dismissible={false}
     />

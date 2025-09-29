@@ -41,7 +41,7 @@ function ComplianceBadge() {
       <LegalIcons.compliance className="h-4 w-4 text-success" />
       <div className="text-xs">
         <div className="font-semibold text-success uppercase tracking-wider">BCB Conforme</div>
-        <div className="text-success/80">Resolução 2.682/99</div>
+        <div className="text-success/80">Resolução BCB 352/2023</div>
       </div>
     </div>
   );

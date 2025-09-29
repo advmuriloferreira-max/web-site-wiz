@@ -57,7 +57,7 @@ export function HeroSection() {
           <div className="flex items-center space-x-2 px-4 py-2 bg-success/20 border-2 border-success/40 rounded-sm inline-flex">
             <LegalIcons.compliance className="h-5 w-5 text-success" />
             <span className="text-sm font-semibold text-success uppercase tracking-wider">
-              Conforme Resolução BCB 2.682/99
+              Conforme Resolução BCB 4966/2021
             </span>
           </div>
         </div>

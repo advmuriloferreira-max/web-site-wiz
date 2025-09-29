@@ -72,7 +72,7 @@ export function ComplianceBadge({ regulation, status, lastCheck, className }: Co
 export function BCBComplianceBadge() {
   return (
     <ComplianceBadge
-      regulation="Resolução BCB 2.682/99"
+      regulation="Resolução BCB 4966/2021"
       status="compliant"
       lastCheck={new Date()}
     />
