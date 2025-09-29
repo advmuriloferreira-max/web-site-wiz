@@ -101,11 +101,22 @@ export default {
           foreground: "hsl(var(--destructive-foreground))",
         },
         
-        // Status colors
-        pending: "hsl(var(--pending))",
-        processing: "hsl(var(--processing))",
-        completed: "hsl(var(--completed))",
-        cancelled: "hsl(var(--cancelled))",
+        // Classification status colors - Sistema BCB
+        classification: {
+          1: "hsl(var(--classification-1))",  // Verde - Normal
+          2: "hsl(var(--classification-2))",  // Amarelo - Em atenção  
+          3: "hsl(var(--classification-3))",  // Laranja - Subnormal
+          4: "hsl(var(--classification-4))",  // Vermelho - Duvidoso
+          5: "hsl(var(--classification-5))",  // Vermelho escuro - Prejuízo
+        },
+
+        // Status workflow padrão
+        status: {
+          pending: "hsl(var(--status-pending))",
+          processing: "hsl(var(--status-processing))",
+          completed: "hsl(var(--status-completed))",
+          cancelled: "hsl(var(--status-cancelled))",
+        },
         
         // Severity levels
         severity: {

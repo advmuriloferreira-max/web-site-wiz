@@ -95,17 +95,18 @@ Golden Ratio-based spacing: 1, 1.618, 2.618, 4.236, 6.854
     --info-subtle: 217 91% 95%;
     --info-foreground: 0 0% 100%;
 
-    /* Advanced status colors for different states */
-    --pending: 38 92% 55%;               /* Amber-400 */
-    --processing: 217 91% 60%;           /* Blue-400 */
-    --completed: 160 84% 39%;            /* Emerald-500 */
-    --cancelled: 0 84% 60%;              /* Red-500 */
+    /* Classification status colors - Sistema BCB */
+    --classification-1: 160 84% 39%;     /* Verde - C1 (Normal) */
+    --classification-2: 38 92% 50%;      /* Amarelo - C2 (Em atenção) */
+    --classification-3: 25 95% 53%;      /* Laranja - C3 (Subnormal) */
+    --classification-4: 0 84% 60%;       /* Vermelho - C4 (Duvidoso) */
+    --classification-5: 0 65% 51%;       /* Vermelho escuro - C5 (Prejuízo) */
 
-    /* Severity levels for alerts */
-    --severity-low: 43 74% 66%;          /* Yellow-300 */
-    --severity-medium: 38 92% 50%;       /* Amber-500 */
-    --severity-high: 0 84% 60%;          /* Red-600 */
-    --severity-critical: 0 65% 51%;      /* Red-700 */
+    /* Status workflow padrão */
+    --status-pending: 38 92% 50%;        /* Amarelo - Em análise */
+    --status-processing: 217 91% 60%;    /* Azul - Processando */
+    --status-completed: 160 84% 39%;     /* Verde - Concluído */
+    --status-cancelled: 0 84% 60%;       /* Vermelho - Cancelado */
 
     /* Enhanced text hierarchy */
     --text-primary: 220 13% 18%;
@@ -295,37 +296,41 @@ Golden Ratio-based spacing: 1, 1.618, 2.618, 4.236, 6.854
     line-height: 1.6;
   }
 
-  /* Premium Typography System */
+  /* Tipografia Profissional IntelBank */
   h1, h2, h3, h4, h5, h6 {
     @apply font-bold tracking-tight;
     line-height: 1.25;
   }
 
-  h1 {
-    @apply text-4xl lg:text-5xl;
+  /* Hierarquia de títulos padronizada */
+  h1, .title-main {
+    @apply text-2xl font-bold;
     letter-spacing: -0.025em;
   }
 
-  h2 {
-    @apply text-3xl lg:text-4xl;
+  h2, .title-section {
+    @apply text-lg font-semibold;
     letter-spacing: -0.015em;
   }
 
-  h3 {
-    @apply text-2xl lg:text-3xl;
+  h3, .title-card {
+    @apply text-base font-semibold;
     letter-spacing: -0.01em;
   }
 
-  h4 {
-    @apply text-xl lg:text-2xl;
+  /* Texto corpo padrão */
+  .text-body, p {
+    @apply text-sm font-medium;
   }
 
-  h5 {
-    @apply text-lg lg:text-xl;
+  /* Labels padronizados */
+  .text-label, label {
+    @apply text-xs font-medium uppercase tracking-wide text-muted-foreground;
   }
 
-  h6 {
-    @apply text-base lg:text-lg;
+  /* Valores monetários */
+  .text-monetary {
+    @apply font-mono text-sm tabular-nums;
   }
 
   /* Body text hierarchy */
@@ -346,30 +351,30 @@ Golden Ratio-based spacing: 1, 1.618, 2.618, 4.236, 6.854
     @apply font-mono tabular-nums;
   }
 
-  /* Premium spacing system */
-  .space-section {
-    @apply space-y-8 md:space-y-12;
-  }
-
-  .space-content {
-    @apply space-y-4 md:space-y-6;
-  }
-
-  .space-compact {
-    @apply space-y-2 md:space-y-3;
-  }
-
-  /* Card breathing room */
+  /* Padding padronizado */
   .padding-card {
-    @apply p-6 md:p-8;
+    @apply p-6;
   }
 
   .padding-content {
-    @apply p-4 md:p-6;
+    @apply p-4;
   }
 
   .padding-compact {
-    @apply p-3 md:p-4;
+    @apply p-3;
+  }
+
+  /* Espaçamento padronizado */
+  .space-section {
+    @apply space-y-8;
+  }
+
+  .space-content {
+    @apply space-y-6;
+  }
+
+  .space-compact {
+    @apply space-y-4;
   }
 }
 
@@ -413,21 +418,41 @@ Golden Ratio-based spacing: 1, 1.618, 2.618, 4.236, 6.854
     background: var(--gradient-sidebar);
   }
 
-  /* Status indicator styles */
-  .status-success {
-    @apply bg-emerald-100 text-emerald-800 border-emerald-200;
+  /* Status indicator styles usando design system */
+  .status-c1 {
+    @apply bg-classification-1/10 text-classification-1 border-classification-1/20;
   }
 
-  .status-warning {
-    @apply bg-amber-100 text-amber-800 border-amber-200;
+  .status-c2 {
+    @apply bg-classification-2/10 text-classification-2 border-classification-2/20;
   }
 
-  .status-error {
-    @apply bg-red-100 text-red-800 border-red-200;
+  .status-c3 {
+    @apply bg-classification-3/10 text-classification-3 border-classification-3/20;
   }
 
-  .status-info {
-    @apply bg-blue-100 text-blue-800 border-blue-200;
+  .status-c4 {
+    @apply bg-classification-4/10 text-classification-4 border-classification-4/20;
+  }
+
+  .status-c5 {
+    @apply bg-classification-5/10 text-classification-5 border-classification-5/20;
+  }
+
+  .status-pending {
+    @apply bg-status-pending/10 text-status-pending border-status-pending/20;
+  }
+
+  .status-processing {
+    @apply bg-status-processing/10 text-status-processing border-status-processing/20;
+  }
+
+  .status-completed {
+    @apply bg-status-completed/10 text-status-completed border-status-completed/20;
+  }
+
+  .status-cancelled {
+    @apply bg-status-cancelled/10 text-status-cancelled border-status-cancelled/20;
   }
 
   /* Interactive elements */

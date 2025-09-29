@@ -96,14 +96,13 @@ function DashboardContent() {
       <div className="container mx-auto p-6 space-section animate-fade-in">
         <ProgressBarComponent />
 
-        {/* Hero Section com espaçamento consistente */}
         <EntranceAnimation animation="fade" delay={100}>
           <div className="padding-content">
             <HeroSection />
           </div>
         </EntranceAnimation>
 
-        {/* Premium Statistics Cards com simetria */}
+        {/* Premium Statistics Cards com espaçamento padronizado */}
         <EntranceAnimation animation="slide" delay={200}>
           <div className="space-content">
             <ResponsiveGrid 
@@ -155,27 +154,27 @@ function DashboardContent() {
               {/* Mobile: Scrollable tabs, Desktop: Grid */}
               <div className="overflow-x-auto">
                 <TabsList className="grid w-full grid-cols-4 min-w-max md:min-w-0 interactive-button">
-                  <TabsTrigger value="visao-geral" className="flex items-center space-x-1 md:space-x-2 px-2 md:px-4 transition-all duration-200">
-                    <BarChart3 className="h-4 w-4 flex-shrink-0 text-primary" />
-                    <span className="text-xs md:text-sm">Visão Geral</span>
+                  <TabsTrigger value="visao-geral" className="flex items-center space-x-2 px-4 transition-all duration-200">
+                    <BarChart3 className="h-4 w-4 text-primary" />
+                    <span className="text-sm">Visão Geral</span>
                   </TabsTrigger>
-                  <TabsTrigger value="acordos" className="flex items-center space-x-1 md:space-x-2 px-2 md:px-4 transition-all duration-200">
-                    <Target className="h-4 w-4 flex-shrink-0 text-accent" />
-                    <span className="text-xs md:text-sm">Acordos</span>
+                  <TabsTrigger value="acordos" className="flex items-center space-x-2 px-4 transition-all duration-200">
+                    <Target className="h-4 w-4 text-accent" />
+                    <span className="text-sm">Acordos</span>
                   </TabsTrigger>
-                  <TabsTrigger value="clientes" className="flex items-center space-x-1 md:space-x-2 px-2 md:px-4 transition-all duration-200">
-                    <Users className="h-4 w-4 flex-shrink-0 text-success" />
-                    <span className="text-xs md:text-sm">Clientes</span>
+                  <TabsTrigger value="clientes" className="flex items-center space-x-2 px-4 transition-all duration-200">
+                    <Users className="h-4 w-4 text-success" />
+                    <span className="text-sm">Clientes</span>
                   </TabsTrigger>
-                  <TabsTrigger value="tendencias" className="flex items-center space-x-1 md:space-x-2 px-2 md:px-4 transition-all duration-200">
-                    <Clock className="h-4 w-4 flex-shrink-0 text-warning" />
-                    <span className="text-xs md:text-sm">Tendências</span>
+                  <TabsTrigger value="tendencias" className="flex items-center space-x-2 px-4 transition-all duration-200">
+                    <Clock className="h-4 w-4 text-warning" />
+                    <span className="text-sm">Tendências</span>
                   </TabsTrigger>
                 </TabsList>
               </div>
 
         {/* Visão Geral */}
-        <TabsContent value="visao-geral" className="space-y-6 lg:space-y-8">
+        <TabsContent value="visao-geral" className="space-content">
           <ResponsiveGrid 
             cols={{ default: 1, lg: 3 }} 
             gap={6} 
@@ -189,47 +188,44 @@ function DashboardContent() {
             </div>
           </ResponsiveGrid>
           
-          <AdaptiveCard className="overflow-hidden">
-            <div className="bg-gradient-to-r from-slate-50/50 to-white/50 dark:from-slate-800/50 dark:to-slate-700/50 p-4 sm:p-6 border-b border-slate-200">
-              <h3 className="text-base sm:text-lg font-semibold flex items-center space-x-2 text-slate-900 dark:text-white">
-                <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+          <div className="bg-card border rounded-xl overflow-hidden padding-card">
+            <div className="border-b mb-6 pb-4">
+              <h3 className="title-card flex items-center space-x-2">
+                <AlertTriangle className="h-5 w-5 text-warning" />
                 <span>Status dos Contratos</span>
               </h3>
             </div>
-            <div className="p-4 sm:p-6">
-              <ResponsiveGrid 
-                cols={{ default: 2, md: 4 }} 
-                gap={4} 
-                className="sm:gap-6"
-              >
-                {Object.entries(stats?.porSituacao || {}).map(([situacao, quantidade]) => (
-                  <div key={situacao} className="group text-center p-3 sm:p-4 rounded-lg bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all duration-300 hover:scale-105">
-                    <div className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full mx-auto mb-2 sm:mb-3 shadow-lg ${
-                      situacao === 'Concluído' ? 'bg-emerald-500' :
-                      situacao === 'Em análise' ? 'bg-amber-500' :
-                      situacao === 'Cancelado' ? 'bg-red-500' :
-                      'bg-blue-500'
-                    }`} />
-                    <p className="text-lg sm:text-2xl font-bold text-slate-900 dark:text-white group-hover:scale-110 transition-transform duration-300">{quantidade}</p>
-                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-medium">{situacao}</p>
-                  </div>
-                ))}
-              </ResponsiveGrid>
-            </div>
-          </AdaptiveCard>
+            <ResponsiveGrid 
+              cols={{ default: 2, md: 4 }} 
+              gap={4} 
+              className="sm:gap-6"
+            >
+              {Object.entries(stats?.porSituacao || {}).map(([situacao, quantidade]) => (
+                <div key={situacao} className="group text-center padding-compact rounded-lg bg-surface-1 hover:bg-surface-2 transition-all duration-300 hover:scale-105 border">
+                  <div className={`w-5 h-5 rounded-full mx-auto mb-3 shadow-lg ${
+                    situacao === 'Concluído' ? 'bg-status-completed' :
+                    situacao === 'Em análise' ? 'bg-status-pending' :
+                    situacao === 'Cancelado' ? 'bg-status-cancelled' :
+                    'bg-status-processing'
+                  }`} />
+                  <p className="title-section text-2xl group-hover:scale-110 transition-transform duration-300">{quantidade}</p>
+                  <p className="text-label">{situacao}</p>
+                </div>
+              ))}
+            </ResponsiveGrid>
+          </div>
         </TabsContent>
 
         {/* Análise de Acordos */}
-        <TabsContent value="acordos" className="space-y-4 sm:space-y-6">
+        <TabsContent value="acordos" className="space-content">
           <AcordosChart />
         </TabsContent>
 
         {/* Análise de Clientes */}
-        <TabsContent value="clientes" className="space-y-4 sm:space-y-6">
+        <TabsContent value="clientes" className="space-content">
           <ResponsiveGrid 
             cols={{ default: 1, lg: 3 }} 
-            gap={4} 
-            className="sm:gap-6"
+            gap={6}
           >
             <div className="lg:col-span-1">
               <ClienteSelector 
@@ -248,7 +244,7 @@ function DashboardContent() {
         </TabsContent>
 
         {/* Tendências */}
-        <TabsContent value="tendencias" className="space-y-4 sm:space-y-6">
+        <TabsContent value="tendencias" className="space-content">
           <TendenciasChart />
         </TabsContent>
               </Tabs>

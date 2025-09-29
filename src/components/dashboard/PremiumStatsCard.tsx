@@ -17,28 +17,28 @@ interface PremiumStatsCardProps {
 
 const colorClasses = {
   blue: {
-    icon: "text-blue-500",
-    gradient: "from-blue-500/20 to-blue-600/20",
-    border: "border-blue-500/30",
-    bg: "bg-blue-500/5"
+    icon: "text-primary",
+    gradient: "from-primary/20 to-primary/10",
+    border: "border-primary/20",
+    bg: "bg-primary/5"
   },
   emerald: {
-    icon: "text-emerald-500",
-    gradient: "from-emerald-500/20 to-emerald-600/20",
-    border: "border-emerald-500/30",
-    bg: "bg-emerald-500/5"
+    icon: "text-success",
+    gradient: "from-success/20 to-success/10", 
+    border: "border-success/20",
+    bg: "bg-success/5"
   },
   amber: {
-    icon: "text-amber-500",
-    gradient: "from-amber-500/20 to-amber-600/20",
-    border: "border-amber-500/30",
-    bg: "bg-amber-500/5"
+    icon: "text-warning",
+    gradient: "from-warning/20 to-warning/10",
+    border: "border-warning/20",
+    bg: "bg-warning/5"
   },
   red: {
-    icon: "text-red-500",
-    gradient: "from-red-500/20 to-red-600/20",
-    border: "border-red-500/30",
-    bg: "bg-red-500/5"
+    icon: "text-destructive", 
+    gradient: "from-destructive/20 to-destructive/10",
+    border: "border-destructive/20",
+    bg: "bg-destructive/5"
   }
 };
 
@@ -75,7 +75,7 @@ export function PremiumStatsCard({
 
   return (
     <div className={cn(
-      "group relative overflow-hidden rounded-xl bg-card/50 backdrop-blur-md border border-border p-6 transition-all duration-300 hover:scale-105 hover:shadow-2xl interactive-card animate-fade-in",
+      "group relative overflow-hidden rounded-xl bg-card/50 backdrop-blur-md border padding-card transition-all duration-300 hover:scale-105 hover:shadow-premium-xl interactive-card animate-fade-in",
       colors.bg,
       colors.border,
       className
@@ -93,14 +93,14 @@ export function PremiumStatsCard({
             "p-3 rounded-lg bg-card/50 backdrop-blur-sm transition-transform duration-300 group-hover:scale-110 animate-scale-in",
             colors.bg
           )}>
-            <Icon className={cn("h-6 w-6 animate-pulse", colors.icon)} />
+            <Icon className={cn("h-6 w-6", colors.icon)} />
           </div>
           {trend && (
             <div className={cn(
               "flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium animate-fade-in",
               trend.isPositive 
-                ? "bg-success/20 text-success" 
-                : "bg-destructive/20 text-destructive"
+                ? "bg-success/20 text-success border border-success/20" 
+                : "bg-destructive/20 text-destructive border border-destructive/20"
             )}>
               <span>{trend.isPositive ? "+" : ""}{trend.value}%</span>
             </div>
@@ -108,10 +108,10 @@ export function PremiumStatsCard({
         </div>
         
         <div className="space-y-2">
-          <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide animate-fade-in animate-stagger-1">
+          <h3 className="text-label animate-fade-in">
             {title}
           </h3>
-          <div className="text-3xl font-bold text-foreground animate-count-up">
+          <div className="title-section text-3xl animate-count-up">
             {isNumeric ? 
               (typeof value === 'string' && value.includes('R$') 
                 ? `R$ ${Math.round(animatedValue).toLocaleString('pt-BR')}${value.includes('K') ? 'K' : value.includes('M') ? 'M' : ''}`
@@ -122,7 +122,7 @@ export function PremiumStatsCard({
             }
           </div>
           {description && (
-            <p className="text-sm text-muted-foreground animate-fade-in animate-stagger-2">
+            <p className="text-body text-muted-foreground animate-fade-in">
               {description}
             </p>
           )}
