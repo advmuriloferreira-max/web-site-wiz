@@ -165,18 +165,13 @@ export default function ContratoDetalhes() {
   }
 
   return (
-    <HeroParticleBackground className="min-h-screen bg-gradient-to-br from-background via-muted/10 to-background">
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/10 to-background">
       <div className="container mx-auto p-6 space-y-6">
         
-        {/* Success Confetti */}
-        <SuccessConfetti 
-          trigger={showSuccessEffect} 
-          onComplete={() => setShowSuccessEffect(false)} 
-        />
+        {/* Success Confetti - disabled */}
 
         {/* Header */}
-        <MouseShadowCaster>
-          <AdvancedGlassmorphism variant="frost" animated className="p-6">
+        <div className="p-6 bg-card border border-border rounded-lg">
             <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
               <div className="flex items-center gap-4 flex-1">
                 <Button
@@ -206,24 +201,21 @@ export default function ContratoDetalhes() {
               </div>
               
               <div className="flex items-center gap-3">
-                <SpotlightEffect>
-                  <MorphingButton 
-                    className="bg-primary hover:bg-primary/90"
-                    onClick={() => {
-                      console.log('🔘 Botão Editar Contrato clicado');
-                      console.log('🔘 Estado atual do dialog:', isEditDialogOpen);
-                      setIsEditDialogOpen(true);
-                      console.log('🔘 Dialog deve abrir agora');
-                    }}
-                  >
-                    <Edit className="mr-2 h-4 w-4" />
-                    Editar Contrato
-                  </MorphingButton>
-                </SpotlightEffect>
+                <Button 
+                  className="bg-primary hover:bg-primary/90"
+                  onClick={() => {
+                    console.log('🔘 Botão Editar Contrato clicado');
+                    console.log('🔘 Estado atual do dialog:', isEditDialogOpen);
+                    setIsEditDialogOpen(true);
+                    console.log('🔘 Dialog deve abrir agora');
+                  }}
+                >
+                  <Edit className="mr-2 h-4 w-4" />
+                  Editar Contrato
+                </Button>
               </div>
             </div>
-          </AdvancedGlassmorphism>
-        </MouseShadowCaster>
+        </div>
         
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -242,8 +234,7 @@ export default function ContratoDetalhes() {
           const observacao = verificarPeriodoObservacaoReestruturacao((contrato as any).data_reestruturacao);
           if (observacao.emPeriodo) {
             return (
-              <GlowEffect intensity="medium" color="accent">
-                <Alert className="border-yellow-200 bg-yellow-50/80 dark:border-yellow-800 dark:bg-yellow-950/80 backdrop-blur-sm">
+              <Alert className="border-yellow-200 bg-yellow-50/80 dark:border-yellow-800 dark:bg-yellow-950/80 backdrop-blur-sm">
                   <AlertTriangle className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
                   <AlertDescription className="text-yellow-800 dark:text-yellow-200">
                     <strong>Operação Reestruturada - Período de Observação</strong>
@@ -257,7 +248,6 @@ export default function ContratoDetalhes() {
                     </span>
                   </AlertDescription>
                 </Alert>
-              </GlowEffect>
             );
           }
           return null;
@@ -265,7 +255,7 @@ export default function ContratoDetalhes() {
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Informações Básicas */}
-          <AdvancedGlassmorphism variant="medium" animated className="lg:col-span-2">
+          <div className="lg:col-span-2 bg-card border border-border rounded-lg">
             <Card className="border-0 bg-transparent shadow-none">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -387,11 +377,10 @@ export default function ContratoDetalhes() {
                 )}
               </CardContent>
             </Card>
-          </AdvancedGlassmorphism>
+          </div>
 
           {/* Informações Financeiras */}
-          <GlowEffect intensity="strong" color="primary">
-            <AdvancedGlassmorphism variant="premium" gradient>
+          <div className="bg-card border border-border rounded-lg">
               <Card className="border-0 bg-transparent shadow-none">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -451,8 +440,7 @@ export default function ContratoDetalhes() {
                   )}
                 </CardContent>
               </Card>
-            </AdvancedGlassmorphism>
-          </GlowEffect>
+          </div>
           
           {/* Trust Elements Sidebar */}
           <div className="space-y-4">
@@ -517,6 +505,6 @@ export default function ContratoDetalhes() {
         {/* Assistente Virtual com contexto do contrato */}
         <AssistenteVirtual contratoContext={contrato} />
       </div>
-    </HeroParticleBackground>
+    </div>
   );
 }
