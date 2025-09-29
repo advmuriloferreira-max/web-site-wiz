@@ -36,6 +36,8 @@ export default function Contratos() {
   const [dialogTitle, setDialogTitle] = useState("Novo Contrato");
   const [contratoParaEditar, setContratoParaEditar] = useState<string | null>(null);
 
+  console.log("Renderizando página Contratos, total de contratos:", contratos?.length);
+
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
       style: "currency", 
@@ -60,6 +62,7 @@ export default function Contratos() {
   };
 
   const handleDeleteContrato = (contratoId: string) => {
+    console.log("handleDeleteContrato chamado para:", contratoId);
     deleteContratoMutation.mutate(contratoId);
   };
 
@@ -75,6 +78,7 @@ export default function Contratos() {
   };
 
   if (isLoading) {
+    console.log("Carregando contratos...");
     return (
       <div className="container mx-auto py-8">
         <div className="flex items-center justify-center h-64">
@@ -143,71 +147,82 @@ export default function Contratos() {
                   </TableCell>
                 </TableRow>
               ) : (
-                contratos.map((contrato) => (
-                  <TableRow 
-                    key={contrato.id} 
-                    className="cursor-pointer hover:bg-muted/50"
-                    onClick={() => handleViewContrato(contrato)}
-                  >
-                    <TableCell className="font-medium">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                          <span className="text-xs font-bold text-primary">
-                            {contrato.clientes?.nome?.charAt(0).toUpperCase() || "?"}
-                          </span>
+                contratos.map((contrato) => {
+                  console.log("Renderizando contrato:", contrato.id, contrato.numero_contrato);
+                  return (
+                    <TableRow 
+                      key={contrato.id} 
+                      className="cursor-pointer hover:bg-muted/50"
+                      onClick={() => handleViewContrato(contrato)}
+                    >
+                      <TableCell className="font-medium">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                            <span className="text-xs font-bold text-primary">
+                              {contrato.clientes?.nome?.charAt(0).toUpperCase() || "?"}
+                            </span>
+                          </div>
+                          <span>{contrato.clientes?.nome || "N/A"}</span>
                         </div>
-                        <span>{contrato.clientes?.nome || "N/A"}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>{contrato.bancos?.nome || "N/A"}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline">
-                        {contrato.numero_contrato || "N/A"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="font-medium">
-                      {formatCurrency(contrato.valor_divida)}
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={getClassificacaoColor(contrato.classificacao)}>
-                        {contrato.classificacao || "N/A"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="font-medium text-orange-600">
-                      {formatCurrency(contrato.valor_provisao)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center gap-1 justify-end">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleViewContrato(contrato);
-                          }}
-                          className="h-8 w-8 p-0 touch-target hover:bg-primary/10"
-                          aria-label={`Visualizar contrato ${contrato.numero_contrato}`}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => handleEditContrato(contrato, e)}
-                          className="h-8 w-8 p-0 touch-target hover:bg-accent/10"
-                          aria-label={`Editar contrato ${contrato.numero_contrato}`}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <DeleteConfirmation
-                          itemName={contrato.numero_contrato || contrato.clientes?.nome || "contrato"}
-                          itemType="contrato"
-                          onConfirm={() => handleDeleteContrato(contrato.id)}
-                        />
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
+                      </TableCell>
+                      <TableCell>{contrato.bancos?.nome || "N/A"}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline">
+                          {contrato.numero_contrato || "N/A"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        {formatCurrency(contrato.valor_divida)}
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={getClassificacaoColor(contrato.classificacao)}>
+                          {contrato.classificacao || "N/A"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="font-medium text-orange-600">
+                        {formatCurrency(contrato.valor_provisao)}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center gap-1 justify-end">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleViewContrato(contrato);
+                            }}
+                            className="h-8 w-8 p-0 touch-target hover:bg-primary/10"
+                            aria-label={`Visualizar contrato ${contrato.numero_contrato}`}
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => handleEditContrato(contrato, e)}
+                            className="h-8 w-8 p-0 touch-target hover:bg-accent/10"
+                            aria-label={`Editar contrato ${contrato.numero_contrato}`}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost" 
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              console.log("Botão excluir clicado para contrato:", contrato.id);
+                              handleDeleteContrato(contrato.id);
+                            }}
+                            className="h-8 w-8 p-0 touch-target hover:bg-destructive/10 text-destructive border border-destructive/30"
+                            aria-label="Excluir contrato"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
               )}
             </TableBody>
             </Table>
