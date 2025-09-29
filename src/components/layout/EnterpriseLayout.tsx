@@ -1,21 +1,21 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Routes, Route } from "react-router-dom";
-import { GlobalSearchButton } from "@/components/ui/global-search";
-import { Breadcrumbs } from "@/components/ui/breadcrumbs";
+import { Button } from "@/components/ui/button";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { SmartBreadcrumbs } from "@/components/ui/smart-breadcrumbs";
 import { EnhancedSearch } from "@/components/ui/enhanced-search";
 import { EnterpriseMobileNav } from "@/components/ui/enterprise-mobile-nav";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { PageTransition } from "@/components/ui/page-transition";
 import { InstallPrompt } from "@/components/InstallPrompt";
-import AssistenteVirtual from "@/components/assistente/AssistenteVirtual";
-import { Button } from "@/components/ui/button";
-import { LegalIcons } from "@/components/ui/legal-icons";
-import { useEnterpriseNavigation } from "@/hooks/useEnterpriseNavigation";
+import { UserMenu } from "@/components/UserMenu";
+import { PageTransition } from "@/components/ui/page-transition";
 import { ErrorBoundary } from "@/components/ui/error-boundary";
 import { SkipToMainContent } from "@/components/ui/accessibility-helpers";
+import { GlobalSearch } from "@/components/ui/global-search";
+import { LegalIcons } from "@/components/ui/legal-icons";
+import { PremiumHeader } from "@/components/ui/premium-header";
+import { VisualEffectsDemo } from "@/components/ui/visual-effects-demo";
 import { TechnicalFixesShowcase } from "@/components/ui/technical-fixes-showcase";
 import { cn } from "@/lib/utils";
 
@@ -23,7 +23,6 @@ import { cn } from "@/lib/utils";
 import Index from "@/pages/Index";
 import Home from "@/pages/Home";
 import Clientes from "@/pages/Clientes";
-import NovoCliente from "@/pages/NovoCliente";
 import Contratos from "@/pages/Contratos";
 import NovoContrato from "@/pages/NovoContrato";
 import ContratoDetalhes from "@/pages/ContratoDetalhes";
@@ -35,17 +34,22 @@ import RelatoriosAvancados from "@/pages/RelatoriosAvancados";
 import Configuracoes from "@/pages/Configuracoes";
 import WorkspacePage from "@/pages/WorkspacePage";
 import NotFound from "@/pages/NotFound";
-import { VisualEffectsDemo } from "@/components/ui/visual-effects-demo";
+import Convite from "@/pages/Convite";
 
 export function EnterpriseLayout() {
-  const { addToRecentPages } = useEnterpriseNavigation();
-  const [searchOpen, setSearchOpen] = React.useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [recentPages, setRecentPages] = useState<string[]>([]);
 
-  // Add current page to recent pages
+  const addToRecentPages = (page: string) => {
+    setRecentPages(prev => {
+      const filtered = prev.filter(p => p !== page);
+      return [page, ...filtered].slice(0, 5);
+    });
+  };
+
   useEffect(() => {
-    const title = document.title || "Página sem título";
     const timer = setTimeout(() => {
-      addToRecentPages(title);
+      addToRecentPages(window.location.pathname);
     }, 1000);
 
     return () => clearTimeout(timer);
@@ -107,7 +111,7 @@ export function EnterpriseLayout() {
                   <LegalIcons.search className="h-4 w-4" />
                   <span className="hidden lg:inline">Buscar...</span>
                   <kbd className="pointer-events-none h-5 select-none items-center gap-1 rounded border border-white/20 bg-white/10 px-1.5 font-mono text-xs font-medium text-white/70 hidden lg:flex">
-                    Ctrl+K
+                    ⌘K
                   </kbd>
                 </Button>
 
@@ -121,19 +125,10 @@ export function EnterpriseLayout() {
                   <LegalIcons.search className="h-4 w-4" />
                 </Button>
 
-                {/* Notifications */}
-                <Button variant="ghost" size="sm" className="relative text-white hover:bg-white/10">
-                  <LegalIcons.compliance className="h-4 w-4" />
-                  <span className="absolute -top-1 -right-1 h-2 w-2 bg-accent rounded-full animate-pulse" />
-                </Button>
-
-                {/* Theme Toggle */}
-                <ThemeToggle size="sm" />
-
-                {/* Settings (Desktop) */}
-                <Button variant="ghost" size="sm" className="hidden md:flex text-white hover:bg-white/10">
-                  <LegalIcons.settings className="h-4 w-4" />
-                </Button>
+                <PremiumHeader onSearchClick={() => setSearchOpen(true)} />
+                <ThemeToggle />
+                <InstallPrompt />
+                <UserMenu />
               </div>
             </div>
 
@@ -148,15 +143,14 @@ export function EnterpriseLayout() {
             <div className="container mx-auto padding-content pb-20 md:pb-6">
               <PageTransition>
                 <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/dashboard" element={<Index />} />
-                  <Route path="clientes" element={<Clientes />} />
-                  <Route path="clientes/novo" element={<NovoCliente />} />
-                  <Route path="contratos" element={<Contratos />} />
-                  <Route path="contratos/novo" element={<NovoContrato />} />
-                  <Route path="contratos/:contratoId" element={<ContratoDetalhes />} />
-                  <Route path="calculos" element={<Calculos />} />
-                  <Route path="processos" element={<Processos />} />
+                  <Route index element={<Index />} />
+                  <Route path="/home" element={<Home />} />
+                  <Route path="/clientes" element={<Clientes />} />
+                  <Route path="/contratos" element={<Contratos />} />
+                  <Route path="/contratos/:id" element={<ContratoDetalhes />} />
+                  <Route path="/novo-contrato" element={<NovoContrato />} />
+                  <Route path="/calculos" element={<Calculos />} />
+                  <Route path="/processos" element={<Processos />} />
                   <Route path="acordos" element={<Acordos />} />
                   <Route path="relatorios" element={<Relatorios />} />
                   <Route path="relatorios-avancados" element={<RelatoriosAvancados />} />
@@ -178,14 +172,8 @@ export function EnterpriseLayout() {
         {/* Mobile Navigation */}
         <EnterpriseMobileNav />
 
-        <EnhancedSearch 
-          open={searchOpen} 
-          onOpenChange={setSearchOpen} 
-        />
-
-        {/* Global Components */}
-        <InstallPrompt />
-        <AssistenteVirtual />
+        {/* Global Search Component */}
+        <GlobalSearch open={searchOpen} onOpenChange={setSearchOpen} />
       </div>
     </SidebarProvider>
     </ErrorBoundary>

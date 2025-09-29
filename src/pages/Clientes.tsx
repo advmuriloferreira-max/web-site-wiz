@@ -2,12 +2,11 @@ import { useState, Fragment } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { Trash2 } from "lucide-react";
+import { Trash2, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ClienteWizard } from "@/components/forms/ClienteWizard";
@@ -15,7 +14,6 @@ import { ContratosCliente } from "@/components/cliente/ContratosCliente";
 import { useClientes, useDeleteCliente, Cliente } from "@/hooks/useClientes";
 import { useContratosCountByCliente } from "@/hooks/useContratosByCliente";
 import { usePWANavigation } from "@/hooks/usePWANavigation";
-import { ResponsiveContainer } from "@/components/ui/layout-consistency";
 
 // Componentes jurídicos
 import { LegalIcons } from "@/components/ui/legal-icons";
@@ -48,7 +46,8 @@ export default function Clientes() {
   };
 
   const handleNovoCliente = () => {
-    navigate("/clientes/novo");
+    setSelectedCliente(null);
+    setIsEditDialogOpen(true);
   };
 
   const handleEditarCliente = (cliente: Cliente) => {
@@ -77,235 +76,193 @@ export default function Clientes() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background">
-        <ResponsiveContainer className="space-content animate-fade-in">
-          <div className="padding-content">
-            <h1 className="title-main text-primary mb-6">Carregando clientes...</h1>
-            <div className="executive-card bg-card border-2 border-border/20 rounded-sm shadow-premium padding-card">
-              <div className="animate-pulse space-y-4">
-                <div className="h-6 bg-muted rounded w-1/4"></div>
-                <div className="h-10 bg-muted rounded w-1/2"></div>
-                <div className="space-y-3">
-                  {[...Array(3)].map((_, i) => (
-                    <div key={i} className="h-16 bg-muted rounded"></div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </ResponsiveContainer>
+      <div className="container mx-auto py-8">
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <div className="text-lg ml-4">Carregando clientes...</div>
+        </div>
       </div>
     );
   }
 
   return (
-    <ResponsiveContainer className="py-8 animate-fade-in">
-      <div className="flex items-center justify-between mb-8">
+    <div className="container mx-auto py-8 space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="title-main text-primary mb-2 flex items-center">
-            <LegalIcons.clients className="mr-3 h-8 w-8" />
-            Cadastro de Clientes
+          <h1 className="text-3xl font-bold text-foreground">
+            Clientes
           </h1>
-          <p className="text-body text-muted-foreground">Sistema de gestão jurídica de clientes</p>
-        </div>
-        <div className="flex gap-2">
-          <Button onClick={handleNovoCliente} className="interactive-button bg-primary hover:bg-primary-hover px-6 font-semibold">
-            <LegalIcons.add className="mr-2 h-4 w-4" />
-            Novo Cliente
-          </Button>
+          <p className="text-muted-foreground">
+            Gerencie seus clientes e visualize seus contratos
+          </p>
         </div>
         
-        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto glass-modal animate-scale-in border-2">
-            <DialogHeader>
-              <DialogTitle className="title-card flex items-center space-x-2">
-                <LegalIcons.edit className="h-5 w-5 text-primary" />
-                Editar Cliente
-              </DialogTitle>
-            </DialogHeader>
-            <ClienteWizard onSuccess={handleSuccess} clienteParaEditar={selectedCliente} />
-          </DialogContent>
-        </Dialog>
+        <Button onClick={handleNovoCliente} size="lg" className="gap-2">
+          <Plus className="w-4 h-4" />
+          Novo Cliente
+        </Button>
       </div>
 
-      <div className="executive-card bg-card border-2 border-border/20 rounded-sm shadow-premium animate-slide-up">
-        <LegalTableHeader 
-          title="Registro de Clientes" 
-          count={filteredClientes?.length} 
-        />
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {selectedCliente ? "Editar Cliente" : "Novo Cliente"}
+            </DialogTitle>
+          </DialogHeader>
+          <ClienteWizard 
+            onSuccess={handleSuccess} 
+            clienteParaEditar={selectedCliente}
+          />
+        </DialogContent>
+      </Dialog>
+
+      <Card>
         <CardContent className="p-0">
-          <div className="padding-content space-y-4">
+          <div className="p-6 space-y-4">
             <div className="flex items-center space-x-2">
               <LegalIcons.search className="h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Buscar por nome, CPF/CNPJ ou email..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="max-w-sm border-2 focus:border-accent"
+                className="max-w-sm"
               />
             </div>
             
-            <Table className="border-2 border-border/10">
-              <TableHeader className="bg-primary/5">
-                <TableRow className="border-b-2 border-accent/20">
-                  <TableHead className="w-[50px]"></TableHead>
-                  <TableHead className="text-label">
-                    <div className="flex items-center space-x-2">
-                      <LegalIcons.user className="h-4 w-4" />
-                      <span>Nome Completo</span>
-                    </div>
-                  </TableHead>
-                  <TableHead className="text-label">CPF/CNPJ</TableHead>
-                  <TableHead className="text-label">
-                    <div className="flex items-center space-x-2">
-                      <LegalIcons.email className="h-4 w-4" />
-                      <span>Contato</span>
-                    </div>
-                  </TableHead>
-                  <TableHead className="text-label">
-                    <div className="flex items-center space-x-2">
-                      <LegalIcons.contract className="h-4 w-4" />
-                      <span>Contratos</span>
-                    </div>
-                  </TableHead>
-                  <TableHead className="text-label">
-                    <div className="flex items-center space-x-2">
-                      <LegalIcons.calendar className="h-4 w-4" />
-                      <span>Data Cadastro</span>
-                    </div>
-                  </TableHead>
-                  <TableHead className="text-right text-label">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredClientes?.length === 0 ? (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-12">
-                      <div className="flex flex-col items-center space-y-4 animate-fade-in padding-content">
-                        <div className="w-16 h-16 bg-accent/10 rounded-sm border-2 border-accent/30 flex items-center justify-center">
-                          <LegalIcons.clients className="h-8 w-8 text-accent" />
-                        </div>
-                        <div className="space-y-2 text-center">
-                          <p className="title-card text-foreground animate-slide-up">Nenhum cliente encontrado</p>
-                          <p className="text-body text-muted-foreground animate-slide-up">
-                            Tente ajustar o termo de busca ou adicionar novos clientes
-                          </p>
-                        </div>
-                      </div>
-                    </TableCell>
+                    <TableHead className="w-[50px]"></TableHead>
+                    <TableHead>Nome Completo</TableHead>
+                    <TableHead>CPF/CNPJ</TableHead>
+                    <TableHead>Contato</TableHead>
+                    <TableHead>Contratos</TableHead>
+                    <TableHead>Data Cadastro</TableHead>
+                    <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
-                ) : (
-                  filteredClientes?.map((cliente, index) => {
-                    const isExpanded = expandedClientes.has(cliente.id);
-                    const contratosDoCliente = contratosCount?.[cliente.id] || 0;
-                    
-                    return (
-                      <Fragment key={cliente.id}>
-                        <TableRow 
-                          className="animate-fade-in hover:bg-primary/5 transition-all duration-200 border-b border-border/10"
-                          style={{ animationDelay: `${index * 50}ms` }}
-                        >
-                          <TableCell>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => toggleClienteExpanded(cliente.id)}
-                              className="h-8 w-8 p-0 hover:bg-accent/20 interactive-button border border-accent/20"
-                            >
-                              {isExpanded ? (
-                                <LegalIcons.expand className="h-4 w-4 text-accent" />
-                              ) : (
-                                <LegalIcons.collapse className="h-4 w-4 text-accent" />
-                              )}
-                            </Button>
-                          </TableCell>
-                          <TableCell className="font-medium">
-                            <div className="flex items-center space-x-3">
-                              <div className="w-10 h-10 bg-accent/20 rounded-sm border-2 border-accent/30 flex items-center justify-center">
-                                <span className="text-sm font-bold text-primary">
-                                  {cliente.nome.charAt(0).toUpperCase()}
-                                </span>
-                              </div>
-                              <div>
-                                <span className="text-body font-semibold text-foreground">{cliente.nome}</span>
-                                {cliente.responsavel && (
-                                  <p className="text-xs text-muted-foreground">Resp: {cliente.responsavel}</p>
-                                )}
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            {cliente.cpf_cnpj ? (
-                              <div className="legal-badge bg-accent/10 text-accent border-accent/30 px-3 py-1">
-                                {cliente.cpf_cnpj}
-                              </div>
-                            ) : (
-                              <span className="text-muted-foreground">-</span>
-                            )}
-                          </TableCell>
-                          <TableCell className="text-body">
-                            {cliente.email || <span className="text-muted-foreground">-</span>}
-                          </TableCell>
-                          <TableCell>
-                            <div className={`legal-badge px-3 py-1 ${
-                              contratosDoCliente > 0 
-                                ? 'bg-success/10 text-success border-success/30' 
-                                : 'bg-muted text-muted-foreground border-border'
-                            }`}>
-                              <LegalIcons.contract className="h-3 w-3 mr-1" />
-                              {contratosDoCliente} contrato{contratosDoCliente !== 1 ? 's' : ''}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <LegalTimestamp
-                              label=""
-                              timestamp={cliente.data_cadastro}
-                              format="date"
-                              className="border-0 bg-transparent p-0"
-                            />
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <div className="flex items-center gap-2 justify-end">
+                </TableHeader>
+                <TableBody>
+                  {filteredClientes?.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center py-12">
+                        <div className="flex flex-col items-center space-y-4">
+                          <LegalIcons.clients className="h-12 w-12 text-muted-foreground" />
+                          <div className="space-y-2 text-center">
+                            <p className="font-medium text-foreground">Nenhum cliente encontrado</p>
+                            <p className="text-sm text-muted-foreground">
+                              Tente ajustar o termo de busca ou adicionar novos clientes
+                            </p>
+                          </div>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    filteredClientes?.map((cliente, index) => {
+                      const isExpanded = expandedClientes.has(cliente.id);
+                      const contratosDoCliente = contratosCount?.[cliente.id] || 0;
+                      
+                      return (
+                        <Fragment key={cliente.id}>
+                          <TableRow className="hover:bg-muted/50">
+                            <TableCell>
                               <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => toggleClienteExpanded(cliente.id)}
-                                className="h-8 w-8 p-0 hover:bg-accent/10 interactive-button group border border-accent/20"
+                                className="h-8 w-8 p-0"
                               >
-                                <LegalIcons.view className="h-4 w-4 text-muted-foreground group-hover:text-accent transition-colors" />
+                                {isExpanded ? (
+                                  <LegalIcons.expand className="h-4 w-4" />
+                                ) : (
+                                  <LegalIcons.collapse className="h-4 w-4" />
+                                )}
                               </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleEditarCliente(cliente)}
-                                className="h-8 w-8 p-0 hover:bg-warning/10 interactive-button group border border-warning/20"
-                              >
-                                <LegalIcons.edit className="h-4 w-4 text-muted-foreground group-hover:text-warning transition-colors" />
-                              </Button>
-                              <DeleteConfirmation
-                                itemName={cliente.nome}
-                                itemType="cliente"
-                                onConfirm={() => handleExcluirCliente(cliente.id)}
-                                className="group"
+                            </TableCell>
+                            <TableCell className="font-medium">
+                              <div className="flex items-center space-x-3">
+                                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                                  <span className="text-xs font-bold text-primary">
+                                    {cliente.nome.charAt(0).toUpperCase()}
+                                  </span>
+                                </div>
+                                <div>
+                                  <span className="font-semibold">{cliente.nome}</span>
+                                  {cliente.responsavel && (
+                                    <p className="text-xs text-muted-foreground">Resp: {cliente.responsavel}</p>
+                                  )}
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              {cliente.cpf_cnpj ? (
+                                <span className="text-sm">{cliente.cpf_cnpj}</span>
+                              ) : (
+                                <span className="text-muted-foreground">-</span>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              {cliente.email || <span className="text-muted-foreground">-</span>}
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-1">
+                                <LegalIcons.contract className="h-3 w-3" />
+                                {contratosDoCliente} contrato{contratosDoCliente !== 1 ? 's' : ''}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <LegalTimestamp
+                                label=""
+                                timestamp={cliente.data_cadastro}
+                                format="date"
+                                className="border-0 bg-transparent p-0"
                               />
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                        {isExpanded && (
-                          <TableRow key={`${cliente.id}-expanded`}>
-                            <TableCell colSpan={7} className="p-0">
-                              <div className="bg-primary/5 border-t-2 border-accent/20 padding-content animate-slide-down">
-                                <ContratosCliente cliente={cliente} />
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <div className="flex items-center gap-1 justify-end">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => toggleClienteExpanded(cliente.id)}
+                                  className="h-8 w-8 p-0"
+                                  title="Visualizar contratos"
+                                >
+                                  <LegalIcons.view className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleEditarCliente(cliente)}
+                                  className="h-8 w-8 p-0"
+                                  title="Editar cliente"
+                                >
+                                  <LegalIcons.edit className="h-4 w-4" />
+                                </Button>
+                                <DeleteConfirmation
+                                  itemName={cliente.nome}
+                                  itemType="cliente"
+                                  onConfirm={() => handleExcluirCliente(cliente.id)}
+                                />
                               </div>
                             </TableCell>
                           </TableRow>
-                        )}
-                      </Fragment>
-                    );
-                  })
-                )}
-              </TableBody>
-            </Table>
+                          {isExpanded && (
+                            <TableRow key={`${cliente.id}-expanded`}>
+                              <TableCell colSpan={7} className="p-0">
+                                <div className="bg-muted/30 p-4">
+                                  <ContratosCliente cliente={cliente} />
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </Fragment>
+                      );
+                    })
+                  )}
+                </TableBody>
+              </Table>
+            </div>
           </div>
         </CardContent>
       </Card>
