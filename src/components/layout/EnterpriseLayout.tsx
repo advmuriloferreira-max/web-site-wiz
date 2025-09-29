@@ -30,6 +30,7 @@ import RelatoriosAvancados from "@/pages/RelatoriosAvancados";
 import Configuracoes from "@/pages/Configuracoes";
 import WorkspacePage from "@/pages/WorkspacePage";
 import NotFound from "@/pages/NotFound";
+import { VisualEffectsDemo } from "@/components/ui/visual-effects-demo";
 
 export function EnterpriseLayout() {
   const { addToRecentPages } = useEnterpriseNavigation();
@@ -144,8 +145,13 @@ export function EnterpriseLayout() {
                   <Route path="relatorios" element={<Relatorios />} />
                   <Route path="relatorios-avancados" element={<RelatoriosAvancados />} />
                   <Route path="configuracoes" element={<Configuracoes />} />
-                  <Route path="workspace" element={<WorkspacePage />} />
-                  <Route path="*" element={<NotFound />} />
+          <Route path="workspace" element={<WorkspacePage />} />
+          <Route path="visual-effects" element={
+            <div className="container mx-auto">
+              <VisualEffectsDemo />
+            </div>
+          } />
+          <Route path="*" element={<NotFound />} />
                 </Routes>
               </PageTransition>
             </div>

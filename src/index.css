@@ -897,3 +897,244 @@ Golden Ratio-based spacing: 1, 1.618, 2.618, 4.236, 6.854
 .font-scale {
   font-size: calc(var(--base-font-size, 1rem) * var(--font-scale, 1));
 }
+
+/* === ADVANCED VISUAL EFFECTS === */
+
+/* Particle system base styles */
+.particle-canvas {
+  mix-blend-mode: multiply;
+  filter: blur(0.5px);
+}
+
+/* Glassmorphism variables */
+:root {
+  --glass-blur: 16px;
+  --glass-opacity: 0.1;
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --frost-pattern: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.2) 0%, transparent 50%);
+  
+  /* Lighting effects */
+  --glow-primary: 0 0 20px hsla(var(--primary), 0.3);
+  --glow-secondary: 0 0 20px hsla(var(--secondary), 0.3);
+  --shadow-depth-1: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --shadow-depth-2: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  --shadow-depth-3: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+  --shadow-depth-4: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  
+  /* Neon effects */
+  --neon-glow: 0 0 5px currentColor, 0 0 10px currentColor, 0 0 15px currentColor;
+  --neon-pulse: 0 0 10px currentColor, 0 0 20px currentColor, 0 0 40px currentColor;
+  
+  /* Morphing animations */
+  --morph-duration: 0.3s;
+  --morph-timing: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* === UTILITY CLASSES === */
+
+/* Glassmorphism utilities */
+.glass-subtle {
+  @apply bg-white/5 backdrop-blur-sm border border-white/10;
+}
+
+.glass-medium {
+  @apply bg-white/10 backdrop-blur-md border border-white/20;
+}
+
+.glass-strong {
+  @apply bg-white/20 backdrop-blur-lg border border-white/30;
+}
+
+.glass-frost {
+  @apply bg-white/[0.02] backdrop-blur-xl border border-white/[0.05] shadow-2xl;
+}
+
+/* Glow utilities */
+.glow-primary {
+  box-shadow: var(--glow-primary);
+}
+
+.glow-secondary {
+  box-shadow: var(--glow-secondary);
+}
+
+/* Neon utilities */
+.neon-text {
+  text-shadow: var(--neon-glow);
+  animation: neon-pulse 2s ease-in-out infinite alternate;
+}
+
+/* Depth shadows */
+.shadow-depth-1 { box-shadow: var(--shadow-depth-1); }
+.shadow-depth-2 { box-shadow: var(--shadow-depth-2); }
+.shadow-depth-3 { box-shadow: var(--shadow-depth-3); }
+.shadow-depth-4 { box-shadow: var(--shadow-depth-4); }
+
+/* Morphing utilities */
+.morph-smooth {
+  transition: all var(--morph-duration) var(--morph-timing);
+}
+
+.morph-scale:hover {
+  transform: scale(1.02);
+}
+
+.morph-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-depth-4);
+}
+
+/* === KEYFRAME ANIMATIONS === */
+
+@keyframes neon-pulse {
+  from { text-shadow: var(--neon-glow); }
+  to { text-shadow: var(--neon-pulse); }
+}
+
+@keyframes holographic {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes particle-float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(180deg); }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { 
+    box-shadow: 0 0 5px currentColor; 
+    opacity: 1;
+  }
+  50% { 
+    box-shadow: 0 0 20px currentColor; 
+    opacity: 0.8;
+  }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes aurora {
+  0%, 100% {
+    background-position: 0% 50%;
+    filter: hue-rotate(0deg);
+  }
+  25% {
+    background-position: 50% 0%;
+    filter: hue-rotate(90deg);
+  }
+  50% {
+    background-position: 100% 50%;
+    filter: hue-rotate(180deg);
+  }
+  75% {
+    background-position: 50% 100%;
+    filter: hue-rotate(270deg);
+  }
+}
+
+/* === ANIMATION UTILITIES === */
+
+.animate-particle-float {
+  animation: particle-float 3s ease-in-out infinite;
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+.animate-aurora {
+  animation: aurora 8s ease-in-out infinite;
+}
+
+.animate-spin-slow {
+  animation: spin 3s linear infinite;
+}
+
+/* === INTERACTIVE EFFECTS === */
+
+/* Hover glow */
+.hover-glow:hover {
+  box-shadow: 0 0 30px hsla(var(--primary), 0.5);
+  transform: translateY(-2px);
+}
+
+/* Hover lift with shadow */
+.hover-lift:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.3);
+}
+
+/* Spotlight effect */
+.spotlight {
+  position: relative;
+  overflow: hidden;
+}
+
+.spotlight::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s;
+}
+
+.spotlight:hover::before {
+  left: 100%;
+}
+
+/* === RESPONSIVE EFFECTS === */
+
+@media (max-width: 768px) {
+  .glass-mobile {
+    @apply bg-white/15 backdrop-blur-lg;
+  }
+  
+  .glow-mobile {
+    box-shadow: 0 0 10px hsla(var(--primary), 0.3);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-particle-float,
+  .animate-glow-pulse,
+  .animate-shimmer,
+  .animate-aurora {
+    animation: none;
+  }
+  
+  .morph-smooth {
+    transition: none;
+  }
+}
+
+/* === PERFORMANCE OPTIMIZATIONS === */
+
+/* GPU acceleration for smoother animations */
+.gpu-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000;
+}
+
+/* Optimize glassmorphism performance */
+.glass-optimized {
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  will-change: backdrop-filter;
+}
