@@ -27,6 +27,22 @@ import { AdvancedGlassmorphism } from "@/components/ui/advanced-glassmorphism";
 import { GlowEffect, MouseShadowCaster, SpotlightEffect } from "@/components/ui/lighting-effects";
 import { MorphingButton, MorphingNumber } from "@/components/ui/morphing-elements";
 
+// Import trust and security components
+import { 
+  SecurityBadge, 
+  CertificationSeal, 
+  DataSourceIndicator, 
+  CalculationTransparency, 
+  SystemStatus,
+  UpdateNotification
+} from "@/components/ui/trust-elements";
+import { 
+  RegulatoryCompliance, 
+  TransparencyPanel, 
+  ActivityTimestamp, 
+  AuditLog 
+} from "@/components/ui/security-indicators";
+
 const getClassificacaoColor = (classificacao: string | null) => {
   switch (classificacao) {
     case "C1": return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
@@ -161,8 +177,8 @@ export default function ContratoDetalhes() {
         {/* Header */}
         <MouseShadowCaster>
           <AdvancedGlassmorphism variant="frost" animated className="p-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+              <div className="flex items-center gap-4 flex-1">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -172,45 +188,54 @@ export default function ContratoDetalhes() {
                   <ArrowLeft className="h-4 w-4" />
                   Voltar
                 </Button>
-                <div>
-                  <h1 className="text-3xl font-bold text-foreground">
-                    Contrato {contrato.numero_contrato || "Sem número"}
-                  </h1>
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <h1 className="text-3xl font-bold text-foreground">
+                      Contrato {contrato.numero_contrato || "Sem número"}
+                    </h1>
+                    <SecurityBadge />
+                  </div>
                   <p className="text-muted-foreground text-lg">
                     Cliente: {contrato.clientes?.nome} • Banco: {contrato.bancos?.nome}
                   </p>
+                  <ActivityTimestamp 
+                    action="Visualizado" 
+                    timestamp={new Date()} 
+                  />
                 </div>
               </div>
               
-              <SpotlightEffect>
-                <MorphingButton 
-                  className="bg-primary hover:bg-primary/90"
-                  onClick={() => {
-                    console.log('🔘 Botão Editar Contrato clicado');
-                    console.log('🔘 Estado atual do dialog:', isEditDialogOpen);
-                    setIsEditDialogOpen(true);
-                    console.log('🔘 Dialog deve abrir agora');
-                  }}
-                >
-                  <Edit className="mr-2 h-4 w-4" />
-                  Editar Contrato
-                </MorphingButton>
-              </SpotlightEffect>
-              
-              <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                  <DialogHeader>
-                    <DialogTitle>Editar Contrato</DialogTitle>
-                  </DialogHeader>
-                  <ContratoWizard 
-                    onSuccess={handleEditSuccess} 
-                    contratoParaEditar={contrato.id} 
-                  />
-                </DialogContent>
-              </Dialog>
+              <div className="flex items-center gap-3">
+                <SpotlightEffect>
+                  <MorphingButton 
+                    className="bg-primary hover:bg-primary/90"
+                    onClick={() => {
+                      console.log('🔘 Botão Editar Contrato clicado');
+                      console.log('🔘 Estado atual do dialog:', isEditDialogOpen);
+                      setIsEditDialogOpen(true);
+                      console.log('🔘 Dialog deve abrir agora');
+                    }}
+                  >
+                    <Edit className="mr-2 h-4 w-4" />
+                    Editar Contrato
+                  </MorphingButton>
+                </SpotlightEffect>
+              </div>
             </div>
           </AdvancedGlassmorphism>
         </MouseShadowCaster>
+        
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Editar Contrato</DialogTitle>
+            </DialogHeader>
+            <ContratoWizard 
+              onSuccess={handleEditSuccess} 
+              contratoParaEditar={contrato.id} 
+            />
+          </DialogContent>
+        </Dialog>
 
         {/* Alerta para contratos reestruturados */}
         {(contrato as any).is_reestruturado && (contrato as any).data_reestruturacao && (() => {
@@ -238,7 +263,7 @@ export default function ContratoDetalhes() {
           return null;
         })()}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Informações Básicas */}
           <AdvancedGlassmorphism variant="medium" animated className="lg:col-span-2">
             <Card className="border-0 bg-transparent shadow-none">
@@ -249,6 +274,11 @@ export default function ContratoDetalhes() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
+                <DataSourceIndicator 
+                  source="Base Interna INTELLBANK" 
+                  lastUpdate={new Date()} 
+                />
+                
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Cliente</label>
@@ -439,28 +469,66 @@ export default function ContratoDetalhes() {
               </Card>
             </AdvancedGlassmorphism>
           </GlowEffect>
+          
+          {/* Trust Elements Sidebar */}
+          <div className="space-y-4">
+            <CertificationSeal />
+            <SystemStatus />
+            <UpdateNotification 
+              version="v2.1.4" 
+              date={new Date()} 
+            />
+          </div>
         </div>
 
         {/* Cálculo Avançado de Provisão com Garantias */}
         {resultadoProvisao && (() => {
           console.log('🎯 Mostrando resultado da provisão:', resultadoProvisao);
-          return <GarantiaImpactDisplay resultado={resultadoProvisao} />;
+          return (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2">
+                <GarantiaImpactDisplay resultado={resultadoProvisao} />
+              </div>
+              <div className="space-y-4">
+                <TransparencyPanel />
+                <CalculationTransparency 
+                  formula="Provisão = Valor × Percentual × (1 - Fator Garantia)"
+                  steps={[
+                    "Identificar classificação de risco do contrato",
+                    "Aplicar percentual conforme BCB 352/2023",
+                    "Calcular impacto das garantias (se aplicável)",
+                    "Verificar período de observação (reestruturadas)",
+                    "Aplicar resultado final"
+                  ]}
+                />
+              </div>
+            </div>
+          );
         })()}
 
-        {/* Garantias do Contrato */}
-        <AdvancedGlassmorphism variant="subtle" animated>
-          <Card className="border-0 bg-transparent shadow-none">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Shield className="h-5 w-5" />
-                Garantias do Contrato
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <GarantiasSection contratoId={contrato.id} />
-            </CardContent>
-          </Card>
-        </AdvancedGlassmorphism>
+        {/* Garantias e Auditoria */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Garantias do Contrato */}
+          <AdvancedGlassmorphism variant="subtle" animated className="lg:col-span-2">
+            <Card className="border-0 bg-transparent shadow-none">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Shield className="h-5 w-5" />
+                  Garantias do Contrato
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <GarantiasSection contratoId={contrato.id} />
+              </CardContent>
+            </Card>
+          </AdvancedGlassmorphism>
+
+          {/* Conformidade e Auditoria */}
+          <div className="space-y-4">
+            <RegulatoryCompliance />
+            <AuditLog />
+          </div>
+        </div>
 
         {/* Assistente Virtual com contexto do contrato */}
         <AssistenteVirtual contratoContext={contrato} />

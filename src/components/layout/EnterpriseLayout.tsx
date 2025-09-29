@@ -17,7 +17,8 @@ import { LegalIcons } from "@/components/ui/legal-icons";
 import { PremiumHeader } from "@/components/ui/premium-header";
 import { VisualEffectsDemo } from "@/components/ui/visual-effects-demo";
 import { TechnicalFixesShowcase } from "@/components/ui/technical-fixes-showcase";
-import { cn } from "@/lib/utils";
+import { ProfessionalFooter } from "@/components/ui/professional-footer";
+import { SecurityIndicator, ComplianceBadge } from "@/components/ui/security-indicators";
 
 // Import all pages
 import Index from "@/pages/Index";
@@ -101,6 +102,12 @@ export function EnterpriseLayout() {
 
               {/* Header Actions */}
               <div className="flex items-center space-x-3">
+                {/* Security & Compliance Indicators */}
+                <div className="hidden lg:flex items-center space-x-2">
+                  <SecurityIndicator className="text-white/80" />
+                  <ComplianceBadge className="bg-accent/20 border-accent/30 text-accent" />
+                </div>
+
                 {/* Global Search */}
                 <Button
                   variant="ghost"
@@ -166,6 +173,9 @@ export function EnterpriseLayout() {
                 </Routes>
               </PageTransition>
             </div>
+            
+            {/* Professional Footer */}
+            <ProfessionalFooter />
           </main>
         </div>
 

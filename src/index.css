@@ -152,6 +152,35 @@ Golden Ratio-based spacing: 1, 1.618, 2.618, 4.236, 6.854
     --sidebar-accent-foreground: 210 40% 98%;
     --sidebar-border: 220 26% 15%;
     --sidebar-ring: 43 74% 66%;
+    
+    /* Trust & Security Colors - Professional */
+    --security: 160 84% 39%;              /* Secure green */
+    --security-light: 160 84% 50%;
+    --security-foreground: 0 0% 100%;
+    
+    --compliance: 220 26% 25%;            /* Professional compliance blue */
+    --compliance-light: 220 26% 35%;
+    --compliance-foreground: 0 0% 100%;
+    
+    --certified: 43 74% 66%;              /* Certification gold */
+    --certified-light: 43 84% 76%;
+    --certified-foreground: 220 26% 25%;
+    
+    --audit: 210 9% 31%;                  /* Audit gray */
+    --audit-light: 210 9% 45%;
+    --audit-foreground: 0 0% 100%;
+    
+    /* Professional Gradients */
+    --gradient-security: linear-gradient(135deg, hsl(160 84% 39%) 0%, hsl(160 84% 50%) 100%);
+    --gradient-compliance: linear-gradient(135deg, hsl(220 26% 25%) 0%, hsl(220 26% 35%) 100%);
+    --gradient-trust: linear-gradient(135deg, hsl(220 26% 25%) 0%, hsl(43 74% 66%) 50%, hsl(220 26% 15%) 100%);
+    --gradient-certified: linear-gradient(135deg, hsl(43 74% 66%) 0%, hsl(43 84% 76%) 100%);
+    
+    /* Professional Shadows */
+    --shadow-trust: 0 10px 25px -5px hsl(220 26% 25% / 0.2);
+    --shadow-security: 0 4px 20px -2px hsl(160 84% 39% / 0.25);
+    --shadow-certified: 0 8px 30px -8px hsl(43 74% 66% / 0.15);
+    --shadow-professional: 0 8px 30px -8px hsl(220 26% 25% / 0.15);
   }
 
   .dark {
@@ -379,6 +408,56 @@ Golden Ratio-based spacing: 1, 1.618, 2.618, 4.236, 6.854
 }
 
 @layer components {
+  /* Trust & Security Component Styles */
+  .security-badge {
+    @apply bg-security/10 text-security border border-security/20 rounded-full px-3 py-1 text-xs font-semibold;
+  }
+  
+  .compliance-seal {
+    @apply bg-gradient-to-br from-blue-50 to-indigo-100 border-2 border-compliance/20 rounded-lg p-4;
+  }
+  
+  .certified-badge {
+    @apply bg-certified/10 text-certified border border-certified/20 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider;
+  }
+  
+  .audit-panel {
+    @apply bg-gradient-to-r from-slate-50 to-slate-100 border border-audit/20 rounded-lg p-4;
+  }
+  
+  .trust-gradient {
+    background: var(--gradient-trust);
+  }
+  
+  .security-gradient {
+    background: var(--gradient-security);
+  }
+  
+  .compliance-gradient {
+    background: var(--gradient-compliance);
+  }
+  
+  .certified-gradient {
+    background: var(--gradient-certified);
+  }
+  
+  /* Professional Shadow Classes */
+  .shadow-trust {
+    box-shadow: var(--shadow-trust);
+  }
+  
+  .shadow-security {
+    box-shadow: var(--shadow-security);
+  }
+  
+  .shadow-certified {
+    box-shadow: var(--shadow-certified);
+  }
+  
+  .shadow-professional {
+    box-shadow: var(--shadow-professional);
+  }
+
   /* Efeitos executivos profissionais */
   .glass {
     @apply bg-white/95 backdrop-blur-sm border-2 border-border/40;
