@@ -8,6 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ContratoWizard } from "@/components/forms/ContratoWizard";
 import { GarantiaImpactDisplay } from "@/components/garantias/GarantiaImpactDisplay";
+import { GarantiasSection } from "@/components/garantias/GarantiasSection";
 import { useContratoById } from "@/hooks/useContratoById";
 import { useProvisaoPerda, useProvisaoPerdaIncorrida } from "@/hooks/useProvisao";
 import { 
@@ -99,6 +100,7 @@ export default function ContratoDetalhes() {
       if (!contrato || !tabelaPerda || !tabelaIncorrida) return;
 
       try {
+        console.log('🔄 Iniciando cálculo de provisão para contrato:', contrato.id);
         const resultado = await calcularProvisaoAvancada({
           valorDivida: contrato.valor_divida,
           diasAtraso: contrato.dias_atraso || 0,
@@ -111,9 +113,10 @@ export default function ContratoDetalhes() {
           fatorRecuperacaoGarantia: 0.5
         });
         
+        console.log('✅ Resultado do cálculo:', resultado);
         setResultadoProvisao(resultado);
       } catch (error) {
-        console.error('Erro ao calcular provisão avançada:', error);
+        console.error('❌ Erro ao calcular provisão avançada:', error);
       }
     };
 
@@ -432,9 +435,25 @@ export default function ContratoDetalhes() {
         </div>
 
         {/* Cálculo Avançado de Provisão com Garantias */}
-        {resultadoProvisao && (resultadoProvisao.garantias?.length > 0 || resultadoProvisao.lgdBase) && (
-          <GarantiaImpactDisplay resultado={resultadoProvisao} />
-        )}
+        {resultadoProvisao && (() => {
+          console.log('🎯 Mostrando resultado da provisão:', resultadoProvisao);
+          return <GarantiaImpactDisplay resultado={resultadoProvisao} />;
+        })()}
+
+        {/* Garantias do Contrato */}
+        <AdvancedGlassmorphism variant="subtle" animated>
+          <Card className="border-0 bg-transparent shadow-none">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Shield className="h-5 w-5" />
+                Garantias do Contrato
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <GarantiasSection contratoId={contrato.id} />
+            </CardContent>
+          </Card>
+        </AdvancedGlassmorphism>
 
         {/* Assistente Virtual com contexto do contrato */}
         <AssistenteVirtual contratoContext={contrato} />

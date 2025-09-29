@@ -412,19 +412,22 @@ export function calcularValorPresente(
  */
 async function buscarGarantias(contratoId: string): Promise<GarantiaInfo[]> {
   try {
+    console.log('🔍 Buscando garantias para contrato:', contratoId);
+    
     const { data, error } = await supabase
       .from('garantias')
       .select('id, tipo_garantia, valor_avaliacao, percentual_cobertura, descricao')
       .eq('contrato_id', contratoId);
 
     if (error) {
-      console.error('Erro ao buscar garantias:', error);
+      console.error('❌ Erro ao buscar garantias:', error);
       return [];
     }
 
+    console.log('✅ Garantias encontradas:', data?.length || 0, data);
     return data || [];
   } catch (error) {
-    console.error('Erro ao buscar garantias:', error);
+    console.error('❌ Erro ao buscar garantias:', error);
     return [];
   }
 }
@@ -482,8 +485,10 @@ export async function calcularProvisaoAvancada(params: CalculoProvisaoParams): P
   let valorGarantiaTotal = 0;
   
   if (contratoId) {
+    console.log('📊 Iniciando busca de garantias para contrato:', contratoId);
     garantias = await buscarGarantias(contratoId);
     valorGarantiaTotal = calcularValorGarantiaTotal(garantias);
+    console.log('💰 Valor total das garantias:', valorGarantiaTotal);
   }
 
   // REGRA CRÍTICA: Conforme Anexo I da BCB 352/2023
