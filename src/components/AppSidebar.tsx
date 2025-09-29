@@ -53,6 +53,8 @@ export function AppSidebar() {
 
   const MenuItem = ({ item, tooltip }: { item: any; tooltip?: boolean }) => {
     const active = isActive(item.url);
+    const isQuickAction = item.title === "Novo Cliente" || item.title === "Novo Contrato";
+    
     const content = (
       <NavLink 
         to={item.url} 
@@ -60,16 +62,20 @@ export function AppSidebar() {
         data-tour={item.dataTour}
         className={`
           flex items-center gap-3 px-3 py-3 mx-2 rounded-lg transition-all duration-200 font-medium border-l-4
-          ${active 
-            ? 'bg-accent/20 text-accent border-accent shadow-md shadow-accent/10 scale-[1.02]' 
-            : 'text-sidebar-foreground/80 hover:bg-accent/10 hover:text-accent hover:scale-[1.01] border-transparent hover:border-accent/30'
+          ${isQuickAction 
+            ? active 
+              ? 'bg-gradient-to-r from-accent/30 to-accent/20 text-accent border-accent shadow-lg shadow-accent/20 scale-[1.02] ring-2 ring-accent/30' 
+              : 'bg-gradient-to-r from-accent/20 to-accent/10 text-accent hover:from-accent/30 hover:to-accent/20 hover:scale-[1.02] border-accent/50 shadow-md shadow-accent/10 hover:shadow-lg hover:shadow-accent/20 ring-1 ring-accent/20'
+            : active 
+              ? 'bg-accent/20 text-accent border-accent shadow-md shadow-accent/10 scale-[1.02]' 
+              : 'text-sidebar-foreground/80 hover:bg-accent/10 hover:text-accent hover:scale-[1.01] border-transparent hover:border-accent/30'
           }
         `}
       >
-        <item.icon className="h-5 w-5 flex-shrink-0" />
+        <item.icon className={`h-5 w-5 flex-shrink-0 ${isQuickAction ? 'text-accent drop-shadow-sm' : ''}`} />
         {!isCollapsed && (
           <>
-            <span className="font-medium truncate">{item.title}</span>
+            <span className={`font-medium truncate ${isQuickAction ? 'font-semibold' : ''}`}>{item.title}</span>
             {item.badge && (
               <Badge 
                 variant="secondary" 
@@ -77,6 +83,11 @@ export function AppSidebar() {
               >
                 {item.badge}
               </Badge>
+            )}
+            {isQuickAction && !active && (
+              <div className="ml-auto">
+                <div className="w-2 h-2 bg-accent rounded-full animate-pulse" />
+              </div>
             )}
           </>
         )}
