@@ -78,79 +78,56 @@ export function EnterpriseLayout() {
 
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col min-w-0">
-          {/* Top Header - Estilo Executivo */}
-          <header className="sticky top-0 z-40 w-full h-20 bg-gradient-to-r from-primary via-primary-dark to-primary backdrop-blur-xl border-b-2 border-accent/20 shadow-lg">
+          {/* Top Header - Otimizado e Limpo */}
+          <header className="sticky top-0 z-40 w-full h-16 bg-gradient-to-r from-primary to-primary-dark backdrop-blur-xl border-b border-accent/20 shadow-md animate-fade-in">
             <div className="h-full flex items-center justify-between px-4 sm:px-6 lg:px-8">
-              {/* Left Section */}
-              <div className="flex items-center gap-4 lg:gap-6">
+              
+              {/* Left Section - Logo Compacto */}
+              <div className="flex items-center gap-3">
                 {/* Mobile Sidebar Trigger */}
                 <div className="md:hidden">
-                  <SidebarTrigger className="text-white hover:text-accent transition-colors" />
+                  <SidebarTrigger className="text-white hover:text-accent transition-all duration-200 hover:scale-105" />
                 </div>
 
-                {/* Logo Section */}
-                <div className="flex items-center gap-3">
-                  <LegalIcons.justice className="h-8 w-8 text-accent flex-shrink-0" />
+                {/* Logo Compacto */}
+                <div className="flex items-center gap-2 group">
+                  <LegalIcons.justice className="h-6 w-6 text-accent flex-shrink-0 transition-transform duration-200 group-hover:scale-110" />
                   <div className="hidden sm:block">
-                    <h2 className="text-lg lg:text-xl font-bold text-white tracking-wider leading-tight">
+                    <h1 className="text-base font-bold text-white tracking-wide leading-tight">
                       INTELLBANK
-                    </h2>
-                    <p className="text-xs text-accent font-semibold uppercase tracking-wide leading-tight">
-                      Provisionamento de Dívidas Bancárias
-                    </p>
+                    </h1>
                   </div>
                 </div>
               </div>
 
               {/* Center Section - Breadcrumbs */}
-              <div className="flex-1 hidden lg:flex justify-center max-w-md mx-6">
+              <div className="flex-1 hidden lg:flex justify-center max-w-lg mx-4">
                 <SmartBreadcrumbs />
               </div>
 
-              {/* Right Section */}
-              <div className="flex items-center gap-2 lg:gap-3">
-                {/* Security & Compliance Indicators */}
-                <div className="hidden xl:flex items-center gap-2">
-                  <SecurityIndicator className="text-white/80 text-xs" />
-                  <ComplianceBadge className="bg-accent/20 border-accent/30 text-accent text-xs px-2 py-1" />
-                </div>
-
-                {/* Search Button */}
+              {/* Right Section - Ações Essenciais */}
+              <div className="flex items-center gap-1">
+                {/* Search Compacto */}
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setSearchOpen(true)}
-                  className="hidden sm:flex items-center gap-2 text-white/80 hover:text-white hover:bg-white/10 border border-white/20 transition-all"
+                  className="text-white/80 hover:text-white hover:bg-white/10 border border-white/20 transition-all duration-200 hover:scale-105"
                 >
                   <LegalIcons.search className="h-4 w-4" />
-                  <span className="hidden lg:inline text-sm">Buscar...</span>
-                  <kbd className="hidden lg:flex items-center gap-1 rounded border border-white/20 bg-white/10 px-1.5 font-mono text-xs text-white/70">
-                    ⌘K
-                  </kbd>
+                  <span className="hidden xl:inline ml-2 text-sm">Buscar</span>
                 </Button>
 
-                {/* Mobile Search */}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setSearchOpen(true)}
-                  className="sm:hidden text-white hover:bg-white/10"
-                >
-                  <LegalIcons.search className="h-4 w-4" />
-                </Button>
-
-                {/* Header Actions */}
-                <div className="flex items-center gap-1 lg:gap-2">
-                  <PremiumHeader onSearchClick={() => setSearchOpen(true)} />
-                  <ThemeToggle />
-                  <InstallPrompt />
-                  <UserMenu />
-                </div>
+                {/* Theme Toggle */}
+                <ThemeToggle />
+                
+                {/* User Menu */}
+                <UserMenu />
               </div>
             </div>
 
-            {/* Mobile Breadcrumbs */}
-            <div className="lg:hidden px-4 py-2 border-t border-accent/20 bg-primary/90">
+            {/* Mobile Breadcrumbs - Mais Compacto */}
+            <div className="lg:hidden px-4 py-2 border-t border-accent/10 bg-primary/95 animate-slide-in-right">
               <SmartBreadcrumbs showKeyboardShortcuts={false} />
             </div>
           </header>

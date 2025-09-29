@@ -200,29 +200,33 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Footer com usuário */}
-        <div className="mt-auto border-t border-slate-700/30 p-4">
-          {/* Status e Notificações */}
-          <div className="flex items-center justify-center gap-2 mb-4">
+        {/* Footer com Informações de Confiança */}
+        <div className="mt-auto border-t border-slate-700/30 p-3">
+          
+          {/* Sistema Status Compacto */}
+          <div className="flex items-center justify-center mb-3">
             {!isCollapsed ? (
-            <div className="flex items-center gap-2 text-xs text-slate-400">
+              <div className="flex items-center gap-2 text-xs text-slate-400">
                 <div className="w-2 h-2 bg-success rounded-full animate-pulse"></div>
-                <span>Sistema Ativo</span>
-                <Button variant="ghost" size="sm" className="p-1 h-6 w-6 ml-auto text-slate-400 hover:text-white">
-                  <LegalIcons.compliance className="h-3 w-3" />
-                </Button>
+                <span>Sistema Seguro</span>
+                <Badge variant="outline" className="ml-2 bg-accent/20 text-accent text-xs px-2 py-0.5">
+                  BCB 352/2023
+                </Badge>
               </div>
             ) : (
               <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse mx-auto"></div>
             )}
           </div>
 
-          {/* User Profile */}
+          {/* User Profile Compacto */}
           {profile && (
-            <div className={`flex items-center gap-3 p-3 rounded-lg bg-white/5 backdrop-blur-sm border border-white/10 transition-all duration-200 hover:bg-white/10 ${isCollapsed ? 'justify-center' : ''}`}>
-            <Avatar className="h-9 w-9 ring-2 ring-primary/30">
-              <AvatarFallback className="bg-gradient-to-br from-accent to-accent/80 text-primary-foreground text-sm font-semibold">
-                  {profile.nome ? getInitials(profile.nome) : <LegalIcons.user className="h-4 w-4" />}
+            <div className={cn(
+              "flex items-center gap-3 p-2 rounded-lg bg-white/5 backdrop-blur-sm border border-white/10 transition-all duration-200 hover:bg-white/10",
+              isCollapsed ? 'justify-center' : ''
+            )}>
+              <Avatar className="h-8 w-8 ring-2 ring-primary/30">
+                <AvatarFallback className="bg-gradient-to-br from-accent to-accent/80 text-primary-foreground text-xs font-semibold">
+                  {profile.nome ? getInitials(profile.nome) : <LegalIcons.user className="h-3 w-3" />}
                 </AvatarFallback>
               </Avatar>
               {!isCollapsed && (
@@ -230,53 +234,34 @@ export function AppSidebar() {
                   <p className="text-sm font-semibold text-white truncate">
                     {profile.nome}
                   </p>
-                  {profile.cargo && (
-                    <p className="text-xs text-slate-400 truncate">
-                      {profile.cargo}
-                    </p>
-                  )}
+                  <p className="text-xs text-slate-400 truncate">
+                    Usuário Autorizado
+                  </p>
                 </div>
               )}
             </div>
           )}
 
-          {/* Configurações e Logout */}
-          <div className="flex items-center gap-2 mt-3">
+          {/* Configurações Compacto */}
+          <div className="flex items-center gap-1 mt-2">
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
                   size="sm"
                   asChild
-                  className="flex-1 text-slate-400 hover:text-white hover:bg-white/10 transition-colors duration-200"
+                  className="flex-1 text-slate-400 hover:text-white hover:bg-white/10 transition-colors duration-200 h-7"
                 >
                   <NavLink to="/configuracoes">
-                    <LegalIcons.settings className="h-4 w-4" />
-                    {!isCollapsed && <span className="ml-2">Configurações</span>}
+                    <LegalIcons.settings className="h-3 w-3" />
+                    {!isCollapsed && <span className="ml-2 text-xs">Config</span>}
                   </NavLink>
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="right" className="bg-slate-800 text-white border-slate-700">
+              <TooltipContent side="right" className="bg-slate-800 text-white border-slate-700 text-xs">
                 Configurações
               </TooltipContent>
             </Tooltip>
-            
-            {!isCollapsed && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors duration-200"
-                  >
-                    <LegalIcons.close className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="top" className="bg-slate-800 text-white border-slate-700">
-                  Sair
-                </TooltipContent>
-              </Tooltip>
-            )}
           </div>
         </div>
       </SidebarContent>
