@@ -59,7 +59,7 @@ export function MorphingButton({
               exit={{ opacity: 0, scale: 0.8 }}
               className="flex items-center space-x-2"
             >
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <Loader2 className="w-4 h-4" />
               <span>Processando...</span>
             </motion.div>
           ) : success ? (
