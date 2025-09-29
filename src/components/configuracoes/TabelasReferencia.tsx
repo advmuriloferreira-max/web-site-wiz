@@ -147,8 +147,8 @@ export function TabelasReferencia() {
                 {tabelaIncorrida?.map((linha) => (
                   <tr key={linha.id} className="border-b hover:bg-muted/50">
                     <td className="p-2 font-medium">{linha.criterio}</td>
-                    <td className="p-2 text-center">{linha.prazo_inicial} dias</td>
-                    <td className="p-2 text-center">{linha.prazo_final} dias</td>
+                    <td className="p-2 text-center">{linha.prazo_inicial} meses</td>
+                    <td className="p-2 text-center">{linha.prazo_final} meses</td>
                     <td className="p-2 text-center">{linha.c1_percentual}%</td>
                     <td className="p-2 text-center">{linha.c2_percentual}%</td>
                     <td className="p-2 text-center">{linha.c3_percentual}%</td>
