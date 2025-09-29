@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 import {
   Sidebar,
   SidebarContent,
@@ -64,21 +65,24 @@ export function AppSidebar() {
         end 
         data-tour={item.dataTour}
         className={`
-          flex items-center gap-3 px-4 py-3 mx-2 rounded-sm transition-all duration-200 interactive-button border-l-4 font-semibold
+          flex items-center gap-3 px-3 py-3 mx-2 rounded-lg transition-all duration-200 font-medium border-l-4
           ${active 
-            ? 'bg-accent text-primary border-accent shadow-lg shadow-accent/20 scale-[1.02]' 
-            : 'text-slate-300 hover:bg-accent/10 hover:text-accent hover:scale-[1.01] border-transparent hover:border-accent/30'
+            ? 'bg-accent/20 text-accent border-accent shadow-md shadow-accent/10 scale-[1.02]' 
+            : 'text-sidebar-foreground/80 hover:bg-accent/10 hover:text-accent hover:scale-[1.01] border-transparent hover:border-accent/30'
           }
         `}
       >
         <item.icon className="h-5 w-5 flex-shrink-0" />
         {!isCollapsed && (
           <>
-            <span className="font-medium">{item.title}</span>
+            <span className="font-medium truncate">{item.title}</span>
             {item.badge && (
-              <div className="legal-badge bg-accent text-primary text-xs px-2 py-1 ml-auto animate-pulse border border-accent/30">
+              <Badge 
+                variant="secondary" 
+                className="ml-auto bg-accent/20 text-accent text-xs px-2 py-0.5 font-bold animate-pulse border border-accent/30"
+              >
                 {item.badge}
-              </div>
+              </Badge>
             )}
           </>
         )}
@@ -103,11 +107,10 @@ export function AppSidebar() {
 
   return (
     <Sidebar 
-      className={`
-        bg-gradient-sidebar border-r-2 border-accent/20 
-        ${isCollapsed ? "w-20" : "w-80"} 
-        shadow-2xl backdrop-blur-sm
-      `}
+      className={cn(
+        "bg-gradient-sidebar border-r-2 border-accent/20 shadow-2xl backdrop-blur-sm transition-all duration-300",
+        isCollapsed ? "w-16" : "w-64"
+      )}
       collapsible="icon"
     >
       {/* Header Executivo */}
@@ -141,15 +144,15 @@ export function AppSidebar() {
       
       <SidebarContent className="px-0 overflow-y-auto bg-gradient-sidebar">
         {/* Navegação Principal */}
-        <SidebarGroup className="py-6">
+        <SidebarGroup className="py-4">
           {!isCollapsed && (
-            <SidebarGroupLabel className="px-4 text-xs uppercase tracking-wider text-accent font-bold mb-4 flex items-center border-b border-accent/20 pb-2">
+            <SidebarGroupLabel className="px-4 text-xs uppercase tracking-wider text-accent font-bold mb-3 flex items-center border-b border-accent/20 pb-2">
               <LegalIcons.justice className="w-3 h-3 mr-2 text-accent" />
               SISTEMA JURÍDICO
             </SidebarGroupLabel>
           )}
           <SidebarGroupContent>
-            <div className="space-y-2">
+            <div className="space-y-1 px-2">
               {navigationItems.map((item) => (
                 <MenuItem key={item.title} item={item} tooltip />
               ))}
@@ -158,18 +161,18 @@ export function AppSidebar() {
         </SidebarGroup>
 
         {/* Separador */}
-        <div className="mx-4 h-px bg-gradient-to-r from-transparent via-slate-500 to-transparent my-6" />
+        <div className="mx-4 h-px bg-gradient-to-r from-transparent via-slate-500/30 to-transparent my-4" />
 
         {/* Relatórios */}
-        <SidebarGroup className="py-4">
+        <SidebarGroup className="py-3">
           {!isCollapsed && (
-            <SidebarGroupLabel className="px-4 text-xs uppercase tracking-wider text-accent font-bold mb-4 flex items-center border-b border-accent/20 pb-2">
+            <SidebarGroupLabel className="px-4 text-xs uppercase tracking-wider text-accent font-bold mb-3 flex items-center border-b border-accent/20 pb-2">
               <LegalIcons.reports className="w-3 h-3 mr-2 text-accent" />
               INDICADORES
             </SidebarGroupLabel>
           )}
           <SidebarGroupContent>
-            <div className="space-y-2">
+            <div className="space-y-1 px-2">
               {reportItems.map((item) => (
                 <MenuItem key={item.title} item={item} tooltip />
               ))}
@@ -178,18 +181,18 @@ export function AppSidebar() {
         </SidebarGroup>
 
         {/* Separador */}
-        <div className="mx-4 h-px bg-gradient-to-r from-transparent via-slate-500 to-transparent my-6" />
+        <div className="mx-4 h-px bg-gradient-to-r from-transparent via-slate-500/30 to-transparent my-4" />
 
         {/* Ações Rápidas */}
-        <SidebarGroup className="py-4">
+        <SidebarGroup className="py-3">
           {!isCollapsed && (
-            <SidebarGroupLabel className="px-4 text-xs uppercase tracking-wider text-accent font-bold mb-4 flex items-center border-b border-accent/20 pb-2">
+            <SidebarGroupLabel className="px-4 text-xs uppercase tracking-wider text-accent font-bold mb-3 flex items-center border-b border-accent/20 pb-2">
               <LegalIcons.add className="w-3 h-3 mr-2 text-accent" />
               AÇÕES EXECUTIVAS
             </SidebarGroupLabel>
           )}
           <SidebarGroupContent>
-            <div className="space-y-2">
+            <div className="space-y-1 px-2">
               {quickActions.map((item) => (
                 <MenuItem key={item.title} item={item} tooltip />
               ))}

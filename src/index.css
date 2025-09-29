@@ -380,20 +380,11 @@ Golden Ratio-based spacing: 1, 1.618, 2.618, 4.236, 6.854
     @apply font-mono tabular-nums;
   }
 
-  /* Padding padronizado */
-  .padding-card {
-    @apply p-6;
+  /* Professional spacing system */
+  .space-professional {
+    @apply space-y-8;
   }
 
-  .padding-content {
-    @apply p-4;
-  }
-
-  .padding-compact {
-    @apply p-3;
-  }
-
-  /* Espaçamento padronizado */
   .space-section {
     @apply space-y-8;
   }
@@ -404,6 +395,49 @@ Golden Ratio-based spacing: 1, 1.618, 2.618, 4.236, 6.854
 
   .space-compact {
     @apply space-y-4;
+  }
+
+  /* Professional padding system */
+  .padding-professional {
+    @apply px-6 py-8 lg:px-8 lg:py-10;
+  }
+
+  .padding-card {
+    @apply p-6;
+  }
+
+  .padding-content {
+    @apply px-4 py-6 sm:px-6 lg:px-8;
+  }
+
+  .padding-compact {
+    @apply p-3;
+  }
+
+  /* Layout consistency */
+  .layout-header {
+    @apply mb-6 pb-4 border-b border-border/50;
+  }
+
+  .layout-section {
+    @apply mb-8 space-y-6;
+  }
+
+  .layout-grid {
+    @apply grid gap-6 sm:gap-8;
+  }
+
+  .layout-flex {
+    @apply flex items-center justify-between gap-4;
+  }
+
+  /* Responsive containers */
+  .container-responsive {
+    @apply container mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .content-responsive {
+    @apply max-w-none sm:max-w-2xl md:max-w-4xl lg:max-w-6xl xl:max-w-7xl mx-auto;
   }
 }
 
