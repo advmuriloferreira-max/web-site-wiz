@@ -115,7 +115,7 @@ export default function Contratos() {
 
       <Card>
         <CardContent className="p-0">
-          <ResponsiveTableWrapper>
+          <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -125,7 +125,7 @@ export default function Contratos() {
                   <TableHead>Valor da Dívida</TableHead>
                   <TableHead>Classificação</TableHead>
                   <TableHead>Provisão</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
+                  <TableHead className="text-right w-32">Ações</TableHead>
                 </TableRow>
               </TableHeader>
             <TableBody>
@@ -149,7 +149,8 @@ export default function Contratos() {
                   return (
                     <TableRow 
                       key={contrato.id} 
-                      className="hover:bg-muted/50"
+                      className="cursor-pointer hover:bg-muted/50"
+                      onClick={() => handleViewContrato(contrato)}
                     >
                       <TableCell className="font-medium">
                         <div className="flex items-center space-x-3">
@@ -179,17 +180,16 @@ export default function Contratos() {
                         {formatCurrency(contrato.valor_provisao)}
                       </TableCell>
                       <TableCell className="text-right">
-                        <div className="flex items-center gap-1 justify-end bg-orange-100 border border-orange-300 p-1">
-                          <span className="text-xs text-orange-600">DEBUG:</span>
+                        <div className="flex items-center gap-1 justify-end" onClick={(e) => e.stopPropagation()}>
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => {
-                              console.log("BOTÃO VISUALIZAR CLICADO");
+                            onClick={(e) => {
+                              e.stopPropagation();
                               handleViewContrato(contrato);
                             }}
-                            className="h-8 w-8 p-0 touch-target hover:bg-primary/10 bg-blue-100"
-                            aria-label={`Visualizar contrato ${contrato.numero_contrato}`}
+                            className="h-8 w-8 p-0 hover:bg-primary/10"
+                            title="Visualizar contrato"
                           >
                             <Eye className="h-4 w-4" />
                           </Button>
@@ -198,43 +198,29 @@ export default function Contratos() {
                             size="sm"
                             onClick={(e) => {
                               e.stopPropagation();
-                              console.log("BOTÃO EDITAR CLICADO");
                               setContratoParaEditar(contrato.id);
                               setDialogTitle("Editar Contrato");
                               setIsDialogOpen(true);
                             }}
-                            className="h-8 w-8 p-0 touch-target hover:bg-accent/10 bg-yellow-100"
-                            aria-label={`Editar contrato ${contrato.numero_contrato}`}
+                            className="h-8 w-8 p-0 hover:bg-accent/10"
+                            title="Editar contrato"
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
-                          
-                          {/* Teste 1: Botão simples */}
-                          <button
+                          <Button
+                            variant="ghost"
+                            size="sm"
                             onClick={(e) => {
                               e.stopPropagation();
-                              console.log("BOTÃO HTML SIMPLES CLICADO!");
-                              if (confirm("Excluir este contrato?")) {
+                              if (confirm(`Confirma a exclusão do contrato ${contrato.numero_contrato || 'selecionado'}?`)) {
                                 handleDeleteContrato(contrato.id);
                               }
                             }}
-                            className="h-8 w-8 bg-red-500 text-white rounded hover:bg-red-600"
-                            style={{ minWidth: '32px', minHeight: '32px' }}
+                            className="h-8 w-8 p-0 hover:bg-destructive/10 text-destructive"
+                            title="Excluir contrato"
                           >
-                            🗑️
-                          </button>
-
-                          {/* Teste 2: Componente DeleteConfirmation */}
-                          <div className="border-2 border-green-500 bg-green-100">
-                            <DeleteConfirmation
-                              itemName={contrato.numero_contrato || contrato.clientes?.nome || "contrato"}
-                              itemType="contrato"
-                              onConfirm={() => {
-                                console.log("DELETE CONFIRMATION CLICADO!");
-                                handleDeleteContrato(contrato.id);
-                              }}
-                            />
-                          </div>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -243,7 +229,7 @@ export default function Contratos() {
               )}
             </TableBody>
             </Table>
-          </ResponsiveTableWrapper>
+          </div>
         </CardContent>
       </Card>
     </div>
