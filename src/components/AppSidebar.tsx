@@ -27,10 +27,10 @@ const navigationItems = [
   { title: "Processos Judiciais", url: "/processos", icon: LegalIcons.process, badge: null },
   { title: "Acordos", url: "/acordos", icon: LegalIcons.agreement, dataTour: "sidebar-acordos", badge: "2" },
   { title: "Provisões", url: "/calculos", icon: LegalIcons.calculations, dataTour: "sidebar-calculos", badge: null },
+  { title: "Indicadores", url: "/relatorios", icon: LegalIcons.reports, dataTour: "sidebar-relatorios", badge: null },
 ];
 
 const reportItems = [
-  { title: "Indicadores", url: "/relatorios", icon: LegalIcons.reports, dataTour: "sidebar-relatorios" },
   { title: "Análises Avançadas", url: "/relatorios-avancados", icon: LegalIcons.reports },
 ];
 
@@ -148,7 +148,7 @@ export function AppSidebar() {
           {!isCollapsed && (
             <SidebarGroupLabel className="px-4 text-xs uppercase tracking-wider text-accent font-bold mb-3 flex items-center border-b border-accent/20 pb-2">
               <LegalIcons.justice className="w-3 h-3 mr-2 text-accent" />
-              SISTEMA JURÍDICO
+              PAINEL DE CONTROLE
             </SidebarGroupLabel>
           )}
           <SidebarGroupContent>
@@ -168,7 +168,7 @@ export function AppSidebar() {
           {!isCollapsed && (
             <SidebarGroupLabel className="px-4 text-xs uppercase tracking-wider text-accent font-bold mb-3 flex items-center border-b border-accent/20 pb-2">
               <LegalIcons.reports className="w-3 h-3 mr-2 text-accent" />
-              INDICADORES
+              RELATÓRIOS
             </SidebarGroupLabel>
           )}
           <SidebarGroupContent>
