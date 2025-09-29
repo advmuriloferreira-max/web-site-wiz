@@ -26,6 +26,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LegalIcons } from "@/components/ui/legal-icons";
+import { BCBComplianceBadge } from "@/components/ui/legal-compliance-badge";
 
 function DashboardContent() {
   const { data: stats, isLoading, error } = useContratosStats();
@@ -246,7 +247,8 @@ function DashboardContent() {
 
           {/* Quick Actions com padding consistente */}
           <EntranceAnimation animation="fade" delay={400}>
-            <div className="padding-content">
+            <div className="padding-content space-y-4">
+              <BCBComplianceBadge />
               <QuickActionsSection />
             </div>
           </EntranceAnimation>

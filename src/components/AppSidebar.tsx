@@ -64,10 +64,10 @@ export function AppSidebar() {
         end 
         data-tour={item.dataTour}
         className={`
-          flex items-center gap-3 px-3 py-2.5 mx-2 rounded-lg transition-all duration-200 interactive-button
+          flex items-center gap-3 px-4 py-3 mx-2 rounded-sm transition-all duration-200 interactive-button border-l-4 font-semibold
           ${active 
-            ? 'bg-primary text-primary-foreground border-l-4 border-primary/60 shadow-lg shadow-primary/20 scale-[1.02]' 
-            : 'text-slate-300 hover:bg-white/10 hover:text-white hover:scale-[1.01]'
+            ? 'bg-accent text-primary border-accent shadow-lg shadow-accent/20 scale-[1.02]' 
+            : 'text-slate-300 hover:bg-accent/10 hover:text-accent hover:scale-[1.01] border-transparent hover:border-accent/30'
           }
         `}
       >
@@ -76,12 +76,9 @@ export function AppSidebar() {
           <>
             <span className="font-medium">{item.title}</span>
             {item.badge && (
-              <Badge 
-                variant="secondary" 
-                className="ml-auto bg-primary text-primary-foreground text-xs px-1.5 py-0.5 h-5 animate-pulse"
-              >
+              <div className="legal-badge bg-accent text-primary text-xs px-2 py-1 ml-auto animate-pulse border border-accent/30">
                 {item.badge}
-              </Badge>
+              </div>
             )}
           </>
         )}
@@ -107,10 +104,10 @@ export function AppSidebar() {
   return (
     <Sidebar 
       className={`
-        bg-gradient-to-b from-slate-900 to-slate-800 border-r border-slate-700/50 
-        ${isCollapsed ? "w-16" : "w-70"} 
+        bg-gradient-sidebar border-r-2 border-accent/20 
+        ${isCollapsed ? "w-20" : "w-80"} 
         shadow-2xl backdrop-blur-sm
-      `} 
+      `}
       collapsible="icon"
     >
       {/* Header Executivo */}
@@ -145,7 +142,7 @@ export function AppSidebar() {
         </Button>
       </div>
       
-      <SidebarContent className="px-0 overflow-y-auto scrollbar-thin scrollbar-track-slate-800 scrollbar-thumb-slate-600">
+      <SidebarContent className="px-0 overflow-y-auto bg-gradient-sidebar">
         {/* Navegação Principal */}
         <SidebarGroup className="py-6">
           {!isCollapsed && (
@@ -189,9 +186,9 @@ export function AppSidebar() {
         {/* Ações Rápidas */}
         <SidebarGroup className="py-4">
           {!isCollapsed && (
-            <SidebarGroupLabel className="px-4 text-xs uppercase tracking-wide text-slate-300 font-bold mb-4 flex items-center">
-              <div className="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
-              AÇÕES RÁPIDAS
+            <SidebarGroupLabel className="px-4 text-xs uppercase tracking-wider text-accent font-bold mb-4 flex items-center border-b border-accent/20 pb-2">
+              <LegalIcons.add className="w-3 h-3 mr-2 text-accent" />
+              AÇÕES EXECUTIVAS
             </SidebarGroupLabel>
           )}
           <SidebarGroupContent>
