@@ -28,6 +28,7 @@ import Acordos from "@/pages/Acordos";
 import Relatorios from "@/pages/Relatorios";
 import RelatoriosAvancados from "@/pages/RelatoriosAvancados";
 import Configuracoes from "@/pages/Configuracoes";
+import WorkspacePage from "@/pages/WorkspacePage";
 import NotFound from "@/pages/NotFound";
 
 export function EnterpriseLayout() {
@@ -143,6 +144,7 @@ export function EnterpriseLayout() {
                   <Route path="relatorios" element={<Relatorios />} />
                   <Route path="relatorios-avancados" element={<RelatoriosAvancados />} />
                   <Route path="configuracoes" element={<Configuracoes />} />
+                  <Route path="workspace" element={<WorkspacePage />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </PageTransition>

@@ -12,6 +12,7 @@ import {
   Handshake,
   User,
   LineChart,
+  Layers,
   ChevronLeft,
   ChevronRight,
   ChevronDown,
@@ -127,6 +128,17 @@ const defaultSections: NavigationSection[] = [
         isNew: true
       },
       { id: "calculations", title: "Cálculos", url: "/calculos", icon: Calculator },
+      { 
+        id: "workspace", 
+        title: "Workspace", 
+        url: "/workspace", 
+        icon: Layers,
+        isNew: true,
+        quickActions: [
+          { id: "new-workspace", title: "Novo Workspace", icon: Plus, action: () => {} },
+          { id: "import-workspace", title: "Importar", icon: Upload, action: () => {} }
+        ]
+      },
     ]
   },
   {
