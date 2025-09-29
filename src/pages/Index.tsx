@@ -25,17 +25,7 @@ import { LoadingIllustration } from "@/components/ui/premium-illustrations";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  FileText, 
-  DollarSign, 
-  AlertTriangle, 
-  TrendingUp,
-  Users,
-  Calculator,
-  BarChart3,
-  Target,
-  Clock
-} from "lucide-react";
+import { LegalIcons } from "@/components/ui/legal-icons";
 
 function DashboardContent() {
   const { data: stats, isLoading, error } = useContratosStats();
@@ -112,18 +102,18 @@ function DashboardContent() {
               data-tour="dashboard-stats"
             >
               <PremiumStatsCard
-                title="Total de Contratos"
+                title="Contratos Ativos"
                 value={stats?.totalContratos || 0}
-                description="Contratos ativos"
-                icon={FileText}
+                description="Total de contratos"
+                icon={LegalIcons.contract}
                 trend={{ value: 12, isPositive: true }}
                 color="blue"
               />
               <PremiumStatsCard
                 title="Valor Total"
                 value={`R$ ${(stats?.valorTotalDividas || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
-                description="Portfolio total"
-                icon={DollarSign}
+                description="Portfolio jurídico"
+                icon={LegalIcons.money}
                 trend={{ value: 8, isPositive: true }}
                 color="emerald"
               />
@@ -131,15 +121,15 @@ function DashboardContent() {
                 title="Provisão Total"
                 value={`R$ ${(stats?.valorTotalProvisao || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
                 description="Valor provisionado"
-                icon={AlertTriangle}
+                icon={LegalIcons.warning}
                 trend={{ value: -5, isPositive: false }}
                 color="amber"
               />
               <PremiumStatsCard
-                title="Taxa Média"
+                title="Taxa Média BCB"
                 value={`${(stats?.percentualProvisao || 0).toFixed(1)}%`}
                 description="Risco do portfolio"
-                icon={TrendingUp}
+                icon={LegalIcons.compliance}
                 trend={{ value: 3, isPositive: true }}
                 color={(stats?.percentualProvisao ?? 0) > 50 ? "red" : "blue"}
               />
@@ -153,22 +143,22 @@ function DashboardContent() {
             <Tabs defaultValue="visao-geral" className="space-y-6 animate-fade-in">
               {/* Mobile: Scrollable tabs, Desktop: Grid */}
               <div className="overflow-x-auto">
-                <TabsList className="grid w-full grid-cols-4 min-w-max md:min-w-0 interactive-button">
-                  <TabsTrigger value="visao-geral" className="flex items-center space-x-2 px-4 transition-all duration-200">
-                    <BarChart3 className="h-4 w-4 text-primary" />
-                    <span className="text-sm">Visão Geral</span>
+                <TabsList className="grid w-full grid-cols-4 min-w-max md:min-w-0 bg-primary/5 border-2 border-accent/20 rounded-sm">
+                  <TabsTrigger value="visao-geral" className="flex items-center space-x-2 px-4 transition-all duration-200 data-[state=active]:bg-primary data-[state=active]:text-white rounded-sm">
+                    <LegalIcons.dashboard className="h-4 w-4" />
+                    <span className="text-sm font-semibold">Painel Geral</span>
                   </TabsTrigger>
-                  <TabsTrigger value="acordos" className="flex items-center space-x-2 px-4 transition-all duration-200">
-                    <Target className="h-4 w-4 text-accent" />
-                    <span className="text-sm">Acordos</span>
+                  <TabsTrigger value="acordos" className="flex items-center space-x-2 px-4 transition-all duration-200 data-[state=active]:bg-primary data-[state=active]:text-white rounded-sm">
+                    <LegalIcons.agreement className="h-4 w-4" />
+                    <span className="text-sm font-semibold">Acordos</span>
                   </TabsTrigger>
-                  <TabsTrigger value="clientes" className="flex items-center space-x-2 px-4 transition-all duration-200">
-                    <Users className="h-4 w-4 text-success" />
-                    <span className="text-sm">Clientes</span>
+                  <TabsTrigger value="clientes" className="flex items-center space-x-2 px-4 transition-all duration-200 data-[state=active]:bg-primary data-[state=active]:text-white rounded-sm">
+                    <LegalIcons.clients className="h-4 w-4" />
+                    <span className="text-sm font-semibold">Clientes</span>
                   </TabsTrigger>
-                  <TabsTrigger value="tendencias" className="flex items-center space-x-2 px-4 transition-all duration-200">
-                    <Clock className="h-4 w-4 text-warning" />
-                    <span className="text-sm">Tendências</span>
+                  <TabsTrigger value="tendencias" className="flex items-center space-x-2 px-4 transition-all duration-200 data-[state=active]:bg-primary data-[state=active]:text-white rounded-sm">
+                    <LegalIcons.reports className="h-4 w-4" />
+                    <span className="text-sm font-semibold">Análises</span>
                   </TabsTrigger>
                 </TabsList>
               </div>
@@ -189,11 +179,14 @@ function DashboardContent() {
           </ResponsiveGrid>
           
           <div className="bg-card border rounded-xl overflow-hidden padding-card">
-            <div className="border-b mb-6 pb-4">
+            <div className="border-b mb-6 pb-4 bg-primary/5 p-4 rounded-sm">
               <h3 className="title-card flex items-center space-x-2">
-                <AlertTriangle className="h-5 w-5 text-warning" />
-                <span>Status dos Contratos</span>
+                <LegalIcons.process className="h-5 w-5 text-primary" />
+                <span>Status dos Contratos Jurídicos</span>
               </h3>
+              <p className="text-body text-muted-foreground mt-1">
+                Distribuição por situação processual
+              </p>
             </div>
             <ResponsiveGrid 
               cols={{ default: 2, md: 4 }} 

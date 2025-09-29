@@ -1,23 +1,5 @@
 import { useState } from "react";
-import { 
-  BarChart3, 
-  Users, 
-  FileText, 
-  Settings, 
-  Plus,
-  TrendingUp,
-  AlertTriangle,
-  Calculator,
-  Handshake,
-  User,
-  LineChart,
-  ChevronLeft,
-  ChevronRight,
-  LogOut,
-  Bell,
-  Zap,
-  Sparkles
-} from "lucide-react";
+import { LegalIcons } from "@/components/ui/legal-icons";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -38,23 +20,22 @@ import {
 } from "@/components/ui/sidebar";
 
 const navigationItems = [
-  { title: "Home", url: "/", icon: BarChart3, badge: null },
-  { title: "Clientes", url: "/clientes", icon: Users, dataTour: "sidebar-clientes", badge: null },
-  { title: "Contratos", url: "/contratos", icon: FileText, dataTour: "sidebar-contratos", badge: "3" },
-  { title: "Processos", url: "/processos", icon: AlertTriangle, badge: null },
-  { title: "Acordos", url: "/acordos", icon: Handshake, dataTour: "sidebar-acordos", badge: "2" },
-  { title: "Cálculos", url: "/calculos", icon: Calculator, dataTour: "sidebar-calculos", badge: null },
-  { title: "Efeitos Visuais", url: "/visual-effects", icon: Sparkles, badge: "NEW" },
+  { title: "Painel de Controle", url: "/", icon: LegalIcons.dashboard, badge: null },
+  { title: "Clientes", url: "/clientes", icon: LegalIcons.clients, dataTour: "sidebar-clientes", badge: null },
+  { title: "Contratos", url: "/contratos", icon: LegalIcons.contract, dataTour: "sidebar-contratos", badge: "3" },
+  { title: "Processos Judiciais", url: "/processos", icon: LegalIcons.process, badge: null },
+  { title: "Acordos", url: "/acordos", icon: LegalIcons.agreement, dataTour: "sidebar-acordos", badge: "2" },
+  { title: "Provisões", url: "/calculos", icon: LegalIcons.calculations, dataTour: "sidebar-calculos", badge: null },
 ];
 
 const reportItems = [
-  { title: "Relatórios", url: "/relatorios", icon: TrendingUp, dataTour: "sidebar-relatorios" },
-  { title: "Relatórios Avançados", url: "/relatorios-avancados", icon: LineChart },
+  { title: "Indicadores", url: "/relatorios", icon: LegalIcons.reports, dataTour: "sidebar-relatorios" },
+  { title: "Análises Avançadas", url: "/relatorios-avancados", icon: LegalIcons.reports },
 ];
 
 const quickActions = [
-  { title: "Novo Cliente", url: "/clientes/novo", icon: Plus },
-  { title: "Novo Contrato", url: "/contratos/novo", icon: Zap },
+  { title: "Novo Cliente", url: "/clientes/novo", icon: LegalIcons.add },
+  { title: "Novo Contrato", url: "/contratos/novo", icon: LegalIcons.contract },
 ];
 
 export function AppSidebar() {
@@ -132,25 +113,25 @@ export function AppSidebar() {
       `} 
       collapsible="icon"
     >
-      {/* Header com Logo e Toggle */}
-      <div className="flex items-center justify-between p-4 border-b border-slate-700/30">
+      {/* Header Executivo */}
+      <div className="executive-header flex items-center justify-between p-6">
         {!isCollapsed ? (
-          <div className="flex items-center gap-3 group">
-        <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary-hover rounded-lg flex items-center justify-center shadow-lg">
-          <BarChart3 className="h-4 w-4 text-primary-foreground" />
-        </div>
-            <div className="transition-all duration-300 group-hover:scale-105">
-              <h2 className="text-lg font-bold text-white tracking-wide">
+          <div className="flex items-center gap-4 group">
+            <div className="w-10 h-10 bg-accent rounded-sm flex items-center justify-center shadow-xl">
+              <LegalIcons.justice className="h-6 w-6 text-primary" />
+            </div>
+            <div className="transition-all duration-300">
+              <h2 className="text-xl font-bold text-white tracking-wider">
                 INTELLBANK
               </h2>
-              <p className="text-xs text-slate-400 font-medium">
-                Monitoramento Inteligente
+              <p className="text-xs text-accent font-semibold uppercase tracking-wider">
+                Sistema Jurídico Especializado
               </p>
             </div>
           </div>
         ) : (
-          <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary-hover rounded-lg flex items-center justify-center shadow-lg mx-auto">
-            <BarChart3 className="h-4 w-4 text-primary-foreground" />
+          <div className="w-10 h-10 bg-accent rounded-sm flex items-center justify-center shadow-xl mx-auto">
+            <LegalIcons.justice className="h-6 w-6 text-primary" />
           </div>
         )}
         
@@ -158,9 +139,9 @@ export function AppSidebar() {
           variant="ghost"
           size="sm"
           onClick={toggleSidebar}
-          className="text-slate-400 hover:text-white hover:bg-white/10 transition-colors duration-200"
+          className="text-accent hover:text-white hover:bg-accent/20 transition-colors duration-200 border border-accent/30"
         >
-          {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+          {isCollapsed ? <LegalIcons.expand className="h-4 w-4" /> : <LegalIcons.collapse className="h-4 w-4" />}
         </Button>
       </div>
       
@@ -168,9 +149,9 @@ export function AppSidebar() {
         {/* Navegação Principal */}
         <SidebarGroup className="py-6">
           {!isCollapsed && (
-            <SidebarGroupLabel className="px-4 text-xs uppercase tracking-wide text-slate-300 font-bold mb-4 flex items-center">
-              <div className="w-2 h-2 bg-primary rounded-full mr-2"></div>
-              NAVEGAÇÃO
+            <SidebarGroupLabel className="px-4 text-xs uppercase tracking-wider text-accent font-bold mb-4 flex items-center border-b border-accent/20 pb-2">
+              <LegalIcons.justice className="w-3 h-3 mr-2 text-accent" />
+              SISTEMA JURÍDICO
             </SidebarGroupLabel>
           )}
           <SidebarGroupContent>
@@ -188,9 +169,9 @@ export function AppSidebar() {
         {/* Relatórios */}
         <SidebarGroup className="py-4">
           {!isCollapsed && (
-            <SidebarGroupLabel className="px-4 text-xs uppercase tracking-wide text-slate-300 font-bold mb-4 flex items-center">
-              <div className="w-2 h-2 bg-blue-400 rounded-full mr-2"></div>
-              RELATÓRIOS
+            <SidebarGroupLabel className="px-4 text-xs uppercase tracking-wider text-accent font-bold mb-4 flex items-center border-b border-accent/20 pb-2">
+              <LegalIcons.reports className="w-3 h-3 mr-2 text-accent" />
+              INDICADORES
             </SidebarGroupLabel>
           )}
           <SidebarGroupContent>
@@ -227,11 +208,11 @@ export function AppSidebar() {
           {/* Status e Notificações */}
           <div className="flex items-center justify-center gap-2 mb-4">
             {!isCollapsed ? (
-              <div className="flex items-center gap-2 text-xs text-slate-400">
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                <span>Online</span>
+            <div className="flex items-center gap-2 text-xs text-slate-400">
+                <div className="w-2 h-2 bg-success rounded-full animate-pulse"></div>
+                <span>Sistema Ativo</span>
                 <Button variant="ghost" size="sm" className="p-1 h-6 w-6 ml-auto text-slate-400 hover:text-white">
-                  <Bell className="h-3 w-3" />
+                  <LegalIcons.compliance className="h-3 w-3" />
                 </Button>
               </div>
             ) : (
@@ -243,8 +224,8 @@ export function AppSidebar() {
           {profile && (
             <div className={`flex items-center gap-3 p-3 rounded-lg bg-white/5 backdrop-blur-sm border border-white/10 transition-all duration-200 hover:bg-white/10 ${isCollapsed ? 'justify-center' : ''}`}>
             <Avatar className="h-9 w-9 ring-2 ring-primary/30">
-              <AvatarFallback className="bg-gradient-to-br from-primary to-primary-hover text-primary-foreground text-sm font-semibold">
-                  {profile.nome ? getInitials(profile.nome) : <User className="h-4 w-4" />}
+              <AvatarFallback className="bg-gradient-to-br from-accent to-accent/80 text-primary-foreground text-sm font-semibold">
+                  {profile.nome ? getInitials(profile.nome) : <LegalIcons.user className="h-4 w-4" />}
                 </AvatarFallback>
               </Avatar>
               {!isCollapsed && (
@@ -273,7 +254,7 @@ export function AppSidebar() {
                   className="flex-1 text-slate-400 hover:text-white hover:bg-white/10 transition-colors duration-200"
                 >
                   <NavLink to="/configuracoes">
-                    <Settings className="h-4 w-4" />
+                    <LegalIcons.settings className="h-4 w-4" />
                     {!isCollapsed && <span className="ml-2">Configurações</span>}
                   </NavLink>
                 </Button>
@@ -291,7 +272,7 @@ export function AppSidebar() {
                     size="sm"
                     className="text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors duration-200"
                   >
-                    <LogOut className="h-4 w-4" />
+                    <LegalIcons.close className="h-4 w-4" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top" className="bg-slate-800 text-white border-slate-700">
