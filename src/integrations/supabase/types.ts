@@ -296,6 +296,50 @@ export type Database = {
         }
         Relationships: []
       }
+      dashboard_layouts: {
+        Row: {
+          created_at: string
+          id: string
+          is_default: boolean | null
+          layout: Json
+          name: string
+          updated_at: string
+          user_id: string
+          widgets: Json
+          workspace_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          layout?: Json
+          name?: string
+          updated_at?: string
+          user_id: string
+          widgets?: Json
+          workspace_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          layout?: Json
+          name?: string
+          updated_at?: string
+          user_id?: string
+          widgets?: Json
+          workspace_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dashboard_layouts_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspace_configs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       garantias: {
         Row: {
           contrato_id: string
@@ -578,6 +622,42 @@ export type Database = {
         }
         Relationships: []
       }
+      user_preferences: {
+        Row: {
+          color_theme: Json | null
+          created_at: string
+          font_scale: number | null
+          id: string
+          interface_config: Json | null
+          layout_density: string | null
+          sidebar_width: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          color_theme?: Json | null
+          created_at?: string
+          font_scale?: number | null
+          id?: string
+          interface_config?: Json | null
+          layout_density?: string | null
+          sidebar_width?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          color_theme?: Json | null
+          created_at?: string
+          font_scale?: number | null
+          id?: string
+          interface_config?: Json | null
+          layout_density?: string | null
+          sidebar_width?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -599,6 +679,93 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      workspace_configs: {
+        Row: {
+          config: Json
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          is_default: boolean | null
+          name: string
+          shared_with: string[] | null
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          config?: Json
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+          name: string
+          shared_with?: string[] | null
+          type?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          config?: Json
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+          name?: string
+          shared_with?: string[] | null
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      workspace_templates: {
+        Row: {
+          config: Json
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_public: boolean | null
+          layout: Json
+          name: string
+          role: string
+          updated_at: string
+          widgets: Json
+        }
+        Insert: {
+          config?: Json
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          layout?: Json
+          name: string
+          role: string
+          updated_at?: string
+          widgets?: Json
+        }
+        Update: {
+          config?: Json
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          layout?: Json
+          name?: string
+          role?: string
+          updated_at?: string
+          widgets?: Json
         }
         Relationships: []
       }
