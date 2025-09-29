@@ -12,6 +12,8 @@ import AssistenteVirtual from "@/components/assistente/AssistenteVirtual";
 import { Button } from "@/components/ui/button";
 import { LegalIcons } from "@/components/ui/legal-icons";
 import { useEnterpriseNavigation } from "@/hooks/useEnterpriseNavigation";
+import { ErrorBoundary } from "@/components/ui/error-boundary";
+import { SkipToMainContent } from "@/components/ui/accessibility-helpers";
 import { cn } from "@/lib/utils";
 
 // Import all pages
@@ -55,10 +57,12 @@ export function EnterpriseLayout() {
   }, []);
 
   return (
-    <SidebarProvider 
-      defaultOpen={true}
-    >
-      <div className="min-h-screen flex w-full bg-background">
+    <ErrorBoundary>
+      <SkipToMainContent />
+      <SidebarProvider 
+        defaultOpen={true}
+      >
+        <div className="min-h-screen flex w-full bg-background mobile-safe">
         {/* Desktop Sidebar */}
         <div className="hidden md:block">
           <AppSidebar />
@@ -137,7 +141,7 @@ export function EnterpriseLayout() {
           </header>
 
           {/* Page Content */}
-          <main className="flex-1 overflow-auto bg-background">
+          <main id="main-content" className="flex-1 overflow-auto bg-background">
             <div className="container mx-auto padding-content pb-20 md:pb-6">
               <PageTransition>
                 <Routes>
@@ -180,5 +184,6 @@ export function EnterpriseLayout() {
         <AssistenteVirtual />
       </div>
     </SidebarProvider>
+    </ErrorBoundary>
   );
 }

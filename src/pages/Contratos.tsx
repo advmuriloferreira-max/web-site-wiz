@@ -11,6 +11,10 @@ import { ContratoWizard } from "@/components/forms/ContratoWizard";
 import { useContratos } from "@/hooks/useContratos";
 import { useDeleteContrato } from "@/hooks/useDeleteContrato";
 import { format } from "date-fns";
+import { ResponsiveTableWrapper } from "@/components/ui/responsive-fixes";
+import { LoadingState, TableLoading } from "@/components/ui/loading-states";
+import { ErrorState } from "@/components/ui/error-boundary";
+import { LegalIcons } from "@/components/ui/legal-icons";
 
 const getClassificacaoColor = (classificacao: string | null) => {
   switch (classificacao) {
@@ -73,9 +77,18 @@ export default function Contratos() {
   if (isLoading) {
     return (
       <div className="container mx-auto py-8">
-        <div className="flex items-center justify-center h-64">
-          <div className="text-lg">Carregando contratos...</div>
-        </div>
+        <LoadingState
+          isLoading={true}
+        <TableLoading 
+          isLoading={true}
+          rows={10}
+          columns={7}
+        >
+          <div />
+        </TableLoading>
+        >
+          <div />
+        </LoadingState>
       </div>
     );
   }
@@ -109,18 +122,19 @@ export default function Contratos() {
 
       <Card>
         <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Cliente</TableHead>
-                <TableHead>Banco</TableHead>  
-                <TableHead>Contrato</TableHead>
-                <TableHead>Valor da Dívida</TableHead>
-                <TableHead>Classificação</TableHead>
-                <TableHead>Provisão</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
-              </TableRow>
-            </TableHeader>
+          <ResponsiveTableWrapper>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Cliente</TableHead>
+                  <TableHead>Banco</TableHead>  
+                  <TableHead>Contrato</TableHead>
+                  <TableHead>Valor da Dívida</TableHead>
+                  <TableHead>Classificação</TableHead>
+                  <TableHead>Provisão</TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
+                </TableRow>
+              </TableHeader>
             <TableBody>
               {contratos.length === 0 ? (
                 <TableRow>
@@ -179,7 +193,8 @@ export default function Contratos() {
                             e.stopPropagation();
                             handleViewContrato(contrato);
                           }}
-                          className="h-8 w-8 p-0"
+                          className="h-8 w-8 p-0 touch-target hover:bg-primary/10"
+                          aria-label={`Visualizar contrato ${contrato.numero_contrato}`}
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
@@ -187,7 +202,8 @@ export default function Contratos() {
                           variant="ghost"
                           size="sm"
                           onClick={(e) => handleEditContrato(contrato, e)}
-                          className="h-8 w-8 p-0"
+                          className="h-8 w-8 p-0 touch-target hover:bg-accent/10"
+                          aria-label={`Editar contrato ${contrato.numero_contrato}`}
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
@@ -226,7 +242,8 @@ export default function Contratos() {
                 ))
               )}
             </TableBody>
-          </Table>
+            </Table>
+          </ResponsiveTableWrapper>
         </CardContent>
       </Card>
     </div>

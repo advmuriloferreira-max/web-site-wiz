@@ -1176,3 +1176,62 @@ Golden Ratio-based spacing: 1, 1.618, 2.618, 4.236, 6.854
   -webkit-backdrop-filter: blur(var(--glass-blur));
   will-change: backdrop-filter;
 }
+
+/* Enhanced accessibility */
+.focus-visible {
+  @apply outline-none ring-2 ring-accent ring-offset-2 ring-offset-background;
+}
+
+/* Minimum touch targets for mobile (WCAG 2.1 AAA) */
+.touch-target {
+  @apply min-h-[44px] min-w-[44px];
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --border: 220 13% 40%;
+    --input: 220 13% 40%;
+    --ring: 220 13% 40%;
+  }
+}
+
+/* Enhanced loading state */
+.loading-shimmer {
+  background: linear-gradient(90deg, 
+    hsl(var(--muted)) 0%, 
+    hsl(var(--muted-foreground) / 0.1) 50%, 
+    hsl(var(--muted)) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Mobile-first responsive breakpoints */
+.mobile-safe {
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-top: env(safe-area-inset-top);
+}
+
+/* Touch-friendly interactive elements */
+.interactive-element {
+  @apply touch-target transition-all duration-200 active:scale-95;
+}
+
+/* Skip to main content for screen readers */
+.skip-to-content {
+  @apply absolute -top-10 left-4 bg-primary text-primary-foreground px-4 py-2 rounded;
+  @apply focus:top-4 transition-all duration-200 z-50;
+}
+
+/* High contrast outlines for focus */
+.legal-focus {
+  @apply focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2;
+}
