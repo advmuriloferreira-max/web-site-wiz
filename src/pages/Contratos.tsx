@@ -36,8 +36,6 @@ export default function Contratos() {
   const [dialogTitle, setDialogTitle] = useState("Novo Contrato");
   const [contratoParaEditar, setContratoParaEditar] = useState<string | null>(null);
 
-  console.log("Renderizando página Contratos, total de contratos:", contratos?.length);
-
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
       style: "currency", 
@@ -62,7 +60,7 @@ export default function Contratos() {
   };
 
   const handleDeleteContrato = (contratoId: string) => {
-    console.log("handleDeleteContrato chamado para:", contratoId);
+    console.log("Excluindo contrato:", contratoId);
     deleteContratoMutation.mutate(contratoId);
   };
 
@@ -78,7 +76,6 @@ export default function Contratos() {
   };
 
   if (isLoading) {
-    console.log("Carregando contratos...");
     return (
       <div className="container mx-auto py-8">
         <div className="flex items-center justify-center h-64">
@@ -148,7 +145,6 @@ export default function Contratos() {
                 </TableRow>
               ) : (
                 contratos.map((contrato) => {
-                  console.log("Renderizando contrato:", contrato.id, contrato.numero_contrato);
                   return (
                     <TableRow 
                       key={contrato.id} 
@@ -182,44 +178,35 @@ export default function Contratos() {
                         {formatCurrency(contrato.valor_provisao)}
                       </TableCell>
                       <TableCell className="text-right">
-                        <div className="flex items-center gap-2 justify-end bg-red-100 p-2 border-2 border-red-500">
-                          <span className="text-xs text-red-600">TESTE BOTÕES</span>
+                        <div className="flex items-center gap-1 justify-end">
                           <Button
-                            variant="outline"
+                            variant="ghost"
                             size="sm"
                             onClick={() => handleViewContrato(contrato)}
-                            className="h-8 w-8 p-0 touch-target hover:bg-primary/10 bg-blue-200"
+                            className="h-8 w-8 p-0 touch-target hover:bg-primary/10"
                             aria-label={`Visualizar contrato ${contrato.numero_contrato}`}
                           >
                             <Eye className="h-4 w-4" />
                           </Button>
                           <Button
-                            variant="outline"
+                            variant="ghost"
                             size="sm"
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleEditContrato(contrato, e);
+                              setContratoParaEditar(contrato.id);
+                              setDialogTitle("Editar Contrato");
+                              setIsDialogOpen(true);
                             }}
-                            className="h-8 w-8 p-0 touch-target hover:bg-accent/10 bg-yellow-200"
+                            className="h-8 w-8 p-0 touch-target hover:bg-accent/10"
                             aria-label={`Editar contrato ${contrato.numero_contrato}`}
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              console.log("🔥 BOTÃO EXCLUIR CLICADO para contrato:", contrato.id);
-                              if (confirm(`Excluir contrato ${contrato.numero_contrato || contrato.id}?`)) {
-                                handleDeleteContrato(contrato.id);
-                              }
-                            }}
-                            className="h-8 w-8 p-0 touch-target bg-red-500 hover:bg-red-600 text-white"
-                            aria-label="Excluir contrato"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          <DeleteConfirmation
+                            itemName={contrato.numero_contrato || contrato.clientes?.nome || "contrato"}
+                            itemType="contrato"
+                            onConfirm={() => handleDeleteContrato(contrato.id)}
+                          />
                         </div>
                       </TableCell>
                     </TableRow>
