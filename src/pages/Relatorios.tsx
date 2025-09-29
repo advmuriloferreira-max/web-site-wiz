@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Download, TrendingUp, AlertTriangle, Users, Building, FileDown } from "lucide-react";
+import { FileText, Download, TrendingUp, AlertTriangle, Users, Building, FileDown, BarChart3, PieChart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { 
   useRelatorioProvisao, 
@@ -17,10 +17,8 @@ import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { ResponsiveContainer } from "@/components/ui/layout-consistency";
-import { GlassCard } from "@/components/ui/glassmorphism";
-import { GradientText } from "@/components/ui/gradient-elements";
-import { ColoredIcon } from "@/components/ui/color-consistency";
+import { ResponsiveGrid, ResponsiveCard, ResponsiveContainer, PageHeader } from "@/components/ui/responsive-layout";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type RelatorioTipo = "provisao" | "posicao" | "risco" | null;
 
@@ -34,30 +32,39 @@ export default function Relatorios() {
   const relatorios = [
     {
       id: "provisao" as RelatorioTipo,
-      nome: "Relatório de Provisões",
-      descricao: "Análise completa das provisões por período e classificação",
+      nome: "Provisões",
+      titulo: "Relatório de Provisões",
+      descricao: "Análise completa das provisões por período e classificação de risco",
       icon: TrendingUp,
-      cor: "text-green-600",
+      cor: "text-emerald-600",
+      bgColor: "bg-emerald-50",
       dados: dadosProvisao,
-      loading: loadingProvisao
+      loading: loadingProvisao,
+      category: "Financeiro"
     },
     {
       id: "posicao" as RelatorioTipo,
       nome: "Posição de Contratos",
-      descricao: "Status atual de todos os contratos por situação",
-      icon: FileText,
+      titulo: "Posição de Contratos",
+      descricao: "Status atual de todos os contratos organizados por situação e banco",
+      icon: BarChart3,
       cor: "text-blue-600",
+      bgColor: "bg-blue-50",
       dados: dadosPosicao,
-      loading: loadingPosicao
+      loading: loadingPosicao,
+      category: "Operacional"
     },
     {
       id: "risco" as RelatorioTipo,
       nome: "Análise de Risco",
-      descricao: "Distribuição de contratos por classificação de risco",
-      icon: AlertTriangle,
-      cor: "text-red-600",
+      titulo: "Análise de Risco",
+      descricao: "Distribuição detalhada de contratos por classificação de risco BCB",
+      icon: PieChart,
+      cor: "text-amber-600",
+      bgColor: "bg-amber-50",
       dados: dadosRisco,
-      loading: loadingRisco
+      loading: loadingRisco,
+      category: "Compliance"
     }
   ];
 
@@ -109,138 +116,204 @@ export default function Relatorios() {
     }
   };
 
+  const categorias = [...new Set(relatorios.map(r => r.category))];
+
   return (
-    <ResponsiveContainer className="py-8 animate-fade-in">
-      <div className="mb-8">
-        <GradientText variant="primary" className="text-3xl font-bold mb-2 flex items-center">
-          <ColoredIcon icon={FileText} className="mr-3" />
+    <ResponsiveContainer>
+      {/* Header Section */}
+      <div className="space-y-2 mb-8">
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight flex items-center gap-3">
+          <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+            <FileText className="w-5 h-5 text-primary" />
+          </div>
           Relatórios Gerenciais
-        </GradientText>
-        <p className="text-muted-foreground">
-          Análises e relatórios para tomada de decisão estratégica
+        </h1>
+        <p className="text-muted-foreground text-sm md:text-base">
+          Análises e relatórios para tomada de decisão estratégica em conformidade BCB
         </p>
       </div>
 
-      {/* Grid de Relatórios */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 animate-slide-up">
-        {relatorios.map((relatorio, index) => (
-          <div 
-            key={relatorio.id} 
-            className={`cursor-pointer group animate-scale-in animate-delay-${index}`}
-            onClick={() => setRelatorioAtivo(relatorio.id)}
-          >
-            <GlassCard 
-              variant="subtle" 
-              className="h-full interactive-card group-hover:shadow-xl transition-all duration-300"
-            >
-              <CardHeader className="pb-4">
-                <div className="flex items-start space-x-4">
-                  <div className="glass-element p-3 rounded-full flex-shrink-0">
-                    <ColoredIcon icon={relatorio.icon} className={relatorio.cor} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <CardTitle className="text-lg font-semibold mb-2 line-clamp-1">
-                      {relatorio.nome}
-                    </CardTitle>
-                    <p className="text-sm text-muted-foreground line-clamp-2">
-                      {relatorio.descricao}
-                    </p>
-                  </div>
-                </div>
-              </CardHeader>
-              
-              <CardContent className="pt-0">
-                <div className="space-y-4">
-                  {/* Status Badge */}
-                  <div className="flex justify-start">
-                    {relatorio.loading ? (
-                      <Skeleton className="h-6 w-24" />
-                    ) : (
-                      <Badge variant="outline" className="font-medium">
-                        {Array.isArray(relatorio.dados) ? relatorio.dados.length : 0} registros
-                      </Badge>
-                    )}
-                  </div>
-                  
-                  <Separator className="opacity-50" />
-                  
-                  {/* Botões de Ação */}
-                  <div className="flex justify-center space-x-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleExportPDF(relatorio.id);
-                      }}
-                      className="interactive-button flex-1 max-w-[100px]"
-                      disabled={relatorio.loading}
-                    >
-                      <FileDown className="h-4 w-4 mr-1" />
-                      PDF
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleExportCSV(relatorio.id);
-                      }}
-                      className="interactive-button flex-1 max-w-[100px]"
-                      disabled={relatorio.loading}
-                    >
-                      <Download className="h-4 w-4 mr-1" />
-                      CSV
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </GlassCard>
-          </div>
+      {/* Tabs por Categoria */}
+      <Tabs defaultValue="todos" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4">
+          <TabsTrigger value="todos" className="text-xs md:text-sm">Todos</TabsTrigger>
+          {categorias.map(categoria => (
+            <TabsTrigger key={categoria} value={categoria.toLowerCase()} className="text-xs md:text-sm">
+              {categoria}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+
+        <TabsContent value="todos">
+          <ResponsiveGrid cols={{ default: 1, md: 2, lg: 3 }}>
+            {relatorios.map((relatorio) => (
+              <RelatorioCard 
+                key={relatorio.id}
+                relatorio={relatorio}
+                onSelect={setRelatorioAtivo}
+                onExportPDF={handleExportPDF}
+                onExportCSV={handleExportCSV}
+              />
+            ))}
+          </ResponsiveGrid>
+        </TabsContent>
+
+        {categorias.map(categoria => (
+          <TabsContent key={categoria} value={categoria.toLowerCase()}>
+            <ResponsiveGrid cols={{ default: 1, md: 2, lg: 3 }}>
+              {relatorios
+                .filter(r => r.category === categoria)
+                .map((relatorio) => (
+                  <RelatorioCard 
+                    key={relatorio.id}
+                    relatorio={relatorio}
+                    onSelect={setRelatorioAtivo}
+                    onExportPDF={handleExportPDF}
+                    onExportCSV={handleExportCSV}
+                  />
+                ))}
+            </ResponsiveGrid>
+          </TabsContent>
         ))}
-      </div>
+      </Tabs>
 
       {/* Detalhes do Relatório Selecionado */}
       {relatorioAtivo && (
-        <GlassCard variant="subtle" className="animate-slide-up animate-stagger-1">
-          <CardHeader className="glass-header border-b border-white/10">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <ColoredIcon 
-                  icon={relatorios.find(r => r.id === relatorioAtivo)?.icon || FileText} 
-                  className="text-primary" 
-                />
-                <div>
-                  <CardTitle className="text-xl">
-                    {relatorios.find(r => r.id === relatorioAtivo)?.nome}
-                  </CardTitle>
-                  <p className="text-sm text-muted-foreground">
-                    Última atualização: {new Date().toLocaleDateString('pt-BR')}
-                  </p>
+        <div className="mt-8">
+          <ResponsiveCard className="overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10 border-b">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                    {(() => {
+                      const relatorio = relatorios.find(r => r.id === relatorioAtivo);
+                      const IconComponent = relatorio?.icon || FileText;
+                      return <IconComponent className="w-5 h-5 text-primary" />;
+                    })()}
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg md:text-xl">
+                      {relatorios.find(r => r.id === relatorioAtivo)?.titulo}
+                    </CardTitle>
+                    <p className="text-sm text-muted-foreground">
+                      Atualizado em {new Date().toLocaleDateString('pt-BR')}
+                    </p>
+                  </div>
                 </div>
+                <Button
+                  variant="outline"
+                  onClick={() => setRelatorioAtivo(null)}
+                  className="w-full sm:w-auto"
+                >
+                  Fechar Visualização
+                </Button>
               </div>
-              <Button
-                variant="outline"
-                onClick={() => setRelatorioAtivo(null)}
-                className="interactive-button"
-              >
-                Fechar
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent className="p-6">
-            <div className="text-center py-12">
-              <ColoredIcon icon={Building} size="lg" className="text-muted-foreground mb-4" />
-              <p className="text-lg font-medium text-foreground mb-2">
-                Relatório em Desenvolvimento
-              </p>
-              <p className="text-muted-foreground">
-                Este relatório estará disponível em breve com análises detalhadas
-              </p>
-            </div>
-          </CardContent>
-        </GlassCard>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="text-center py-12">
+                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Building className="w-8 h-8 text-muted-foreground" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">Relatório em Desenvolvimento</h3>
+                <p className="text-muted-foreground max-w-md mx-auto">
+                  Este relatório estará disponível em breve com análises detalhadas e visualizações interativas
+                </p>
+              </div>
+            </CardContent>
+          </ResponsiveCard>
+        </div>
       )}
     </ResponsiveContainer>
+  );
+}
+
+// Componente individual do card de relatório
+function RelatorioCard({ 
+  relatorio, 
+  onSelect, 
+  onExportPDF, 
+  onExportCSV 
+}: {
+  relatorio: any;
+  onSelect: (id: RelatorioTipo) => void;
+  onExportPDF: (id: RelatorioTipo) => void;
+  onExportCSV: (id: RelatorioTipo) => void;
+}) {
+  const IconComponent = relatorio.icon;
+  
+  return (
+    <div 
+      className="cursor-pointer group transition-all duration-200"
+      onClick={() => onSelect(relatorio.id)}
+    >
+      <ResponsiveCard className="h-full hover:shadow-lg hover:scale-[1.02]">
+      <CardHeader className="pb-4">
+        <div className="flex items-start gap-4">
+          <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${relatorio.bgColor} group-hover:scale-110 transition-transform duration-200`}>
+            <IconComponent className={`w-6 h-6 ${relatorio.cor}`} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+              <CardTitle className="text-base font-semibold truncate">
+                {relatorio.nome}
+              </CardTitle>
+              <Badge variant="secondary" className="text-xs shrink-0">
+                {relatorio.category}
+              </Badge>
+            </div>
+            <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+              {relatorio.descricao}
+            </p>
+          </div>
+        </div>
+      </CardHeader>
+      
+      <CardContent className="space-y-4">
+        {/* Status */}
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-medium text-muted-foreground">Status:</span>
+          {relatorio.loading ? (
+            <Skeleton className="h-5 w-20" />
+          ) : (
+            <Badge variant="outline" className="text-xs">
+              {Array.isArray(relatorio.dados) ? relatorio.dados.length : 0} registros
+            </Badge>
+          )}
+        </div>
+        
+        <Separator />
+        
+        {/* Botões de Ação */}
+        <div className="grid grid-cols-2 gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={(e) => {
+              e.stopPropagation();
+              onExportPDF(relatorio.id);
+            }}
+            className="text-xs"
+            disabled={relatorio.loading}
+          >
+            <FileDown className="w-3 h-3 mr-1" />
+            PDF
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={(e) => {
+              e.stopPropagation();
+              onExportCSV(relatorio.id);
+            }}
+            className="text-xs"
+            disabled={relatorio.loading}
+          >
+            <Download className="w-3 h-3 mr-1" />
+            CSV
+          </Button>
+        </div>
+      </CardContent>
+    </ResponsiveCard>
+    </div>
   );
 }
