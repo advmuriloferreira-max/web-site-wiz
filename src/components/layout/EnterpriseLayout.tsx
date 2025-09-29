@@ -24,6 +24,7 @@ import { SecurityIndicator, ComplianceBadge } from "@/components/ui/security-ind
 import Index from "@/pages/Index";
 import Home from "@/pages/Home";
 import Clientes from "@/pages/Clientes";
+import NovoCliente from "@/pages/NovoCliente";
 import Contratos from "@/pages/Contratos";
 import NovoContrato from "@/pages/NovoContrato";
 import ContratoDetalhes from "@/pages/ContratoDetalhes";
@@ -142,9 +143,10 @@ export function EnterpriseLayout() {
                     <Route index element={<Index />} />
                     <Route path="/home" element={<Home />} />
                     <Route path="/clientes" element={<Clientes />} />
+                    <Route path="/clientes/novo" element={<NovoCliente />} />
                     <Route path="/contratos" element={<Contratos />} />
+                    <Route path="/contratos/novo" element={<NovoContrato />} />
                     <Route path="/contratos/:contratoId" element={<ContratoDetalhes />} />
-                    <Route path="/novo-contrato" element={<NovoContrato />} />
                     <Route path="/calculos" element={<Calculos />} />
                     <Route path="/processos" element={<Processos />} />
                     <Route path="acordos" element={<Acordos />} />
