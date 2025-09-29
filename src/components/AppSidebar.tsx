@@ -79,7 +79,7 @@ export function AppSidebar() {
             {item.badge && (
               <Badge 
                 variant="secondary" 
-                className="ml-auto bg-accent/20 text-accent text-xs px-2 py-0.5 font-bold border border-accent/30"
+                className="ml-auto bg-red-500/20 text-red-600 text-xs px-2 py-0.5 font-bold border border-red-500/30"
               >
                 {item.badge}
               </Badge>
