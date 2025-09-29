@@ -5,6 +5,7 @@ import { ResponsiveGrid, AdaptiveCard } from "@/components/ui/responsive-grid";
 import { HeroSection } from "@/components/dashboard/HeroSection";
 import { PremiumStatsCard } from "@/components/dashboard/PremiumStatsCard";
 import { QuickActionsSection } from "@/components/dashboard/QuickActionsSection";
+import { QuickActions } from "@/components/ui/quick-actions";
 import { ClassificacaoChart } from "@/components/dashboard/ClassificacaoChart";
 import { AcordosChart } from "@/components/dashboard/AcordosChart";
 import { ClientesAnalysisChart } from "@/components/dashboard/ClientesAnalysisChart";
@@ -84,177 +85,125 @@ function DashboardContent() {
 
   return (
     <GradientBackground variant="subtle" className="min-h-screen">
-      <div className="container mx-auto p-6 space-section animate-fade-in">
+      <div className="container mx-auto space-y-8 animate-fade-in">
         <ProgressBarComponent />
 
+        {/* Hero Section - Seção Principal */}
         <EntranceAnimation animation="fade" delay={100}>
-          <div className="padding-content">
+          <div className="px-4 md:px-6">
             <HeroSection />
           </div>
         </EntranceAnimation>
 
-        {/* Premium Statistics Cards com espaçamento padronizado */}
-        <EntranceAnimation animation="slide" delay={200}>
-          <div className="space-content">
-            <ResponsiveGrid 
-              cols={{ default: 1, sm: 2, lg: 4 }} 
-              gap={6} 
-              className="padding-content" 
-              data-tour="dashboard-stats"
-            >
-              <PremiumStatsCard
-                title="Contratos Ativos"
-                value={stats?.totalContratos || 0}
-                description="Total de contratos"
-                icon={LegalIcons.contract}
-                trend={{ value: 12, isPositive: true }}
-                color="blue"
-              />
-              <PremiumStatsCard
-                title="Valor Total"
-                value={`R$ ${(stats?.valorTotalDividas || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
-                description="Portfolio jurídico"
-                icon={LegalIcons.money}
-                trend={{ value: 8, isPositive: true }}
-                color="emerald"
-              />
-              <PremiumStatsCard
-                title="Provisão Total"
-                value={`R$ ${(stats?.valorTotalProvisao || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
-                description="Valor provisionado"
-                icon={LegalIcons.warning}
-                trend={{ value: -5, isPositive: false }}
-                color="amber"
-              />
-              <PremiumStatsCard
-                title="Taxa Média BCB"
-                value={`${(stats?.percentualProvisao || 0).toFixed(1)}%`}
-                description="Risco do portfolio"
-                icon={LegalIcons.compliance}
-                trend={{ value: 3, isPositive: true }}
-                color={(stats?.percentualProvisao ?? 0) > 50 ? "red" : "blue"}
-              />
-            </ResponsiveGrid>
-          </div>
-        </EntranceAnimation>
+        {/* Layout Principal com Quick Actions */}
+        <div className="grid gap-8 lg:grid-cols-3 px-4 md:px-6">
+          {/* Dashboard Principal - 2/3 da tela */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* Premium Statistics Cards */}
+            <EntranceAnimation animation="slide" delay={200}>
+              <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+                <PremiumStatsCard
+                  title="Contratos Ativos"
+                  value={stats?.totalContratos || 0}
+                  description="Total de contratos em análise"
+                  icon={LegalIcons.contract}
+                  trend={{ value: 12, isPositive: true }}
+                  color="blue"
+                />
+                <PremiumStatsCard
+                  title="Valor Total"
+                  value={`R$ ${(stats?.valorTotalDividas || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
+                  description="Portfolio jurídico total"
+                  icon={LegalIcons.money}
+                  trend={{ value: 8, isPositive: true }}
+                  color="emerald"
+                />
+                <PremiumStatsCard
+                  title="Provisão Total"
+                  value={`R$ ${(stats?.valorTotalProvisao || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
+                  description="Valor provisionado BCB"
+                  icon={LegalIcons.warning}
+                  trend={{ value: -5, isPositive: false }}
+                  color="amber"
+                />
+                <PremiumStatsCard
+                  title="Taxa Média"
+                  value={`${(stats?.percentualProvisao || 0).toFixed(1)}%`}
+                  description="Risco médio do portfolio"
+                  icon={LegalIcons.compliance}
+                  trend={{ value: 3, isPositive: true }}
+                  color={(stats?.percentualProvisao ?? 0) > 50 ? "red" : "blue"}
+                />
+              </div>
+            </EntranceAnimation>
 
-        {/* Dashboard Tabs com espaçamento simétrico */}
-        <EntranceAnimation animation="scale" delay={300}>
-          <div className="space-content padding-content">
-            <Tabs defaultValue="visao-geral" className="space-y-6 animate-fade-in">
-              {/* Mobile: Scrollable tabs, Desktop: Grid */}
-              <div className="overflow-x-auto">
-                <TabsList className="grid w-full grid-cols-4 min-w-max md:min-w-0 bg-primary/5 border-2 border-accent/20 rounded-sm">
-                  <TabsTrigger value="visao-geral" className="flex items-center space-x-2 px-4 transition-all duration-200 data-[state=active]:bg-primary data-[state=active]:text-white rounded-sm">
+            {/* Charts - Dashboard Tabs */}
+            <EntranceAnimation animation="scale" delay={300}>
+              <Tabs defaultValue="visao-geral" className="space-y-6">
+                <TabsList className="grid w-full grid-cols-4 bg-muted/50 border shadow-sm">
+                  <TabsTrigger value="visao-geral" className="flex items-center space-x-2 px-4 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                     <LegalIcons.dashboard className="h-4 w-4" />
-                    <span className="text-sm font-semibold">Painel Geral</span>
+                    <span className="hidden sm:inline text-sm font-medium">Painel</span>
                   </TabsTrigger>
-                  <TabsTrigger value="acordos" className="flex items-center space-x-2 px-4 transition-all duration-200 data-[state=active]:bg-primary data-[state=active]:text-white rounded-sm">
+                  <TabsTrigger value="acordos" className="flex items-center space-x-2 px-4 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                     <LegalIcons.agreement className="h-4 w-4" />
-                    <span className="text-sm font-semibold">Acordos</span>
+                    <span className="hidden sm:inline text-sm font-medium">Acordos</span>
                   </TabsTrigger>
-                  <TabsTrigger value="clientes" className="flex items-center space-x-2 px-4 transition-all duration-200 data-[state=active]:bg-primary data-[state=active]:text-white rounded-sm">
+                  <TabsTrigger value="clientes" className="flex items-center space-x-2 px-4 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                     <LegalIcons.clients className="h-4 w-4" />
-                    <span className="text-sm font-semibold">Clientes</span>
+                    <span className="hidden sm:inline text-sm font-medium">Clientes</span>
                   </TabsTrigger>
-                  <TabsTrigger value="tendencias" className="flex items-center space-x-2 px-4 transition-all duration-200 data-[state=active]:bg-primary data-[state=active]:text-white rounded-sm">
+                  <TabsTrigger value="tendencias" className="flex items-center space-x-2 px-4 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                     <LegalIcons.reports className="h-4 w-4" />
-                    <span className="text-sm font-semibold">Análises</span>
+                    <span className="hidden sm:inline text-sm font-medium">Análises</span>
                   </TabsTrigger>
                 </TabsList>
-              </div>
 
-        {/* Visão Geral */}
-        <TabsContent value="visao-geral" className="space-content">
-          <ResponsiveGrid 
-            cols={{ default: 1, lg: 3 }} 
-            gap={6} 
-            className="lg:gap-8"
-          >
-            <div className="lg:col-span-2">
-              <ClassificacaoChart data={stats?.porClassificacao || {}} />
-            </div>
-            <div className="lg:col-span-1">
-              <PerformanceCard />
-            </div>
-          </ResponsiveGrid>
-          
-          <div className="bg-card border rounded-xl overflow-hidden padding-card">
-            <div className="border-b mb-6 pb-4 bg-primary/5 p-4 rounded-sm">
-              <h3 className="title-card flex items-center space-x-2">
-                <LegalIcons.process className="h-5 w-5 text-primary" />
-                <span>Status dos Contratos Jurídicos</span>
-              </h3>
-              <p className="text-body text-muted-foreground mt-1">
-                Distribuição por situação processual
-              </p>
-            </div>
-            <ResponsiveGrid 
-              cols={{ default: 2, md: 4 }} 
-              gap={4} 
-              className="sm:gap-6"
-            >
-              {Object.entries(stats?.porSituacao || {}).map(([situacao, quantidade]) => (
-                <div key={situacao} className="group text-center padding-compact rounded-lg bg-surface-1 hover:bg-surface-2 transition-all duration-300 hover:scale-105 border">
-                  <div className={`w-5 h-5 rounded-full mx-auto mb-3 shadow-lg ${
-                    situacao === 'Concluído' ? 'bg-status-completed' :
-                    situacao === 'Em análise' ? 'bg-status-pending' :
-                    situacao === 'Cancelado' ? 'bg-status-cancelled' :
-                    'bg-status-processing'
-                  }`} />
-                  <p className="title-section text-2xl group-hover:scale-110 transition-transform duration-300">{quantidade}</p>
-                  <p className="text-label">{situacao}</p>
-                </div>
-              ))}
-            </ResponsiveGrid>
-          </div>
-        </TabsContent>
+                <TabsContent value="visao-geral" className="space-y-6">
+                  <div className="grid gap-6 lg:grid-cols-2">
+                    <ClassificacaoChart data={stats?.porClassificacao || {}} />
+                    <PerformanceCard />
+                  </div>
+                </TabsContent>
 
-        {/* Análise de Acordos */}
-        <TabsContent value="acordos" className="space-content">
-          <AcordosChart />
-        </TabsContent>
+                <TabsContent value="acordos">
+                  <AcordosChart />
+                </TabsContent>
 
-        {/* Análise de Clientes */}
-        <TabsContent value="clientes" className="space-content">
-          <ResponsiveGrid 
-            cols={{ default: 1, lg: 3 }} 
-            gap={6}
-          >
-            <div className="lg:col-span-1">
-              <ClienteSelector 
-                selectedClienteId={selectedClienteId}
-                onClienteSelect={setSelectedClienteId}
-              />
-            </div>
-            <div className="lg:col-span-2">
-              {selectedClienteId ? (
-                <ClienteAnalysisDetails clienteId={selectedClienteId} />
-              ) : (
-                <ClientesAnalysisChart />
-              )}
-            </div>
-          </ResponsiveGrid>
-        </TabsContent>
+                <TabsContent value="clientes" className="space-y-6">
+                  <div className="grid gap-6 lg:grid-cols-2">
+                    <ClienteSelector 
+                      selectedClienteId={selectedClienteId}
+                      onClienteSelect={setSelectedClienteId}
+                    />
+                    {selectedClienteId ? (
+                      <ClienteAnalysisDetails clienteId={selectedClienteId} />
+                    ) : (
+                      <ClientesAnalysisChart />
+                    )}
+                  </div>
+                </TabsContent>
 
-        {/* Tendências */}
-        <TabsContent value="tendencias" className="space-content">
-          <TendenciasChart />
-        </TabsContent>
+                <TabsContent value="tendencias">
+                  <TendenciasChart />
+                </TabsContent>
               </Tabs>
-            </div>
-          </EntranceAnimation>
-
-          {/* Quick Actions com padding consistente */}
-          <EntranceAnimation animation="fade" delay={400}>
-            <div className="padding-content space-y-4">
-              <BCBComplianceBadge />
-              <QuickActionsSection />
-            </div>
-          </EntranceAnimation>
+            </EntranceAnimation>
+          </div>
           
+          {/* Quick Actions Sidebar - 1/3 da tela */}
+          <div className="lg:col-span-1 space-y-6">
+            <EntranceAnimation animation="fade" delay={400}>
+              <QuickActions />
+            </EntranceAnimation>
+            
+            <EntranceAnimation animation="fade" delay={500}>
+              <BCBComplianceBadge />
+            </EntranceAnimation>
+          </div>
         </div>
-      </GradientBackground>
+      </div>
+    </GradientBackground>
   );
 }
 
