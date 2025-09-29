@@ -113,19 +113,19 @@ export function AppSidebar() {
       )}
       collapsible="icon"
     >
-      {/* Header Executivo */}
-      <div className="executive-header flex items-center justify-between p-6">
-        {!isCollapsed ? (
-          <div className="flex items-center gap-4 group">
-            <div className="w-10 h-10 bg-accent rounded-sm flex items-center justify-center shadow-xl">
-              <LegalIcons.justice className="h-6 w-6 text-primary" />
-            </div>
-            <div className="transition-all duration-300">
-              <h2 className="text-xl font-bold text-white tracking-wider">
-                PROVISIONAMENTO BANCÁRIO INTELIGENTE
-              </h2>
-            </div>
-          </div>
+       {/* Header Executivo */}
+       <div className="executive-header flex items-center justify-between p-4">
+         {!isCollapsed ? (
+           <div className="flex items-center gap-3 group">
+             <div className="w-10 h-10 bg-accent rounded-sm flex items-center justify-center shadow-xl flex-shrink-0">
+               <LegalIcons.justice className="h-6 w-6 text-primary" />
+             </div>
+             <div className="transition-all duration-300 min-w-0">
+               <h2 className="text-sm font-bold text-white tracking-wide leading-tight">
+                 PROVISIONAMENTO<br />BANCÁRIO INTELIGENTE
+               </h2>
+             </div>
+           </div>
         ) : (
           <div className="w-10 h-10 bg-accent rounded-sm flex items-center justify-center shadow-xl mx-auto">
             <LegalIcons.justice className="h-6 w-6 text-primary" />
