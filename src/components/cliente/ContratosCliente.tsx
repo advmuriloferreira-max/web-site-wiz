@@ -7,6 +7,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { ContratoWizard } from "@/components/forms/ContratoWizard";
 import { useContratosByCliente } from "@/hooks/useContratosByCliente";
+import { useDeleteContrato } from "@/hooks/useDeleteContrato";
+import { DeleteConfirmation } from "@/components/ui/delete-confirmation";
 import { Cliente } from "@/hooks/useClientes";
 import { format } from "date-fns";
 
@@ -16,6 +18,7 @@ interface ContratosClienteProps {
 
 export function ContratosCliente({ cliente }: ContratosClienteProps) {
   const { data: contratos, isLoading } = useContratosByCliente(cliente.id);
+  const deleteContratoMutation = useDeleteContrato();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [contratoParaEditar, setContratoParaEditar] = useState<string | null>(null);
 
@@ -47,6 +50,10 @@ export function ContratosCliente({ cliente }: ContratosClienteProps) {
   const handleContratoSuccess = () => {
     setIsAddDialogOpen(false);
     setContratoParaEditar(null);
+  };
+
+  const handleDeleteContrato = (contratoId: string) => {
+    deleteContratoMutation.mutate(contratoId);
   };
 
   return (
@@ -161,13 +168,22 @@ export function ContratosCliente({ cliente }: ContratosClienteProps) {
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setContratoParaEditar(contrato.id)}
-                      >
-                        <Edit2 className="h-4 w-4" />
-                      </Button>
+                      <div className="flex items-center gap-1 justify-end">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setContratoParaEditar(contrato.id)}
+                          className="h-8 w-8 p-0 touch-target hover:bg-accent/10"
+                          aria-label={`Editar contrato ${contrato.numero_contrato}`}
+                        >
+                          <Edit2 className="h-4 w-4" />
+                        </Button>
+                        <DeleteConfirmation
+                          itemName={contrato.numero_contrato || contrato.bancos?.nome || "contrato"}
+                          itemType="contrato"
+                          onConfirm={() => handleDeleteContrato(contrato.id)}
+                        />
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}

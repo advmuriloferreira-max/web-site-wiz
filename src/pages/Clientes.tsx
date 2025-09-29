@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, Fragment } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { toast } from "sonner";
@@ -200,9 +200,8 @@ export default function Clientes() {
                     const contratosDoCliente = contratosCount?.[cliente.id] || 0;
                     
                     return (
-                      <>
+                      <Fragment key={cliente.id}>
                         <TableRow 
-                          key={cliente.id} 
                           className="animate-fade-in hover:bg-primary/5 transition-all duration-200 border-b border-border/10"
                           style={{ animationDelay: `${index * 50}ms` }}
                         >
@@ -301,7 +300,7 @@ export default function Clientes() {
                             </TableCell>
                           </TableRow>
                         )}
-                      </>
+                      </Fragment>
                     );
                   })
                 )}
