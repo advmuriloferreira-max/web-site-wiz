@@ -153,7 +153,6 @@ export function EnterpriseLayout() {
         {/* Mobile Navigation */}
         <EnterpriseMobileNav />
 
-        {/* Enhanced Search Modal */}
         <EnhancedSearch 
           open={searchOpen} 
           onOpenChange={setSearchOpen} 
