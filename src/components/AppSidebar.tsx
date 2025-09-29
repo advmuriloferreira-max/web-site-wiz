@@ -20,7 +20,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-const navigationItems = [
+const allNavigationItems = [
   { title: "Painel de Controle", url: "/", icon: LegalIcons.dashboard, badge: null },
   { title: "Clientes", url: "/clientes", icon: LegalIcons.clients, dataTour: "sidebar-clientes", badge: null },
   { title: "Contratos", url: "/contratos", icon: LegalIcons.contract, dataTour: "sidebar-contratos", badge: "3" },
@@ -28,13 +28,7 @@ const navigationItems = [
   { title: "Acordos", url: "/acordos", icon: LegalIcons.agreement, dataTour: "sidebar-acordos", badge: "2" },
   { title: "Provisões", url: "/calculos", icon: LegalIcons.calculations, dataTour: "sidebar-calculos", badge: null },
   { title: "Indicadores", url: "/relatorios", icon: LegalIcons.reports, dataTour: "sidebar-relatorios", badge: null },
-];
-
-const reportItems = [
   { title: "Análises Avançadas", url: "/relatorios-avancados", icon: LegalIcons.reports },
-];
-
-const quickActions = [
   { title: "Novo Cliente", url: "/clientes/novo", icon: LegalIcons.add },
   { title: "Novo Contrato", url: "/contratos/novo", icon: LegalIcons.contract },
 ];
@@ -143,57 +137,11 @@ export function AppSidebar() {
       </div>
       
       <SidebarContent className="px-0 overflow-y-auto bg-gradient-sidebar">
-        {/* Navegação Principal */}
+        {/* Navegação Única */}
         <SidebarGroup className="py-4">
-          {!isCollapsed && (
-            <SidebarGroupLabel className="px-4 text-xs uppercase tracking-wider text-accent font-bold mb-3 flex items-center border-b border-accent/20 pb-2">
-              <LegalIcons.justice className="w-3 h-3 mr-2 text-accent" />
-              PAINEL DE CONTROLE
-            </SidebarGroupLabel>
-          )}
           <SidebarGroupContent>
             <div className="space-y-1 px-2">
-              {navigationItems.map((item) => (
-                <MenuItem key={item.title} item={item} tooltip />
-              ))}
-            </div>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* Separador */}
-        <div className="mx-4 h-px bg-gradient-to-r from-transparent via-slate-500/30 to-transparent my-4" />
-
-        {/* Relatórios */}
-        <SidebarGroup className="py-3">
-          {!isCollapsed && (
-            <SidebarGroupLabel className="px-4 text-xs uppercase tracking-wider text-accent font-bold mb-3 flex items-center border-b border-accent/20 pb-2">
-              <LegalIcons.reports className="w-3 h-3 mr-2 text-accent" />
-              RELATÓRIOS
-            </SidebarGroupLabel>
-          )}
-          <SidebarGroupContent>
-            <div className="space-y-1 px-2">
-              {reportItems.map((item) => (
-                <MenuItem key={item.title} item={item} tooltip />
-              ))}
-            </div>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* Separador */}
-        <div className="mx-4 h-px bg-gradient-to-r from-transparent via-slate-500/30 to-transparent my-4" />
-
-        {/* Ações Rápidas */}
-        <SidebarGroup className="py-3">
-          {!isCollapsed && (
-            <SidebarGroupLabel className="px-4 text-xs uppercase tracking-wider text-accent font-bold mb-3 flex items-center border-b border-accent/20 pb-2">
-              <LegalIcons.add className="w-3 h-3 mr-2 text-accent" />
-              AÇÕES EXECUTIVAS
-            </SidebarGroupLabel>
-          )}
-          <SidebarGroupContent>
-            <div className="space-y-1 px-2">
-              {quickActions.map((item) => (
+              {allNavigationItems.map((item) => (
                 <MenuItem key={item.title} item={item} tooltip />
               ))}
             </div>
