@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -5,6 +6,7 @@
 /* Premium Design System - INTELBANK
 All colors, gradients, fonts, and effects are defined here.
 All colors MUST be HSL format for optimal theming.
+Golden Ratio-based spacing: 1, 1.618, 2.618, 4.236, 6.854
 */
 
 @layer base {
