@@ -12,15 +12,14 @@ import {
   PremiumModalTrigger
 } from "@/components/ui/premium-modal";
 import { 
-  LoadingState, 
-  PremiumProgressBar, 
-  BrandLoader,
-  SkeletonLoader 
+  BrandedLoader,
+  SkeletonLoader,
+  PremiumLoading 
 } from "@/components/ui/premium-loading";
 import { 
   PremiumEmptyState, 
-  EmptyData, 
-  EmptySearch 
+  EmptyDocumentsState, 
+  EmptySearchState 
 } from "@/components/ui/premium-empty-state";
 import { 
   PremiumAlert, 
@@ -198,21 +197,16 @@ export function PremiumComponentsDemo() {
 
           {isLoading && (
             <div className="border border-slate-200 rounded-lg p-6">
-              <BrandLoader message="Processando dados do contrato..." />
+              <BrandedLoader text="Processando dados do contrato..." />
             </div>
           )}
 
           <div className="space-y-3">
-            <PremiumProgressBar 
-              progress={progress} 
-              label="Processamento de contratos"
-              showPercentage
-              variant="default"
-            />
+            <PremiumLoading variant="branded" text="Carregando..." />
           </div>
 
           <div className="border border-slate-200 rounded-lg p-4">
-            <SkeletonLoader lines={4} avatar />
+            <SkeletonLoader />
           </div>
         </div>
       </section>
@@ -222,18 +216,13 @@ export function PremiumComponentsDemo() {
         <h2 className="text-lg font-semibold text-slate-800">Estados Vazios</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="border border-slate-200 rounded-lg">
-            <EmptyData 
-              entityName="Contrato"
-              createAction={{
-                label: "Criar primeiro contrato",
-                onClick: () => notifications.info("Navegando para criação...")
-              }}
+            <EmptyDocumentsState 
+              onCreateDocument={() => notifications.info("Navegando para criação...")}
             />
           </div>
           <div className="border border-slate-200 rounded-lg">
-            <EmptySearch 
-              searchTerm="contrato xyz"
-              onClear={() => notifications.info("Busca limpa!")}
+            <EmptySearchState 
+              onClearSearch={() => notifications.info("Busca limpa!")}
             />
           </div>
         </div>

@@ -64,7 +64,7 @@ function DashboardContent() {
       <GradientBackground variant="subtle" className="min-h-screen">
         <div className="p-3 sm:p-4 lg:p-6 space-y-4 sm:space-y-6">
           <EntranceAnimation animation="fade" className="space-y-6">
-            <LoadingIllustration size={100} className="mx-auto" />
+            <LoadingIllustration size="lg" className="mx-auto" />
             
             <ResponsiveGrid 
               cols={{ default: 1, sm: 2, lg: 4 }} 
