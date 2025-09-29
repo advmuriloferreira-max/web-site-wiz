@@ -101,31 +101,37 @@ function DashboardContent() {
           <div className="lg:col-span-2 space-y-8">
             {/* Premium Statistics Cards */}
             <EntranceAnimation animation="slide" delay={200}>
-              <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-6">
-                <PremiumStatsCard
-                  title="Contratos Ativos"
-                  value={stats?.totalContratos || 0}
-                  description="Total em análise"
-                  icon={LegalIcons.contract}
-                  trend={{ value: 12, isPositive: true }}
-                  color="blue"
-                />
-                <PremiumStatsCard
-                  title="Provisão Total"
-                  value={`R$ ${((stats?.valorTotalProvisao || 0) / 1000000).toFixed(1)}M`}
-                  description="Valor provisionado"
-                  icon={LegalIcons.warning}
-                  trend={{ value: -5, isPositive: false }}
-                  color="amber"
-                />
-                <PremiumStatsCard
-                  title="Taxa Média"
-                  value={`${(stats?.percentualProvisao || 0).toFixed(1)}%`}
-                  description="Risco do portfolio"
-                  icon={LegalIcons.compliance}
-                  trend={{ value: 3, isPositive: true }}
-                  color={(stats?.percentualProvisao ?? 0) > 50 ? "red" : "blue"}
-                />
+              <div className="flex gap-3 overflow-x-auto pb-2">
+                <div className="flex-1 min-w-[200px]">
+                  <PremiumStatsCard
+                    title="Contratos Ativos"
+                    value={stats?.totalContratos || 0}
+                    description="Total em análise"
+                    icon={LegalIcons.contract}
+                    trend={{ value: 12, isPositive: true }}
+                    color="blue"
+                  />
+                </div>
+                <div className="flex-1 min-w-[200px]">
+                  <PremiumStatsCard
+                    title="Provisão Total"
+                    value={`R$ ${((stats?.valorTotalProvisao || 0) / 1000000).toFixed(1)}M`}
+                    description="Valor provisionado"
+                    icon={LegalIcons.warning}
+                    trend={{ value: -5, isPositive: false }}
+                    color="amber"
+                  />
+                </div>
+                <div className="flex-1 min-w-[200px]">
+                  <PremiumStatsCard
+                    title="Taxa Média"
+                    value={`${(stats?.percentualProvisao || 0).toFixed(1)}%`}
+                    description="Risco do portfolio"
+                    icon={LegalIcons.compliance}
+                    trend={{ value: 3, isPositive: true }}
+                    color={(stats?.percentualProvisao ?? 0) > 50 ? "red" : "blue"}
+                  />
+                </div>
               </div>
             </EntranceAnimation>
 
