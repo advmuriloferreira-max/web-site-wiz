@@ -1,34 +1,25 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Eye, Edit, Trash2, FileText, AlertTriangle } from "lucide-react";
+import { Eye, Edit, Trash2, FileText, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ModernBadge } from "@/components/ui/modern-badge";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ContratoWizard } from "@/components/forms/ContratoWizard";
-import { useContratos, Contrato } from "@/hooks/useContratos";
+import { useContratos } from "@/hooks/useContratos";
 import { useDeleteContrato } from "@/hooks/useDeleteContrato";
-import { GarantiaIndicator } from "@/components/contratos/GarantiaIndicator";
-import { TipoOperacaoDisplay } from "@/components/ui/tipo-operacao-display";
-import { useAdvancedFilters } from "@/hooks/useAdvancedFilters";
-import { DataToolbar } from "@/components/ui/data-toolbar";
-import { DataCards, ContratoCard } from "@/components/ui/data-cards";
-import { SortableHeader } from "@/components/ui/sortable-header";
-import { ResponsiveContainer } from "@/components/ui/layout-consistency";
-import { GlassCard } from "@/components/ui/glassmorphism";
-import { GradientText } from "@/components/ui/gradient-elements";
-import { ColoredIcon } from "@/components/ui/color-consistency";
 import { format } from "date-fns";
 
 const getClassificacaoColor = (classificacao: string | null) => {
   switch (classificacao) {
-    case "C1": return "success";
-    case "C2": return "warning"; 
-    case "C3": return "info";
-    case "C4": return "danger";
-    case "C5": return "danger";
-    default: return "default";
+    case "C1": return "bg-green-100 text-green-800";
+    case "C2": return "bg-yellow-100 text-yellow-800"; 
+    case "C3": return "bg-orange-100 text-orange-800";
+    case "C4": return "bg-red-100 text-red-800";
+    case "C5": return "bg-red-200 text-red-900";
+    default: return "bg-gray-100 text-gray-800";
   }
 };
 
@@ -39,9 +30,6 @@ export default function Contratos() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [dialogTitle, setDialogTitle] = useState("Novo Contrato");
   const [contratoParaEditar, setContratoParaEditar] = useState<string | null>(null);
-  const [view, setView] = useState<'table' | 'cards'>('table');
-
-  const filters = useAdvancedFilters(contratos, 'contratos');
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
@@ -50,28 +38,31 @@ export default function Contratos() {
     }).format(value);
   };
 
-  const handleNovoContrato = () => {
-    setContratoParaEditar(null);
-    setDialogTitle("Novo Contrato");
-    setIsDialogOpen(true);
+  const formatDate = (date: string | null) => {
+    if (!date) return "-";
+    return format(new Date(date), "dd/MM/yyyy");
   };
 
-  const handleEditarContrato = (contratoId: string) => {
-    setContratoParaEditar(contratoId);
+  const handleViewContrato = (contrato: any) => {
+    navigate(`/contratos/${contrato.id}`);
+  };
+
+  const handleEditContrato = (contrato: any, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setContratoParaEditar(contrato.id);
     setDialogTitle("Editar Contrato");
     setIsDialogOpen(true);
   };
 
-  const handleViewContrato = (contrato: Contrato) => {
-    navigate(`/contratos/${contrato.id}`);
+  const handleDeleteContrato = (contratoId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    deleteContratoMutation.mutate(contratoId);
   };
 
-  const handleExcluirContrato = async (contratoId: string) => {
-    try {
-      await deleteContratoMutation.mutateAsync(contratoId);
-    } catch (error) {
-      console.error("Erro ao excluir contrato:", error);
-    }
+  const handleNovoContrato = () => {
+    setContratoParaEditar(null);
+    setDialogTitle("Novo Contrato");
+    setIsDialogOpen(true);
   };
 
   const handleSuccess = () => {
@@ -81,43 +72,34 @@ export default function Contratos() {
 
   if (isLoading) {
     return (
-      <ResponsiveContainer className="py-8 animate-fade-in">
-        <GradientText variant="primary" className="text-2xl font-bold mb-4">
-          Carregando contratos...
-        </GradientText>
-      </ResponsiveContainer>
+      <div className="container mx-auto py-8">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-lg">Carregando contratos...</div>
+        </div>
+      </div>
     );
   }
 
   return (
-    <ResponsiveContainer className="py-8 animate-fade-in">
-      <div className="mb-8">
-        <GradientText variant="primary" className="text-3xl font-bold mb-2 flex items-center">
-          <ColoredIcon icon={FileText} className="mr-3" />
-          Contratos
-        </GradientText>
-        <p className="text-muted-foreground mb-6">
-          Gestão completa de contratos bancários e operações
-        </p>
+    <div className="container mx-auto py-8 space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">
+            Contratos
+          </h1>
+          <p className="text-muted-foreground">
+            Gestão completa de contratos bancários e operações
+          </p>
+        </div>
         
-        <GlassCard variant="subtle" className="mb-6">
-          <DataToolbar
-            title="Contratos"
-            data={contratos}
-            filteredData={filters.filteredData}
-            filters={filters}
-            fields={[]}
-            quickFilters={[]}
-            view={view}
-            onViewChange={setView}
-            onAdd={handleNovoContrato}
-            exportFileName="contratos"
-          />
-        </GlassCard>
+        <Button onClick={handleNovoContrato} size="lg">
+          <Plus className="w-4 h-4 mr-2" />
+          Novo Contrato
+        </Button>
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto glass-modal animate-scale-in">
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{dialogTitle}</DialogTitle>
           </DialogHeader>
@@ -125,8 +107,8 @@ export default function Contratos() {
         </DialogContent>
       </Dialog>
 
-      <GlassCard variant="subtle" className="animate-slide-up">
-        <div className="p-0">
+      <Card>
+        <CardContent className="p-0">
           <Table>
             <TableHeader>
               <TableRow>
@@ -140,33 +122,30 @@ export default function Contratos() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filters.filteredData.length === 0 ? (
+              {contratos.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-12">
-                    <div className="flex flex-col items-center space-y-4 animate-fade-in">
-                      <div className="glass-element p-4 rounded-full">
-                        <ColoredIcon icon={FileText} size="lg" className="text-muted-foreground" />
-                      </div>
+                    <div className="flex flex-col items-center space-y-4">
+                      <FileText className="w-12 h-12 text-muted-foreground" />
                       <div className="space-y-2 text-center">
                         <p className="font-medium text-foreground">Nenhum contrato encontrado</p>
                         <p className="text-sm text-muted-foreground">
-                          Tente ajustar os filtros ou adicionar novos contratos
+                          Clique em "Novo Contrato" para começar
                         </p>
                       </div>
                     </div>
                   </TableCell>
                 </TableRow>
               ) : (
-                filters.filteredData.map((contrato, index) => (
+                contratos.map((contrato) => (
                   <TableRow 
                     key={contrato.id} 
-                    className="animate-fade-in interactive-row cursor-pointer"
+                    className="cursor-pointer hover:bg-muted/50"
                     onClick={() => handleViewContrato(contrato)}
-                    style={{ animationDelay: `${index * 50}ms` }}
                   >
                     <TableCell className="font-medium">
                       <div className="flex items-center space-x-3">
-                        <div className="glass-element w-8 h-8 rounded-full flex items-center justify-center">
+                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
                           <span className="text-xs font-bold text-primary">
                             {contrato.clientes?.nome?.charAt(0).toUpperCase() || "?"}
                           </span>
@@ -176,19 +155,19 @@ export default function Contratos() {
                     </TableCell>
                     <TableCell>{contrato.bancos?.nome || "N/A"}</TableCell>
                     <TableCell>
-                      <ModernBadge variant="outline" size="sm">
+                      <Badge variant="outline">
                         {contrato.numero_contrato || "N/A"}
-                      </ModernBadge>
+                      </Badge>
                     </TableCell>
                     <TableCell className="font-medium">
                       {formatCurrency(contrato.valor_divida)}
                     </TableCell>
                     <TableCell>
-                      <ModernBadge variant={getClassificacaoColor(contrato.classificacao)} size="sm">
+                      <Badge className={getClassificacaoColor(contrato.classificacao)}>
                         {contrato.classificacao || "N/A"}
-                      </ModernBadge>
+                      </Badge>
                     </TableCell>
-                    <TableCell className="font-medium text-red-600">
+                    <TableCell className="font-medium text-orange-600">
                       {formatCurrency(contrato.valor_provisao)}
                     </TableCell>
                     <TableCell className="text-right">
@@ -200,20 +179,17 @@ export default function Contratos() {
                             e.stopPropagation();
                             handleViewContrato(contrato);
                           }}
-                          className="h-8 w-8 p-0 hover:bg-blue-500/10 interactive-button group"
+                          className="h-8 w-8 p-0"
                         >
-                          <Eye className="h-4 w-4 text-muted-foreground group-hover:text-blue-500 transition-colors" />
+                          <Eye className="h-4 w-4" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEditarContrato(contrato.id);
-                          }}
-                          className="h-8 w-8 p-0 hover:bg-amber-500/10 interactive-button group"
+                          onClick={(e) => handleEditContrato(contrato, e)}
+                          className="h-8 w-8 p-0"
                         >
-                          <Edit className="h-4 w-4 text-muted-foreground group-hover:text-amber-500 transition-colors" />
+                          <Edit className="h-4 w-4" />
                         </Button>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
@@ -221,24 +197,23 @@ export default function Contratos() {
                               variant="ghost"
                               size="sm"
                               onClick={(e) => e.stopPropagation()}
-                              className="h-8 w-8 p-0 hover:bg-red-500/10 interactive-button group"
+                              className="h-8 w-8 p-0 text-destructive hover:text-destructive"
                             >
-                              <Trash2 className="h-4 w-4 text-muted-foreground group-hover:text-red-500 transition-colors" />
+                              <Trash2 className="h-4 w-4" />
                             </Button>
                           </AlertDialogTrigger>
-                          <AlertDialogContent className="glass-modal animate-scale-in">
+                          <AlertDialogContent>
                             <AlertDialogHeader>
                               <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
                               <AlertDialogDescription>
-                                Tem certeza que deseja excluir o contrato "{contrato.numero_contrato}"?
-                                Esta ação não pode ser desfeita.
+                                Esta ação não pode ser desfeita. Tem certeza que deseja excluir este contrato?
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
-                              <AlertDialogCancel className="interactive-button">Cancelar</AlertDialogCancel>
+                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
                               <AlertDialogAction
-                                onClick={() => handleExcluirContrato(contrato.id)}
-                                className="bg-red-500 hover:bg-red-600 interactive-button"
+                                onClick={(e) => handleDeleteContrato(contrato.id, e)}
+                                className="bg-destructive text-destructive-foreground"
                               >
                                 Excluir
                               </AlertDialogAction>
@@ -252,8 +227,8 @@ export default function Contratos() {
               )}
             </TableBody>
           </Table>
-        </div>
-      </GlassCard>
-    </ResponsiveContainer>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
