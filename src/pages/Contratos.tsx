@@ -145,6 +145,7 @@ export default function Contratos() {
                 </TableRow>
               ) : (
                 contratos.map((contrato) => {
+                  console.log("🔍 Renderizando linha contrato:", contrato.id);
                   return (
                     <TableRow 
                       key={contrato.id} 
@@ -178,12 +179,16 @@ export default function Contratos() {
                         {formatCurrency(contrato.valor_provisao)}
                       </TableCell>
                       <TableCell className="text-right">
-                        <div className="flex items-center gap-1 justify-end">
+                        <div className="flex items-center gap-1 justify-end bg-orange-100 border border-orange-300 p-1">
+                          <span className="text-xs text-orange-600">DEBUG:</span>
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => handleViewContrato(contrato)}
-                            className="h-8 w-8 p-0 touch-target hover:bg-primary/10"
+                            onClick={() => {
+                              console.log("BOTÃO VISUALIZAR CLICADO");
+                              handleViewContrato(contrato);
+                            }}
+                            className="h-8 w-8 p-0 touch-target hover:bg-primary/10 bg-blue-100"
                             aria-label={`Visualizar contrato ${contrato.numero_contrato}`}
                           >
                             <Eye className="h-4 w-4" />
@@ -193,20 +198,43 @@ export default function Contratos() {
                             size="sm"
                             onClick={(e) => {
                               e.stopPropagation();
+                              console.log("BOTÃO EDITAR CLICADO");
                               setContratoParaEditar(contrato.id);
                               setDialogTitle("Editar Contrato");
                               setIsDialogOpen(true);
                             }}
-                            className="h-8 w-8 p-0 touch-target hover:bg-accent/10"
+                            className="h-8 w-8 p-0 touch-target hover:bg-accent/10 bg-yellow-100"
                             aria-label={`Editar contrato ${contrato.numero_contrato}`}
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <DeleteConfirmation
-                            itemName={contrato.numero_contrato || contrato.clientes?.nome || "contrato"}
-                            itemType="contrato"
-                            onConfirm={() => handleDeleteContrato(contrato.id)}
-                          />
+                          
+                          {/* Teste 1: Botão simples */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              console.log("BOTÃO HTML SIMPLES CLICADO!");
+                              if (confirm("Excluir este contrato?")) {
+                                handleDeleteContrato(contrato.id);
+                              }
+                            }}
+                            className="h-8 w-8 bg-red-500 text-white rounded hover:bg-red-600"
+                            style={{ minWidth: '32px', minHeight: '32px' }}
+                          >
+                            🗑️
+                          </button>
+
+                          {/* Teste 2: Componente DeleteConfirmation */}
+                          <div className="border-2 border-green-500 bg-green-100">
+                            <DeleteConfirmation
+                              itemName={contrato.numero_contrato || contrato.clientes?.nome || "contrato"}
+                              itemType="contrato"
+                              onConfirm={() => {
+                                console.log("DELETE CONFIRMATION CLICADO!");
+                                handleDeleteContrato(contrato.id);
+                              }}
+                            />
+                          </div>
                         </div>
                       </TableCell>
                     </TableRow>
