@@ -15,7 +15,8 @@ import {
   ChevronRight,
   LogOut,
   Bell,
-  Zap
+  Zap,
+  Sparkles
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -43,6 +44,7 @@ const navigationItems = [
   { title: "Processos", url: "/processos", icon: AlertTriangle, badge: null },
   { title: "Acordos", url: "/acordos", icon: Handshake, dataTour: "sidebar-acordos", badge: "2" },
   { title: "Cálculos", url: "/calculos", icon: Calculator, dataTour: "sidebar-calculos", badge: null },
+  { title: "Efeitos Visuais", url: "/visual-effects", icon: Sparkles, badge: "NEW" },
 ];
 
 const reportItems = [
