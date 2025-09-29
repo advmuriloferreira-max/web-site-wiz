@@ -38,29 +38,39 @@ export function HeroSection() {
           Plataforma de gestão de provisões bancárias em conformidade com as regulamentações do Banco Central do Brasil
         </p>
         
-        <div className="flex flex-wrap items-center justify-center gap-8 text-white/90">
-          <div className="flex items-center space-x-3">
-            <div className="p-3 bg-white/10 backdrop-blur-sm rounded-lg border border-accent/30">
-              <LegalIcons.justice className="h-6 w-6 text-accent" />
+        <div className="flex flex-wrap items-center justify-center gap-4 text-white/90">
+          <div className="flex items-center space-x-2 bg-white/5 backdrop-blur-sm rounded-lg p-3 border border-accent/20">
+            <div className="p-2 bg-accent/20 rounded-md">
+              <LegalIcons.justice className="h-4 w-4 text-accent" />
             </div>
             <div>
-              <p className="text-label text-white/70">Portfolio Jurídico</p>
-              <p className="text-monetary text-xl font-bold">
-                R$ {((stats?.valorTotalDividas || 0) / 1000000).toFixed(1)}M
+              <p className="text-xs text-white/70 font-medium">Valor total de dívidas monitoradas</p>
+              <p className="text-sm font-bold">
+                R$ {(stats?.valorTotalDividas || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
               </p>
             </div>
           </div>
           
-          <div className="hidden md:block w-px h-16 bg-white/20" />
-          
-          <div className="flex items-center space-x-3">
-            <div className="p-3 bg-white/10 backdrop-blur-sm rounded-lg border border-accent/30">
-              <LegalIcons.compliance className="h-6 w-6 text-success" />
+          <div className="flex items-center space-x-2 bg-white/5 backdrop-blur-sm rounded-lg p-3 border border-success/20">
+            <div className="p-2 bg-success/20 rounded-md">
+              <LegalIcons.compliance className="h-4 w-4 text-success" />
             </div>
             <div>
-              <p className="text-label text-white/70">Taxa de Provisão</p>
-              <p className="text-monetary text-xl font-bold">
-                {(stats?.percentualProvisao ?? 0).toFixed(1)}%
+              <p className="text-xs text-white/70 font-medium">Taxa de Provisão</p>
+              <p className="text-sm font-bold">
+                {(stats?.percentualProvisao ?? 0).toFixed(2)}%
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex items-center space-x-2 bg-white/5 backdrop-blur-sm rounded-lg p-3 border border-warning/20">
+            <div className="p-2 bg-warning/20 rounded-md">
+              <LegalIcons.contract className="h-4 w-4 text-warning" />
+            </div>
+            <div>
+              <p className="text-xs text-white/70 font-medium">Contratos Ativos</p>
+              <p className="text-sm font-bold">
+                {(stats?.totalContratos || 0).toLocaleString('pt-BR')}
               </p>
             </div>
           </div>
