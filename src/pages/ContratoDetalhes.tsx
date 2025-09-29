@@ -183,24 +183,31 @@ export default function ContratoDetalhes() {
               </div>
               
               <SpotlightEffect>
-                <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-                  <DialogTrigger asChild>
-                    <MorphingButton className="bg-primary hover:bg-primary/90">
-                      <Edit className="mr-2 h-4 w-4" />
-                      Editar Contrato
-                    </MorphingButton>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                    <DialogHeader>
-                      <DialogTitle>Editar Contrato</DialogTitle>
-                    </DialogHeader>
-                    <ContratoWizard 
-                      onSuccess={handleEditSuccess} 
-                      contratoParaEditar={contrato.id} 
-                    />
-                  </DialogContent>
-                </Dialog>
+                <MorphingButton 
+                  className="bg-primary hover:bg-primary/90"
+                  onClick={() => {
+                    console.log('🔘 Botão Editar Contrato clicado');
+                    console.log('🔘 Estado atual do dialog:', isEditDialogOpen);
+                    setIsEditDialogOpen(true);
+                    console.log('🔘 Dialog deve abrir agora');
+                  }}
+                >
+                  <Edit className="mr-2 h-4 w-4" />
+                  Editar Contrato
+                </MorphingButton>
               </SpotlightEffect>
+              
+              <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>Editar Contrato</DialogTitle>
+                  </DialogHeader>
+                  <ContratoWizard 
+                    onSuccess={handleEditSuccess} 
+                    contratoParaEditar={contrato.id} 
+                  />
+                </DialogContent>
+              </Dialog>
             </div>
           </AdvancedGlassmorphism>
         </MouseShadowCaster>
