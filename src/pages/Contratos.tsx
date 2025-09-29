@@ -59,8 +59,7 @@ export default function Contratos() {
     setIsDialogOpen(true);
   };
 
-  const handleDeleteContrato = (contratoId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleDeleteContrato = (contratoId: string) => {
     deleteContratoMutation.mutate(contratoId);
   };
 
@@ -203,7 +202,7 @@ export default function Contratos() {
                         <DeleteConfirmation
                           itemName={contrato.numero_contrato || contrato.clientes?.nome || "contrato"}
                           itemType="contrato"
-                          onConfirm={() => handleDeleteContrato(contrato.id, new MouseEvent('click') as any)}
+                          onConfirm={() => handleDeleteContrato(contrato.id)}
                         />
                       </div>
                     </TableCell>
