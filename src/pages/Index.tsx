@@ -101,27 +101,19 @@ function DashboardContent() {
           <div className="lg:col-span-2 space-y-8">
             {/* Premium Statistics Cards */}
             <EntranceAnimation animation="slide" delay={200}>
-              <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+              <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-6">
                 <PremiumStatsCard
                   title="Contratos Ativos"
                   value={stats?.totalContratos || 0}
-                  description="Total de contratos em análise"
+                  description="Total em análise"
                   icon={LegalIcons.contract}
                   trend={{ value: 12, isPositive: true }}
                   color="blue"
                 />
                 <PremiumStatsCard
-                  title="Valor Total"
-                  value={`R$ ${(stats?.valorTotalDividas || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
-                  description="Portfolio jurídico total"
-                  icon={LegalIcons.money}
-                  trend={{ value: 8, isPositive: true }}
-                  color="emerald"
-                />
-                <PremiumStatsCard
                   title="Provisão Total"
-                  value={`R$ ${(stats?.valorTotalProvisao || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
-                  description="Valor provisionado BCB"
+                  value={`R$ ${((stats?.valorTotalProvisao || 0) / 1000000).toFixed(1)}M`}
+                  description="Valor provisionado"
                   icon={LegalIcons.warning}
                   trend={{ value: -5, isPositive: false }}
                   color="amber"
@@ -129,7 +121,7 @@ function DashboardContent() {
                 <PremiumStatsCard
                   title="Taxa Média"
                   value={`${(stats?.percentualProvisao || 0).toFixed(1)}%`}
-                  description="Risco médio do portfolio"
+                  description="Risco do portfolio"
                   icon={LegalIcons.compliance}
                   trend={{ value: 3, isPositive: true }}
                   color={(stats?.percentualProvisao ?? 0) > 50 ? "red" : "blue"}
