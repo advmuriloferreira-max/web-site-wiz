@@ -152,8 +152,7 @@ export default function Contratos() {
                   return (
                     <TableRow 
                       key={contrato.id} 
-                      className="cursor-pointer hover:bg-muted/50"
-                      onClick={() => handleViewContrato(contrato)}
+                      className="hover:bg-muted/50"
                     >
                       <TableCell className="font-medium">
                         <div className="flex items-center space-x-3">
@@ -186,21 +185,21 @@ export default function Contratos() {
                         <div className="flex items-center gap-2 justify-end bg-red-100 p-2 border-2 border-red-500">
                           <span className="text-xs text-red-600">TESTE BOTÕES</span>
                           <Button
-                            variant="ghost"
+                            variant="outline"
                             size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleViewContrato(contrato);
-                            }}
+                            onClick={() => handleViewContrato(contrato)}
                             className="h-8 w-8 p-0 touch-target hover:bg-primary/10 bg-blue-200"
                             aria-label={`Visualizar contrato ${contrato.numero_contrato}`}
                           >
                             <Eye className="h-4 w-4" />
                           </Button>
                           <Button
-                            variant="ghost"
+                            variant="outline"
                             size="sm"
-                            onClick={(e) => handleEditContrato(contrato, e)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEditContrato(contrato, e);
+                            }}
                             className="h-8 w-8 p-0 touch-target hover:bg-accent/10 bg-yellow-200"
                             aria-label={`Editar contrato ${contrato.numero_contrato}`}
                           >
