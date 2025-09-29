@@ -19,39 +19,114 @@ export default {
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        
+        // Surface layers
+        surface: {
+          1: "hsl(var(--surface-1))",
+          2: "hsl(var(--surface-2))", 
+          3: "hsl(var(--surface-3))",
+        },
+        
+        // Expanded Blue palette
+        blue: {
+          50: "hsl(var(--blue-50))",
+          100: "hsl(var(--blue-100))",
+          200: "hsl(var(--blue-200))",
+          300: "hsl(var(--blue-300))",
+          400: "hsl(var(--blue-400))",
+          450: "hsl(var(--blue-450))",
+          500: "hsl(var(--blue-500))",
+          550: "hsl(var(--blue-550))",
+          600: "hsl(var(--blue-600))",
+          700: "hsl(var(--blue-700))",
+          800: "hsl(var(--blue-800))",
+          900: "hsl(var(--blue-900))",
+        },
+        
         primary: {
           DEFAULT: "hsl(var(--primary))",
+          light: "hsl(var(--primary-light))",
+          dark: "hsl(var(--primary-dark))",
           foreground: "hsl(var(--primary-foreground))",
           hover: "hsl(var(--primary-hover))",
+          glow: "hsl(var(--primary-glow))",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
+          light: "hsl(var(--secondary-light))",
+          dark: "hsl(var(--secondary-dark))",
           foreground: "hsl(var(--secondary-foreground))",
           hover: "hsl(var(--secondary-hover))",
         },
         accent: {
           DEFAULT: "hsl(var(--accent))",
+          light: "hsl(var(--accent-light))",
+          dark: "hsl(var(--accent-dark))",
           foreground: "hsl(var(--accent-foreground))",
           hover: "hsl(var(--accent-hover))",
         },
+        
+        // Contextual section colors
+        contratos: "hsl(var(--contratos-color))",
+        clientes: "hsl(var(--clientes-color))",
+        relatorios: "hsl(var(--relatorios-color))",
+        configuracoes: "hsl(var(--configuracoes-color))",
+        
         success: {
           DEFAULT: "hsl(var(--success))",
+          light: "hsl(var(--success-light))",
+          dark: "hsl(var(--success-dark))",
+          subtle: "hsl(var(--success-subtle))",
           foreground: "hsl(var(--success-foreground))",
         },
         warning: {
           DEFAULT: "hsl(var(--warning))",
+          light: "hsl(var(--warning-light))",
+          dark: "hsl(var(--warning-dark))",
+          subtle: "hsl(var(--warning-subtle))",
           foreground: "hsl(var(--warning-foreground))",
         },
         info: {
           DEFAULT: "hsl(var(--info))",
+          light: "hsl(var(--info-light))",
+          dark: "hsl(var(--info-dark))",
+          subtle: "hsl(var(--info-subtle))",
           foreground: "hsl(var(--info-foreground))",
         },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
+          light: "hsl(var(--destructive-light))",
+          dark: "hsl(var(--destructive-dark))",
+          subtle: "hsl(var(--destructive-subtle))",
           foreground: "hsl(var(--destructive-foreground))",
         },
+        
+        // Status colors
+        pending: "hsl(var(--pending))",
+        processing: "hsl(var(--processing))",
+        completed: "hsl(var(--completed))",
+        cancelled: "hsl(var(--cancelled))",
+        
+        // Severity levels
+        severity: {
+          low: "hsl(var(--severity-low))",
+          medium: "hsl(var(--severity-medium))",
+          high: "hsl(var(--severity-high))",
+          critical: "hsl(var(--severity-critical))",
+        },
+        
+        // Text hierarchy
+        text: {
+          primary: "hsl(var(--text-primary))",
+          secondary: "hsl(var(--text-secondary))",
+          tertiary: "hsl(var(--text-tertiary))",
+          disabled: "hsl(var(--text-disabled))",
+        },
+        
         muted: {
           DEFAULT: "hsl(var(--muted))",
+          light: "hsl(var(--muted-light))",
+          dark: "hsl(var(--muted-dark))",
           foreground: "hsl(var(--muted-foreground))",
         },
         popover: {

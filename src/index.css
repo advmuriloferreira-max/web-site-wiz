@@ -13,45 +13,109 @@ All colors MUST be HSL format for optimal theming.
     --background: 0 0% 100%;
     --foreground: 220 13% 18%;
 
-    /* Card system */
+    /* Card system with surface layers */
     --card: 0 0% 100%;
     --card-foreground: 220 13% 18%;
     --card-gradient: linear-gradient(135deg, hsl(210 40% 98%) 0%, hsl(210 40% 96%) 100%);
+
+    /* Surface layers for layering */
+    --surface-1: 0 0% 99%;
+    --surface-2: 210 40% 98%;
+    --surface-3: 210 40% 96%;
 
     /* Popover system */
     --popover: 0 0% 100%;
     --popover-foreground: 220 13% 18%;
 
-    /* Premium color palette */
-    --primary: 217 91% 60%;              /* Blue-600 #2563eb */
+    /* Expanded Blue Palette */
+    --blue-50: 214 100% 97%;
+    --blue-100: 214 95% 93%;
+    --blue-200: 213 97% 87%;
+    --blue-300: 212 96% 78%;
+    --blue-400: 213 94% 68%;
+    --blue-450: 217 91% 63%;
+    --blue-500: 217 91% 60%;
+    --blue-550: 217 91% 57%;
+    --blue-600: 221 83% 53%;
+    --blue-700: 224 76% 48%;
+    --blue-800: 226 71% 40%;
+    --blue-900: 224 64% 33%;
+
+    /* Premium color palette with expanded variations */
+    --primary: 217 91% 60%;
+    --primary-light: 213 94% 68%;
+    --primary-dark: 224 76% 48%;
     --primary-foreground: 0 0% 100%;
     --primary-hover: 217 91% 55%;
+    --primary-glow: 217 91% 70%;
     --primary-gradient: linear-gradient(135deg, hsl(217 91% 60%) 0%, hsl(217 91% 55%) 100%);
 
-    --secondary: 215 16% 47%;            /* Slate-600 #475569 */
+    --secondary: 215 16% 47%;
+    --secondary-light: 215 16% 65%;
+    --secondary-dark: 215 16% 35%;
     --secondary-foreground: 0 0% 100%;
     --secondary-hover: 215 16% 42%;
 
-    --accent: 271 81% 56%;               /* Purple-600 #9333ea */
+    --accent: 271 81% 56%;
+    --accent-light: 271 81% 70%;
+    --accent-dark: 271 81% 45%;
     --accent-foreground: 0 0% 100%;
     --accent-hover: 271 81% 51%;
 
-    /* Status colors */
-    --success: 160 84% 39%;              /* Emerald-500 #10b981 */
+    /* Contextual section colors */
+    --contratos-color: 217 91% 60%;      /* Blue for contracts */
+    --clientes-color: 160 84% 39%;       /* Emerald for clients */
+    --relatorios-color: 271 81% 56%;     /* Purple for reports */
+    --configuracoes-color: 215 16% 47%;  /* Slate for settings */
+
+    /* Enhanced status colors with variations */
+    --success: 160 84% 39%;
+    --success-light: 160 84% 50%;
+    --success-dark: 160 84% 30%;
+    --success-subtle: 160 84% 95%;
     --success-foreground: 0 0% 100%;
     
-    --warning: 38 92% 50%;               /* Amber-500 #f59e0b */
+    --warning: 38 92% 50%;
+    --warning-light: 38 92% 60%;
+    --warning-dark: 38 92% 40%;
+    --warning-subtle: 38 92% 95%;
     --warning-foreground: 220 13% 18%;
     
-    --destructive: 0 84% 60%;            /* Red-500 #ef4444 */
+    --destructive: 0 84% 60%;
+    --destructive-light: 0 84% 70%;
+    --destructive-dark: 0 84% 50%;
+    --destructive-subtle: 0 84% 95%;
     --destructive-foreground: 0 0% 100%;
     
-    --info: 217 91% 60%;                 /* Blue-600 for info */
+    --info: 217 91% 60%;
+    --info-light: 217 91% 70%;
+    --info-dark: 217 91% 50%;
+    --info-subtle: 217 91% 95%;
     --info-foreground: 0 0% 100%;
 
-    /* Neutral system */
+    /* Advanced status colors for different states */
+    --pending: 38 92% 55%;               /* Amber-400 */
+    --processing: 217 91% 60%;           /* Blue-400 */
+    --completed: 160 84% 39%;            /* Emerald-500 */
+    --cancelled: 0 84% 60%;              /* Red-500 */
+
+    /* Severity levels for alerts */
+    --severity-low: 43 74% 66%;          /* Yellow-300 */
+    --severity-medium: 38 92% 50%;       /* Amber-500 */
+    --severity-high: 0 84% 60%;          /* Red-600 */
+    --severity-critical: 0 65% 51%;      /* Red-700 */
+
+    /* Enhanced text hierarchy */
+    --text-primary: 220 13% 18%;
+    --text-secondary: 215 16% 47%;
+    --text-tertiary: 215 20% 65%;
+    --text-disabled: 215 25% 85%;
+
+    /* Neutral system with expanded range */
     --muted: 210 40% 96%;
     --muted-foreground: 215 16% 47%;
+    --muted-light: 210 40% 98%;
+    --muted-dark: 210 40% 90%;
 
     /* Interactive elements */
     --border: 220 13% 91%;
@@ -88,49 +152,113 @@ All colors MUST be HSL format for optimal theming.
   }
 
   .dark {
-    /* Base colors - dark mode */
-    --background: 220 13% 9%;
-    --foreground: 210 40% 98%;
+    /* Base colors - warmer dark mode */
+    --background: 220 13% 8%;
+    --foreground: 35 10% 92%;
 
-    /* Card system - dark mode */
-    --card: 220 13% 12%;
-    --card-foreground: 210 40% 98%;
-    --card-gradient: linear-gradient(135deg, hsl(220 13% 12%) 0%, hsl(220 13% 15%) 100%);
+    /* Card system with warmer tones */
+    --card: 220 10% 11%;
+    --card-foreground: 35 10% 92%;
+    --card-gradient: linear-gradient(135deg, hsl(220 10% 11%) 0%, hsl(220 10% 14%) 100%);
+
+    /* Surface layers for dark mode */
+    --surface-1: 220 10% 9%;
+    --surface-2: 220 10% 11%;
+    --surface-3: 220 10% 14%;
 
     /* Popover system - dark mode */
-    --popover: 220 13% 12%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 220 10% 11%;
+    --popover-foreground: 35 10% 92%;
 
-    /* Premium color palette - dark mode */
-    --primary: 217 91% 65%;              /* Lighter blue for dark mode */
-    --primary-foreground: 220 13% 9%;
-    --primary-hover: 217 91% 70%;
-    --primary-gradient: linear-gradient(135deg, hsl(217 91% 65%) 0%, hsl(217 91% 70%) 100%);
+    /* Dark mode Blue Palette with warmer undertones */
+    --blue-50: 220 20% 15%;
+    --blue-100: 220 25% 18%;
+    --blue-200: 220 30% 22%;
+    --blue-300: 220 35% 28%;
+    --blue-400: 217 65% 45%;
+    --blue-450: 217 75% 55%;
+    --blue-500: 217 85% 65%;
+    --blue-550: 217 85% 68%;
+    --blue-600: 217 85% 72%;
+    --blue-700: 217 85% 75%;
+    --blue-800: 217 80% 78%;
+    --blue-900: 217 75% 82%;
 
-    --secondary: 215 16% 65%;            /* Lighter slate for dark mode */
-    --secondary-foreground: 220 13% 9%;
-    --secondary-hover: 215 16% 70%;
+    /* Premium colors with enhanced glow in dark mode */
+    --primary: 217 85% 68%;
+    --primary-light: 217 85% 75%;
+    --primary-dark: 217 70% 55%;
+    --primary-foreground: 220 13% 8%;
+    --primary-hover: 217 85% 72%;
+    --primary-glow: 217 100% 85%;
+    --primary-gradient: linear-gradient(135deg, hsl(217 85% 68%) 0%, hsl(217 85% 75%) 100%);
 
-    --accent: 271 81% 70%;               /* Lighter purple for dark mode */
-    --accent-foreground: 220 13% 9%;
-    --accent-hover: 271 81% 75%;
+    --secondary: 215 12% 68%;
+    --secondary-light: 215 12% 75%;
+    --secondary-dark: 215 12% 55%;
+    --secondary-foreground: 220 13% 8%;
+    --secondary-hover: 215 12% 72%;
 
-    /* Status colors - dark mode */
-    --success: 160 84% 45%;              /* Adjusted emerald for dark */
-    --success-foreground: 220 13% 9%;
+    --accent: 271 70% 75%;
+    --accent-light: 271 70% 82%;
+    --accent-dark: 271 70% 65%;
+    --accent-foreground: 220 13% 8%;
+    --accent-hover: 271 70% 78%;
+
+    /* Contextual colors for dark mode with subtle glow */
+    --contratos-color: 217 85% 68%;
+    --clientes-color: 160 70% 55%;
+    --relatorios-color: 271 70% 75%;
+    --configuracoes-color: 215 12% 68%;
+
+    /* Enhanced status colors with dark mode optimization */
+    --success: 160 70% 55%;
+    --success-light: 160 70% 65%;
+    --success-dark: 160 70% 45%;
+    --success-subtle: 160 40% 12%;
+    --success-foreground: 220 13% 8%;
     
-    --warning: 38 92% 55%;               /* Adjusted amber for dark */
-    --warning-foreground: 220 13% 9%;
+    --warning: 38 85% 65%;
+    --warning-light: 38 85% 72%;
+    --warning-dark: 38 85% 55%;
+    --warning-subtle: 38 50% 12%;
+    --warning-foreground: 220 13% 8%;
     
-    --destructive: 0 84% 65%;            /* Adjusted red for dark */
-    --destructive-foreground: 220 13% 9%;
+    --destructive: 0 75% 72%;
+    --destructive-light: 0 75% 78%;
+    --destructive-dark: 0 75% 65%;
+    --destructive-subtle: 0 50% 12%;
+    --destructive-foreground: 220 13% 8%;
     
-    --info: 217 91% 65%;                 /* Blue for info - dark */
-    --info-foreground: 220 13% 9%;
+    --info: 217 85% 68%;
+    --info-light: 217 85% 75%;
+    --info-dark: 217 85% 60%;
+    --info-subtle: 217 50% 12%;
+    --info-foreground: 220 13% 8%;
 
-    /* Neutral system - dark mode */
-    --muted: 220 13% 15%;
-    --muted-foreground: 215 16% 65%;
+    /* Dark mode status colors with subtle glow */
+    --pending: 38 85% 65%;
+    --processing: 217 85% 68%;
+    --completed: 160 70% 55%;
+    --cancelled: 0 75% 72%;
+
+    /* Severity levels optimized for dark mode */
+    --severity-low: 43 60% 75%;
+    --severity-medium: 38 85% 65%;
+    --severity-high: 0 75% 72%;
+    --severity-critical: 0 85% 78%;
+
+    /* Enhanced text hierarchy for dark mode */
+    --text-primary: 35 10% 92%;
+    --text-secondary: 35 8% 75%;
+    --text-tertiary: 35 6% 65%;
+    --text-disabled: 35 4% 45%;
+
+    /* Neutral system with warmer tones */
+    --muted: 220 10% 16%;
+    --muted-foreground: 35 8% 75%;
+    --muted-light: 220 10% 18%;
+    --muted-dark: 220 10% 12%;
 
     /* Interactive elements - dark mode */
     --border: 220 13% 20%;
