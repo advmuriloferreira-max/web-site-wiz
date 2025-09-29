@@ -391,7 +391,7 @@ export default function ContratoDetalhes() {
                 <CardContent className="space-y-4">
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Valor da Dívida</label>
-                    <p className="text-3xl font-bold text-foreground bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                    <p className="text-lg font-bold text-foreground bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                       {formatCurrency(contrato.valor_divida)}
                     </p>
                   </div>
