@@ -149,8 +149,7 @@ export default function Contratos() {
                   return (
                     <TableRow 
                       key={contrato.id} 
-                      className="cursor-pointer hover:bg-muted/50"
-                      onClick={() => handleViewContrato(contrato)}
+                      className="hover:bg-muted/50"
                     >
                       <TableCell className="font-medium">
                         <div className="flex items-center space-x-3">
