@@ -57,7 +57,7 @@ export function DeleteConfirmation({
           className={`
             h-8 w-8 p-0 touch-target transition-all duration-200
             text-muted-foreground hover:text-destructive 
-            hover:bg-destructive/10 border border-destructive/20
+            hover:bg-destructive/10 
             ${className}
           `}
           aria-label={`Excluir ${typeLabels[itemType]} ${itemName}`}
