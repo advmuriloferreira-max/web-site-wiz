@@ -402,12 +402,8 @@ export default function ContratoDetalhes() {
                 <CardContent className="space-y-4">
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Valor da Dívida</label>
-                    <p className="text-3xl font-bold text-foreground">
-                      <MorphingNumber 
-                        value={contrato.valor_divida} 
-                        prefix="R$ " 
-                        className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"
-                      />
+                    <p className="text-3xl font-bold text-foreground bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                      {formatCurrency(contrato.valor_divida)}
                     </p>
                   </div>
 
@@ -415,10 +411,7 @@ export default function ContratoDetalhes() {
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">Dívida Contábil</label>
                       <p className="text-xl font-semibold">
-                        <MorphingNumber 
-                          value={contrato.saldo_contabil} 
-                          prefix="R$ "
-                        />
+                        {formatCurrency(contrato.saldo_contabil)}
                       </p>
                     </div>
                   )}
@@ -429,16 +422,10 @@ export default function ContratoDetalhes() {
                      <div>
                        <label className="text-sm font-medium text-muted-foreground">Provisão</label>
                        <p className="text-lg font-medium">
-                         <MorphingNumber 
-                           value={contrato.percentual_provisao ?? 0} 
-                           suffix="%" 
-                         />
+                         {(contrato.percentual_provisao ?? 0).toFixed(2)}%
                        </p>
                       <p className="text-xl font-semibold text-orange-600">
-                        <MorphingNumber 
-                          value={contrato.valor_provisao} 
-                          prefix="R$ "
-                        />
+                        {formatCurrency(contrato.valor_provisao)}
                       </p>
                       {(contrato as any).is_reestruturado && (contrato as any).data_reestruturacao && (() => {
                         const observacao = verificarPeriodoObservacaoReestruturacao((contrato as any).data_reestruturacao);
@@ -458,10 +445,7 @@ export default function ContratoDetalhes() {
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">Acordo Final</label>
                       <p className="text-xl font-semibold text-green-700">
-                        <MorphingNumber 
-                          value={contrato.acordo_final} 
-                          prefix="R$ "
-                        />
+                        {formatCurrency(contrato.acordo_final)}
                       </p>
                     </div>
                   )}
