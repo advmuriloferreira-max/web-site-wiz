@@ -183,7 +183,8 @@ export default function Contratos() {
                         {formatCurrency(contrato.valor_provisao)}
                       </TableCell>
                       <TableCell className="text-right">
-                        <div className="flex items-center gap-1 justify-end">
+                        <div className="flex items-center gap-2 justify-end bg-red-100 p-2 border-2 border-red-500">
+                          <span className="text-xs text-red-600">TESTE BOTÕES</span>
                           <Button
                             variant="ghost"
                             size="sm"
@@ -191,7 +192,7 @@ export default function Contratos() {
                               e.stopPropagation();
                               handleViewContrato(contrato);
                             }}
-                            className="h-8 w-8 p-0 touch-target hover:bg-primary/10"
+                            className="h-8 w-8 p-0 touch-target hover:bg-primary/10 bg-blue-200"
                             aria-label={`Visualizar contrato ${contrato.numero_contrato}`}
                           >
                             <Eye className="h-4 w-4" />
@@ -200,20 +201,22 @@ export default function Contratos() {
                             variant="ghost"
                             size="sm"
                             onClick={(e) => handleEditContrato(contrato, e)}
-                            className="h-8 w-8 p-0 touch-target hover:bg-accent/10"
+                            className="h-8 w-8 p-0 touch-target hover:bg-accent/10 bg-yellow-200"
                             aria-label={`Editar contrato ${contrato.numero_contrato}`}
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
                           <Button
-                            variant="ghost" 
+                            variant="destructive"
                             size="sm"
                             onClick={(e) => {
                               e.stopPropagation();
-                              console.log("Botão excluir clicado para contrato:", contrato.id);
-                              handleDeleteContrato(contrato.id);
+                              console.log("🔥 BOTÃO EXCLUIR CLICADO para contrato:", contrato.id);
+                              if (confirm(`Excluir contrato ${contrato.numero_contrato || contrato.id}?`)) {
+                                handleDeleteContrato(contrato.id);
+                              }
                             }}
-                            className="h-8 w-8 p-0 touch-target hover:bg-destructive/10 text-destructive border border-destructive/30"
+                            className="h-8 w-8 p-0 touch-target bg-red-500 hover:bg-red-600 text-white"
                             aria-label="Excluir contrato"
                           >
                             <Trash2 className="h-4 w-4" />
