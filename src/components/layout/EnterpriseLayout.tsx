@@ -14,6 +14,7 @@ import { LegalIcons } from "@/components/ui/legal-icons";
 import { useEnterpriseNavigation } from "@/hooks/useEnterpriseNavigation";
 import { ErrorBoundary } from "@/components/ui/error-boundary";
 import { SkipToMainContent } from "@/components/ui/accessibility-helpers";
+import { TechnicalFixesShowcase } from "@/components/ui/technical-fixes-showcase";
 import { cn } from "@/lib/utils";
 
 // Import all pages
@@ -164,6 +165,7 @@ export function EnterpriseLayout() {
                       <VisualEffectsDemo />
                     </div>
                   } />
+                  <Route path="technical-fixes" element={<TechnicalFixesShowcase />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </PageTransition>

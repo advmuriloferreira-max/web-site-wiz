@@ -77,18 +77,10 @@ export default function Contratos() {
   if (isLoading) {
     return (
       <div className="container mx-auto py-8">
-        <LoadingState
-          isLoading={true}
-        <TableLoading 
-          isLoading={true}
-          rows={10}
-          columns={7}
-        >
-          <div />
-        </TableLoading>
-        >
-          <div />
-        </LoadingState>
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <div className="text-lg ml-4">Carregando contratos...</div>
+        </div>
       </div>
     );
   }
@@ -140,7 +132,7 @@ export default function Contratos() {
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-12">
                     <div className="flex flex-col items-center space-y-4">
-                      <FileText className="w-12 h-12 text-muted-foreground" />
+                      <LegalIcons.contract className="w-12 h-12 text-muted-foreground" />
                       <div className="space-y-2 text-center">
                         <p className="font-medium text-foreground">Nenhum contrato encontrado</p>
                         <p className="text-sm text-muted-foreground">
@@ -213,7 +205,8 @@ export default function Contratos() {
                               variant="ghost"
                               size="sm"
                               onClick={(e) => e.stopPropagation()}
-                              className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                              className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10 touch-target"
+                              aria-label={`Excluir contrato ${contrato.numero_contrato}`}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
