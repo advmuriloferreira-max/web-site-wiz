@@ -15,7 +15,7 @@ export function CompactSecurityInfo({ className }: CompactHeaderProps) {
       "flex items-center gap-2 text-xs text-muted-foreground bg-muted/50 px-3 py-1 rounded-full",
       className
     )}>
-      <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+      <div className="w-2 h-2 rounded-full bg-green-500" />
       <span className="hidden sm:inline">Sistema Seguro</span>
       <Badge variant="outline" className="bg-primary/10 text-primary text-xs px-2 py-0">
         BCB

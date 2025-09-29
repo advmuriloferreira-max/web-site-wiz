@@ -17,9 +17,9 @@ export function HeroSection() {
         <div className="flex items-center justify-center gap-6">
           <div className="relative">
             <div className="w-20 h-20 bg-accent/20 backdrop-blur-sm rounded-lg border border-accent/40 flex items-center justify-center shadow-lg">
-              <Brain className="h-12 w-12 text-accent animate-pulse" />
+              <Brain className="h-12 w-12 text-accent" />
             </div>
-            <div className="absolute -top-2 -right-2 w-6 h-6 bg-accent rounded-full flex items-center justify-center animate-ping opacity-75">
+            <div className="absolute -top-2 -right-2 w-6 h-6 bg-accent rounded-full flex items-center justify-center opacity-75">
               <div className="w-2 h-2 bg-white rounded-full" />
             </div>
           </div>

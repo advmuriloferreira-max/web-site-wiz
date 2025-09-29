@@ -42,7 +42,7 @@ export function UserMenu() {
               {profile?.nome ? getInitials(profile.nome) : <User className="h-4 w-4" />}
             </AvatarFallback>
           </Avatar>
-          <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 bg-green-400 border-2 border-slate-800 rounded-full animate-pulse" />
+          <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 bg-green-400 border-2 border-slate-800 rounded-full" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent 

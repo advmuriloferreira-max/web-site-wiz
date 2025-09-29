@@ -79,14 +79,14 @@ export function AppSidebar() {
             {item.badge && (
               <Badge 
                 variant="secondary" 
-                className="ml-auto bg-accent/20 text-accent text-xs px-2 py-0.5 font-bold animate-pulse border border-accent/30"
+                className="ml-auto bg-accent/20 text-accent text-xs px-2 py-0.5 font-bold border border-accent/30"
               >
                 {item.badge}
               </Badge>
             )}
             {isQuickAction && !active && (
               <div className="ml-auto">
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                <div className="w-2 h-2 bg-green-400 rounded-full" />
               </div>
             )}
           </>
@@ -164,17 +164,17 @@ export function AppSidebar() {
           
           {/* Sistema Status Compacto */}
           <div className="flex items-center justify-center mb-3">
-            {!isCollapsed ? (
-              <div className="flex items-center gap-2 text-xs text-slate-400">
-                <div className="w-2 h-2 bg-success rounded-full animate-pulse"></div>
-                <span>Sistema Seguro</span>
-                <Badge variant="outline" className="ml-2 bg-accent/20 text-accent text-xs px-2 py-0.5">
-                  BCB 352/2023
-                </Badge>
-              </div>
-            ) : (
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse mx-auto"></div>
-            )}
+          {!isCollapsed ? (
+            <div className="flex items-center gap-2 text-xs text-slate-400">
+              <div className="w-2 h-2 bg-success rounded-full"></div>
+              <span>Sistema Seguro</span>
+              <Badge variant="outline" className="ml-2 bg-accent/20 text-accent text-xs px-2 py-0.5">
+                BCB 352/2023
+              </Badge>
+            </div>
+          ) : (
+            <div className="w-2 h-2 bg-green-400 rounded-full mx-auto"></div>
+          )}
           </div>
 
           {/* User Profile Compacto */}
