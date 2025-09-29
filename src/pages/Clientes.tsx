@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import { Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -20,6 +21,7 @@ import { ResponsiveContainer } from "@/components/ui/layout-consistency";
 import { LegalIcons } from "@/components/ui/legal-icons";
 import { LegalTableHeader } from "@/components/ui/legal-header";
 import { LegalTimestamp } from "@/components/ui/legal-timestamp";
+import { DeleteConfirmation } from "@/components/ui/delete-confirmation";
 
 export default function Clientes() {
   const navigate = useNavigate();
@@ -281,38 +283,12 @@ export default function Clientes() {
                               >
                                 <LegalIcons.edit className="h-4 w-4 text-muted-foreground group-hover:text-warning transition-colors" />
                               </Button>
-                              <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-8 w-8 p-0 hover:bg-destructive/10 interactive-button group border border-destructive/20"
-                                  >
-                                    <LegalIcons.delete className="h-4 w-4 text-muted-foreground group-hover:text-destructive transition-colors" />
-                                  </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent className="glass-modal animate-scale-in border-2">
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle className="title-card flex items-center space-x-2">
-                                      <LegalIcons.warning className="h-5 w-5 text-destructive" />
-                                      Confirmar Exclusão
-                                    </AlertDialogTitle>
-                                    <AlertDialogDescription className="text-body">
-                                      Tem certeza que deseja excluir o cliente "{cliente.nome}"?
-                                      Esta ação não pode ser desfeita.
-                                    </AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel className="interactive-button border-2">Cancelar</AlertDialogCancel>
-                                    <AlertDialogAction
-                                      onClick={() => handleExcluirCliente(cliente.id)}
-                                      className="bg-destructive hover:bg-destructive/90 interactive-button border-2 border-destructive"
-                                    >
-                                      Excluir
-                                    </AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
+                              <DeleteConfirmation
+                                itemName={cliente.nome}
+                                itemType="cliente"
+                                onConfirm={() => handleExcluirCliente(cliente.id)}
+                                className="group"
+                              />
                             </div>
                           </TableCell>
                         </TableRow>

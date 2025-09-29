@@ -15,6 +15,7 @@ import { ResponsiveTableWrapper } from "@/components/ui/responsive-fixes";
 import { LoadingState, TableLoading } from "@/components/ui/loading-states";
 import { ErrorState } from "@/components/ui/error-boundary";
 import { LegalIcons } from "@/components/ui/legal-icons";
+import { DeleteConfirmation } from "@/components/ui/delete-confirmation";
 
 const getClassificacaoColor = (classificacao: string | null) => {
   switch (classificacao) {
@@ -199,36 +200,11 @@ export default function Contratos() {
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={(e) => e.stopPropagation()}
-                              className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10 touch-target"
-                              aria-label={`Excluir contrato ${contrato.numero_contrato}`}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Esta ação não pode ser desfeita. Tem certeza que deseja excluir este contrato?
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={(e) => handleDeleteContrato(contrato.id, e)}
-                                className="bg-destructive text-destructive-foreground"
-                              >
-                                Excluir
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                        <DeleteConfirmation
+                          itemName={contrato.numero_contrato || contrato.clientes?.nome || "contrato"}
+                          itemType="contrato"
+                          onConfirm={() => handleDeleteContrato(contrato.id, new MouseEvent('click') as any)}
+                        />
                       </div>
                     </TableCell>
                   </TableRow>
