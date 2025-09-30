@@ -144,14 +144,14 @@ Golden Ratio-based spacing: 1, 1.618, 2.618, 4.236, 6.854
     --radius-xl: 1rem;
 
     /* Sidebar executivo */
-    --sidebar-background: 220 26% 8%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 43 74% 66%;
-    --sidebar-primary-foreground: 220 26% 25%;
-    --sidebar-accent: 220 26% 12%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 220 26% 15%;
-    --sidebar-ring: 43 74% 66%;
+    --sidebar-background: 210 100% 95%;
+    --sidebar-foreground: 220 26% 15%;
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 100% 90%;
+    --sidebar-accent-foreground: 220 26% 15%;
+    --sidebar-border: 210 80% 85%;
+    --sidebar-ring: 217 91% 60%;
     
     /* Trust & Security Colors - Professional */
     --security: 160 84% 39%;              /* Secure green */

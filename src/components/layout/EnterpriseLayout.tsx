@@ -86,7 +86,7 @@ export function EnterpriseLayout() {
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col min-w-0">
           {/* Top Header - Otimizado e Limpo */}
-          <header className="sticky top-0 z-40 w-full h-16 bg-gradient-to-r from-primary to-primary-dark backdrop-blur-xl border-b border-accent/20 shadow-md animate-fade-in">
+          <header className="sticky top-0 z-40 w-full h-16 bg-[hsl(220_70%_15%)] backdrop-blur-xl border-b border-border/20 shadow-md animate-fade-in">
             <div className="h-full flex items-center justify-between px-4 sm:px-6 lg:px-8">
               
               {/* Left Section - Logo Compacto */}
@@ -134,7 +134,7 @@ export function EnterpriseLayout() {
             </div>
 
             {/* Mobile Breadcrumbs - Mais Compacto */}
-            <div className="lg:hidden px-4 py-2 border-t border-accent/10 bg-primary/95 animate-slide-in-right">
+            <div className="lg:hidden px-4 py-2 border-t border-border/20 bg-[hsl(220_70%_15%)] animate-slide-in-right">
               <SmartBreadcrumbs showKeyboardShortcuts={false} />
             </div>
           </header>
