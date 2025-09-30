@@ -15,16 +15,16 @@ interface ClienteRisco {
 
 export function ClientesAnalysisChart() {
   const { data: clientesRisco, isLoading } = useQuery({
-    queryKey: ["clientes-analise"],
+    queryKey: ["clientes-provisao-analise"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("contratos")
+        .from("contratos_provisao")
         .select(`
           valor_divida,
           valor_provisao,
           percentual_provisao,
           classificacao,
-          clientes (nome)
+          clientes_provisao (nome)
         `);
       
       if (error) throw error;
@@ -33,7 +33,7 @@ export function ClientesAnalysisChart() {
       const clientesMap = new Map<string, ClienteRisco>();
       
       data.forEach(contrato => {
-        const nomeCliente = contrato.clientes?.nome || "Cliente não identificado";
+        const nomeCliente = contrato.clientes_provisao?.nome || "Cliente não identificado";
         
         if (!clientesMap.has(nomeCliente)) {
           clientesMap.set(nomeCliente, {

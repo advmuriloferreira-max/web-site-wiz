@@ -25,7 +25,6 @@ export interface ContratoInput {
   percentual_provisao?: number;
   valor_provisao?: number;
   proposta_acordo?: number;
-  // Novos campos
   data_entrada_escritorio?: string | null;
   tempo_escritorio?: number;
   forma_pagamento?: string | null;
@@ -40,7 +39,6 @@ export interface ContratoInput {
   valor_honorarios?: number;
   situacao?: string;
   observacoes?: string | null;
-  // Campos de reestruturação
   is_reestruturado?: boolean;
   data_reestruturacao?: string | null;
 }
@@ -52,14 +50,11 @@ export const useCreateContrato = () => {
   
   return useMutation({
     mutationFn: async (contratoInput: ContratoInput) => {
-      // Calcular dias de atraso baseado na data do último pagamento se fornecida
       let diasAtraso = 0;
       if (contratoInput.data_ultimo_pagamento) {
         diasAtraso = calcularDiasAtraso(contratoInput.data_ultimo_pagamento);
-        console.log(`Calculando dias de atraso baseado na data: ${contratoInput.data_ultimo_pagamento} = ${diasAtraso} dias`);
       } else if (contratoInput.dias_atraso) {
         diasAtraso = Number(contratoInput.dias_atraso) || 0;
-        console.log(`Usando dias de atraso informados: ${diasAtraso} dias`);
       }
 
       let mesesAtraso = diasParaMeses(diasAtraso);
@@ -67,14 +62,9 @@ export const useCreateContrato = () => {
       let percentualProvisao = contratoInput.percentual_provisao || 0;
       let valorProvisao = contratoInput.valor_provisao || 0;
 
-      // Calcular estágio de risco automaticamente baseado nos dias de atraso
       const estagioRisco = determinarEstagioRisco(diasAtraso, contratoInput.is_reestruturado, contratoInput.data_reestruturacao);
-      console.log(`Estágio de risco calculado: ${estagioRisco} (baseado em ${diasAtraso} dias de atraso)`);
 
-      // Calcular provisão automaticamente se temos dados suficientes e tabelas carregadas
-      // A classificação deve ser informada pelo usuário (vem no contrato original)
       if (tabelaPerda && tabelaIncorrida && contratoInput.classificacao) {
-        // Usar dívida contábil (obrigatória) ou valor da dívida como fallback
         const valorParaCalculo = contratoInput.saldo_contabil || contratoInput.valor_divida;
         
         const resultado = calcularProvisao({
@@ -94,7 +84,7 @@ export const useCreateContrato = () => {
 
       const contratoData = {
         ...contratoInput,
-        tipo_operacao: contratoInput.tipo_operacao || null, // Campo legado, manter para compatibilidade
+        tipo_operacao: contratoInput.tipo_operacao || null,
         dias_atraso: diasAtraso,
         meses_atraso: mesesAtraso,
         classificacao: classificacao,
@@ -105,7 +95,7 @@ export const useCreateContrato = () => {
       };
 
       const { data, error } = await supabase
-        .from("contratos")
+        .from("contratos_provisao")
         .insert(contratoData)
         .select()
         .single();
@@ -117,10 +107,9 @@ export const useCreateContrato = () => {
       return data;
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["contratos"] });
-      queryClient.invalidateQueries({ queryKey: ["contratos-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["contratos-provisao"] });
+      queryClient.invalidateQueries({ queryKey: ["contratos-provisao-stats"] });
       
-      // Mostrar informações sobre os cálculos automáticos realizados
       if (data.valor_provisao > 0) {
         toast.success(`Contrato criado com cálculo automático de provisão: ${(data.percentual_provisao || 0).toFixed(2)}%`);
       } else {

@@ -28,15 +28,26 @@ export interface Contrato {
   taxa_referencia: string | null;
   valor_parcela: number | null;
   numero_parcelas: number | null;
+  tempo_escritorio: number | null;
+  valor_honorarios: number | null;
+  percentual_honorarios: number | null;
   created_at: string;
   updated_at: string;
-  // Relacionamentos
+  // Relacionamentos - mantendo ambos os nomes para compatibilidade
   clientes_provisao?: {
     nome: string;
     cpf_cnpj: string | null;
     responsavel: string | null;
   };
+  clientes?: {
+    nome: string;
+    cpf_cnpj: string | null;
+    responsavel: string | null;
+  };
   bancos_provisao?: {
+    nome: string;
+  };
+  bancos?: {
     nome: string;
   };
 }

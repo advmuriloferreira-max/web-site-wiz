@@ -13,10 +13,10 @@ import {
 
 export function PerformanceCard() {
   const { data: performanceData, isLoading } = useQuery({
-    queryKey: ["performance-escritorio"],
+    queryKey: ["performance-provisao-escritorio"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("contratos")
+        .from("contratos_provisao")
         .select(`
           situacao,
           acordo_final,

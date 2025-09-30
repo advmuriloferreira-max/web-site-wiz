@@ -28,12 +28,12 @@ export interface UpdatePropostaData {
 
 export const usePropostasAcordo = (contratoId?: string) => {
   return useQuery({
-    queryKey: ["propostas-acordo", contratoId],
+    queryKey: ["propostas-acordo-provisao", contratoId],
     queryFn: async () => {
       if (!contratoId) return [];
       
       const { data, error } = await supabase
-        .from("propostas_acordo")
+        .from("propostas_acordo_provisao")
         .select("*")
         .eq("contrato_id", contratoId)
         .order("data_proposta", { ascending: false });
@@ -55,7 +55,7 @@ export const useCreateProposta = () => {
   return useMutation({
     mutationFn: async (data: CreatePropostaData) => {
       const { data: result, error } = await supabase
-        .from("propostas_acordo")
+        .from("propostas_acordo_provisao")
         .insert(data)
         .select()
         .single();
@@ -65,7 +65,7 @@ export const useCreateProposta = () => {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["propostas-acordo", variables.contrato_id],
+        queryKey: ["propostas-acordo-provisao", variables.contrato_id],
       });
       toast.success("Proposta registrada com sucesso!");
     },
@@ -82,7 +82,7 @@ export const useUpdateProposta = () => {
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: UpdatePropostaData }) => {
       const { data: result, error } = await supabase
-        .from("propostas_acordo")
+        .from("propostas_acordo_provisao")
         .update(data)
         .eq("id", id)
         .select()
@@ -93,7 +93,7 @@ export const useUpdateProposta = () => {
     },
     onSuccess: (result) => {
       queryClient.invalidateQueries({
-        queryKey: ["propostas-acordo", result.contrato_id],
+        queryKey: ["propostas-acordo-provisao", result.contrato_id],
       });
       toast.success("Status da proposta atualizado!");
     },
@@ -110,14 +110,14 @@ export const useDeleteProposta = () => {
   return useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
-        .from("propostas_acordo")
+        .from("propostas_acordo_provisao")
         .delete()
         .eq("id", id);
 
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["propostas-acordo"] });
+      queryClient.invalidateQueries({ queryKey: ["propostas-acordo-provisao"] });
       toast.success("Proposta removida com sucesso!");
     },
     onError: (error) => {

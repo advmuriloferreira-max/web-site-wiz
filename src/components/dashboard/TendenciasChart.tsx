@@ -27,7 +27,7 @@ export function TendenciasChart() {
         const fimMes = endOfMonth(mesReferencia);
 
         const { data, error } = await supabase
-          .from("contratos")
+          .from("contratos_provisao")
           .select("valor_divida, valor_provisao, created_at")
           .gte("created_at", inicioMes.toISOString())
           .lte("created_at", fimMes.toISOString());

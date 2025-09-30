@@ -16,12 +16,11 @@ export interface Processo {
   diligencias: string | null;
   created_at: string;
   updated_at: string;
-  // Relacionamentos
-  contratos?: {
-    clientes?: {
+  contratos_provisao?: {
+    clientes_provisao?: {
       nome: string;
     };
-    bancos?: {
+    bancos_provisao?: {
       nome: string;
     };
     numero_contrato: string | null;
@@ -31,17 +30,17 @@ export interface Processo {
 
 export const useProcessos = () => {
   return useRealtimeQuery({
-    queryKey: ["processos"],
+    queryKey: ["processos-provisao"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("processos")
+        .from("processos_provisao")
         .select(`
           *,
-          contratos (
+          contratos_provisao (
             numero_contrato,
             valor_divida,
-            clientes (nome),
-            bancos (nome)
+            clientes_provisao (nome),
+            bancos_provisao (nome)
           )
         `)
         .order("created_at", { ascending: false });
@@ -52,7 +51,7 @@ export const useProcessos = () => {
 
       return data as Processo[];
     },
-    tableName: "processos",
+    tableName: "processos_provisao",
   });
 };
 
@@ -60,9 +59,9 @@ export const useCreateProcesso = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async (processo: Partial<Omit<Processo, 'id' | 'created_at' | 'updated_at' | 'contratos'>> & { contrato_id: string }) => {
+    mutationFn: async (processo: Partial<Omit<Processo, 'id' | 'created_at' | 'updated_at' | 'contratos_provisao'>> & { contrato_id: string }) => {
       const { data, error } = await supabase
-        .from("processos")
+        .from("processos_provisao")
         .insert([processo])
         .select()
         .single();
@@ -74,7 +73,7 @@ export const useCreateProcesso = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["processos"] });
+      queryClient.invalidateQueries({ queryKey: ["processos-provisao"] });
       toast.success("Processo criado com sucesso!");
     },
     onError: (error) => {
@@ -89,7 +88,7 @@ export const useUpdateProcesso = () => {
   return useMutation({
     mutationFn: async ({ id, ...processo }: Partial<Processo> & { id: string }) => {
       const { data, error } = await supabase
-        .from("processos")
+        .from("processos_provisao")
         .update(processo)
         .eq("id", id)
         .select()
@@ -102,7 +101,7 @@ export const useUpdateProcesso = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["processos"] });
+      queryClient.invalidateQueries({ queryKey: ["processos-provisao"] });
       toast.success("Processo atualizado com sucesso!");
     },
     onError: (error) => {

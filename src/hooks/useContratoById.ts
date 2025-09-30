@@ -4,18 +4,18 @@ import { Contrato } from "./useContratos";
 
 export const useContratoById = (contratoId: string | null) => {
   return useQuery({
-    queryKey: ["contrato-by-id", contratoId],
+    queryKey: ["contrato-provisao-by-id", contratoId],
     queryFn: async () => {
       if (!contratoId?.trim()) {
         return null;
       }
 
       const { data, error } = await supabase
-        .from("contratos")
+        .from("contratos_provisao")
         .select(`
           *,
-          clientes (id, nome, cpf_cnpj, responsavel),
-          bancos (id, nome)
+          clientes_provisao (id, nome, cpf_cnpj, responsavel),
+          bancos_provisao (id, nome)
         `)
         .eq("id", contratoId.trim())
         .maybeSingle();
@@ -27,7 +27,7 @@ export const useContratoById = (contratoId: string | null) => {
       return data as Contrato | null;
     },
     enabled: !!contratoId?.trim(),
-    staleTime: 0, // Always fetch fresh data
-    gcTime: 0, // Don't keep in cache
+    staleTime: 0,
+    gcTime: 0,
   });
 };

@@ -5,10 +5,10 @@ import { supabase } from "@/integrations/supabase/client";
 
 export function AcordosChart() {
   const { data: acordosData, isLoading } = useQuery({
-    queryKey: ["acordos-stats"],
+    queryKey: ["acordos-provisao-stats"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("contratos")
+        .from("contratos_provisao")
         .select("situacao, acordo_final, proposta_acordo");
       
       if (error) throw error;
