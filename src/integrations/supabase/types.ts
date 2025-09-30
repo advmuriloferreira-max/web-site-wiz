@@ -428,6 +428,45 @@ export type Database = {
           },
         ]
       }
+      modalidades_bacen_juros: {
+        Row: {
+          ativo: boolean | null
+          categoria: string
+          codigo_sgs: string
+          created_at: string
+          descricao: string | null
+          id: string
+          nome: string
+          tipo_pessoa: string
+          tipo_recurso: string
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean | null
+          categoria: string
+          codigo_sgs: string
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          nome: string
+          tipo_pessoa: string
+          tipo_recurso: string
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean | null
+          categoria?: string
+          codigo_sgs?: string
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          nome?: string
+          tipo_pessoa?: string
+          tipo_recurso?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       processos: {
         Row: {
           acao: string | null
@@ -641,6 +680,50 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      series_temporais_bacen: {
+        Row: {
+          ano: number
+          created_at: string
+          data_referencia: string
+          id: string
+          mes: number
+          modalidade_id: string
+          taxa_anual: number | null
+          taxa_mensal: number
+          updated_at: string
+        }
+        Insert: {
+          ano: number
+          created_at?: string
+          data_referencia: string
+          id?: string
+          mes: number
+          modalidade_id: string
+          taxa_anual?: number | null
+          taxa_mensal: number
+          updated_at?: string
+        }
+        Update: {
+          ano?: number
+          created_at?: string
+          data_referencia?: string
+          id?: string
+          mes?: number
+          modalidade_id?: string
+          taxa_anual?: number | null
+          taxa_mensal?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "series_temporais_bacen_modalidade_id_fkey"
+            columns: ["modalidade_id"]
+            isOneToOne: false
+            referencedRelation: "modalidades_bacen_juros"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tipos_operacao_bcb: {
         Row: {

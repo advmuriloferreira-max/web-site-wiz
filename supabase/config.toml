@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.get-bacen-rate]
 verify_jwt = false
+
+[functions.consultar-taxa-bacen-sgs]
+verify_jwt = false
