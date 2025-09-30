@@ -150,9 +150,12 @@ export function AppSidebar() {
         {/* Provisionamento Bancário */}
         <SidebarGroup className="py-3">
           {!isCollapsed && (
-            <SidebarGroupLabel className="text-xs uppercase tracking-wider text-sidebar-foreground/80 px-4 py-2 font-black">
-              Provisionamento Bancário
-            </SidebarGroupLabel>
+            <>
+              <SidebarGroupLabel className="text-xs uppercase tracking-wider text-sidebar-foreground/80 px-4 py-2 font-black">
+                Provisionamento Bancário
+              </SidebarGroupLabel>
+              <div className="h-1 bg-accent mx-4 rounded-full"></div>
+            </>
           )}
           <SidebarGroupContent>
             <div className="space-y-1 px-2">
@@ -169,9 +172,12 @@ export function AppSidebar() {
         {/* Análise de Abusividade de Juros */}
         <SidebarGroup className="py-3">
           {!isCollapsed && (
-            <SidebarGroupLabel className="text-sm uppercase tracking-wider text-sidebar-foreground/80 px-4 py-2 font-black">
-              Análise de Juros
-            </SidebarGroupLabel>
+            <>
+              <SidebarGroupLabel className="text-sm uppercase tracking-wider text-sidebar-foreground/80 px-4 py-2 font-black">
+                Análise de Juros
+              </SidebarGroupLabel>
+              <div className="h-1 bg-accent mx-4 rounded-full"></div>
+            </>
           )}
           <SidebarGroupContent>
             <div className="space-y-1 px-2">
