@@ -86,21 +86,21 @@ export function EnterpriseLayout() {
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col min-w-0">
           {/* Top Header - Otimizado e Limpo */}
-          <header className="sticky top-0 z-40 w-full h-16 bg-[hsl(220_70%_15%)] backdrop-blur-xl border-b border-border/20 shadow-md animate-fade-in">
+          <header className="sticky top-0 z-40 w-full h-16 bg-[hsl(220_15%_20%)] backdrop-blur-xl border-b border-border/20 shadow-lg animate-fade-in">
             <div className="h-full flex items-center justify-between px-4 sm:px-6 lg:px-8">
               
               {/* Left Section - Logo Compacto */}
               <div className="flex items-center gap-3">
                 {/* Mobile Sidebar Trigger */}
                 <div className="md:hidden">
-                  <SidebarTrigger className="text-white hover:text-accent transition-all duration-200 hover:scale-105" />
+                  <SidebarTrigger className="text-white hover:text-accent transition-all duration-200 hover:scale-105 font-semibold" />
                 </div>
 
                 {/* Logo Compacto */}
                 <div className="flex items-center gap-2 group">
                   <LegalIcons.justice className="h-6 w-6 text-accent flex-shrink-0 transition-transform duration-200 group-hover:scale-110" />
                   <div className="hidden sm:block">
-                    <h1 className="text-base font-bold text-white tracking-wide leading-tight">
+                    <h1 className="text-lg font-extrabold text-white tracking-wide leading-tight">
                       INTELLBANK
                     </h1>
                   </div>
@@ -119,10 +119,10 @@ export function EnterpriseLayout() {
                   variant="ghost"
                   size="sm"
                   onClick={() => setSearchOpen(true)}
-                  className="text-white/80 hover:text-white hover:bg-white/10 border border-white/20 transition-all duration-200 hover:scale-105"
+                  className="text-white hover:text-white hover:bg-white/10 border border-white/20 transition-all duration-200 hover:scale-105 font-semibold"
                 >
                   <LegalIcons.search className="h-4 w-4" />
-                  <span className="hidden xl:inline ml-2 text-sm">Buscar</span>
+                  <span className="hidden xl:inline ml-2 text-sm font-semibold">Buscar</span>
                 </Button>
 
                 {/* Theme Toggle */}
@@ -134,7 +134,7 @@ export function EnterpriseLayout() {
             </div>
 
             {/* Mobile Breadcrumbs - Mais Compacto */}
-            <div className="lg:hidden px-4 py-2 border-t border-border/20 bg-[hsl(220_70%_15%)] animate-slide-in-right">
+            <div className="lg:hidden px-4 py-2 border-t border-border/20 bg-[hsl(220_15%_20%)] animate-slide-in-right">
               <SmartBreadcrumbs showKeyboardShortcuts={false} />
             </div>
           </header>
