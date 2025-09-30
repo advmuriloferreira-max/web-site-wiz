@@ -8,7 +8,7 @@ export const useDeleteContrato = () => {
   return useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
-        .from("contratos")
+        .from("contratos_provisao")
         .delete()
         .eq("id", id);
 
@@ -17,8 +17,8 @@ export const useDeleteContrato = () => {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["contratos"] });
-      queryClient.invalidateQueries({ queryKey: ["contratos-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["contratos-provisao"] });
+      queryClient.invalidateQueries({ queryKey: ["contratos-provisao-stats"] });
       toast.success("Contrato excluído com sucesso!");
     },
     onError: (error) => {

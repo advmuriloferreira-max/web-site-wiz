@@ -75,7 +75,7 @@ export const useUpdateContrato = () => {
       };
 
       const { data, error } = await supabase
-        .from("contratos")
+        .from("contratos_provisao")
         .update(contratoData)
         .eq("id", id)
         .select()
@@ -88,9 +88,9 @@ export const useUpdateContrato = () => {
       return data;
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["contratos"] });
-      queryClient.invalidateQueries({ queryKey: ["contratos-stats"] });
-      queryClient.invalidateQueries({ queryKey: ["contrato-by-numero"] });
+      queryClient.invalidateQueries({ queryKey: ["contratos-provisao"] });
+      queryClient.invalidateQueries({ queryKey: ["contratos-provisao-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["contrato-provisao-by-id"] });
       
       // Mostrar informações sobre os cálculos automáticos realizados
       if (data.valor_provisao > 0) {

@@ -75,7 +75,7 @@ export const useUpdateContrato = () => {
   return useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: Partial<any> }) => {
       const { data, error } = await supabase
-        .from("contratos")
+        .from("contratos_provisao")
         .update(updates)
         .eq("id", id)
         .select()
@@ -88,8 +88,8 @@ export const useUpdateContrato = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["contratos"] });
-      queryClient.invalidateQueries({ queryKey: ["contratos-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["contratos-provisao"] });
+      queryClient.invalidateQueries({ queryKey: ["contratos-provisao-stats"] });
       toast.success("Contrato atualizado com sucesso!");
     },
     onError: (error) => {

@@ -6,7 +6,7 @@ export const useGarantiaExists = (contratoId: string) => {
     queryKey: ["garantia-exists", contratoId],
     queryFn: async () => {
       const { count, error } = await supabase
-        .from("garantias")
+        .from("garantias_provisao")
         .select("*", { count: "exact", head: true })
         .eq("contrato_id", contratoId);
 

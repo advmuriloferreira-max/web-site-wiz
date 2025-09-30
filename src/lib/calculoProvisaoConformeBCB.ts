@@ -277,7 +277,7 @@ export async function calcularProvisaoConformeBCB(
 async function buscarGarantias(contratoId: string): Promise<GarantiaInfo[]> {
   try {
     const { data, error } = await supabase
-      .from('garantias')
+      .from('garantias_provisao')
       .select('id, tipo_garantia, valor_avaliacao, percentual_cobertura, descricao')
       .eq('contrato_id', contratoId);
 

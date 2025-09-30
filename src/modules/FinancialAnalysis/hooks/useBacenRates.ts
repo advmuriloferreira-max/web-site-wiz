@@ -139,7 +139,7 @@ export const useAtualizarTaxaBacen = () => {
       referencia: string;
     }) => {
       const { error } = await supabase
-        .from("contratos")
+        .from("contratos_provisao")
         .update({
           taxa_bacen: taxa,
           taxa_referencia: referencia,

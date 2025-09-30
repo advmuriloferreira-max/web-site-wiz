@@ -18,7 +18,7 @@ export const useCreateCliente = () => {
   return useMutation({
     mutationFn: async (clienteData: NovoClienteData) => {
       const { data, error } = await supabase
-        .from("clientes")
+        .from("clientes_provisao")
         .insert([{
           nome: clienteData.nome,
           cpf_cnpj: clienteData.cpf_cnpj,
@@ -38,7 +38,7 @@ export const useCreateCliente = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["clientes"] });
+      queryClient.invalidateQueries({ queryKey: ["clientes-provisao"] });
       toast.success("Cliente criado com sucesso!");
     },
     onError: (error) => {
