@@ -36,9 +36,7 @@ const CalculadoraJuros = () => {
     setAnalisando(true);
     
     try {
-      console.log('Iniciando análise com modalidade:', modalidadeId);
-      
-      // Consultar taxa BACEN usando a edge function (que agora busca nos CSVs automaticamente)
+      // 1. Consultar taxa BACEN (busca automática: DB → CSV → API → Simulada)
       const { data, error } = await supabase.functions.invoke('consultar-taxa-bacen-sgs', {
         body: {
           modalidadeId,
@@ -46,12 +44,12 @@ const CalculadoraJuros = () => {
         }
       });
 
-      if (error) {
-        console.error('Erro ao consultar taxa BACEN:', error);
-        throw new Error(error.message || 'Erro ao consultar taxa BACEN');
-      }
+      if (error) throw new Error(error.message || 'Erro ao consultar taxa BACEN');
+      if (!data || !data.taxa_mensal) throw new Error('Taxa não encontrada');
 
-      console.log('Taxa BACEN consultada:', data);
+      toast.success(`✅ Taxa BACEN encontrada: ${data.taxa_mensal.toFixed(2)}% ao mês (${data.origem})`, {
+        duration: 4000
+      });
 
       // 2. Calcular métricas financeiras do contrato
       const valorPrest = parseFloat(valorPrestacao);
