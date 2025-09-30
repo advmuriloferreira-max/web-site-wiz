@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { useModalidadesBacenJuros } from "@/hooks/useModalidadesBacenJuros";
 import { calcularMetricasFinanceiras, compararTaxaBacen } from "@/modules/FinancialAnalysis/lib/financialCalculations";
 import { Badge } from "@/components/ui/badge";
-import { consultarTaxaBacenCSV, getAllModalidades } from "@/lib/bacenCSVReader";
+import { consultarTaxaBacenCSV, precarregarTodosCSVs } from "@/lib/bacenCSVReader";
 
 const CalculadoraJuros = () => {
   const [tipoPessoaFiltro, setTipoPessoaFiltro] = useState<'PF' | 'PJ' | undefined>(undefined);
@@ -26,6 +26,23 @@ const CalculadoraJuros = () => {
   // Estados de resultado
   const [resultado, setResultado] = useState<any>(null);
   const [analisando, setAnalisando] = useState(false);
+  const [csvsCarregados, setCsvsCarregados] = useState(false);
+
+  // Pré-carregar todos os CSVs do BACEN quando o componente montar
+  useEffect(() => {
+    const carregarCSVs = async () => {
+      try {
+        await precarregarTodosCSVs();
+        setCsvsCarregados(true);
+        console.log('✅ Calculadora pronta! Todos os dados do BACEN estão em memória.');
+      } catch (error) {
+        console.error('Erro ao carregar CSVs:', error);
+        toast.error('Erro ao carregar dados do BACEN');
+      }
+    };
+
+    carregarCSVs();
+  }, []);
 
   const handleAnalisar = async () => {
     if (!valorFinanciamento || !valorPrestacao || !numeroParcelas || !dataAssinatura || !modalidadeId) {

@@ -79,12 +79,14 @@ const arquivoPorCodigo: Record<string, number> = {
 
 // Cache dos CSVs carregados
 const csvCache: Record<number, string> = {};
+let cacheCarregado = false;
 
 async function carregarCSV(numeroArquivo: number): Promise<string> {
   if (csvCache[numeroArquivo]) {
     return csvCache[numeroArquivo];
   }
 
+  console.log(`Carregando CSV ${numeroArquivo}...`);
   const response = await fetch(`/data/bacen-series-${numeroArquivo}.csv`);
   if (!response.ok) {
     throw new Error(`Erro ao carregar CSV ${numeroArquivo}: ${response.statusText}`);
@@ -92,7 +94,35 @@ async function carregarCSV(numeroArquivo: number): Promise<string> {
 
   const text = await response.text();
   csvCache[numeroArquivo] = text;
+  console.log(`✓ CSV ${numeroArquivo} carregado (${text.length} caracteres)`);
   return text;
+}
+
+// Pré-carregar todos os CSVs
+export async function precarregarTodosCSVs(): Promise<void> {
+  if (cacheCarregado) {
+    console.log('CSVs já estão em cache');
+    return;
+  }
+
+  console.log('🚀 Iniciando pré-carregamento de todos os CSVs do BACEN...');
+  const inicio = Date.now();
+
+  try {
+    await Promise.all([
+      carregarCSV(1),
+      carregarCSV(2),
+      carregarCSV(3),
+      carregarCSV(4),
+    ]);
+
+    cacheCarregado = true;
+    const tempo = Date.now() - inicio;
+    console.log(`✅ Todos os 4 CSVs carregados em ${tempo}ms`);
+  } catch (error) {
+    console.error('❌ Erro ao pré-carregar CSVs:', error);
+    throw error;
+  }
 }
 
 export async function consultarTaxaBacenCSV(
