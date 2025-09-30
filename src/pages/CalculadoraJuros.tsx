@@ -30,6 +30,7 @@ const CalculadoraJuros = () => {
   const [valorFinanciamento, setValorFinanciamento] = useState("");
   const [valorPrestacao, setValorPrestacao] = useState("");
   const [numeroParcelas, setNumeroParcelas] = useState("");
+  const [taxaJurosContratual, setTaxaJurosContratual] = useState("");
   const [dataAssinatura, setDataAssinatura] = useState("");
   const [modalidadeId, setModalidadeId] = useState("");
   const [acao, setAcao] = useState<"analisar" | "cadastrar">("analisar");
@@ -71,15 +72,18 @@ const CalculadoraJuros = () => {
       const valorFin = parseFloat(valorFinanciamento);
       const parcelas = parseInt(numeroParcelas);
       
-      // Calcular taxa mensal aproximada usando fórmula simplificada
-      // Esta é uma aproximação, idealmente deveria usar TIR
-      const taxaMensalContrato = ((valorPrest * parcelas) / valorFin - 1) / parcelas * 100;
+      // Calcular taxa real (efetiva) usando a fórmula financeira
+      // Esta é a taxa real cobrada baseada nos valores praticados
+      const taxaRealMensal = ((valorPrest * parcelas) / valorFin - 1) / parcelas * 100;
+      
+      // Taxa contratual (a que está escrita no contrato)
+      const taxaContratual = taxaJurosContratual ? parseFloat(taxaJurosContratual) : taxaRealMensal;
       
       const metricas = calcularMetricasFinanceiras({
         valorDivida: valorFin,
         saldoContabil: valorFin,
         taxaBacen: data.taxa_mensal,
-        taxaJuros: taxaMensalContrato,
+        taxaJuros: taxaRealMensal,
         prazoMeses: parcelas,
         valorParcela: valorPrest,
         valorGarantias: 0,
@@ -92,12 +96,20 @@ const CalculadoraJuros = () => {
         metricas.taxaEfetivaMensal,
         taxaBacenMensal
       );
+      
+      // 4. Calcular diferença entre taxa contratual e taxa real
+      const diferencaTaxas = taxaRealMensal - taxaContratual;
+      const percentualDiferenca = taxaContratual > 0 ? (diferencaTaxas / taxaContratual) * 100 : 0;
 
       setResultado({
         metricas,
         comparacao,
         taxaBacen: data,
         modalidade: data.modalidade,
+        taxaContratual,
+        taxaReal: taxaRealMensal,
+        diferencaTaxas,
+        percentualDiferenca,
       });
 
       toast.success("Análise concluída com sucesso!");
@@ -336,6 +348,21 @@ const CalculadoraJuros = () => {
                 </div>
 
                 <div>
+                  <Label htmlFor="taxaJurosContratual">Taxa de Juros Contratual (% a.m.)</Label>
+                  <Input
+                    id="taxaJurosContratual"
+                    type="number"
+                    step="0.01"
+                    placeholder="Ex: 2.5"
+                    value={taxaJurosContratual}
+                    onChange={(e) => setTaxaJurosContratual(e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Taxa informada no contrato. Compararemos com a taxa real cobrada.
+                  </p>
+                </div>
+
+                <div>
                   <Label htmlFor="dataAssinatura">Data de Assinatura do Contrato *</Label>
                   <Input
                     id="dataAssinatura"
@@ -410,13 +437,48 @@ const CalculadoraJuros = () => {
                     </div>
                   )}
 
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="p-3 bg-blue-500/10 border border-blue-500 rounded-lg">
+                      <p className="text-xs text-muted-foreground">Taxa Contratual (% a.m.)</p>
+                      <p className="text-2xl font-bold text-blue-600">{resultado.taxaContratual.toFixed(4)}%</p>
+                      <p className="text-xs text-muted-foreground mt-1">Informada no contrato</p>
+                    </div>
+                    <div className="p-3 bg-orange-500/10 border border-orange-500 rounded-lg">
+                      <p className="text-xs text-muted-foreground">Taxa Real Cobrada (% a.m.)</p>
+                      <p className="text-2xl font-bold text-orange-600">{resultado.taxaReal.toFixed(4)}%</p>
+                      <p className="text-xs text-muted-foreground mt-1">Calculada pelos valores</p>
+                    </div>
+                    <div className={`p-3 rounded-lg border ${Math.abs(resultado.diferencaTaxas) > 0.01 ? 'bg-destructive/10 border-destructive' : 'bg-green-500/10 border-green-500'}`}>
+                      <p className="text-xs text-muted-foreground">Diferença</p>
+                      <p className={`text-2xl font-bold ${Math.abs(resultado.diferencaTaxas) > 0.01 ? 'text-destructive' : 'text-green-600'}`}>
+                        {resultado.diferencaTaxas > 0 ? '+' : ''}{resultado.diferencaTaxas.toFixed(4)}%
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {Math.abs(resultado.percentualDiferenca).toFixed(1)}% de diferença
+                      </p>
+                    </div>
+                  </div>
+
+                  {Math.abs(resultado.diferencaTaxas) > 0.01 && (
+                    <div className="p-4 bg-amber-500/10 border border-amber-500 rounded-lg">
+                      <p className="font-semibold text-amber-700 dark:text-amber-400">
+                        ⚠️ Divergência entre Taxa Contratual e Taxa Real
+                      </p>
+                      <p className="text-sm mt-2 text-muted-foreground">
+                        A taxa real cobrada ({resultado.taxaReal.toFixed(4)}% a.m.) está {resultado.diferencaTaxas > 0 ? 'MAIOR' : 'menor'} 
+                        {' '}que a taxa contratual informada ({resultado.taxaContratual.toFixed(4)}% a.m.).
+                        {resultado.diferencaTaxas > 0 && ' Esta divergência pode caracterizar cobrança indevida.'}
+                      </p>
+                    </div>
+                  )}
+
                   <div className="grid grid-cols-2 gap-4">
                     <div className="p-3 bg-background border rounded-lg">
-                      <p className="text-xs text-muted-foreground">Taxa do Contrato (Mensal)</p>
-                      <p className="text-2xl font-bold">{resultado.metricas.taxaEfetivaMensal.toFixed(2)}%</p>
+                      <p className="text-xs text-muted-foreground">Taxa Real (Anual)</p>
+                      <p className="text-2xl font-bold">{resultado.metricas.taxaEfetivaAnual.toFixed(2)}%</p>
                     </div>
                     <div className="p-3 bg-background border rounded-lg">
-                      <p className="text-xs text-muted-foreground">Taxa do Contrato (Anual)</p>
+                      <p className="text-xs text-muted-foreground">CET (Custo Efetivo Total)</p>
                       <p className="text-2xl font-bold">{resultado.metricas.taxaEfetivaAnual.toFixed(2)}%</p>
                     </div>
                   </div>
