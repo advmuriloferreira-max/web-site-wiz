@@ -114,7 +114,7 @@ export function AppSidebar() {
       collapsible="icon"
     >
        {/* Header Executivo - Provisionamento */}
-       <div className="flex items-center justify-between h-16 px-4 border-b border-sidebar-border">
+       <div className="flex items-center justify-between h-16 px-4 border-b-2 border-sidebar-border">
          {!isCollapsed ? (
            <div className="flex items-center justify-between w-full gap-2">
              <h2 className="text-sm font-extrabold text-sidebar-foreground leading-tight tracking-wider flex-1 text-center">
