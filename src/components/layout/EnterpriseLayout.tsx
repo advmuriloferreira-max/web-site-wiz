@@ -38,6 +38,7 @@ import WorkspacePage from "@/pages/WorkspacePage";
 import NotFound from "@/pages/NotFound";
 import Convite from "@/pages/Convite";
 import AnaliseJurosContrato from "@/pages/AnaliseJurosContrato";
+import CalculadoraJuros from "@/pages/CalculadoraJuros";
 
 export function EnterpriseLayout() {
   const [searchOpen, setSearchOpen] = useState(false);
@@ -149,6 +150,7 @@ export function EnterpriseLayout() {
                     <Route path="/contratos/novo" element={<NovoContrato />} />
                     <Route path="/contratos/:contratoId" element={<ContratoDetalhes />} />
                     <Route path="/contratos/:contratoId/analise-juros" element={<AnaliseJurosContrato />} />
+                    <Route path="/calculadora-juros" element={<CalculadoraJuros />} />
                     <Route path="/calculos" element={<Calculos />} />
                     <Route path="/processos" element={<Processos />} />
                     <Route path="acordos" element={<Acordos />} />

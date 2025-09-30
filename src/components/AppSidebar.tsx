@@ -22,6 +22,7 @@ import {
 
 const allNavigationItems = [
   { title: "Painel de Controle", url: "/", icon: LegalIcons.dashboard, badge: null },
+  { title: "Análise de Juros", url: "/calculadora-juros", icon: LegalIcons.calculations, badge: "NEW", highlight: true },
   { title: "Clientes", url: "/clientes", icon: LegalIcons.clients, dataTour: "sidebar-clientes", badge: null },
   { title: "Contratos", url: "/contratos", icon: LegalIcons.contract, dataTour: "sidebar-contratos", badge: "3" },
   { title: "Processos Judiciais", url: "/processos", icon: LegalIcons.process, badge: null },
@@ -54,6 +55,7 @@ export function AppSidebar() {
   const MenuItem = ({ item, tooltip }: { item: any; tooltip?: boolean }) => {
     const active = isActive(item.url);
     const isQuickAction = item.title === "Novo Cliente" || item.title === "Novo Contrato";
+    const isHighlight = item.highlight === true;
     
     const content = (
       <NavLink 
@@ -62,31 +64,39 @@ export function AppSidebar() {
         data-tour={item.dataTour}
         className={`
           flex items-center gap-3 px-3 py-3 mx-2 rounded-lg transition-all duration-200 font-medium border-l-4
-          ${isQuickAction 
-            ? active 
-              ? 'bg-gradient-to-r from-green-500/30 to-green-400/20 text-green-400 border-green-400 shadow-lg shadow-green-400/20 scale-[1.02] ring-2 ring-green-400/30' 
-              : 'bg-gradient-to-r from-green-500/20 to-green-400/10 text-green-400 hover:from-green-500/30 hover:to-green-400/20 hover:scale-[1.02] border-green-400/50 shadow-md shadow-green-400/10 hover:shadow-lg hover:shadow-green-400/20 ring-1 ring-green-400/20'
-            : active 
-              ? 'bg-accent/20 text-accent border-accent shadow-md shadow-accent/10 scale-[1.02]' 
-              : 'text-sidebar-foreground/80 hover:bg-accent/10 hover:text-accent hover:scale-[1.01] border-transparent hover:border-accent/30'
+          ${isHighlight
+            ? active
+              ? 'bg-gradient-to-r from-primary/40 to-accent/30 text-primary border-primary shadow-lg shadow-primary/20 scale-[1.02] ring-2 ring-primary/30'
+              : 'bg-gradient-to-r from-primary/20 to-accent/10 text-primary hover:from-primary/30 hover:to-accent/20 hover:scale-[1.02] border-primary/50 shadow-md shadow-primary/10 hover:shadow-lg hover:shadow-primary/20 ring-1 ring-primary/20'
+            : isQuickAction 
+              ? active 
+                ? 'bg-gradient-to-r from-green-500/30 to-green-400/20 text-green-400 border-green-400 shadow-lg shadow-green-400/20 scale-[1.02] ring-2 ring-green-400/30' 
+                : 'bg-gradient-to-r from-green-500/20 to-green-400/10 text-green-400 hover:from-green-500/30 hover:to-green-400/20 hover:scale-[1.02] border-green-400/50 shadow-md shadow-green-400/10 hover:shadow-lg hover:shadow-green-400/20 ring-1 ring-green-400/20'
+              : active 
+                ? 'bg-accent/20 text-accent border-accent shadow-md shadow-accent/10 scale-[1.02]' 
+                : 'text-sidebar-foreground/80 hover:bg-accent/10 hover:text-accent hover:scale-[1.01] border-transparent hover:border-accent/30'
           }
         `}
       >
-        <item.icon className={`h-5 w-5 flex-shrink-0 ${isQuickAction ? 'text-green-400 drop-shadow-sm' : ''}`} />
+        <item.icon className={`h-5 w-5 flex-shrink-0 ${isHighlight ? 'text-primary drop-shadow-sm' : isQuickAction ? 'text-green-400 drop-shadow-sm' : ''}`} />
         {!isCollapsed && (
           <>
-            <span className={`font-medium truncate ${isQuickAction ? 'font-semibold' : ''}`}>{item.title}</span>
+            <span className={`font-medium truncate ${isHighlight || isQuickAction ? 'font-semibold' : ''}`}>{item.title}</span>
             {item.badge && (
               <Badge 
                 variant="secondary" 
-                className="ml-auto bg-red-500/20 text-red-600 text-xs px-2 py-0.5 font-bold border border-red-500/30"
+                className={`ml-auto text-xs px-2 py-0.5 font-bold border ${
+                  item.badge === "NEW" 
+                    ? 'bg-primary/20 text-primary border-primary/30' 
+                    : 'bg-red-500/20 text-red-600 border-red-500/30'
+                }`}
               >
                 {item.badge}
               </Badge>
             )}
-            {isQuickAction && !active && (
+            {(isQuickAction || isHighlight) && !active && (
               <div className="ml-auto">
-                <div className="w-2 h-2 bg-green-400 rounded-full" />
+                <div className={`w-2 h-2 rounded-full ${isHighlight ? 'bg-primary' : 'bg-green-400'}`} />
               </div>
             )}
           </>
