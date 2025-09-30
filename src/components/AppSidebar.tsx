@@ -151,8 +151,8 @@ export function AppSidebar() {
         <SidebarGroup className="py-3">
           {!isCollapsed && (
             <>
-              <SidebarGroupLabel className="text-xs uppercase tracking-wider text-sidebar-foreground/80 px-4 py-2 font-black">
-                Provisionamento Bancário
+              <SidebarGroupLabel className="text-sm uppercase tracking-wider text-sidebar-foreground/80 px-4 py-2 font-black">
+                Provisionamento
               </SidebarGroupLabel>
               <div className="h-1 bg-accent mx-4 rounded-full"></div>
             </>
