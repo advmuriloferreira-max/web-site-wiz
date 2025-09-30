@@ -502,10 +502,9 @@ export default function ContratoDetalhes() {
                 <AuditLog />
               </div>
             </div>
-        </div>
 
-        {/* Assistente Virtual com contexto do contrato */}
-        <AssistenteVirtual contratoContext={contrato} />
+            {/* Assistente Virtual com contexto do contrato */}
+            <AssistenteVirtual contratoContext={contrato} />
       </div>
     </div>
   );
