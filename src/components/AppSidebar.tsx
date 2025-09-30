@@ -20,18 +20,21 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-const allNavigationItems = [
-  { title: "Painel de Controle", url: "/", icon: LegalIcons.dashboard, badge: null },
-  { title: "Análise de Juros", url: "/calculadora-juros", icon: LegalIcons.calculations, badge: "NEW", highlight: true },
-  { title: "Clientes", url: "/clientes", icon: LegalIcons.clients, dataTour: "sidebar-clientes", badge: null },
-  { title: "Contratos", url: "/contratos", icon: LegalIcons.contract, dataTour: "sidebar-contratos", badge: "3" },
-  { title: "Processos Judiciais", url: "/processos", icon: LegalIcons.process, badge: null },
-  { title: "Acordos", url: "/acordos", icon: LegalIcons.agreement, dataTour: "sidebar-acordos", badge: "2" },
-  { title: "Provisões", url: "/calculos", icon: LegalIcons.calculations, dataTour: "sidebar-calculos", badge: null },
-  { title: "Indicadores", url: "/relatorios", icon: LegalIcons.reports, dataTour: "sidebar-relatorios", badge: null },
+const provisionamentoItems = [
+  { title: "Painel de Controle", url: "/", icon: LegalIcons.dashboard },
+  { title: "Clientes", url: "/clientes", icon: LegalIcons.clients, dataTour: "sidebar-clientes" },
+  { title: "Contratos", url: "/contratos", icon: LegalIcons.contract, dataTour: "sidebar-contratos" },
+  { title: "Processos Judiciais", url: "/processos", icon: LegalIcons.process },
+  { title: "Acordos", url: "/acordos", icon: LegalIcons.agreement, dataTour: "sidebar-acordos" },
+  { title: "Provisões", url: "/calculos", icon: LegalIcons.calculations, dataTour: "sidebar-calculos" },
+  { title: "Indicadores", url: "/relatorios", icon: LegalIcons.reports, dataTour: "sidebar-relatorios" },
   { title: "Análises Avançadas", url: "/relatorios-avancados", icon: LegalIcons.reports },
-  { title: "Novo Cliente", url: "/clientes/novo", icon: LegalIcons.add },
-  { title: "Novo Contrato", url: "/contratos/novo", icon: LegalIcons.contract },
+];
+
+const jurosItems = [
+  { title: "Calculadora de Juros", url: "/juros/calculadora", icon: LegalIcons.calculations, badge: "NEW", highlight: true },
+  { title: "Clientes - Juros", url: "/juros/clientes", icon: LegalIcons.clients },
+  { title: "Contratos - Juros", url: "/juros/contratos", icon: LegalIcons.contract },
 ];
 
 export function AppSidebar() {
@@ -128,7 +131,7 @@ export function AppSidebar() {
       )}
       collapsible="icon"
     >
-       {/* Header Executivo */}
+       {/* Header Executivo - Provisionamento */}
        <div className="executive-header flex items-center justify-between p-4">
          {!isCollapsed ? (
            <div className="flex items-center gap-3 group">
@@ -136,8 +139,8 @@ export function AppSidebar() {
                <LegalIcons.justice className="h-6 w-6 text-primary" />
              </div>
              <div className="transition-all duration-300 min-w-0">
-               <h2 className="text-sm font-bold text-white tracking-wide leading-tight">
-                 PROVISIONAMENTO<br />BANCÁRIO INTELIGENTE
+               <h2 className="text-xs font-bold text-white tracking-wide leading-tight uppercase">
+                 Sistema Jurídico<br />Bancário
                </h2>
              </div>
            </div>
@@ -158,11 +161,35 @@ export function AppSidebar() {
       </div>
       
       <SidebarContent className="px-0 overflow-y-auto bg-gradient-sidebar">
-        {/* Navegação Única */}
-        <SidebarGroup className="py-4">
+        {/* Provisionamento Bancário */}
+        <SidebarGroup className="py-2">
+          {!isCollapsed && (
+            <SidebarGroupLabel className="text-xs uppercase tracking-wider text-primary/80 px-4 py-2">
+              Provisionamento Bancário
+            </SidebarGroupLabel>
+          )}
           <SidebarGroupContent>
             <div className="space-y-1 px-2">
-              {allNavigationItems.map((item) => (
+              {provisionamentoItems.map((item) => (
+                <MenuItem key={item.title} item={item} tooltip />
+              ))}
+            </div>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Separador */}
+        <div className="mx-4 my-2 border-t border-accent/20" />
+
+        {/* Análise de Abusividade de Juros */}
+        <SidebarGroup className="py-2">
+          {!isCollapsed && (
+            <SidebarGroupLabel className="text-xs uppercase tracking-wider text-green-400/80 px-4 py-2">
+              Análise de Juros
+            </SidebarGroupLabel>
+          )}
+          <SidebarGroupContent>
+            <div className="space-y-1 px-2">
+              {jurosItems.map((item) => (
                 <MenuItem key={item.title} item={item} tooltip />
               ))}
             </div>
