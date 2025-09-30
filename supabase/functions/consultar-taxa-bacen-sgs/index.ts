@@ -118,15 +118,43 @@ Deno.serve(async (req) => {
       try {
         console.log(`\n📂 Processando arquivo ${arquivo}...`);
         
-        const csvUrl = `https://f236da44-380e-48a7-993c-b7f24806630f.lovableproject.com/data/bacen-series-${arquivo}.csv`;
-        const response = await fetch(csvUrl);
+        // Tentar ambas as URLs (com e sem /public/)
+        const urls = [
+          `/data/bacen-series-${arquivo}.csv`,
+          `https://f236da44-380e-48a7-993c-b7f24806630f.lovableproject.com/data/bacen-series-${arquivo}.csv`,
+        ];
         
-        if (!response.ok) {
-          console.log(`❌ Erro ao buscar arquivo ${arquivo}: ${response.status}`);
+        let response = null;
+        let csvText = '';
+        
+        for (const url of urls) {
+          try {
+            console.log(`🌐 Tentando URL: ${url}`);
+            const resp = await fetch(url);
+            
+            if (resp.ok) {
+              const text = await resp.text();
+              // Verificar se é realmente CSV (começa com "Data;")
+              if (text.startsWith('Data;') || text.includes('Taxa média')) {
+                console.log(`✅ CSV válido encontrado em: ${url}`);
+                response = resp;
+                csvText = text;
+                break;
+              } else {
+                console.log(`⚠️ URL retornou HTML ao invés de CSV (${text.substring(0, 50)}...)`);
+              }
+            } else {
+              console.log(`❌ Status ${resp.status}: ${url}`);
+            }
+          } catch (err: any) {
+            console.log(`❌ Erro ao buscar ${url}: ${err.message}`);
+          }
+        }
+        
+        if (!response || !csvText) {
+          console.log(`❌ Não foi possível carregar o arquivo ${arquivo}`);
           continue;
         }
-
-        const csvText = await response.text();
         const { headers, rows } = parseCSV(csvText);
         
         console.log(`📊 ${headers.length} colunas, ${rows.length} linhas de dados`);
