@@ -125,6 +125,7 @@ const CalculadoraJuros = () => {
           console.log(`✅ Valor Financiado calculado: R$ ${valorFin.toFixed(2)}`);
           taxaRealMensal = taxaContratual;
           setCampoCalculado('valor_financiamento');
+          setValorFinanciamento(valorFin.toFixed(2)); // Atualizar o campo
           toast.success(`Valor Financiado calculado: R$ ${valorFin.toFixed(2)}`);
           break;
           
@@ -134,6 +135,7 @@ const CalculadoraJuros = () => {
           console.log(`✅ Valor da Prestação calculado: R$ ${valorPrest.toFixed(2)}`);
           taxaRealMensal = taxaContratual;
           setCampoCalculado('valor_prestacao');
+          setValorPrestacao(valorPrest.toFixed(2)); // Atualizar o campo
           toast.success(`Valor da Prestação calculado: R$ ${valorPrest.toFixed(2)}`);
           break;
           
@@ -143,6 +145,7 @@ const CalculadoraJuros = () => {
           console.log(`✅ Número de Parcelas calculado: ${parcelas}`);
           taxaRealMensal = taxaContratual;
           setCampoCalculado('numero_parcelas');
+          setNumeroParcelas(parcelas.toString()); // Atualizar o campo
           toast.success(`Número de Parcelas calculado: ${parcelas}`);
           break;
           
@@ -152,6 +155,7 @@ const CalculadoraJuros = () => {
           taxaContratual = taxaRealMensal;
           console.log(`✅ Taxa de Juros calculada: ${taxaRealMensal.toFixed(4)}% a.m.`);
           setCampoCalculado('taxa_juros');
+          setTaxaJurosContratual(taxaRealMensal.toFixed(4)); // Atualizar o campo
           toast.success(`Taxa de Juros calculada: ${taxaRealMensal.toFixed(4)}% a.m.`);
           break;
       }
