@@ -4,27 +4,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calculator, Save, TrendingUp, User, Building2, Filter } from "lucide-react";
-import { EnterpriseLayout } from "@/components/layout/EnterpriseLayout";
-import { useNavigate } from "react-router-dom";
+import { Calculator, TrendingUp, User, Building2, Filter } from "lucide-react";
 import { toast } from "sonner";
 import { useModalidadesBacenJuros } from "@/hooks/useModalidadesBacenJuros";
 import { calcularMetricasFinanceiras, compararTaxaBacen } from "@/modules/FinancialAnalysis/lib/financialCalculations";
-import { useCreateContrato } from "@/hooks/useCreateContrato";
-import { useClientes } from "@/hooks/useClientes";
-import { useBancos } from "@/hooks/useBancos";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const CalculadoraJuros = () => {
-  const navigate = useNavigate();
   const [tipoPessoaFiltro, setTipoPessoaFiltro] = useState<'PF' | 'PJ' | undefined>(undefined);
   const { data: modalidades, isLoading: loadingModalidades } = useModalidadesBacenJuros(tipoPessoaFiltro);
-  const { data: clientes } = useClientes();
-  const { data: bancos } = useBancos();
-  const createContrato = useCreateContrato();
 
   // Estados do formulário
   const [valorFinanciamento, setValorFinanciamento] = useState("");
@@ -33,9 +22,6 @@ const CalculadoraJuros = () => {
   const [taxaJurosContratual, setTaxaJurosContratual] = useState("");
   const [dataAssinatura, setDataAssinatura] = useState("");
   const [modalidadeId, setModalidadeId] = useState("");
-  const [acao, setAcao] = useState<"analisar" | "cadastrar">("analisar");
-  const [clienteId, setClienteId] = useState("");
-  const [bancoId, setBancoId] = useState("");
 
   // Estados de resultado
   const [resultado, setResultado] = useState<any>(null);
@@ -121,33 +107,6 @@ const CalculadoraJuros = () => {
     }
   };
 
-  const handleCadastrar = async () => {
-    if (!valorFinanciamento || !valorPrestacao || !numeroParcelas || !dataAssinatura || !modalidadeId || !clienteId || !bancoId) {
-      toast.error("Preencha todos os campos obrigatórios para cadastrar");
-      return;
-    }
-
-    try {
-      // Buscar o código da modalidade para salvar no contrato
-      const modalidade = modalidades?.find(m => m.id === modalidadeId);
-      
-      await createContrato.mutateAsync({
-        cliente_id: clienteId,
-        banco_id: bancoId,
-        tipo_operacao_bcb: modalidade?.codigo_sgs || modalidadeId,
-        saldo_contabil: parseFloat(valorFinanciamento),
-        valor_divida: parseFloat(valorFinanciamento),
-        numero_parcelas: parseInt(numeroParcelas),
-        valor_parcela: parseFloat(valorPrestacao),
-      });
-
-      toast.success("Contrato cadastrado com sucesso!");
-      navigate("/contratos");
-    } catch (error: any) {
-      console.error("Erro ao cadastrar:", error);
-      toast.error("Erro ao cadastrar contrato: " + error.message);
-    }
-  };
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -166,12 +125,6 @@ const CalculadoraJuros = () => {
           </Badge>
         </div>
 
-        <Alert>
-          <AlertDescription>
-            <strong>Escolha sua ação:</strong> Você pode apenas analisar os juros ou salvar o contrato completo para provisionamento e gestão.
-          </AlertDescription>
-        </Alert>
-
         <div className="grid gap-6 lg:grid-cols-2">
           {/* Seção 1: Formulário de Entrada */}
           <Card className="h-fit">
@@ -186,74 +139,6 @@ const CalculadoraJuros = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {/* Escolha de Ação */}
-                <div>
-                  <Label>O que deseja fazer? *</Label>
-                  <RadioGroup value={acao} onValueChange={(v) => setAcao(v as any)} className="flex flex-col gap-2 mt-2">
-                    <div className="flex items-center space-x-2 rounded-md border p-3 cursor-pointer hover:bg-accent">
-                      <RadioGroupItem value="analisar" id="analisar" />
-                      <label htmlFor="analisar" className="flex-1 cursor-pointer">
-                        <div className="flex items-center gap-2">
-                          <TrendingUp className="h-4 w-4 text-primary" />
-                          <span className="font-medium">Apenas Analisar Juros</span>
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Análise rápida sem salvar o contrato
-                        </p>
-                      </label>
-                    </div>
-                    <div className="flex items-center space-x-2 rounded-md border p-3 cursor-pointer hover:bg-accent">
-                      <RadioGroupItem value="cadastrar" id="cadastrar" />
-                      <label htmlFor="cadastrar" className="flex-1 cursor-pointer">
-                        <div className="flex items-center gap-2">
-                          <Save className="h-4 w-4 text-green-600" />
-                          <span className="font-medium">Salvar para Provisionamento</span>
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Salvar contrato completo para gestão e provisão
-                        </p>
-                      </label>
-                    </div>
-                  </RadioGroup>
-                </div>
-
-                {/* Campos condicionais para cadastrar */}
-                {acao === "cadastrar" && (
-                  <>
-                    <div>
-                      <Label htmlFor="cliente">Cliente *</Label>
-                      <Select value={clienteId} onValueChange={setClienteId}>
-                        <SelectTrigger id="cliente">
-                          <SelectValue placeholder="Selecione o cliente" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {clientes?.map((cliente) => (
-                            <SelectItem key={cliente.id} value={cliente.id}>
-                              {cliente.nome}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div>
-                      <Label htmlFor="banco">Banco *</Label>
-                      <Select value={bancoId} onValueChange={setBancoId}>
-                        <SelectTrigger id="banco">
-                          <SelectValue placeholder="Selecione o banco" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {bancos?.map((banco) => (
-                            <SelectItem key={banco.id} value={banco.id}>
-                              {banco.nome}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </>
-                )}
-
                 <div>
                   <Label htmlFor="filtroTipoPessoa">Filtrar por Tipo de Pessoa</Label>
                   <div className="flex gap-2 mt-2">
@@ -377,20 +262,15 @@ const CalculadoraJuros = () => {
 
                 <Button
                   className="w-full"
-                  onClick={acao === "analisar" ? handleAnalisar : handleCadastrar}
+                  onClick={handleAnalisar}
                   disabled={analisando}
                 >
                   {analisando ? (
                     "Processando..."
-                  ) : acao === "analisar" ? (
-                    <>
-                      <TrendingUp className="mr-2 h-4 w-4" />
-                      Analisar Agora
-                    </>
                   ) : (
                     <>
-                      <Save className="mr-2 h-4 w-4" />
-                      Salvar e Analisar
+                      <TrendingUp className="mr-2 h-4 w-4" />
+                      Analisar Juros
                     </>
                   )}
                 </Button>
