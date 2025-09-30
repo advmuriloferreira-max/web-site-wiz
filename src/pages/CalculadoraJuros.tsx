@@ -8,6 +8,7 @@ import { Calculator, TrendingUp, User, Building2, Filter } from "lucide-react";
 import { toast } from "sonner";
 import { useModalidadesBacenJuros } from "@/hooks/useModalidadesBacenJuros";
 import { calcularMetricasFinanceiras, compararTaxaBacen } from "@/modules/FinancialAnalysis/lib/financialCalculations";
+import { calcularTaxaEfetiva } from "@/lib/calculoTaxaEfetiva";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -45,16 +46,32 @@ const CalculadoraJuros = () => {
         duration: 4000
       });
 
-      // 2. Calcular métricas financeiras do contrato
+      // 2. Calcular taxa real (efetiva) usando método Newton-Raphson (CORRETO!)
       const valorPrest = parseFloat(valorPrestacao);
       const valorFin = parseFloat(valorFinanciamento);
       const parcelas = parseInt(numeroParcelas);
       
-      // Calcular taxa real (efetiva) usando a fórmula financeira
-      const taxaRealMensal = ((valorPrest * parcelas) / valorFin - 1) / parcelas * 100;
-      
       // Taxa contratual (a que está escrita no contrato)
-      const taxaContratual = taxaJurosContratual ? parseFloat(taxaJurosContratual) : taxaRealMensal;
+      const taxaContratual = taxaJurosContratual ? parseFloat(taxaJurosContratual) : undefined;
+      
+      // Calcular taxa real efetiva usando Newton-Raphson (método correto!)
+      const resultadoTaxaEfetiva = calcularTaxaEfetiva({
+        valorFinanciado: valorFin,
+        valorParcela: valorPrest,
+        numeroParcelas: parcelas,
+        taxaJurosContratual: taxaContratual,
+      });
+      
+      // Taxa real mensal calculada corretamente
+      const taxaRealMensal = resultadoTaxaEfetiva.taxaEfetivaMensal;
+      
+      console.log('📊 Cálculo de Taxa Real:');
+      console.log(`   Valor Financiado: R$ ${valorFin.toFixed(2)}`);
+      console.log(`   Valor Parcela: R$ ${valorPrest.toFixed(2)}`);
+      console.log(`   Número de Parcelas: ${parcelas}`);
+      console.log(`   Taxa Real Calculada (Newton-Raphson): ${taxaRealMensal.toFixed(4)}% a.m.`);
+      console.log(`   Taxa Contratual: ${taxaContratual?.toFixed(4) || 'Não informada'}% a.m.`);
+      console.log(`   Diferença: ${resultadoTaxaEfetiva.diferencaTaxa.toFixed(4)}%`);
       
       const metricas = calcularMetricasFinanceiras({
         valorDivida: valorFin,
@@ -75,18 +92,25 @@ const CalculadoraJuros = () => {
       );
       
       // 4. Calcular diferença entre taxa contratual e taxa real
-      const diferencaTaxas = taxaRealMensal - taxaContratual;
-      const percentualDiferenca = taxaContratual > 0 ? (diferencaTaxas / taxaContratual) * 100 : 0;
+      const diferencaTaxas = taxaContratual 
+        ? resultadoTaxaEfetiva.diferencaTaxa 
+        : 0;
+      const percentualDiferenca = taxaContratual 
+        ? resultadoTaxaEfetiva.percentualDiferenca 
+        : 0;
 
       setResultado({
         metricas,
         comparacao,
         taxaBacen: data,
         modalidade: data.modalidade,
-        taxaContratual,
+        taxaContratual: taxaContratual || taxaRealMensal,
         taxaReal: taxaRealMensal,
         diferencaTaxas,
         percentualDiferenca,
+        totalPago: resultadoTaxaEfetiva.totalPago,
+        totalJuros: resultadoTaxaEfetiva.totalJuros,
+        custoEfetivoTotal: resultadoTaxaEfetiva.custoEfetivoTotal,
       });
 
       toast.success("Análise concluída com sucesso!");
