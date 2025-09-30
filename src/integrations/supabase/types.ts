@@ -14,6 +14,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      analyses: {
+        Row: {
+          contrato_id: string
+          created_at: string | null
+          data_consulta: string | null
+          id: string
+          metadata: Json | null
+          taxa_bacen: number | null
+          taxa_referencia: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          contrato_id: string
+          created_at?: string | null
+          data_consulta?: string | null
+          id?: string
+          metadata?: Json | null
+          taxa_bacen?: number | null
+          taxa_referencia?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          contrato_id?: string
+          created_at?: string | null
+          data_consulta?: string | null
+          id?: string
+          metadata?: Json | null
+          taxa_bacen?: number | null
+          taxa_referencia?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analyses_contrato_id_fkey"
+            columns: ["contrato_id"]
+            isOneToOne: false
+            referencedRelation: "contratos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       assistente_logs: {
         Row: {
           contexto_contrato: string | null
@@ -148,6 +189,8 @@ export type Database = {
           reducao_divida: number | null
           saldo_contabil: number | null
           situacao: string | null
+          taxa_bacen: number | null
+          taxa_referencia: string | null
           tempo_escritorio: number | null
           tipo_operacao: string | null
           tipo_operacao_bcb: string | null
@@ -188,6 +231,8 @@ export type Database = {
           reducao_divida?: number | null
           saldo_contabil?: number | null
           situacao?: string | null
+          taxa_bacen?: number | null
+          taxa_referencia?: string | null
           tempo_escritorio?: number | null
           tipo_operacao?: string | null
           tipo_operacao_bcb?: string | null
@@ -228,6 +273,8 @@ export type Database = {
           reducao_divida?: number | null
           saldo_contabil?: number | null
           situacao?: string | null
+          taxa_bacen?: number | null
+          taxa_referencia?: string | null
           tempo_escritorio?: number | null
           tipo_operacao?: string | null
           tipo_operacao_bcb?: string | null

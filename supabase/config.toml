@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.assistente-virtual]
 verify_jwt = false
+
+[functions.get-bacen-rate]
+verify_jwt = false
