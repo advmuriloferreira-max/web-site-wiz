@@ -7,6 +7,7 @@ export interface Contrato {
   banco_id: string;
   numero_contrato: string | null;
   tipo_operacao: string;
+  tipo_operacao_bcb: string | null;
   valor_divida: number;
   saldo_contabil: number | null;
   data_ultimo_pagamento: string | null;
@@ -23,6 +24,10 @@ export interface Contrato {
   acordo_final: number | null;
   quantidade_planos: number | null;
   observacoes: string | null;
+  taxa_bacen: number | null;
+  taxa_referencia: string | null;
+  valor_parcela: number | null;
+  numero_parcelas: number | null;
   created_at: string;
   updated_at: string;
   // Relacionamentos
