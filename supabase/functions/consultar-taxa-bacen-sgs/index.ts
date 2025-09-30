@@ -118,41 +118,33 @@ Deno.serve(async (req) => {
       try {
         console.log(`\n📂 Processando arquivo ${arquivo}...`);
         
-        // Tentar ambas as URLs (com e sem /public/)
-        const urls = [
-          `/data/bacen-series-${arquivo}.csv`,
-          `https://f236da44-380e-48a7-993c-b7f24806630f.lovableproject.com/data/bacen-series-${arquivo}.csv`,
-        ];
+        // URL direta para os arquivos CSV (public/ é servido na raiz)
+        const csvUrl = `https://f236da44-380e-48a7-993c-b7f24806630f.lovableproject.com/data/bacen-series-${arquivo}.csv`;
+        console.log(`🌐 Buscando: ${csvUrl}`);
         
-        let response = null;
-        let csvText = '';
+        const response = await fetch(csvUrl);
+        console.log(`📡 Status: ${response.status} ${response.statusText}`);
         
-        for (const url of urls) {
-          try {
-            console.log(`🌐 Tentando URL: ${url}`);
-            const resp = await fetch(url);
-            
-            if (resp.ok) {
-              const text = await resp.text();
-              // Verificar se é realmente CSV (começa com "Data;")
-              if (text.startsWith('Data;') || text.includes('Taxa média')) {
-                console.log(`✅ CSV válido encontrado em: ${url}`);
-                response = resp;
-                csvText = text;
-                break;
-              } else {
-                console.log(`⚠️ URL retornou HTML ao invés de CSV (${text.substring(0, 50)}...)`);
-              }
-            } else {
-              console.log(`❌ Status ${resp.status}: ${url}`);
-            }
-          } catch (err: any) {
-            console.log(`❌ Erro ao buscar ${url}: ${err.message}`);
-          }
+        if (!response.ok) {
+          console.log(`❌ Erro HTTP ao buscar arquivo ${arquivo}`);
+          continue;
+        }
+
+        const contentType = response.headers.get('content-type') || '';
+        console.log(`📄 Content-Type: ${contentType}`);
+        
+        const csvText = await response.text();
+        console.log(`📏 Tamanho do arquivo: ${csvText.length} bytes`);
+        console.log(`📋 Primeiros 100 caracteres: ${csvText.substring(0, 100)}`);
+        
+        // Verificar se é realmente CSV
+        if (csvText.includes('<!DOCTYPE') || csvText.includes('<html')) {
+          console.log(`⚠️ Arquivo retornou HTML ao invés de CSV - pulando`);
+          continue;
         }
         
-        if (!response || !csvText) {
-          console.log(`❌ Não foi possível carregar o arquivo ${arquivo}`);
+        if (!csvText.startsWith('Data;')) {
+          console.log(`⚠️ Arquivo não começa com 'Data;' - pulando`);
           continue;
         }
         const { headers, rows } = parseCSV(csvText);
