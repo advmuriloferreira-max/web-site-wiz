@@ -1,5 +1,5 @@
 import { Suspense, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useContratosStats } from "@/hooks/useContratos";
 import { ResponsiveGrid, AdaptiveCard } from "@/components/ui/responsive-grid";
 import { HeroSection } from "@/components/dashboard/HeroSection";
@@ -23,15 +23,18 @@ import { GlassCard } from "@/components/ui/glassmorphism";
 import { GradientBackground, GradientText } from "@/components/ui/gradient-elements";
 import { LoadingIllustration } from "@/components/ui/premium-illustrations";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LegalIcons } from "@/components/ui/legal-icons";
 import { BCBComplianceBadge } from "@/components/ui/legal-compliance-badge";
+import { Calculator, TrendingUp, AlertCircle } from "lucide-react";
 
 function DashboardContent() {
   const { data: stats, isLoading, error } = useContratosStats();
   const [selectedClienteId, setSelectedClienteId] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const { ProgressBarComponent } = useProgressBar(isLoading, {
     label: "Carregando dados do dashboard...",
@@ -92,6 +95,49 @@ function DashboardContent() {
         <EntranceAnimation animation="fade" delay={100}>
           <div className="px-4 md:px-6">
             <HeroSection />
+          </div>
+        </EntranceAnimation>
+
+        {/* Card de Destaque - Análise de Juros Abusivos */}
+        <EntranceAnimation animation="scale" delay={150}>
+          <div className="px-4 md:px-6">
+            <Card className="border-2 border-primary/50 shadow-lg bg-gradient-to-br from-primary/5 via-background to-accent/5">
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div className="space-y-1">
+                    <CardTitle className="text-2xl font-bold flex items-center gap-2">
+                      <Calculator className="h-6 w-6 text-primary" />
+                      Análise de Juros Abusivos
+                    </CardTitle>
+                    <CardDescription className="text-base">
+                      A ferramenta definitiva para auditoria de contratos bancários
+                    </CardDescription>
+                  </div>
+                  <AlertCircle className="h-5 w-5 text-primary animate-pulse" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <p className="text-muted-foreground">
+                    Calcule a taxa de juros real de contratos, compare com a média do BACEN e identifique abusividades com precisão em segundos.
+                  </p>
+                  <div className="flex items-center gap-2 text-sm text-primary font-medium">
+                    <TrendingUp className="h-4 w-4" />
+                    <span>Baseado em dados oficiais do Banco Central</span>
+                  </div>
+                </div>
+              </CardContent>
+              <CardFooter>
+                <Button 
+                  className="w-full" 
+                  size="lg"
+                  onClick={() => navigate("/calculadora-juros")}
+                >
+                  <Calculator className="mr-2 h-5 w-5" />
+                  Abrir Calculadora Rápida
+                </Button>
+              </CardFooter>
+            </Card>
           </div>
         </EntranceAnimation>
 
