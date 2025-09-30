@@ -124,12 +124,12 @@ Deno.serve(async (req) => {
         status: 200,
       }
     );
-  } catch (error) {
+  } catch (error: any) {
     console.error('Erro na importação:', error);
     return new Response(
       JSON.stringify({
         success: false,
-        error: error.message,
+        error: error.message || 'Erro desconhecido',
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
