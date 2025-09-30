@@ -23,7 +23,7 @@ export default function Processos() {
 
   const filteredProcessos = processos?.filter(processo => 
     processo.numero_processo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    processo.contratos_provisao?.clientes_provisao?.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    processo.contratos_provisao?.clientes?.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
     processo.acao?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     processo.status?.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -198,10 +198,10 @@ export default function Processos() {
                       <div className="flex items-center space-x-3">
                         <div className="glass-element w-8 h-8 rounded-full flex items-center justify-center">
                           <span className="text-xs font-bold text-primary">
-                            {processo.contratos_provisao?.clientes_provisao?.nome?.charAt(0).toUpperCase() || "?"}
+                            {processo.contratos_provisao?.clientes?.nome?.charAt(0).toUpperCase() || "?"}
                           </span>
                         </div>
-                        <span>{processo.contratos_provisao?.clientes_provisao?.nome || "N/A"}</span>
+                        <span>{processo.contratos_provisao?.clientes?.nome || "N/A"}</span>
                       </div>
                     </TableCell>
                     <TableCell>{processo.acao || "N/A"}</TableCell>

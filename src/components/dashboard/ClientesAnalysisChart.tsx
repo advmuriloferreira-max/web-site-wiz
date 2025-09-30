@@ -24,7 +24,7 @@ export function ClientesAnalysisChart() {
           valor_provisao,
           percentual_provisao,
           classificacao,
-          clientes_provisao (nome)
+          clientes:clientes_provisao (nome)
         `);
       
       if (error) throw error;
@@ -32,8 +32,8 @@ export function ClientesAnalysisChart() {
       // Agrupar por cliente
       const clientesMap = new Map<string, ClienteRisco>();
       
-      data.forEach(contrato => {
-        const nomeCliente = contrato.clientes_provisao?.nome || "Cliente não identificado";
+      data.forEach((contrato: any) => {
+        const nomeCliente = contrato.clientes?.nome || "Cliente não identificado";
         
         if (!clientesMap.has(nomeCliente)) {
           clientesMap.set(nomeCliente, {

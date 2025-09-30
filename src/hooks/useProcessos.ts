@@ -17,10 +17,10 @@ export interface Processo {
   created_at: string;
   updated_at: string;
   contratos_provisao?: {
-    clientes_provisao?: {
+    clientes?: {
       nome: string;
     };
-    bancos_provisao?: {
+    bancos?: {
       nome: string;
     };
     numero_contrato: string | null;
@@ -39,8 +39,8 @@ export const useProcessos = () => {
           contratos_provisao (
             numero_contrato,
             valor_divida,
-            clientes_provisao (nome),
-            bancos_provisao (nome)
+            clientes:clientes_provisao (nome),
+            bancos:bancos_provisao (nome)
           )
         `)
         .order("created_at", { ascending: false });

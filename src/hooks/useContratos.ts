@@ -60,8 +60,8 @@ export const useContratos = () => {
         .from("contratos_provisao")
         .select(`
           *,
-          clientes_provisao (nome, cpf_cnpj, responsavel),
-          bancos_provisao (nome)
+          clientes:clientes_provisao (nome, cpf_cnpj, responsavel),
+          bancos:bancos_provisao (nome)
         `)
         .order("created_at", { ascending: false });
 

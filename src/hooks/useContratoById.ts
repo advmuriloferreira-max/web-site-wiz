@@ -14,8 +14,8 @@ export const useContratoById = (contratoId: string | null) => {
         .from("contratos_provisao")
         .select(`
           *,
-          clientes_provisao (id, nome, cpf_cnpj, responsavel),
-          bancos_provisao (id, nome)
+          clientes:clientes_provisao (id, nome, cpf_cnpj, responsavel),
+          bancos:bancos_provisao (id, nome)
         `)
         .eq("id", contratoId.trim())
         .maybeSingle();

@@ -57,8 +57,8 @@ export const useRelatorioProvisao = () => {
         .from("contratos_provisao")
         .select(`
           *,
-          clientes_provisao (nome),
-          bancos_provisao (nome)
+          clientes:clientes_provisao (nome),
+          bancos:bancos_provisao (nome)
         `);
 
       if (error) throw error;
@@ -106,8 +106,8 @@ export const useRelatorioPosicaoContratos = () => {
         .from("contratos_provisao")
         .select(`
           *,
-          clientes_provisao (nome),
-          bancos_provisao (nome)
+          clientes:clientes_provisao (nome),
+          bancos:bancos_provisao (nome)
         `)
         .order('created_at', { ascending: false });
 
@@ -132,8 +132,8 @@ export const useRelatorioPosicaoContratos = () => {
       const contratosRecentes = contratos.slice(0, 10).map((contrato: any) => ({
         id: contrato.id,
         numero_contrato: contrato.numero_contrato || "S/N",
-        cliente_nome: contrato.clientes_provisao?.nome || "Cliente não informado",
-        banco_nome: contrato.bancos_provisao?.nome || "Banco não informado",
+        cliente_nome: contrato.clientes?.nome || "Cliente não informado",
+        banco_nome: contrato.bancos?.nome || "Banco não informado",
         valor_divida: contrato.valor_divida || 0,
         situacao: contrato.situacao || "Não informado",
         data_entrada: contrato.data_entrada || contrato.created_at
@@ -156,8 +156,8 @@ export const useRelatorioRisco = () => {
         .from("contratos_provisao")
         .select(`
           *,
-          clientes_provisao (nome),
-          bancos_provisao (nome)
+          clientes:clientes_provisao (nome),
+          bancos:bancos_provisao (nome)
         `);
 
       if (error) throw error;
@@ -187,7 +187,7 @@ export const useRelatorioRisco = () => {
       // Clientes com alto risco (C4, C5 ou alta provisão)
       const clientesRisco = contratos.reduce((acc: any, contrato: any) => {
         const clienteId = contrato.cliente_id;
-        const clienteNome = contrato.clientes_provisao?.nome || "Cliente não informado";
+        const clienteNome = contrato.clientes?.nome || "Cliente não informado";
         
         if (!acc[clienteId]) {
           acc[clienteId] = {
