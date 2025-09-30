@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Edit, FileText, Calculator, AlertTriangle, Shield } from "lucide-react";
+import { ArrowLeft, Edit, FileText, Calculator, AlertTriangle, Shield, BarChart3, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -253,10 +253,88 @@ export default function ContratoDetalhes() {
           return null;
         })()}
 
+        {/* Ferramentas de Análise */}
+        <Card className="bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 border-2">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-xl">
+              <Calculator className="h-6 w-6 text-primary" />
+              Ferramentas de Análise
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Escolha a ferramenta de análise que deseja utilizar para este contrato
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Botão Provisionamento */}
+              <Card className="border-2 border-primary/20 hover:border-primary/40 transition-all cursor-pointer group">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                      <Shield className="h-5 w-5 text-primary" />
+                    </div>
+                    <CardTitle className="text-base">Provisionamento Bancário</CardTitle>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Cálculo de provisões conforme Resolução BCB 352/2023
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm mb-4 text-muted-foreground">
+                    Análise de risco de crédito e cálculo automático de provisões para perdas esperadas e incorridas.
+                  </p>
+                  <Button 
+                    className="w-full" 
+                    variant="default"
+                    onClick={() => {
+                      // A lógica já existe na página - fazer scroll até a seção de cálculo
+                      const calculoSection = document.querySelector('[data-section="calculo-provisao"]');
+                      if (calculoSection) {
+                        calculoSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      }
+                    }}
+                  >
+                    <Calculator className="mr-2 h-4 w-4" />
+                    Ver Provisionamento
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Botão Análise de Juros */}
+              <Card className="border-2 border-secondary/20 hover:border-secondary/40 transition-all cursor-pointer group">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="p-2 rounded-lg bg-secondary/10 group-hover:bg-secondary/20 transition-colors">
+                      <BarChart3 className="h-5 w-5 text-secondary" />
+                    </div>
+                    <CardTitle className="text-base">Análise de Juros Abusivos</CardTitle>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Comparação com taxas de referência do BACEN
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm mb-4 text-muted-foreground">
+                    Consulte taxas de mercado, analise métricas financeiras e gere relatórios comparativos.
+                  </p>
+                  <Button 
+                    className="w-full" 
+                    variant="secondary"
+                    onClick={() => navigate(`/contratos/${contrato.id}/analise-juros`)}
+                  >
+                    <TrendingUp className="mr-2 h-4 w-4" />
+                    Analisar Juros
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
               {/* Informações Básicas */}
-              <div className="lg:col-span-2 bg-card border border-border rounded-lg">
+              <div className="lg:col-span-2 bg-card border border-border rounded-lg" data-section="calculo-provisao">
                 <Card className="border-0 bg-transparent shadow-none">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">

@@ -37,6 +37,7 @@ import Configuracoes from "@/pages/Configuracoes";
 import WorkspacePage from "@/pages/WorkspacePage";
 import NotFound from "@/pages/NotFound";
 import Convite from "@/pages/Convite";
+import AnaliseJurosContrato from "@/pages/AnaliseJurosContrato";
 
 export function EnterpriseLayout() {
   const [searchOpen, setSearchOpen] = useState(false);
@@ -147,6 +148,7 @@ export function EnterpriseLayout() {
                     <Route path="/contratos" element={<Contratos />} />
                     <Route path="/contratos/novo" element={<NovoContrato />} />
                     <Route path="/contratos/:contratoId" element={<ContratoDetalhes />} />
+                    <Route path="/contratos/:contratoId/analise-juros" element={<AnaliseJurosContrato />} />
                     <Route path="/calculos" element={<Calculos />} />
                     <Route path="/processos" element={<Processos />} />
                     <Route path="acordos" element={<Acordos />} />
