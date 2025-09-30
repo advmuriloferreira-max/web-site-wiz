@@ -32,9 +32,8 @@ const provisionamentoItems = [
 ];
 
 const jurosItems = [
-  { title: "Calculadora de Juros", url: "/juros/calculadora", icon: LegalIcons.calculations, badge: "NEW", highlight: true },
-  { title: "Clientes - Juros", url: "/juros/clientes", icon: LegalIcons.clients },
-  { title: "Contratos - Juros", url: "/juros/contratos", icon: LegalIcons.contract },
+  { title: "Clientes", url: "/juros/clientes", icon: LegalIcons.clients },
+  { title: "Contratos", url: "/juros/contratos", icon: LegalIcons.contract, badge: "NEW", highlight: true },
 ];
 
 export function AppSidebar() {

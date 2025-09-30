@@ -9,9 +9,8 @@ O Módulo de Análise de Abusividade de Juros é um software independente integr
 ### Páginas
 
 - **`/juros/clientes`** - Gestão de Clientes para Análise de Juros
-- **`/juros/contratos`** - Gestão de Contratos de Juros
+- **`/juros/contratos`** - Gestão de Contratos de Juros (com cálculos automáticos)
 - **`/juros/contratos/:id/analise`** - Análise Detalhada de Contrato
-- **`/juros/calculadora`** - Calculadora de Juros e Taxas Efetivas
 
 ### Componentes
 
@@ -110,22 +109,34 @@ Histórico de taxas BACEN por modalidade e período.
 3. Preencher formulário com dados do cliente
 4. Salvar
 
-### 2. Cadastro de Contrato
+### 2. Cadastro de Contrato (Com Cálculos Automáticos)
 1. Acessar `/juros/contratos`
 2. Clicar em "Novo Contrato"
-3. Selecionar cliente
-4. Preencher dados do contrato:
-   - Instituição financeira
-   - Modalidade BACEN
-   - Valor financiado
-   - Número de parcelas
-   - Valor da parcela
-   - Taxa contratual
-5. Sistema calcula automaticamente:
-   - Taxa efetiva mensal
-   - Taxa efetiva anual
+3. Preencher o formulário:
+   - Cliente *
+   - Instituição financeira *
+   - Data de contratação *
+   - Número do contrato
+   - Tipo de operação
+   - Modalidade BACEN (para comparação)
+   - Valor financiado *
+   - Número de parcelas *
+   - Valor da parcela *
+   - Taxa contratual (opcional)
+
+4. **O sistema calcula automaticamente em tempo real:**
+   - Taxa efetiva mensal (TEM)
+   - Taxa efetiva anual (TEA)
    - CET (Custo Efetivo Total)
-   - Comparação com taxa BACEN
+   - Total de juros
+   - Total a pagar
+   - Taxa BACEN de referência (se modalidade selecionada)
+   - Diferença vs taxa BACEN
+   - Percentual acima do mercado
+   - Indicador de abusividade
+   - Grau de abusividade (Baixa, Média, Alta, Crítica)
+
+5. Os cálculos são salvos automaticamente com o contrato
 
 ### 3. Análise de Contrato
 1. Na lista de contratos, clicar no ícone de visualização
@@ -136,15 +147,6 @@ Histórico de taxas BACEN por modalidade e período.
    - Comparação com taxas BACEN
    - Indicadores de abusividade
 
-### 4. Calculadora de Juros
-1. Acessar `/juros/calculadora`
-2. Preencher campos disponíveis
-3. Escolher tipo de cálculo:
-   - Calcular Taxa
-   - Calcular Parcela
-   - Calcular Prazo
-   - Calcular Valor Financiado
-4. Visualizar resultados e tabela de amortização
 
 ## Cálculos Realizados
 
@@ -202,18 +204,32 @@ Este módulo é completamente independente do módulo de Provisionamento Bancár
 - **Zod** - Validação de schemas
 - **date-fns** - Manipulação de datas
 
+## Diferenciais do Sistema
+
+### Cálculos Automáticos em Tempo Real
+- O sistema calcula automaticamente todas as taxas conforme o usuário preenche os dados
+- Não é necessário usar calculadora separada
+- Feedback imediato sobre abusividade
+- Comparação automática com taxas BACEN
+
+### Interface Intuitiva
+- Formulário único com todos os cálculos
+- Visual claro dos resultados
+- Indicadores visuais de abusividade
+- Organização por cards temáticos
+
 ## Próximos Passos
 
 1. ✅ Estrutura básica do módulo
 2. ✅ CRUD de clientes
-3. ✅ CRUD de contratos
-4. ✅ Calculadora de juros
+3. ✅ CRUD de contratos com cálculos automáticos
+4. ✅ Integração com taxas BACEN
 5. ✅ Página de análise detalhada
-6. ⏳ Integração com API BACEN SGS
-7. ⏳ Geração de relatórios
-8. ⏳ Exportação de análises em PDF
-9. ⏳ Dashboard analítico
-10. ⏳ Comparação de múltiplos contratos
+6. ⏳ Geração de relatórios
+7. ⏳ Exportação de análises em PDF
+8. ⏳ Dashboard analítico
+9. ⏳ Comparação de múltiplos contratos
+10. ⏳ Histórico de taxas BACEN
 
 ## Suporte
 

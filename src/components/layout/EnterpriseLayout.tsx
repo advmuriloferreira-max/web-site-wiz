@@ -41,7 +41,6 @@ import AnaliseJurosContrato from "@/pages/AnaliseJurosContrato";
 import CalculadoraJuros from "@/pages/CalculadoraJuros";
 import ClientesJuros from "@/pages/juros/ClientesJuros";
 import ContratosJuros from "@/pages/juros/ContratosJuros";
-import CalculadoraJurosPage from "@/pages/juros/CalculadoraJuros";
 import AnaliseContratoJurosPage from "@/pages/juros/AnaliseContratoJuros";
 
 export function EnterpriseLayout() {
@@ -155,7 +154,6 @@ export function EnterpriseLayout() {
                     <Route path="/contratos/:contratoId" element={<ContratoDetalhes />} />
                     <Route path="/contratos/:contratoId/analise-juros" element={<AnaliseJurosContrato />} />
                     <Route path="/calculadora-juros" element={<CalculadoraJuros />} />
-                    <Route path="/juros/calculadora" element={<CalculadoraJurosPage />} />
                     <Route path="/juros/clientes" element={<ClientesJuros />} />
                     <Route path="/juros/contratos" element={<ContratosJuros />} />
                     <Route path="/juros/contratos/:id/analise" element={<AnaliseContratoJurosPage />} />
