@@ -34,6 +34,7 @@ const provisionamentoItems = [
 const jurosItems = [
   { title: "Clientes", url: "/juros/clientes", icon: LegalIcons.clients },
   { title: "Contratos", url: "/juros/contratos", icon: LegalIcons.contract, badge: "NEW", highlight: true },
+  { title: "Calculadora de Juros", url: "/calculadora-juros", icon: LegalIcons.calculations },
 ];
 
 export function AppSidebar() {
@@ -56,7 +57,6 @@ export function AppSidebar() {
 
   const MenuItem = ({ item, tooltip }: { item: any; tooltip?: boolean }) => {
     const active = isActive(item.url);
-    const isQuickAction = item.title === "Novo Cliente" || item.title === "Novo Contrato";
     const isHighlight = item.highlight === true;
     
     const content = (
@@ -65,41 +65,24 @@ export function AppSidebar() {
         end 
         data-tour={item.dataTour}
         className={`
-          flex items-center gap-3 px-3 py-3 mx-2 rounded-lg transition-all duration-200 font-medium border-l-4
-          ${isHighlight
-            ? active
-              ? 'bg-gradient-to-r from-primary/40 to-accent/30 text-primary border-primary shadow-lg shadow-primary/20 scale-[1.02] ring-2 ring-primary/30'
-              : 'bg-gradient-to-r from-primary/20 to-accent/10 text-primary hover:from-primary/30 hover:to-accent/20 hover:scale-[1.02] border-primary/50 shadow-md shadow-primary/10 hover:shadow-lg hover:shadow-primary/20 ring-1 ring-primary/20'
-            : isQuickAction 
-              ? active 
-                ? 'bg-gradient-to-r from-green-500/30 to-green-400/20 text-green-400 border-green-400 shadow-lg shadow-green-400/20 scale-[1.02] ring-2 ring-green-400/30' 
-                : 'bg-gradient-to-r from-green-500/20 to-green-400/10 text-green-400 hover:from-green-500/30 hover:to-green-400/20 hover:scale-[1.02] border-green-400/50 shadow-md shadow-green-400/10 hover:shadow-lg hover:shadow-green-400/20 ring-1 ring-green-400/20'
-              : active 
-                ? 'bg-accent/20 text-accent border-accent shadow-md shadow-accent/10 scale-[1.02]' 
-                : 'text-sidebar-foreground/80 hover:bg-accent/10 hover:text-accent hover:scale-[1.01] border-transparent hover:border-accent/30'
+          flex items-center gap-3 px-3 py-2.5 mx-2 rounded-lg transition-all duration-200 font-medium
+          ${active
+            ? 'bg-sidebar-accent text-sidebar-primary font-semibold'
+            : 'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50'
           }
         `}
       >
-        <item.icon className={`h-5 w-5 flex-shrink-0 ${isHighlight ? 'text-primary drop-shadow-sm' : isQuickAction ? 'text-green-400 drop-shadow-sm' : ''}`} />
+        <item.icon className="h-5 w-5 flex-shrink-0" />
         {!isCollapsed && (
           <>
-            <span className={`font-medium truncate ${isHighlight || isQuickAction ? 'font-semibold' : ''}`}>{item.title}</span>
+            <span className="flex-1 truncate">{item.title}</span>
             {item.badge && (
               <Badge 
                 variant="secondary" 
-                className={`ml-auto text-xs px-2 py-0.5 font-bold border ${
-                  item.badge === "NEW" 
-                    ? 'bg-primary/20 text-primary border-primary/30' 
-                    : 'bg-red-500/20 text-red-600 border-red-500/30'
-                }`}
+                className="text-[10px] px-1.5 py-0 font-bold bg-sidebar-primary/20 text-sidebar-primary border-sidebar-primary/30"
               >
                 {item.badge}
               </Badge>
-            )}
-            {(isQuickAction || isHighlight) && !active && (
-              <div className="ml-auto">
-                <div className={`w-2 h-2 rounded-full ${isHighlight ? 'bg-primary' : 'bg-green-400'}`} />
-              </div>
             )}
           </>
         )}
@@ -125,27 +108,27 @@ export function AppSidebar() {
   return (
     <Sidebar 
       className={cn(
-        "bg-gradient-sidebar border-r-2 border-accent/20 shadow-2xl backdrop-blur-sm transition-all duration-300",
+        "bg-sidebar border-r border-sidebar-border transition-all duration-300",
         isCollapsed ? "w-16" : "w-64"
       )}
       collapsible="icon"
     >
        {/* Header Executivo - Provisionamento */}
-       <div className="executive-header flex items-center justify-between p-4">
+       <div className="flex items-center justify-between p-4 border-b border-sidebar-border">
          {!isCollapsed ? (
-           <div className="flex items-center gap-3 group">
-             <div className="w-10 h-10 bg-accent rounded-sm flex items-center justify-center shadow-xl flex-shrink-0">
-               <LegalIcons.justice className="h-6 w-6 text-primary" />
+           <div className="flex items-center gap-3">
+             <div className="w-10 h-10 bg-sidebar-primary/20 rounded-lg flex items-center justify-center flex-shrink-0">
+               <LegalIcons.justice className="h-5 w-5 text-sidebar-primary" />
              </div>
-             <div className="transition-all duration-300 min-w-0">
-               <h2 className="text-xs font-bold text-white tracking-wide leading-tight uppercase">
-                 Sistema Jurídico<br />Bancário
+             <div className="min-w-0">
+               <h2 className="text-sm font-bold text-sidebar-foreground leading-tight">
+                 Sistema Jurídico Bancário
                </h2>
              </div>
            </div>
         ) : (
-          <div className="w-10 h-10 bg-accent rounded-sm flex items-center justify-center shadow-xl mx-auto">
-            <LegalIcons.justice className="h-6 w-6 text-primary" />
+          <div className="w-10 h-10 bg-sidebar-primary/20 rounded-lg flex items-center justify-center mx-auto">
+            <LegalIcons.justice className="h-5 w-5 text-sidebar-primary" />
           </div>
         )}
         
@@ -153,17 +136,17 @@ export function AppSidebar() {
           variant="ghost"
           size="sm"
           onClick={toggleSidebar}
-          className="text-accent hover:text-white hover:bg-accent/20 transition-colors duration-200 border border-accent/30"
+          className="text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50"
         >
           {isCollapsed ? <LegalIcons.expand className="h-4 w-4" /> : <LegalIcons.collapse className="h-4 w-4" />}
         </Button>
       </div>
       
-      <SidebarContent className="px-0 overflow-y-auto bg-gradient-sidebar">
+      <SidebarContent className="px-0 overflow-y-auto">
         {/* Provisionamento Bancário */}
-        <SidebarGroup className="py-2">
+        <SidebarGroup className="py-3">
           {!isCollapsed && (
-            <SidebarGroupLabel className="text-xs uppercase tracking-wider text-primary/80 px-4 py-2">
+            <SidebarGroupLabel className="text-xs uppercase tracking-wider text-sidebar-foreground/50 px-4 py-2 font-semibold">
               Provisionamento Bancário
             </SidebarGroupLabel>
           )}
@@ -177,12 +160,12 @@ export function AppSidebar() {
         </SidebarGroup>
 
         {/* Separador */}
-        <div className="mx-4 my-2 border-t border-accent/20" />
+        <div className="mx-4 my-2 border-t border-sidebar-border/50" />
 
         {/* Análise de Abusividade de Juros */}
-        <SidebarGroup className="py-2">
+        <SidebarGroup className="py-3">
           {!isCollapsed && (
-            <SidebarGroupLabel className="text-xs uppercase tracking-wider text-green-400/80 px-4 py-2">
+            <SidebarGroupLabel className="text-xs uppercase tracking-wider text-sidebar-foreground/50 px-4 py-2 font-semibold">
               Análise de Juros
             </SidebarGroupLabel>
           )}
@@ -196,40 +179,40 @@ export function AppSidebar() {
         </SidebarGroup>
 
         {/* Footer com Informações de Confiança */}
-        <div className="mt-auto border-t border-slate-700/30 p-3">
+        <div className="mt-auto border-t border-sidebar-border p-3">
           
           {/* Sistema Status Compacto */}
           <div className="flex items-center justify-center mb-3">
           {!isCollapsed ? (
-            <div className="flex items-center gap-2 text-xs text-slate-400">
+            <div className="flex items-center gap-2 text-xs text-sidebar-foreground/60">
               <div className="w-2 h-2 bg-success rounded-full"></div>
               <span>Sistema Seguro</span>
-              <Badge variant="outline" className="ml-2 bg-accent/20 text-accent text-xs px-2 py-0.5">
+              <Badge variant="outline" className="ml-2 bg-sidebar-primary/20 text-sidebar-primary text-[10px] px-1.5 py-0">
                 BCB 352/2023
               </Badge>
             </div>
           ) : (
-            <div className="w-2 h-2 bg-green-400 rounded-full mx-auto"></div>
+            <div className="w-2 h-2 bg-success rounded-full mx-auto"></div>
           )}
           </div>
 
           {/* User Profile Compacto */}
           {profile && (
             <div className={cn(
-              "flex items-center gap-3 p-2 rounded-lg bg-white/5 backdrop-blur-sm border border-white/10 transition-all duration-200 hover:bg-white/10",
+              "flex items-center gap-3 p-2 rounded-lg bg-sidebar-accent/50 transition-all duration-200 hover:bg-sidebar-accent",
               isCollapsed ? 'justify-center' : ''
             )}>
-              <Avatar className="h-8 w-8 ring-2 ring-primary/30">
-                <AvatarFallback className="bg-gradient-to-br from-accent to-accent/80 text-primary-foreground text-xs font-semibold">
+              <Avatar className="h-8 w-8 ring-2 ring-sidebar-primary/30">
+                <AvatarFallback className="bg-sidebar-primary text-sidebar-primary-foreground text-xs font-semibold">
                   {profile.nome ? getInitials(profile.nome) : <LegalIcons.user className="h-3 w-3" />}
                 </AvatarFallback>
               </Avatar>
               {!isCollapsed && (
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-white truncate">
+                  <p className="text-sm font-semibold text-sidebar-foreground truncate">
                     {profile.nome}
                   </p>
-                  <p className="text-xs text-slate-400 truncate">
+                  <p className="text-xs text-sidebar-foreground/50 truncate">
                     Usuário Autorizado
                   </p>
                 </div>
@@ -245,15 +228,15 @@ export function AppSidebar() {
                   variant="ghost"
                   size="sm"
                   asChild
-                  className="flex-1 text-slate-400 hover:text-white hover:bg-white/10 transition-colors duration-200 h-7"
+                  className="flex-1 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors duration-200 h-8"
                 >
                   <NavLink to="/configuracoes">
-                    <LegalIcons.settings className="h-3 w-3" />
-                    {!isCollapsed && <span className="ml-2 text-xs">Config</span>}
+                    <LegalIcons.settings className="h-4 w-4" />
+                    {!isCollapsed && <span className="ml-2 text-xs">Configurações</span>}
                   </NavLink>
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="right" className="bg-slate-800 text-white border-slate-700 text-xs">
+              <TooltipContent side="right" className="text-xs">
                 Configurações
               </TooltipContent>
             </Tooltip>
