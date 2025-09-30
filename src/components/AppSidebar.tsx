@@ -65,10 +65,10 @@ export function AppSidebar() {
         end 
         data-tour={item.dataTour}
         className={`
-          flex items-center gap-3 px-3 py-2.5 mx-2 rounded-lg transition-all duration-200 font-medium
+          flex items-center gap-3 px-3 py-2.5 mx-2 rounded-lg transition-all duration-200 font-semibold
           ${active
-            ? 'bg-sidebar-accent text-sidebar-primary font-semibold'
-            : 'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50'
+            ? 'bg-sidebar-accent text-sidebar-primary font-bold'
+            : 'text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent/50'
           }
         `}
       >
@@ -121,7 +121,7 @@ export function AppSidebar() {
                <LegalIcons.justice className="h-5 w-5 text-sidebar-primary" />
              </div>
              <div className="min-w-0">
-               <h2 className="text-sm font-bold text-sidebar-foreground leading-tight">
+               <h2 className="text-sm font-extrabold text-sidebar-foreground leading-tight">
                  Sistema Jurídico Bancário
                </h2>
              </div>
@@ -146,7 +146,7 @@ export function AppSidebar() {
         {/* Provisionamento Bancário */}
         <SidebarGroup className="py-3">
           {!isCollapsed && (
-            <SidebarGroupLabel className="text-xs uppercase tracking-wider text-sidebar-foreground/50 px-4 py-2 font-semibold">
+            <SidebarGroupLabel className="text-xs uppercase tracking-wider text-sidebar-foreground/60 px-4 py-2 font-bold">
               Provisionamento Bancário
             </SidebarGroupLabel>
           )}
@@ -165,7 +165,7 @@ export function AppSidebar() {
         {/* Análise de Abusividade de Juros */}
         <SidebarGroup className="py-3">
           {!isCollapsed && (
-            <SidebarGroupLabel className="text-xs uppercase tracking-wider text-sidebar-foreground/50 px-4 py-2 font-semibold">
+            <SidebarGroupLabel className="text-xs uppercase tracking-wider text-sidebar-foreground/60 px-4 py-2 font-bold">
               Análise de Juros
             </SidebarGroupLabel>
           )}
@@ -184,10 +184,10 @@ export function AppSidebar() {
           {/* Sistema Status Compacto */}
           <div className="flex items-center justify-center mb-3">
           {!isCollapsed ? (
-            <div className="flex items-center gap-2 text-xs text-sidebar-foreground/60">
+            <div className="flex items-center gap-2 text-xs text-sidebar-foreground/70 font-semibold">
               <div className="w-2 h-2 bg-success rounded-full"></div>
               <span>Sistema Seguro</span>
-              <Badge variant="outline" className="ml-2 bg-sidebar-primary/20 text-sidebar-primary text-[10px] px-1.5 py-0">
+              <Badge variant="outline" className="ml-2 bg-sidebar-primary/20 text-sidebar-primary text-[10px] px-1.5 py-0 font-bold">
                 BCB 352/2023
               </Badge>
             </div>
@@ -209,10 +209,10 @@ export function AppSidebar() {
               </Avatar>
               {!isCollapsed && (
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-sidebar-foreground truncate">
+                  <p className="text-sm font-bold text-sidebar-foreground truncate">
                     {profile.nome}
                   </p>
-                  <p className="text-xs text-sidebar-foreground/50 truncate">
+                  <p className="text-xs text-sidebar-foreground/60 truncate font-semibold">
                     Usuário Autorizado
                   </p>
                 </div>
@@ -228,11 +228,11 @@ export function AppSidebar() {
                   variant="ghost"
                   size="sm"
                   asChild
-                  className="flex-1 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors duration-200 h-8"
+                  className="flex-1 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors duration-200 h-8 font-semibold"
                 >
                   <NavLink to="/configuracoes">
                     <LegalIcons.settings className="h-4 w-4" />
-                    {!isCollapsed && <span className="ml-2 text-xs">Configurações</span>}
+                    {!isCollapsed && <span className="ml-2 text-xs font-semibold">Configurações</span>}
                   </NavLink>
                 </Button>
               </TooltipTrigger>
