@@ -100,7 +100,7 @@ export function EnterpriseLayout() {
                 <div className="flex items-center gap-2 group">
                   <LegalIcons.justice className="h-6 w-6 text-accent flex-shrink-0 transition-transform duration-200 group-hover:scale-110" />
                   <div className="hidden sm:block">
-                    <h1 className="text-lg font-extrabold text-white tracking-wide leading-tight">
+                    <h1 className="text-xl font-extrabold text-white tracking-wide leading-tight">
                       INTELLBANK
                     </h1>
                   </div>
