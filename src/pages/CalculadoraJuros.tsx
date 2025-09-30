@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { useModalidadesBacenJuros } from "@/hooks/useModalidadesBacenJuros";
 import { calcularMetricasFinanceiras, compararTaxaBacen } from "@/modules/FinancialAnalysis/lib/financialCalculations";
 import { Badge } from "@/components/ui/badge";
-import { consultarTaxaBacenCSV, precarregarTodosCSVs } from "@/lib/bacenCSVReader";
+import { supabase } from "@/integrations/supabase/client";
 
 const CalculadoraJuros = () => {
   const [tipoPessoaFiltro, setTipoPessoaFiltro] = useState<'PF' | 'PJ' | undefined>(undefined);
@@ -26,23 +26,6 @@ const CalculadoraJuros = () => {
   // Estados de resultado
   const [resultado, setResultado] = useState<any>(null);
   const [analisando, setAnalisando] = useState(false);
-  const [csvsCarregados, setCsvsCarregados] = useState(false);
-
-  // Pré-carregar todos os CSVs do BACEN quando o componente montar
-  useEffect(() => {
-    const carregarCSVs = async () => {
-      try {
-        await precarregarTodosCSVs();
-        setCsvsCarregados(true);
-        console.log('✅ Calculadora pronta! Todos os dados do BACEN estão em memória.');
-      } catch (error) {
-        console.error('Erro ao carregar CSVs:', error);
-        toast.error('Erro ao carregar dados do BACEN');
-      }
-    };
-
-    carregarCSVs();
-  }, []);
 
   const handleAnalisar = async () => {
     if (!valorFinanciamento || !valorPrestacao || !numeroParcelas || !dataAssinatura || !modalidadeId) {
@@ -55,31 +38,20 @@ const CalculadoraJuros = () => {
     try {
       console.log('Iniciando análise com modalidade:', modalidadeId);
       
-      // Buscar informações da modalidade selecionada
-      const modalidade = modalidades?.find(m => m.id === modalidadeId);
-      if (!modalidade) {
-        throw new Error('Modalidade não encontrada');
+      // Consultar taxa BACEN usando a edge function (que agora busca nos CSVs automaticamente)
+      const { data, error } = await supabase.functions.invoke('consultar-taxa-bacen-sgs', {
+        body: {
+          modalidadeId,
+          dataConsulta: dataAssinatura,
+        }
+      });
+
+      if (error) {
+        console.error('Erro ao consultar taxa BACEN:', error);
+        throw new Error(error.message || 'Erro ao consultar taxa BACEN');
       }
 
-      console.log('Modalidade encontrada:', modalidade.nome, 'Código SGS:', modalidade.codigo_sgs);
-      
-      // Extrair mês e ano da data de assinatura
-      const dataRef = new Date(dataAssinatura);
-      const mes = dataRef.getMonth() + 1;
-      const ano = dataRef.getFullYear();
-
-      console.log('Consultando taxa do CSV para:', mes, '/', ano);
-      
-      // 1. Consultar taxa BACEN diretamente do CSV
-      const taxaBacen = await consultarTaxaBacenCSV(modalidade.codigo_sgs, mes, ano);
-      
-      if (!taxaBacen) {
-        toast.error('Taxa não encontrada para o período informado nos arquivos do BACEN');
-        setAnalisando(false);
-        return;
-      }
-
-      console.log('Taxa BACEN consultada do CSV:', taxaBacen);
+      console.log('Taxa BACEN consultada:', data);
 
       // 2. Calcular métricas financeiras do contrato
       const valorPrest = parseFloat(valorPrestacao);
@@ -87,7 +59,6 @@ const CalculadoraJuros = () => {
       const parcelas = parseInt(numeroParcelas);
       
       // Calcular taxa real (efetiva) usando a fórmula financeira
-      // Esta é a taxa real cobrada baseada nos valores praticados
       const taxaRealMensal = ((valorPrest * parcelas) / valorFin - 1) / parcelas * 100;
       
       // Taxa contratual (a que está escrita no contrato)
@@ -96,7 +67,7 @@ const CalculadoraJuros = () => {
       const metricas = calcularMetricasFinanceiras({
         valorDivida: valorFin,
         saldoContabil: valorFin,
-        taxaBacen: taxaBacen.taxa_mensal,
+        taxaBacen: data.taxa_mensal,
         taxaJuros: taxaRealMensal,
         prazoMeses: parcelas,
         valorParcela: valorPrest,
@@ -105,7 +76,7 @@ const CalculadoraJuros = () => {
       });
 
       // 3. Comparar com taxa BACEN
-      const taxaBacenMensal = taxaBacen.taxa_mensal;
+      const taxaBacenMensal = data.taxa_mensal;
       const comparacao = compararTaxaBacen(
         metricas.taxaEfetivaMensal,
         taxaBacenMensal
@@ -118,25 +89,8 @@ const CalculadoraJuros = () => {
       setResultado({
         metricas,
         comparacao,
-        taxaBacen: {
-          taxa_mensal: taxaBacen.taxa_mensal,
-          taxa_anual: taxaBacen.taxa_anual,
-          periodo: taxaBacen.periodo,
-          modalidade: {
-            id: modalidade.id,
-            nome: modalidade.nome,
-            codigo_sgs: modalidade.codigo_sgs,
-            tipo_pessoa: modalidade.tipo_pessoa,
-            categoria: modalidade.categoria,
-          }
-        },
-        modalidade: {
-          id: modalidade.id,
-          nome: modalidade.nome,
-          codigo_sgs: modalidade.codigo_sgs,
-          tipo_pessoa: modalidade.tipo_pessoa,
-          categoria: modalidade.categoria,
-        },
+        taxaBacen: data,
+        modalidade: data.modalidade,
         taxaContratual,
         taxaReal: taxaRealMensal,
         diferencaTaxas,
