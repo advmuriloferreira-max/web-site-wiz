@@ -16,10 +16,10 @@ export interface Banco {
 
 export const useBancos = () => {
   return useRealtimeQuery({
-    queryKey: ["bancos"],
+    queryKey: ["bancos-provisao"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("bancos")
+        .from("bancos_provisao")
         .select("*")
         .order("nome", { ascending: true });
 
@@ -29,7 +29,7 @@ export const useBancos = () => {
 
       return data as Banco[];
     },
-    tableName: "bancos",
+    tableName: "bancos_provisao",
   });
 };
 
@@ -39,7 +39,7 @@ export const useCreateBanco = () => {
   return useMutation({
     mutationFn: async (banco: Omit<Banco, 'id' | 'created_at' | 'updated_at'>) => {
       const { data, error } = await supabase
-        .from("bancos")
+        .from("bancos_provisao")
         .insert([banco])
         .select()
         .single();
@@ -51,7 +51,7 @@ export const useCreateBanco = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["bancos"] });
+      queryClient.invalidateQueries({ queryKey: ["bancos-provisao"] });
       toast.success("Banco criado com sucesso!");
     },
     onError: (error) => {

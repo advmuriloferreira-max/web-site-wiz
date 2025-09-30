@@ -19,10 +19,10 @@ export interface Cliente {
 
 export const useClientes = () => {
   return useRealtimeQuery({
-    queryKey: ["clientes"],
+    queryKey: ["clientes-provisao"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("clientes")
+        .from("clientes_provisao")
         .select("*")
         .order("nome", { ascending: true });
 
@@ -32,7 +32,7 @@ export const useClientes = () => {
 
       return data as Cliente[];
     },
-    tableName: "clientes",
+    tableName: "clientes_provisao",
   });
 };
 
@@ -42,7 +42,7 @@ export const useCreateCliente = () => {
   return useMutation({
     mutationFn: async (cliente: Omit<Cliente, 'id' | 'created_at' | 'updated_at' | 'data_cadastro'>) => {
       const { data, error } = await supabase
-        .from("clientes")
+        .from("clientes_provisao")
         .insert([cliente])
         .select()
         .single();
@@ -54,7 +54,7 @@ export const useCreateCliente = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["clientes"] });
+      queryClient.invalidateQueries({ queryKey: ["clientes-provisao"] });
       toast.success("Cliente criado com sucesso!");
     },
     onError: (error) => {
@@ -69,7 +69,7 @@ export const useUpdateCliente = () => {
   return useMutation({
     mutationFn: async ({ id, ...cliente }: Partial<Cliente> & { id: string }) => {
       const { data, error } = await supabase
-        .from("clientes")
+        .from("clientes_provisao")
         .update(cliente)
         .eq("id", id)
         .select()
@@ -82,7 +82,7 @@ export const useUpdateCliente = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["clientes"] });
+      queryClient.invalidateQueries({ queryKey: ["clientes-provisao"] });
       toast.success("Cliente atualizado com sucesso!");
     },
     onError: (error) => {
@@ -97,7 +97,7 @@ export const useDeleteCliente = () => {
   return useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
-        .from("clientes")
+        .from("clientes_provisao")
         .delete()
         .eq("id", id);
 
@@ -106,7 +106,7 @@ export const useDeleteCliente = () => {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["clientes"] });
+      queryClient.invalidateQueries({ queryKey: ["clientes-provisao"] });
       toast.success("Cliente excluído com sucesso!");
     },
     onError: (error) => {

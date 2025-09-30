@@ -31,26 +31,26 @@ export interface Contrato {
   created_at: string;
   updated_at: string;
   // Relacionamentos
-  clientes?: {
+  clientes_provisao?: {
     nome: string;
     cpf_cnpj: string | null;
     responsavel: string | null;
   };
-  bancos?: {
+  bancos_provisao?: {
     nome: string;
   };
 }
 
 export const useContratos = () => {
   return useRealtimeQuery({
-    queryKey: ["contratos"],
+    queryKey: ["contratos-provisao"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("contratos")
+        .from("contratos_provisao")
         .select(`
           *,
-          clientes (nome, cpf_cnpj, responsavel),
-          bancos (nome)
+          clientes_provisao (nome, cpf_cnpj, responsavel),
+          bancos_provisao (nome)
         `)
         .order("created_at", { ascending: false });
 
@@ -60,16 +60,16 @@ export const useContratos = () => {
 
       return data as Contrato[];
     },
-    tableName: "contratos",
+    tableName: "contratos_provisao",
   });
 };
 
 export const useContratosStats = () => {
   return useRealtimeQuery({
-    queryKey: ["contratos-stats"],
+    queryKey: ["contratos-provisao-stats"],
     queryFn: async () => {
       const { data: contratos, error } = await supabase
-        .from("contratos")
+        .from("contratos_provisao")
         .select("valor_divida, saldo_contabil, valor_provisao, classificacao, situacao");
 
       if (error) {
@@ -105,6 +105,6 @@ export const useContratosStats = () => {
         percentualProvisao: valorTotalDividas > 0 ? (valorTotalProvisao / valorTotalDividas) * 100 : 0
       };
     },
-    tableName: "contratos",
+    tableName: "contratos_provisao",
   });
 };

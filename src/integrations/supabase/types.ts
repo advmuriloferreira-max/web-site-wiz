@@ -14,6 +14,74 @@ export type Database = {
   }
   public: {
     Tables: {
+      analises_juros: {
+        Row: {
+          analista_id: string | null
+          calculo_regra_3: Json | null
+          contrato_id: string
+          created_at: string
+          custo_efetivo_total: number | null
+          data_analise: string
+          diferenca_mercado: number | null
+          documentos: Json | null
+          id: string
+          parecer: string | null
+          percentual_acima_mercado: number | null
+          recomendacao: string | null
+          taxa_efetiva_anual: number | null
+          taxa_efetiva_mensal: number | null
+          taxa_mercado_periodo: number | null
+          updated_at: string
+          valor_cobrado_indevido: number | null
+        }
+        Insert: {
+          analista_id?: string | null
+          calculo_regra_3?: Json | null
+          contrato_id: string
+          created_at?: string
+          custo_efetivo_total?: number | null
+          data_analise?: string
+          diferenca_mercado?: number | null
+          documentos?: Json | null
+          id?: string
+          parecer?: string | null
+          percentual_acima_mercado?: number | null
+          recomendacao?: string | null
+          taxa_efetiva_anual?: number | null
+          taxa_efetiva_mensal?: number | null
+          taxa_mercado_periodo?: number | null
+          updated_at?: string
+          valor_cobrado_indevido?: number | null
+        }
+        Update: {
+          analista_id?: string | null
+          calculo_regra_3?: Json | null
+          contrato_id?: string
+          created_at?: string
+          custo_efetivo_total?: number | null
+          data_analise?: string
+          diferenca_mercado?: number | null
+          documentos?: Json | null
+          id?: string
+          parecer?: string | null
+          percentual_acima_mercado?: number | null
+          recomendacao?: string | null
+          taxa_efetiva_anual?: number | null
+          taxa_efetiva_mensal?: number | null
+          taxa_mercado_periodo?: number | null
+          updated_at?: string
+          valor_cobrado_indevido?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analises_juros_contrato_id_fkey"
+            columns: ["contrato_id"]
+            isOneToOne: false
+            referencedRelation: "contratos_juros"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       analyses: {
         Row: {
           contrato_id: string
@@ -50,7 +118,7 @@ export type Database = {
             foreignKeyName: "analyses_contrato_id_fkey"
             columns: ["contrato_id"]
             isOneToOne: false
-            referencedRelation: "contratos"
+            referencedRelation: "contratos_provisao"
             referencedColumns: ["id"]
           },
         ]
@@ -82,7 +150,7 @@ export type Database = {
         }
         Relationships: []
       }
-      bancos: {
+      bancos_provisao: {
         Row: {
           codigo_banco: string | null
           contato: string | null
@@ -115,7 +183,7 @@ export type Database = {
         }
         Relationships: []
       }
-      clientes: {
+      clientes_juros: {
         Row: {
           cpf_cnpj: string | null
           created_at: string
@@ -157,7 +225,149 @@ export type Database = {
         }
         Relationships: []
       }
-      contratos: {
+      clientes_provisao: {
+        Row: {
+          cpf_cnpj: string | null
+          created_at: string
+          data_cadastro: string
+          email: string | null
+          endereco: string | null
+          id: string
+          nome: string
+          observacoes: string | null
+          responsavel: string | null
+          telefone: string | null
+          updated_at: string
+        }
+        Insert: {
+          cpf_cnpj?: string | null
+          created_at?: string
+          data_cadastro?: string
+          email?: string | null
+          endereco?: string | null
+          id?: string
+          nome: string
+          observacoes?: string | null
+          responsavel?: string | null
+          telefone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          cpf_cnpj?: string | null
+          created_at?: string
+          data_cadastro?: string
+          email?: string | null
+          endereco?: string | null
+          id?: string
+          nome?: string
+          observacoes?: string | null
+          responsavel?: string | null
+          telefone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      contratos_juros: {
+        Row: {
+          cliente_id: string
+          created_at: string
+          data_contratacao: string
+          diferenca_taxa: number | null
+          diferenca_vs_bacen: number | null
+          grau_abusividade: string | null
+          id: string
+          instituicao_id: string
+          modalidade_bacen_id: string | null
+          numero_contrato: string | null
+          numero_parcelas: number | null
+          observacoes: string | null
+          percentual_diferenca: number | null
+          status_analise: string | null
+          taxa_bacen_referencia: number | null
+          taxa_juros_contratual: number | null
+          taxa_juros_real: number | null
+          tem_abusividade: boolean | null
+          tipo_operacao: string | null
+          ultima_analise_em: string | null
+          updated_at: string
+          valor_financiado: number
+          valor_parcela: number | null
+        }
+        Insert: {
+          cliente_id: string
+          created_at?: string
+          data_contratacao?: string
+          diferenca_taxa?: number | null
+          diferenca_vs_bacen?: number | null
+          grau_abusividade?: string | null
+          id?: string
+          instituicao_id: string
+          modalidade_bacen_id?: string | null
+          numero_contrato?: string | null
+          numero_parcelas?: number | null
+          observacoes?: string | null
+          percentual_diferenca?: number | null
+          status_analise?: string | null
+          taxa_bacen_referencia?: number | null
+          taxa_juros_contratual?: number | null
+          taxa_juros_real?: number | null
+          tem_abusividade?: boolean | null
+          tipo_operacao?: string | null
+          ultima_analise_em?: string | null
+          updated_at?: string
+          valor_financiado: number
+          valor_parcela?: number | null
+        }
+        Update: {
+          cliente_id?: string
+          created_at?: string
+          data_contratacao?: string
+          diferenca_taxa?: number | null
+          diferenca_vs_bacen?: number | null
+          grau_abusividade?: string | null
+          id?: string
+          instituicao_id?: string
+          modalidade_bacen_id?: string | null
+          numero_contrato?: string | null
+          numero_parcelas?: number | null
+          observacoes?: string | null
+          percentual_diferenca?: number | null
+          status_analise?: string | null
+          taxa_bacen_referencia?: number | null
+          taxa_juros_contratual?: number | null
+          taxa_juros_real?: number | null
+          tem_abusividade?: boolean | null
+          tipo_operacao?: string | null
+          ultima_analise_em?: string | null
+          updated_at?: string
+          valor_financiado?: number
+          valor_parcela?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contratos_juros_cliente_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes_juros"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contratos_juros_instituicao_fkey"
+            columns: ["instituicao_id"]
+            isOneToOne: false
+            referencedRelation: "instituicoes_financeiras"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contratos_juros_modalidade_bacen_id_fkey"
+            columns: ["modalidade_bacen_id"]
+            isOneToOne: false
+            referencedRelation: "modalidades_bacen_juros"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contratos_provisao: {
         Row: {
           acordo_final: number | null
           banco_id: string
@@ -286,17 +496,17 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "contratos_banco_id_fkey"
+            foreignKeyName: "contratos_provisao_banco_id_fkey"
             columns: ["banco_id"]
             isOneToOne: false
-            referencedRelation: "bancos"
+            referencedRelation: "bancos_provisao"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "contratos_cliente_id_fkey"
+            foreignKeyName: "contratos_provisao_cliente_id_fkey"
             columns: ["cliente_id"]
             isOneToOne: false
-            referencedRelation: "clientes"
+            referencedRelation: "clientes_provisao"
             referencedColumns: ["id"]
           },
         ]
@@ -387,7 +597,7 @@ export type Database = {
           },
         ]
       }
-      garantias: {
+      garantias_provisao: {
         Row: {
           contrato_id: string
           created_at: string
@@ -420,13 +630,52 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "garantias_contrato_id_fkey"
+            foreignKeyName: "garantias_provisao_contrato_id_fkey"
             columns: ["contrato_id"]
             isOneToOne: false
-            referencedRelation: "contratos"
+            referencedRelation: "contratos_provisao"
             referencedColumns: ["id"]
           },
         ]
+      }
+      instituicoes_financeiras: {
+        Row: {
+          cnpj: string | null
+          codigo_banco: string | null
+          contato: string | null
+          created_at: string
+          email: string | null
+          id: string
+          nome: string
+          observacoes: string | null
+          telefone: string | null
+          updated_at: string
+        }
+        Insert: {
+          cnpj?: string | null
+          codigo_banco?: string | null
+          contato?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          nome: string
+          observacoes?: string | null
+          telefone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          cnpj?: string | null
+          codigo_banco?: string | null
+          contato?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          nome?: string
+          observacoes?: string | null
+          telefone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       modalidades_bacen_juros: {
         Row: {
@@ -467,7 +716,54 @@ export type Database = {
         }
         Relationships: []
       }
-      processos: {
+      parcelas_contrato: {
+        Row: {
+          contrato_id: string
+          created_at: string
+          data_pagamento: string | null
+          data_vencimento: string
+          id: string
+          numero_parcela: number
+          valor_juros: number
+          valor_pago: number | null
+          valor_principal: number
+          valor_total: number
+        }
+        Insert: {
+          contrato_id: string
+          created_at?: string
+          data_pagamento?: string | null
+          data_vencimento: string
+          id?: string
+          numero_parcela: number
+          valor_juros: number
+          valor_pago?: number | null
+          valor_principal: number
+          valor_total: number
+        }
+        Update: {
+          contrato_id?: string
+          created_at?: string
+          data_pagamento?: string | null
+          data_vencimento?: string
+          id?: string
+          numero_parcela?: number
+          valor_juros?: number
+          valor_pago?: number | null
+          valor_principal?: number
+          valor_total?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parcelas_contrato_contrato_id_fkey"
+            columns: ["contrato_id"]
+            isOneToOne: false
+            referencedRelation: "contratos_juros"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      processos_provisao: {
         Row: {
           acao: string | null
           contrato_id: string
@@ -512,10 +808,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "processos_contrato_id_fkey"
+            foreignKeyName: "processos_provisao_contrato_id_fkey"
             columns: ["contrato_id"]
             isOneToOne: false
-            referencedRelation: "contratos"
+            referencedRelation: "contratos_provisao"
             referencedColumns: ["id"]
           },
         ]
@@ -553,7 +849,7 @@ export type Database = {
         }
         Relationships: []
       }
-      propostas_acordo: {
+      propostas_acordo_provisao: {
         Row: {
           contrato_id: string
           created_at: string
@@ -589,10 +885,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "propostas_acordo_contrato_id_fkey"
+            foreignKeyName: "propostas_acordo_provisao_contrato_id_fkey"
             columns: ["contrato_id"]
             isOneToOne: false
-            referencedRelation: "contratos"
+            referencedRelation: "contratos_provisao"
             referencedColumns: ["id"]
           },
         ]

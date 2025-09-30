@@ -29,14 +29,14 @@ export interface UpdateGarantiaInput extends CreateGarantiaInput {
 // Hook para buscar garantias por contrato
 export const useGarantiasByContrato = (contratoId: string | null) => {
   return useRealtimeQuery({
-    queryKey: ["garantias", contratoId],
+    queryKey: ["garantias-provisao", contratoId],
     queryFn: async () => {
       if (!contratoId) {
         return [] as Garantia[];
       }
       
       const { data, error } = await supabase
-        .from("garantias")
+        .from("garantias_provisao")
         .select("*")
         .eq("contrato_id", contratoId)
         .order("created_at", { ascending: true });
@@ -48,7 +48,7 @@ export const useGarantiasByContrato = (contratoId: string | null) => {
       return data as Garantia[];
     },
     enabled: !!contratoId,
-    tableName: "garantias",
+    tableName: "garantias_provisao",
   });
 };
 
@@ -59,7 +59,7 @@ export const useCreateGarantia = () => {
   return useMutation({
     mutationFn: async (garantiaInput: CreateGarantiaInput) => {
       const { data, error } = await supabase
-        .from("garantias")
+        .from("garantias_provisao")
         .insert(garantiaInput)
         .select()
         .single();
@@ -71,7 +71,7 @@ export const useCreateGarantia = () => {
       return data;
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["garantias", data.contrato_id] });
+      queryClient.invalidateQueries({ queryKey: ["garantias-provisao", data.contrato_id] });
       toast.success("Garantia adicionada com sucesso!");
     },
     onError: (error) => {
@@ -88,7 +88,7 @@ export const useUpdateGarantia = () => {
     mutationFn: async (garantiaInput: UpdateGarantiaInput) => {
       const { id, ...updateData } = garantiaInput;
       const { data, error } = await supabase
-        .from("garantias")
+        .from("garantias_provisao")
         .update(updateData)
         .eq("id", id)
         .select()
@@ -101,7 +101,7 @@ export const useUpdateGarantia = () => {
       return data;
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["garantias", data.contrato_id] });
+      queryClient.invalidateQueries({ queryKey: ["garantias-provisao", data.contrato_id] });
       toast.success("Garantia atualizada com sucesso!");
     },
     onError: (error) => {
@@ -117,7 +117,7 @@ export const useDeleteGarantia = () => {
   return useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
-        .from("garantias")
+        .from("garantias_provisao")
         .delete()
         .eq("id", id);
 
@@ -129,7 +129,7 @@ export const useDeleteGarantia = () => {
     },
     onSuccess: (_, variables) => {
       // Invalidate todas as queries de garantias para refletir a mudança
-      queryClient.invalidateQueries({ queryKey: ["garantias"] });
+      queryClient.invalidateQueries({ queryKey: ["garantias-provisao"] });
       toast.success("Garantia removida com sucesso!");
     },
     onError: (error) => {
