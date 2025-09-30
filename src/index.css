@@ -145,11 +145,11 @@ Golden Ratio-based spacing: 1, 1.618, 2.618, 4.236, 6.854
 
     /* Sidebar executivo */
     --sidebar-background: 220 10% 70%;
-    --sidebar-foreground: 0 0% 100%;
+    --sidebar-foreground: 48 96% 70%;
     --sidebar-primary: 217 91% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 220 10% 75%;
-    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-accent-foreground: 48 96% 70%;
     --sidebar-border: 220 10% 65%;
     --sidebar-ring: 217 91% 60%;
     
