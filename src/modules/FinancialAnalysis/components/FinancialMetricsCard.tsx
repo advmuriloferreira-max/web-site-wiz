@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { calcularMetricasFinanceiras } from "@/lib/financialCalculations";
+import { calcularMetricasFinanceiras } from "../lib/financialCalculations";
 import { TrendingUp, TrendingDown, Percent, DollarSign } from "lucide-react";
 import { Contrato } from "@/hooks/useContratos";
 

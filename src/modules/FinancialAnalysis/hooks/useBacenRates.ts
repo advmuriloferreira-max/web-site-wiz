@@ -1,6 +1,6 @@
 /**
  * Hook para consultar taxas do Banco Central
- * Migrado do Bacen Loan Wizard
+ * Bacen Loan Wizard - Módulo independente
  */
 
 import { useMutation, useQuery } from "@tanstack/react-query";

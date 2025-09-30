@@ -1,6 +1,6 @@
 /**
- * Componente principal de gerenciamento de análises financeiras
- * Migrado do Bacen Loan Wizard
+ * Dashboard principal de Análise Financeira
+ * Bacen Loan Wizard - Ponto de entrada do módulo
  */
 
 import { useState } from "react";
@@ -9,19 +9,19 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BarChart3, FileText, TrendingUp, RefreshCw } from "lucide-react";
 import { useContratoById } from "@/hooks/useContratoById";
-import { useConsultarTaxaBacen, useLatestAnalysis } from "@/hooks/useBacenRates";
+import { useConsultarTaxaBacen, useLatestAnalysis } from "../hooks/useBacenRates";
 import { toast } from "sonner";
 import FinancialMetricsCard from "./FinancialMetricsCard";
 import BacenComparisonCard from "./BacenComparisonCard";
 import AnalysisHistoryTable from "./AnalysisHistoryTable";
-import { saveAnalysisReport } from "@/lib/analysisReportGenerator";
-import { calcularMetricasFinanceiras } from "@/lib/financialCalculations";
+import { saveAnalysisReport } from "../lib/analysisReportGenerator";
+import { calcularMetricasFinanceiras } from "../lib/financialCalculations";
 
-interface AnalysisManagerProps {
+interface AnalysisDashboardProps {
   contratoId: string;
 }
 
-export default function AnalysisManager({ contratoId }: AnalysisManagerProps) {
+export default function AnalysisDashboard({ contratoId }: AnalysisDashboardProps) {
   const [activeTab, setActiveTab] = useState("metrics");
   
   const { data: contrato, isLoading: loadingContrato } = useContratoById(contratoId);
@@ -113,7 +113,7 @@ export default function AnalysisManager({ contratoId }: AnalysisManagerProps) {
             <div>
               <CardTitle className="flex items-center gap-2">
                 <BarChart3 className="h-5 w-5" />
-                Análise Financeira
+                Análise Financeira Bacen
               </CardTitle>
               <CardDescription>
                 Análise detalhada do contrato {contrato.numero_contrato}

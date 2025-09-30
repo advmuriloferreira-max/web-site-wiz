@@ -1,6 +1,6 @@
 /**
  * Módulo de cálculos financeiros para análise de contratos
- * Migrado do Bacen Loan Wizard
+ * Bacen Loan Wizard - Módulo independente
  */
 
 export interface FinancialMetrics {

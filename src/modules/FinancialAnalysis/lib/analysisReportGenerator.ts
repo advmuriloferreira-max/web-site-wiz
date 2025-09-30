@@ -1,6 +1,6 @@
 /**
  * Gerador de relatórios PDF para análises de contratos
- * Migrado do Bacen Loan Wizard
+ * Bacen Loan Wizard - Módulo independente
  */
 
 import jsPDF from 'jspdf';

@@ -2,7 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, TrendingDown, AlertCircle } from "lucide-react";
 import { Contrato } from "@/hooks/useContratos";
-import { compararTaxaBacen } from "@/lib/financialCalculations";
+import { compararTaxaBacen } from "../lib/financialCalculations";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
