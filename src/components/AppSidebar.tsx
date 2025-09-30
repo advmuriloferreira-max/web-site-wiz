@@ -33,7 +33,7 @@ const provisionamentoItems = [
 
 const jurosItems = [
   { title: "Clientes", url: "/juros/clientes", icon: LegalIcons.clients },
-  { title: "Contratos", url: "/juros/contratos", icon: LegalIcons.contract, badge: "NEW", highlight: true },
+  { title: "Contratos", url: "/juros/contratos", icon: LegalIcons.contract },
   { title: "Calculadora de Juros", url: "/calculadora-juros", icon: LegalIcons.calculations },
 ];
 
@@ -116,30 +116,34 @@ export function AppSidebar() {
        {/* Header Executivo - Provisionamento */}
        <div className="flex items-center justify-between p-4 border-b border-sidebar-border">
          {!isCollapsed ? (
-           <div className="flex items-center gap-3">
-             <div className="w-10 h-10 bg-sidebar-primary/20 rounded-lg flex items-center justify-center flex-shrink-0">
-               <LegalIcons.justice className="h-5 w-5 text-sidebar-primary" />
-             </div>
-             <div className="min-w-0">
-               <h2 className="text-sm font-extrabold text-sidebar-foreground leading-tight">
-                 Sistema Jurídico Bancário
-               </h2>
-             </div>
+           <div className="flex items-center justify-between w-full gap-2">
+             <h2 className="text-sm font-extrabold text-sidebar-foreground leading-tight tracking-wider flex-1 text-center">
+               SISTEMA JURÍDICO BANCÁRIO
+             </h2>
+             <Button
+               variant="ghost"
+               size="sm"
+               onClick={toggleSidebar}
+               className="text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 flex-shrink-0"
+             >
+               <LegalIcons.collapse className="h-4 w-4" />
+             </Button>
            </div>
         ) : (
-          <div className="w-10 h-10 bg-sidebar-primary/20 rounded-lg flex items-center justify-center mx-auto">
-            <LegalIcons.justice className="h-5 w-5 text-sidebar-primary" />
+          <div className="flex flex-col items-center gap-2 w-full">
+            <div className="w-10 h-10 bg-sidebar-primary/20 rounded-lg flex items-center justify-center">
+              <span className="text-xs font-bold text-sidebar-primary">SJB</span>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleSidebar}
+              className="text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50"
+            >
+              <LegalIcons.expand className="h-4 w-4" />
+            </Button>
           </div>
         )}
-        
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={toggleSidebar}
-          className="text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50"
-        >
-          {isCollapsed ? <LegalIcons.expand className="h-4 w-4" /> : <LegalIcons.collapse className="h-4 w-4" />}
-        </Button>
       </div>
       
       <SidebarContent className="px-0 overflow-y-auto">
