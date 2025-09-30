@@ -101,18 +101,26 @@ export async function consultarTaxaBacenCSV(
   ano: number
 ): Promise<TaxaBacen | null> {
   try {
+    console.log('=== INÍCIO CONSULTA BACEN CSV ===');
+    console.log('Código SGS:', codigoSGS);
+    console.log('Mês:', mes, 'Ano:', ano);
+
     const numeroArquivo = arquivoPorCodigo[codigoSGS];
     if (!numeroArquivo) {
-      console.error(`Código SGS não encontrado: ${codigoSGS}`);
+      console.error(`Código SGS não encontrado no mapeamento: ${codigoSGS}`);
       return null;
     }
 
+    console.log('Arquivo a ser lido:', numeroArquivo);
+
     const csv = await carregarCSV(numeroArquivo);
     const linhas = csv.split('\n');
+    console.log('Total de linhas no CSV:', linhas.length);
 
     // Primeira linha: cabeçalhos
     const cabecalho = linhas[0];
     const colunas = cabecalho.split(';');
+    console.log('Total de colunas:', colunas.length);
     
     // Encontrar a coluna do código SGS
     let indiceColunaAlvo = -1;
@@ -120,18 +128,25 @@ export async function consultarTaxaBacenCSV(
       const match = colunas[i].match(/^(\d+)\s-/);
       if (match && match[1] === codigoSGS) {
         indiceColunaAlvo = i;
+        console.log(`Código ${codigoSGS} encontrado na coluna ${i}`);
         break;
       }
     }
 
     if (indiceColunaAlvo === -1) {
       console.error(`Coluna não encontrada para código ${codigoSGS}`);
+      console.log('Primeiras 3 colunas do cabeçalho:');
+      for (let i = 0; i < Math.min(3, colunas.length); i++) {
+        console.log(`  Coluna ${i}:`, colunas[i].substring(0, 50));
+      }
       return null;
     }
 
     // Procurar a linha do mês/ano
     const dataProc = `${String(mes).padStart(2, '0')}/${ano}`;
+    console.log('Procurando por data:', dataProc);
     
+    let encontrouAlgumaData = false;
     for (let i = 1; i < linhas.length - 1; i++) {
       const linha = linhas[i].trim();
       if (!linha) continue;
@@ -139,20 +154,37 @@ export async function consultarTaxaBacenCSV(
       const valores = linha.split(';');
       const dataStr = valores[0];
 
+      // Log das primeiras 5 datas para debug
+      if (i <= 5) {
+        console.log(`Linha ${i} - Data no CSV:`, dataStr);
+      }
+
       if (dataStr === dataProc) {
+        encontrouAlgumaData = true;
+        console.log('✓ Data encontrada na linha:', i);
+        
         const valorStr = valores[indiceColunaAlvo]?.trim();
+        console.log('Valor bruto encontrado:', valorStr);
+        
         if (!valorStr || valorStr === '-') {
+          console.log('Valor é vazio ou "-", retornando null');
           return null;
         }
 
         // Converter valor brasileiro (vírgula) para número
         const taxaMensal = parseFloat(valorStr.replace(',', '.').replace(/\s/g, ''));
         if (isNaN(taxaMensal)) {
+          console.log('Valor não é um número válido:', valorStr);
           return null;
         }
 
         // Calcular taxa anual: ((1 + taxa_mensal/100)^12 - 1) * 100
         const taxaAnual = ((Math.pow(1 + taxaMensal/100, 12) - 1) * 100);
+
+        console.log('✓ Taxa encontrada!');
+        console.log('  Taxa Mensal:', taxaMensal);
+        console.log('  Taxa Anual:', taxaAnual);
+        console.log('=== FIM CONSULTA BACEN CSV ===');
 
         return {
           taxa_mensal: taxaMensal,
@@ -162,9 +194,22 @@ export async function consultarTaxaBacenCSV(
       }
     }
 
+    if (!encontrouAlgumaData) {
+      console.error('Data não encontrada no CSV');
+      console.log('Últimas 3 datas do arquivo:');
+      for (let i = Math.max(1, linhas.length - 4); i < linhas.length - 1; i++) {
+        const linha = linhas[i].trim();
+        if (linha) {
+          const valores = linha.split(';');
+          console.log(`  ${valores[0]}`);
+        }
+      }
+    }
+
+    console.log('=== FIM CONSULTA BACEN CSV (não encontrado) ===');
     return null;
   } catch (error) {
-    console.error('Erro ao consultar taxa BACEN do CSV:', error);
+    console.error('ERRO ao consultar taxa BACEN do CSV:', error);
     return null;
   }
 }
