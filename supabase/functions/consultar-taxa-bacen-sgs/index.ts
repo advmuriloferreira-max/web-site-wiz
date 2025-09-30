@@ -5,11 +5,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface ConsultaRequest {
-  modalidadeId: string;
-  dataConsulta?: string;
-}
-
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -26,65 +21,121 @@ Deno.serve(async (req) => {
       }
     );
 
-    const { modalidadeId, dataConsulta } = await req.json() as ConsultaRequest;
+    const { modalidadeId, dataConsulta } = await req.json();
 
-    console.log('🔎 Consultando taxa BACEN para modalidade:', modalidadeId);
-
+    // Buscar modalidade
     const { data: modalidade, error: modalidadeError } = await supabaseClient
       .from('modalidades_bacen_juros')
       .select('*')
       .eq('id', modalidadeId)
       .single();
 
-    if (modalidadeError) {
-      throw new Error(`Modalidade não encontrada: ${modalidadeError.message}`);
-    }
-
-    console.log('📋', modalidade.nome, '| SGS:', modalidade.codigo_sgs);
+    if (modalidadeError) throw new Error(`Modalidade não encontrada`);
 
     const dataRef = dataConsulta ? new Date(dataConsulta) : new Date();
     const mes = dataRef.getMonth() + 1;
     const ano = dataRef.getFullYear();
     const dataFormatada = `${String(mes).padStart(2, '0')}/${ano}`;
 
-    console.log('📅 Período:', dataFormatada);
+    console.log(`🔍 Buscando: ${modalidade.nome} (SGS: ${modalidade.codigo_sgs}) para ${dataFormatada}`);
 
-    // Buscar nos 4 arquivos CSV
-    let taxaEncontrada: { taxa_mensal: number; taxa_anual: number; arquivo: number } | null = null;
-
+    // Buscar em todos os 4 arquivos CSV
+    let resultado = null;
+    
     for (let arquivo = 1; arquivo <= 4; arquivo++) {
-      const taxa = await buscarTaxaNoCSV(modalidade.codigo_sgs, dataFormatada, arquivo);
-      if (taxa) {
-        taxaEncontrada = { ...taxa, arquivo };
-        break;
+      try {
+        const csvUrl = `https://f236da44-380e-48a7-993c-b7f24806630f.lovableproject.com/data/bacen-series-${arquivo}.csv`;
+        const response = await fetch(csvUrl);
+        
+        if (!response.ok) continue;
+
+        const csvText = await response.text();
+        const linhas = csvText.split('\n');
+
+        // Processar cabeçalho
+        const cabecalho = linhas[0];
+        const colunas = cabecalho.split(';');
+        
+        // Buscar coluna com o código SGS
+        let indiceColuna = -1;
+        for (let i = 0; i < colunas.length; i++) {
+          const coluna = colunas[i];
+          // Verificar se a coluna contém o código SGS no início
+          if (coluna.trim().startsWith(modalidade.codigo_sgs + ' ')) {
+            indiceColuna = i;
+            console.log(`✓ Código ${modalidade.codigo_sgs} encontrado no arquivo ${arquivo}, coluna ${i}`);
+            break;
+          }
+        }
+
+        if (indiceColuna === -1) {
+          console.log(`Arquivo ${arquivo}: código ${modalidade.codigo_sgs} não encontrado`);
+          continue;
+        }
+
+        // Buscar linha com a data
+        for (let i = 1; i < linhas.length; i++) {
+          const linha = linhas[i].trim();
+          if (!linha || linha.startsWith('Fonte')) continue;
+
+          const valores = linha.split(';');
+          const dataDaLinha = valores[0].trim();
+
+          if (dataDaLinha === dataFormatada) {
+            const valorStr = valores[indiceColuna]?.trim();
+            
+            console.log(`✓ Data encontrada! Valor bruto: "${valorStr}"`);
+
+            if (!valorStr || valorStr === '-' || valorStr === '') {
+              console.log('Valor vazio');
+              break;
+            }
+
+            // Converter (formato BR: vírgula = decimal, espaço = separador de milhar)
+            const taxaMensal = parseFloat(valorStr.replace(/\s/g, '').replace(',', '.'));
+            
+            if (isNaN(taxaMensal)) {
+              console.log(`Valor inválido: ${valorStr}`);
+              break;
+            }
+
+            const taxaAnual = ((Math.pow(1 + taxaMensal/100, 12) - 1) * 100);
+
+            resultado = {
+              modalidade: {
+                id: modalidade.id,
+                nome: modalidade.nome,
+                codigo_sgs: modalidade.codigo_sgs,
+                tipo_pessoa: modalidade.tipo_pessoa,
+                categoria: modalidade.categoria,
+              },
+              taxa_mensal: taxaMensal,
+              taxa_anual: taxaAnual,
+              periodo: {
+                mes,
+                ano,
+                data_referencia: `${ano}-${String(mes).padStart(2, '0')}-01`,
+              },
+              origem: 'sgs_bacen',
+              arquivo_csv: arquivo,
+              data_consulta: new Date().toISOString(),
+            };
+
+            console.log(`✅ Taxa encontrada: ${taxaMensal}% ao mês`);
+            break;
+          }
+        }
+
+        if (resultado) break;
+        
+      } catch (err: any) {
+        console.error(`Erro no arquivo ${arquivo}:`, err.message);
       }
     }
 
-    if (!taxaEncontrada) {
-      throw new Error(`Taxa não encontrada para ${modalidade.nome} no período ${dataFormatada}. Verifique se o período e código SGS ${modalidade.codigo_sgs} estão corretos nos arquivos CSV.`);
+    if (!resultado) {
+      throw new Error(`Taxa não encontrada para ${modalidade.nome} (SGS: ${modalidade.codigo_sgs}) no período ${dataFormatada}. Verifique se o código SGS e o período estão corretos nos arquivos CSV.`);
     }
-
-    console.log(`✅ Taxa encontrada no arquivo ${taxaEncontrada.arquivo}:`, taxaEncontrada.taxa_mensal, '%');
-
-    const resultado = {
-      modalidade: {
-        id: modalidade.id,
-        nome: modalidade.nome,
-        codigo_sgs: modalidade.codigo_sgs,
-        tipo_pessoa: modalidade.tipo_pessoa,
-        categoria: modalidade.categoria,
-      },
-      taxa_mensal: taxaEncontrada.taxa_mensal,
-      taxa_anual: taxaEncontrada.taxa_anual,
-      periodo: {
-        mes,
-        ano,
-        data_referencia: `${ano}-${String(mes).padStart(2, '0')}-01`,
-      },
-      origem: 'sgs_bacen',
-      arquivo_csv: taxaEncontrada.arquivo,
-      data_consulta: new Date().toISOString(),
-    };
 
     return new Response(JSON.stringify(resultado), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -94,9 +145,7 @@ Deno.serve(async (req) => {
   } catch (error: any) {
     console.error('❌', error.message);
     return new Response(
-      JSON.stringify({ 
-        error: error.message,
-      }),
+      JSON.stringify({ error: error.message }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500,
@@ -104,61 +153,3 @@ Deno.serve(async (req) => {
     );
   }
 });
-
-async function buscarTaxaNoCSV(
-  codigoSGS: string,
-  dataFormatada: string,
-  numeroArquivo: number
-): Promise<{ taxa_mensal: number; taxa_anual: number } | null> {
-  try {
-    const csvUrl = `https://f236da44-380e-48a7-993c-b7f24806630f.lovableproject.com/data/bacen-series-${numeroArquivo}.csv`;
-    
-    const response = await fetch(csvUrl);
-    if (!response.ok) return null;
-
-    const csvText = await response.text();
-    const linhas = csvText.split('\n');
-    
-    if (linhas.length < 2) return null;
-
-    // Cabeçalho
-    const cabecalho = linhas[0];
-    const colunas = cabecalho.split(';');
-    
-    // Encontrar coluna do código SGS
-    let indiceColuna = -1;
-    for (let i = 1; i < colunas.length; i++) {
-      if (colunas[i].includes(codigoSGS)) {
-        indiceColuna = i;
-        break;
-      }
-    }
-
-    if (indiceColuna === -1) return null;
-
-    // Procurar data
-    for (let i = 1; i < linhas.length; i++) {
-      const linha = linhas[i].trim();
-      if (!linha) continue;
-
-      const valores = linha.split(';');
-      if (valores[0] === dataFormatada) {
-        const valorStr = valores[indiceColuna]?.trim();
-        
-        if (!valorStr || valorStr === '-' || valorStr === '') return null;
-
-        const taxaMensal = parseFloat(valorStr.replace(',', '.').replace(/\s/g, ''));
-        if (isNaN(taxaMensal)) return null;
-
-        const taxaAnual = ((Math.pow(1 + taxaMensal/100, 12) - 1) * 100);
-
-        return { taxa_mensal: taxaMensal, taxa_anual: taxaAnual };
-      }
-    }
-
-    return null;
-  } catch (error: any) {
-    console.error(`Erro no arquivo ${numeroArquivo}:`, error.message);
-    return null;
-  }
-}
