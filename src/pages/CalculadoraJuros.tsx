@@ -53,24 +53,45 @@ const CalculadoraJuros = () => {
   const [tipoPessoaFiltro, setTipoPessoaFiltro] = useState<'PF' | 'PJ' | undefined>(undefined);
   const { data: modalidades, isLoading: loadingModalidades } = useModalidadesBacenJuros(tipoPessoaFiltro);
 
-  // Estados do formulário
+  // Estados do formulário - TODOS opcionais agora
   const [valorFinanciamento, setValorFinanciamento] = useState("");
   const [valorPrestacao, setValorPrestacao] = useState("");
   const [numeroParcelas, setNumeroParcelas] = useState("");
   const [taxaJurosContratual, setTaxaJurosContratual] = useState("");
   const [dataAssinatura, setDataAssinatura] = useState("");
   const [modalidadeId, setModalidadeId] = useState("");
+  
+  // Estado para indicar qual campo está sendo calculado
+  const [campoCalculado, setCampoCalculado] = useState<'valor_financiamento' | 'valor_prestacao' | 'numero_parcelas' | 'taxa_juros' | null>(null);
 
   // Estados de resultado
   const [resultado, setResultado] = useState<any>(null);
   const [analisando, setAnalisando] = useState(false);
 
   const handleAnalisar = async () => {
-    if (!valorFinanciamento || !valorPrestacao || !numeroParcelas || !dataAssinatura || !modalidadeId) {
-      toast.error("Preencha todos os campos obrigatórios");
+    // Validar: precisa ter exatamente 3 das 4 variáveis preenchidas
+    const campos = [
+      { nome: 'valorFinanciamento', valor: valorFinanciamento },
+      { nome: 'valorPrestacao', valor: valorPrestacao },
+      { nome: 'numeroParcelas', valor: numeroParcelas },
+      { nome: 'taxaJurosContratual', valor: taxaJurosContratual }
+    ];
+    
+    const camposPreenchidos = campos.filter(c => c.valor !== '');
+    const camposVazios = campos.filter(c => c.valor === '');
+    
+    if (camposPreenchidos.length !== 3) {
+      toast.error("Preencha exatamente 3 dos 4 campos (Valor Financiado, Valor Prestação, Nº Parcelas, Taxa). O 4º será calculado automaticamente.");
       return;
     }
-
+    
+    if (!dataAssinatura || !modalidadeId) {
+      toast.error("Preencha a data de assinatura e selecione a modalidade BACEN");
+      return;
+    }
+    
+    const campoVazio = camposVazios[0].nome;
+    
     setAnalisando(true);
     
     try {
@@ -82,29 +103,66 @@ const CalculadoraJuros = () => {
       toast.success(`✅ Taxa BACEN encontrada: ${data.taxa_mensal.toFixed(2)}% ao mês`, {
         duration: 4000
       });
-
-      // 2. Calcular taxa real efetiva através dos valores informados
-      const valorPrest = parseFloat(valorPrestacao);
-      const valorFin = parseFloat(valorFinanciamento);
-      const parcelas = parseInt(numeroParcelas);
       
-      // Taxa contratual (a que está escrita no contrato)
-      const taxaContratual = taxaJurosContratual ? parseFloat(taxaJurosContratual) : undefined;
+      // 2. Calcular o campo que está faltando (usando as outras 3 variáveis)
+      let valorFin = valorFinanciamento ? parseFloat(valorFinanciamento) : 0;
+      let valorPrest = valorPrestacao ? parseFloat(valorPrestacao) : 0;
+      let parcelas = numeroParcelas ? parseInt(numeroParcelas) : 0;
+      let taxaContratual = taxaJurosContratual ? parseFloat(taxaJurosContratual) : 0;
+      let taxaRealMensal = 0;
       
-      // Calcular taxa real usando método iterativo (TIR)
-      // Encontra a taxa i que satisfaz: PV = PMT × [(1 - (1 + i)^-n) / i]
-      const taxaRealMensal = calcularTaxaRealIterativo(valorFin, valorPrest, parcelas);
+      console.log('\n🔢 === CÁLCULO COM 4 VARIÁVEIS ===');
+      console.log(`Campo a ser calculado: ${campoVazio}`);
       
-      console.log('📊 Cálculo de Taxa Real:');
-      console.log(`   Valor Financiado: R$ ${valorFin.toFixed(2)}`);
-      console.log(`   Valor Parcela: R$ ${valorPrest.toFixed(2)}`);
-      console.log(`   Número de Parcelas: ${parcelas}`);
-      console.log(`   Taxa Real Calculada: ${taxaRealMensal.toFixed(4)}% a.m.`);
-      if (taxaContratual) {
-        console.log(`   Taxa Contratual: ${taxaContratual.toFixed(4)}% a.m.`);
-        console.log(`   Diferença: ${(taxaRealMensal - taxaContratual).toFixed(4)}%`);
+      // Importar funções de cálculo
+      const { calcularValorParcela, calcularNumeroParcelas, calcularValorFinanciado } = await import('@/lib/calculoTaxaEfetiva');
+      
+      // Calcular o campo faltante
+      switch (campoVazio) {
+        case 'valorFinanciamento':
+          // PV = PMT × [(1 - (1 + i)^-n) / i]
+          valorFin = calcularValorFinanciado(valorPrest, taxaContratual, parcelas);
+          console.log(`✅ Valor Financiado calculado: R$ ${valorFin.toFixed(2)}`);
+          taxaRealMensal = taxaContratual;
+          setCampoCalculado('valor_financiamento');
+          toast.success(`Valor Financiado calculado: R$ ${valorFin.toFixed(2)}`);
+          break;
+          
+        case 'valorPrestacao':
+          // PMT = PV × [i × (1 + i)^n] / [(1 + i)^n - 1]
+          valorPrest = calcularValorParcela(valorFin, taxaContratual, parcelas);
+          console.log(`✅ Valor da Prestação calculado: R$ ${valorPrest.toFixed(2)}`);
+          taxaRealMensal = taxaContratual;
+          setCampoCalculado('valor_prestacao');
+          toast.success(`Valor da Prestação calculado: R$ ${valorPrest.toFixed(2)}`);
+          break;
+          
+        case 'numeroParcelas':
+          // n = log(PMT / (PMT - PV × i)) / log(1 + i)
+          parcelas = calcularNumeroParcelas(valorFin, valorPrest, taxaContratual);
+          console.log(`✅ Número de Parcelas calculado: ${parcelas}`);
+          taxaRealMensal = taxaContratual;
+          setCampoCalculado('numero_parcelas');
+          toast.success(`Número de Parcelas calculado: ${parcelas}`);
+          break;
+          
+        case 'taxaJurosContratual':
+          // Calcular taxa real usando método iterativo
+          taxaRealMensal = calcularTaxaRealIterativo(valorFin, valorPrest, parcelas);
+          taxaContratual = taxaRealMensal;
+          console.log(`✅ Taxa de Juros calculada: ${taxaRealMensal.toFixed(4)}% a.m.`);
+          setCampoCalculado('taxa_juros');
+          toast.success(`Taxa de Juros calculada: ${taxaRealMensal.toFixed(4)}% a.m.`);
+          break;
       }
       
+      console.log(`\n📊 Valores finais:`);
+      console.log(`   Valor Financiado: R$ ${valorFin.toFixed(2)}`);
+      console.log(`   Valor Prestação: R$ ${valorPrest.toFixed(2)}`);
+      console.log(`   Número de Parcelas: ${parcelas}`);
+      console.log(`   Taxa: ${taxaRealMensal.toFixed(4)}% a.m.`);
+      
+      // 3. Calcular métricas financeiras
       const metricas = calcularMetricasFinanceiras({
         valorDivida: valorFin,
         saldoContabil: valorFin,
@@ -116,33 +174,37 @@ const CalculadoraJuros = () => {
         diasAtraso: 0,
       });
 
-      // 3. Comparar com taxa BACEN
+      // 4. Comparar com taxa BACEN
       const taxaBacenMensal = data.taxa_mensal;
       const comparacao = compararTaxaBacen(
         metricas.taxaEfetivaMensal,
         taxaBacenMensal
       );
       
-      // 4. Calcular diferença entre taxa contratual e taxa real
+      // 5. Calcular diferença (se tiver taxa contratual diferente da real)
       const totalPago = valorPrest * parcelas;
       const totalJuros = totalPago - valorFin;
       const custoEfetivoTotal = (totalJuros / valorFin) * 100;
       
-      const diferencaTaxas = taxaContratual ? (taxaRealMensal - taxaContratual) : 0;
-      const percentualDiferenca = taxaContratual ? (diferencaTaxas / taxaContratual) * 100 : 0;
+      const diferencaTaxas = 0; // Não há diferença pois usamos a mesma taxa
+      const percentualDiferenca = 0;
 
       setResultado({
         metricas,
         comparacao,
         taxaBacen: data,
         modalidade: data.modalidade,
-        taxaContratual: taxaContratual || taxaRealMensal,
+        taxaContratual: taxaRealMensal,
         taxaReal: taxaRealMensal,
         diferencaTaxas,
         percentualDiferenca,
         totalPago,
         totalJuros,
         custoEfetivoTotal,
+        // Valores calculados
+        valorFinanciamentoCalculado: campoVazio === 'valorFinanciamento' ? valorFin : undefined,
+        valorPrestacaoCalculado: campoVazio === 'valorPrestacao' ? valorPrest : undefined,
+        numeroParcelasCalculado: campoVazio === 'numeroParcelas' ? parcelas : undefined,
       });
 
       toast.success("Análise concluída com sucesso!");
@@ -178,11 +240,11 @@ const CalculadoraJuros = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Calculator className="h-5 w-5" />
-                Dados do Contrato
+                Calculadora de 4 Variáveis
               </CardTitle>
-              <CardDescription>
-                Preencha os dados para análise de juros conforme BACEN
-              </CardDescription>
+                  <CardDescription>
+                    Sistema de cálculo com 4 variáveis - preencha 3 para calcular a 4ª automaticamente
+                  </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -247,50 +309,67 @@ const CalculadoraJuros = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="valorFinanciamento">Valor do Financiamento *</Label>
+                  <Label htmlFor="valorFinanciamento">
+                    Valor do Financiamento {campoCalculado === 'valor_financiamento' && <span className="text-green-600">✓ Calculado</span>}
+                  </Label>
                   <Input
                     id="valorFinanciamento"
                     type="number"
-                    placeholder="Ex: 10000"
+                    placeholder="Ex: 10000 (deixe vazio para calcular)"
                     value={valorFinanciamento}
                     onChange={(e) => setValorFinanciamento(e.target.value)}
                   />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Deixe vazio para calcular este valor
+                  </p>
                 </div>
 
                 <div>
-                  <Label htmlFor="valorPrestacao">Valor da Prestação *</Label>
+                  <Label htmlFor="valorPrestacao">
+                    Valor da Prestação {campoCalculado === 'valor_prestacao' && <span className="text-green-600">✓ Calculado</span>}
+                  </Label>
                   <Input
                     id="valorPrestacao"
                     type="number"
-                    placeholder="Ex: 500"
+                    placeholder="Ex: 500 (deixe vazio para calcular)"
                     value={valorPrestacao}
                     onChange={(e) => setValorPrestacao(e.target.value)}
                   />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Deixe vazio para calcular este valor
+                  </p>
                 </div>
 
                 <div>
-                  <Label htmlFor="numeroParcelas">Número de Parcelas *</Label>
+                  <Label htmlFor="numeroParcelas">
+                    Número de Parcelas {campoCalculado === 'numero_parcelas' && <span className="text-green-600">✓ Calculado</span>}
+                  </Label>
                   <Input
                     id="numeroParcelas"
                     type="number"
-                    placeholder="Ex: 24"
+                    placeholder="Ex: 24 (deixe vazio para calcular)"
                     value={numeroParcelas}
                     onChange={(e) => setNumeroParcelas(e.target.value)}
                   />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Deixe vazio para calcular este valor
+                  </p>
                 </div>
 
                 <div>
-                  <Label htmlFor="taxaJurosContratual">Taxa de Juros Contratual (% a.m.)</Label>
+                  <Label htmlFor="taxaJurosContratual">
+                    Taxa de Juros (% a.m.) {campoCalculado === 'taxa_juros' && <span className="text-green-600">✓ Calculado</span>}
+                  </Label>
                   <Input
                     id="taxaJurosContratual"
                     type="number"
                     step="0.01"
-                    placeholder="Ex: 2.5"
+                    placeholder="Ex: 2.5 (deixe vazio para calcular)"
                     value={taxaJurosContratual}
                     onChange={(e) => setTaxaJurosContratual(e.target.value)}
                   />
                   <p className="text-xs text-muted-foreground mt-1">
-                    Taxa informada no contrato. Compararemos com a taxa real cobrada.
+                    Deixe vazio para calcular a taxa real
                   </p>
                 </div>
 
