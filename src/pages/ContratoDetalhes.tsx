@@ -1,11 +1,10 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Edit, FileText, Calculator, AlertTriangle, Shield, BarChart3 } from "lucide-react";
+import { ArrowLeft, Edit, FileText, Calculator, AlertTriangle, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ContratoWizard } from "@/components/forms/ContratoWizard";
 import { GarantiaImpactDisplay } from "@/components/garantias/GarantiaImpactDisplay";
@@ -21,7 +20,6 @@ import {
 import { format } from "date-fns";
 import { useState, useEffect } from "react";
 import AssistenteVirtual from "@/components/assistente/AssistenteVirtual";
-import AnalysisManager from "@/components/FinancialAnalysis/AnalysisManager";
 
 // Import visual effects components
 import { HeroParticleBackground, SuccessConfetti } from "@/components/ui/particle-effects";
@@ -90,7 +88,6 @@ export default function ContratoDetalhes() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [resultadoProvisao, setResultadoProvisao] = useState<ResultadoCalculo | null>(null);
   const [showSuccessEffect, setShowSuccessEffect] = useState(false);
-  const [activeTab, setActiveTab] = useState("details");
   
   const { data: contrato, isLoading, error } = useContratoById(contratoId || null);
   const { data: tabelaPerda } = useProvisaoPerda();
@@ -256,21 +253,8 @@ export default function ContratoDetalhes() {
           return null;
         })()}
 
-        {/* Tabs for Contract Details and Financial Analysis */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full max-w-md grid-cols-2">
-            <TabsTrigger value="details" className="flex items-center gap-2">
-              <FileText className="h-4 w-4" />
-              Detalhes do Contrato
-            </TabsTrigger>
-            <TabsTrigger value="analysis" className="flex items-center gap-2">
-              <BarChart3 className="h-4 w-4" />
-              Análise Financeira
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="details" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* Main Content */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
               {/* Informações Básicas */}
               <div className="lg:col-span-2 bg-card border border-border rounded-lg">
                 <Card className="border-0 bg-transparent shadow-none">
@@ -518,15 +502,10 @@ export default function ContratoDetalhes() {
                 <AuditLog />
               </div>
             </div>
+        </div>
 
-            {/* Assistente Virtual com contexto do contrato */}
-            <AssistenteVirtual contratoContext={contrato} />
-          </TabsContent>
-
-          <TabsContent value="analysis" className="space-y-6">
-            {contratoId && <AnalysisManager contratoId={contratoId} />}
-          </TabsContent>
-        </Tabs>
+        {/* Assistente Virtual com contexto do contrato */}
+        <AssistenteVirtual contratoContext={contrato} />
       </div>
     </div>
   );
