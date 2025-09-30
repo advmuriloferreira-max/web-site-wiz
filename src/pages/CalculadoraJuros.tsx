@@ -36,18 +36,12 @@ const CalculadoraJuros = () => {
     setAnalisando(true);
     
     try {
-      // 1. Consultar taxa BACEN (busca automática: DB → CSV → API → Simulada)
-      const { data, error } = await supabase.functions.invoke('consultar-taxa-bacen-sgs', {
-        body: {
-          modalidadeId,
-          dataConsulta: dataAssinatura,
-        }
-      });
-
-      if (error) throw new Error(error.message || 'Erro ao consultar taxa BACEN');
-      if (!data || !data.taxa_mensal) throw new Error('Taxa não encontrada');
-
-      toast.success(`✅ Taxa BACEN encontrada: ${data.taxa_mensal.toFixed(2)}% ao mês (${data.origem})`, {
+      // NOVO: Buscar taxa diretamente do CSV no frontend
+      const { consultarTaxaBacenCSV } = await import('@/lib/consultarTaxaBacenCSV');
+      
+      const data = await consultarTaxaBacenCSV(modalidadeId, dataAssinatura);
+      
+      toast.success(`✅ Taxa BACEN encontrada: ${data.taxa_mensal.toFixed(2)}% ao mês`, {
         duration: 4000
       });
 
