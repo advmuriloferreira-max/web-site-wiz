@@ -173,13 +173,43 @@ const CalculadoraJuros = () => {
         valorGarantias: 0,
         diasAtraso: 0,
       });
-
-      // 4. Comparar com taxa BACEN
+      
+      // 4. Comparar com taxa BACEN usando critério dos tribunais (1,5x)
       const taxaBacenMensal = data.taxa_mensal;
-      const comparacao = compararTaxaBacen(
-        metricas.taxaEfetivaMensal,
-        taxaBacenMensal
-      );
+      const limiteAbusividade = taxaBacenMensal * 1.5; // Critério dos tribunais
+      
+      // Classificação baseada no critério judicial
+      let nivelAbusividade: 'verde' | 'amarelo' | 'vermelho';
+      let mensagemAbusividade: string;
+      let passivelAcao: boolean;
+      
+      if (taxaRealMensal <= taxaBacenMensal) {
+        nivelAbusividade = 'verde';
+        mensagemAbusividade = 'Taxa dentro ou abaixo da média do mercado';
+        passivelAcao = false;
+      } else if (taxaRealMensal < limiteAbusividade) {
+        nivelAbusividade = 'amarelo';
+        mensagemAbusividade = 'Taxa acima da média do mercado, mas ainda não abusiva';
+        passivelAcao = false;
+      } else {
+        nivelAbusividade = 'vermelho';
+        mensagemAbusividade = 'Taxa ABUSIVA - Passível de Ação Revisional (acima de 1,5x a média BACEN)';
+        passivelAcao = true;
+      }
+      
+      const diferencaAbsoluta = taxaRealMensal - taxaBacenMensal;
+      const percentualAcimaBacen = (diferencaAbsoluta / taxaBacenMensal) * 100;
+      const multiplicadorBacen = taxaRealMensal / taxaBacenMensal;
+      
+      console.log(`\n⚖️ === ANÁLISE JUDICIAL ===`);
+      console.log(`Taxa do contrato: ${taxaRealMensal.toFixed(4)}% a.m.`);
+      console.log(`Taxa BACEN: ${taxaBacenMensal.toFixed(4)}% a.m.`);
+      console.log(`Limite de abusividade (1,5x BACEN): ${limiteAbusividade.toFixed(4)}% a.m.`);
+      console.log(`Multiplicador: ${multiplicadorBacen.toFixed(2)}x a taxa BACEN`);
+      console.log(`Classificação: ${nivelAbusividade.toUpperCase()}`);
+      console.log(`Passível de ação: ${passivelAcao ? 'SIM' : 'NÃO'}`);
+      
+      const comparacao = compararTaxaBacen(taxaRealMensal, taxaBacenMensal);
       
       // 5. Calcular diferença (se tiver taxa contratual diferente da real)
       const totalPago = valorPrest * parcelas;
@@ -205,6 +235,14 @@ const CalculadoraJuros = () => {
         valorFinanciamentoCalculado: campoVazio === 'valorFinanciamento' ? valorFin : undefined,
         valorPrestacaoCalculado: campoVazio === 'valorPrestacao' ? valorPrest : undefined,
         numeroParcelasCalculado: campoVazio === 'numeroParcelas' ? parcelas : undefined,
+        // Análise de abusividade
+        nivelAbusividade,
+        mensagemAbusividade,
+        passivelAcao,
+        limiteAbusividade,
+        diferencaAbsoluta,
+        percentualAcimaBacen,
+        multiplicadorBacen,
       });
 
       toast.success("Análise concluída com sucesso!");
@@ -505,26 +543,94 @@ const CalculadoraJuros = () => {
                     </div>
                   </div>
 
-                  <div className={`p-4 rounded-lg ${resultado.comparacao.acimaMercado ? 'bg-destructive/10 border border-destructive' : 'bg-green-500/10 border border-green-500'}`}>
-                    <p className={`font-semibold text-lg ${resultado.comparacao.acimaMercado ? 'text-destructive' : 'text-green-600'}`}>
-                      {resultado.comparacao.acimaMercado ? "⚠️ Taxa ACIMA da Média do Mercado" : "✓ Taxa Dentro da Média do Mercado"}
-                    </p>
-                    <p className="text-sm mt-2">
-                      Diferença: <span className="font-bold">{resultado.comparacao.diferenca.toFixed(2)}%</span>
-                      {' '}({resultado.comparacao.percentualDiferenca.toFixed(1)}% {resultado.comparacao.acimaMercado ? 'acima' : 'abaixo'})
-                    </p>
-                    {resultado.comparacao.acimaMercado && (
-                      <p className="text-sm mt-2 text-muted-foreground">
-                        A taxa praticada está significativamente acima da média do mercado para esta modalidade,
-                        podendo caracterizar juros abusivos passíveis de revisão judicial.
-                      </p>
-                    )}
+                  {/* Alerta de Abusividade - Critério Judicial */}
+                  <div className={`p-4 rounded-lg border-2 ${
+                    resultado.nivelAbusividade === 'verde' 
+                      ? 'bg-green-500/10 border-green-500' 
+                      : resultado.nivelAbusividade === 'amarelo'
+                      ? 'bg-amber-500/10 border-amber-500'
+                      : 'bg-red-500/10 border-red-500'
+                  }`}>
+                    <div className="flex items-start gap-3">
+                      <div className={`text-3xl ${
+                        resultado.nivelAbusividade === 'verde' 
+                          ? 'text-green-600' 
+                          : resultado.nivelAbusividade === 'amarelo'
+                          ? 'text-amber-600'
+                          : 'text-red-600'
+                      }`}>
+                        {resultado.nivelAbusividade === 'verde' && '✓'}
+                        {resultado.nivelAbusividade === 'amarelo' && '⚠️'}
+                        {resultado.nivelAbusividade === 'vermelho' && '⚠️'}
+                      </div>
+                      <div className="flex-1">
+                        <p className={`font-semibold text-lg ${
+                          resultado.nivelAbusividade === 'verde' 
+                            ? 'text-green-700 dark:text-green-400' 
+                            : resultado.nivelAbusividade === 'amarelo'
+                            ? 'text-amber-700 dark:text-amber-400'
+                            : 'text-red-700 dark:text-red-400'
+                        }`}>
+                          {resultado.mensagemAbusividade}
+                        </p>
+                        
+                        <div className="mt-3 space-y-2 text-sm">
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Taxa do Contrato:</span>
+                            <span className="font-semibold">{resultado.taxaReal.toFixed(4)}% a.m.</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Taxa Média BACEN:</span>
+                            <span className="font-semibold">{resultado.taxaBacen.taxa_mensal.toFixed(4)}% a.m.</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Limite de Abusividade (1,5x BACEN):</span>
+                            <span className="font-semibold">{resultado.limiteAbusividade.toFixed(4)}% a.m.</span>
+                          </div>
+                          <div className="flex justify-between border-t pt-2">
+                            <span className="text-muted-foreground">Diferença:</span>
+                            <span className="font-semibold">
+                              {resultado.diferencaAbsoluta > 0 ? '+' : ''}{resultado.diferencaAbsoluta.toFixed(4)}%
+                              ({resultado.percentualAcimaBacen.toFixed(1)}%)
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Multiplicador BACEN:</span>
+                            <span className="font-semibold">{resultado.multiplicadorBacen.toFixed(2)}x</span>
+                          </div>
+                        </div>
+                        
+                        {resultado.passivelAcao && (
+                          <div className="mt-3 p-3 bg-red-500/20 rounded border border-red-500/30">
+                            <p className="font-semibold text-red-700 dark:text-red-400 flex items-center gap-2">
+                              <span className="text-xl">⚖️</span>
+                              AÇÃO REVISIONAL RECOMENDADA
+                            </p>
+                            <p className="text-xs mt-1 text-red-600 dark:text-red-300">
+                              A taxa cobrada está {resultado.multiplicadorBacen.toFixed(2)}x acima da média do BACEN, 
+                              ultrapassando o limite de 1,5x estabelecido pela jurisprudência dos tribunais. 
+                              Este contrato é passível de revisão judicial.
+                            </p>
+                          </div>
+                        )}
+                        
+                        {resultado.nivelAbusividade === 'amarelo' && (
+                          <div className="mt-3 p-3 bg-amber-500/20 rounded border border-amber-500/30">
+                            <p className="text-xs text-amber-700 dark:text-amber-300">
+                              A taxa está acima da média do mercado ({resultado.multiplicadorBacen.toFixed(2)}x), 
+                              mas ainda não atinge o critério judicial de abusividade (1,5x). 
+                              Recomenda-se negociação com a instituição financeira.
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="p-3 bg-muted/30 rounded-lg text-xs text-muted-foreground">
-                    <p className="font-semibold mb-1">Fonte dos Dados:</p>
-                    <p>Taxas obtidas do {resultado.taxaBacen.origem === 'banco_dados' ? 'banco de dados local (histórico)' : 'Sistema Gerenciador de Séries Temporais (SGS) do Banco Central'}</p>
-                    <p className="mt-1">Consulta realizada em: {new Date(resultado.taxaBacen.data_consulta).toLocaleString('pt-BR')}</p>
+                  <div className="p-3 bg-muted/50 rounded-lg text-xs text-muted-foreground">
+                    <p className="font-semibold mb-1">ℹ️ Fonte dos Dados:</p>
+                    <p>Taxa média do BACEN obtida do Sistema Gerenciador de Séries Temporais (SGS) - {resultado.taxaBacen.origem}</p>
+                    <p className="mt-1">Critério de abusividade: Superior a 1,5 vezes a taxa média de mercado (jurisprudência consolidada)</p>
                   </div>
                 </CardContent>
               </Card>
