@@ -30,7 +30,6 @@ Deno.serve(async (req) => {
 
     console.log('🔎 Consultando taxa BACEN para modalidade:', modalidadeId);
 
-    // Buscar informações da modalidade
     const { data: modalidade, error: modalidadeError } = await supabaseClient
       .from('modalidades_bacen_juros')
       .select('*')
@@ -41,23 +40,31 @@ Deno.serve(async (req) => {
       throw new Error(`Modalidade não encontrada: ${modalidadeError.message}`);
     }
 
-    console.log('📋 Modalidade:', modalidade.nome, '| Código SGS:', modalidade.codigo_sgs);
+    console.log('📋', modalidade.nome, '| SGS:', modalidade.codigo_sgs);
 
-    // Determinar mês e ano da consulta
     const dataRef = dataConsulta ? new Date(dataConsulta) : new Date();
     const mes = dataRef.getMonth() + 1;
     const ano = dataRef.getFullYear();
+    const dataFormatada = `${String(mes).padStart(2, '0')}/${ano}`;
 
-    console.log('📅 Buscando taxa para:', mes, '/', ano);
+    console.log('📅 Período:', dataFormatada);
 
-    // BUSCAR APENAS NOS CSVs FORNECIDOS
-    const taxaCSV = await buscarTaxaNoCSV(modalidade.codigo_sgs, mes, ano);
-    
-    if (!taxaCSV) {
-      throw new Error(`Taxa não encontrada nos arquivos CSV para o período ${mes}/${ano}. Verifique se o período está disponível nos dados fornecidos.`);
+    // Buscar nos 4 arquivos CSV
+    let taxaEncontrada: { taxa_mensal: number; taxa_anual: number; arquivo: number } | null = null;
+
+    for (let arquivo = 1; arquivo <= 4; arquivo++) {
+      const taxa = await buscarTaxaNoCSV(modalidade.codigo_sgs, dataFormatada, arquivo);
+      if (taxa) {
+        taxaEncontrada = { ...taxa, arquivo };
+        break;
+      }
     }
 
-    console.log('✅ Taxa encontrada no CSV!');
+    if (!taxaEncontrada) {
+      throw new Error(`Taxa não encontrada para ${modalidade.nome} no período ${dataFormatada}. Verifique se o período e código SGS ${modalidade.codigo_sgs} estão corretos nos arquivos CSV.`);
+    }
+
+    console.log(`✅ Taxa encontrada no arquivo ${taxaEncontrada.arquivo}:`, taxaEncontrada.taxa_mensal, '%');
 
     const resultado = {
       modalidade: {
@@ -67,18 +74,17 @@ Deno.serve(async (req) => {
         tipo_pessoa: modalidade.tipo_pessoa,
         categoria: modalidade.categoria,
       },
-      taxa_mensal: taxaCSV.taxa_mensal,
-      taxa_anual: taxaCSV.taxa_anual,
+      taxa_mensal: taxaEncontrada.taxa_mensal,
+      taxa_anual: taxaEncontrada.taxa_anual,
       periodo: {
         mes,
         ano,
         data_referencia: `${ano}-${String(mes).padStart(2, '0')}-01`,
       },
       origem: 'sgs_bacen',
+      arquivo_csv: taxaEncontrada.arquivo,
       data_consulta: new Date().toISOString(),
     };
-
-    console.log('📊 Resultado:', JSON.stringify(resultado, null, 2));
 
     return new Response(JSON.stringify(resultado), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -86,11 +92,10 @@ Deno.serve(async (req) => {
     });
 
   } catch (error: any) {
-    console.error('❌ Erro:', error);
+    console.error('❌', error.message);
     return new Response(
       JSON.stringify({ 
         error: error.message,
-        details: 'Erro ao consultar taxa BACEN nos arquivos CSV'
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -100,115 +105,60 @@ Deno.serve(async (req) => {
   }
 });
 
-// Mapeamento de códigos SGS para arquivos CSV
-const arquivoPorCodigo: Record<string, number> = {
-  // Arquivo 1
-  '25436': 1, '25437': 1, '25438': 1, '25439': 1, '25440': 1, '25441': 1, 
-  '25442': 1, '25443': 1, '25444': 1, '25445': 1, '25446': 1,
-  // Arquivo 2
-  '25447': 2, '25448': 2, '25449': 2, '25450': 2, '25451': 2, '25452': 2, '25453': 2,
-  // Arquivo 3
-  '25454': 3, '25455': 3, '25456': 3, '25457': 3, '25458': 3, '25459': 3, 
-  '25460': 3, '25461': 3,
-  // Arquivo 4 - Todos os códigos PJ
-  '25462': 4, '25463': 4, '25464': 4, '25465': 4, '25466': 4, '25467': 4, 
-  '25468': 4, '25469': 4, '25470': 4, '25471': 4, '25472': 4, '25473': 4,
-  '25474': 4, '25475': 4, '25476': 4, '25477': 4, '25478': 4, '25479': 4, 
-  '25480': 4, '25481': 4, '25482': 4, '25483': 4, '25484': 4, '25485': 4, 
-  '25486': 4, '25487': 4, '25488': 4, '25489': 4, '25490': 4, '25491': 4,
-  '25492': 4, '25493': 4, '25494': 4,
-};
-
-// Função para buscar taxa APENAS nos CSVs
 async function buscarTaxaNoCSV(
   codigoSGS: string,
-  mes: number,
-  ano: number
+  dataFormatada: string,
+  numeroArquivo: number
 ): Promise<{ taxa_mensal: number; taxa_anual: number } | null> {
   try {
-    const numeroArquivo = arquivoPorCodigo[codigoSGS];
-    if (!numeroArquivo) {
-      console.log(`⚠️ Código SGS ${codigoSGS} não está mapeado para nenhum arquivo`);
-      return null;
-    }
-
     const csvUrl = `https://f236da44-380e-48a7-993c-b7f24806630f.lovableproject.com/data/bacen-series-${numeroArquivo}.csv`;
     
-    console.log(`📥 Buscando no arquivo CSV ${numeroArquivo}: ${csvUrl}`);
-    
     const response = await fetch(csvUrl);
-    if (!response.ok) {
-      console.log(`❌ Erro HTTP ao buscar CSV: ${response.status}`);
-      return null;
-    }
+    if (!response.ok) return null;
 
     const csvText = await response.text();
     const linhas = csvText.split('\n');
+    
+    if (linhas.length < 2) return null;
 
-    // Primeira linha contém os cabeçalhos
+    // Cabeçalho
     const cabecalho = linhas[0];
     const colunas = cabecalho.split(';');
     
-    console.log(`📋 CSV carregado com ${linhas.length} linhas`);
-    
-    // Encontrar a coluna correspondente ao código SGS
-    let indiceColunaAlvo = -1;
+    // Encontrar coluna do código SGS
+    let indiceColuna = -1;
     for (let i = 1; i < colunas.length; i++) {
-      const match = colunas[i].match(/^(\d+)\s-/);
-      if (match && match[1] === codigoSGS) {
-        indiceColunaAlvo = i;
-        console.log(`✓ Código SGS ${codigoSGS} encontrado na coluna ${i}`);
+      if (colunas[i].includes(codigoSGS)) {
+        indiceColuna = i;
         break;
       }
     }
 
-    if (indiceColunaAlvo === -1) {
-      console.log(`❌ Código SGS ${codigoSGS} não encontrado no cabeçalho do CSV`);
-      return null;
-    }
+    if (indiceColuna === -1) return null;
 
-    // Procurar a linha com a data desejada (formato: MM/YYYY)
-    const dataProc = `${String(mes).padStart(2, '0')}/${ano}`;
-    
-    console.log(`🔍 Procurando data: ${dataProc}`);
-    
+    // Procurar data
     for (let i = 1; i < linhas.length; i++) {
       const linha = linhas[i].trim();
       if (!linha) continue;
 
       const valores = linha.split(';');
-      const dataStr = valores[0];
-
-      if (dataStr === dataProc) {
-        const valorStr = valores[indiceColunaAlvo]?.trim();
-        console.log(`✓ Data encontrada! Valor bruto: "${valorStr}"`);
+      if (valores[0] === dataFormatada) {
+        const valorStr = valores[indiceColuna]?.trim();
         
-        if (!valorStr || valorStr === '-' || valorStr === '') {
-          console.log('⚠️ Valor vazio ou inválido');
-          return null;
-        }
+        if (!valorStr || valorStr === '-' || valorStr === '') return null;
 
-        // Converter valor (formato brasileiro: vírgula como decimal)
         const taxaMensal = parseFloat(valorStr.replace(',', '.').replace(/\s/g, ''));
-        
-        if (isNaN(taxaMensal)) {
-          console.log(`⚠️ Valor não é um número válido: ${valorStr}`);
-          return null;
-        }
+        if (isNaN(taxaMensal)) return null;
 
-        // Calcular taxa anual a partir da mensal
         const taxaAnual = ((Math.pow(1 + taxaMensal/100, 12) - 1) * 100);
-
-        console.log(`✅ Taxa mensal: ${taxaMensal}% | Taxa anual: ${taxaAnual.toFixed(4)}%`);
 
         return { taxa_mensal: taxaMensal, taxa_anual: taxaAnual };
       }
     }
 
-    console.log(`❌ Data ${dataProc} não encontrada no CSV`);
     return null;
   } catch (error: any) {
-    console.error('❌ Erro ao processar CSV:', error.message);
+    console.error(`Erro no arquivo ${numeroArquivo}:`, error.message);
     return null;
   }
 }
