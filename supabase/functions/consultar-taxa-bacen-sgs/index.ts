@@ -23,14 +23,42 @@ function parseCSV(csvText: string): { headers: string[], rows: string[][] } {
 }
 
 // Encontrar índice da coluna pelo código SGS
-function findColumnIndex(headers: string[], codigoSGS: string): number {
+function findColumnIndex(headers: string[], codigoSGS: string, debug = false): number {
+  if (debug) {
+    console.log(`\n🔍 Procurando código: "${codigoSGS}"`);
+    console.log(`📋 Total de colunas: ${headers.length}`);
+  }
+  
   for (let i = 0; i < headers.length; i++) {
-    const header = headers[i];
-    // Procura padrão: "25456 - Taxa..." ou "25456 -"
-    if (header.startsWith(`${codigoSGS} -`) || header.startsWith(`${codigoSGS}-`)) {
-      return i;
+    const header = headers[i].trim();
+    
+    // Match mais flexível: verifica se começa com o código seguido de espaço, hífen ou ponto
+    const patterns = [
+      `${codigoSGS} -`,
+      `${codigoSGS}-`,
+      `${codigoSGS} `,
+    ];
+    
+    for (const pattern of patterns) {
+      if (header.startsWith(pattern)) {
+        if (debug) {
+          console.log(`✅ ENCONTRADO na coluna ${i}: "${header.substring(0, 100)}..."`);
+        }
+        return i;
+      }
+    }
+    
+    // Log das primeiras 10 colunas para debug
+    if (debug && i < 10) {
+      const preview = header.substring(0, 50);
+      console.log(`   Coluna ${i}: "${preview}..."`);
     }
   }
+  
+  if (debug) {
+    console.log(`❌ Código ${codigoSGS} NÃO encontrado em nenhuma das ${headers.length} colunas`);
+  }
+  
   return -1;
 }
 
@@ -103,27 +131,29 @@ Deno.serve(async (req) => {
         
         console.log(`📊 ${headers.length} colunas, ${rows.length} linhas de dados`);
         
-        // Buscar coluna com o código SGS
-        const indiceColuna = findColumnIndex(headers, modalidade.codigo_sgs);
+        // Buscar coluna com o código SGS (com debug ativo)
+        const indiceColuna = findColumnIndex(headers, modalidade.codigo_sgs, true);
         
         if (indiceColuna === -1) {
-          console.log(`⚠️ Código ${modalidade.codigo_sgs} não encontrado nas ${headers.length} colunas`);
+          console.log(`⚠️ Código ${modalidade.codigo_sgs} não encontrado - próximo arquivo`);
           continue;
         }
         
-        console.log(`✅ Código ${modalidade.codigo_sgs} encontrado na coluna ${indiceColuna}`);
-        console.log(`📝 Cabeçalho: ${headers[indiceColuna].substring(0, 80)}...`);
+        console.log(`\n✅ Código ${modalidade.codigo_sgs} encontrado na coluna ${indiceColuna}`);
+        console.log(`📝 Cabeçalho completo: "${headers[indiceColuna]}"`);
 
         // Buscar linha com a data
+        console.log(`\n🔎 Buscando data ${dataFormatada} nas ${rows.length} linhas...`);
+        
         for (let i = 0; i < rows.length; i++) {
           const row = rows[i];
-          const dataDaLinha = row[0];
+          const dataDaLinha = row[0]?.trim() || '';
 
           if (dataDaLinha === dataFormatada) {
-            const valorStr = row[indiceColuna];
+            const valorStr = row[indiceColuna]?.trim() || '';
             
-            console.log(`📅 Data ${dataFormatada} encontrada na linha ${i + 2}`);
-            console.log(`💰 Valor bruto: "${valorStr}"`);
+            console.log(`\n📅 Data ${dataFormatada} encontrada na linha ${i + 2}`);
+            console.log(`💰 Valor bruto na coluna ${indiceColuna}: "${valorStr}"`);
 
             const taxaMensal = parseNumberBR(valorStr);
             
