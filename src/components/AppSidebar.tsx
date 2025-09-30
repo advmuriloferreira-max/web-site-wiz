@@ -65,10 +65,10 @@ export function AppSidebar() {
         end 
         data-tour={item.dataTour}
         className={`
-          flex items-center gap-3 px-3 py-2.5 mx-2 rounded-lg transition-all duration-200 font-semibold
+          flex items-center gap-3 px-3 py-2.5 mx-2 rounded-lg transition-all duration-200 font-extrabold
           ${active
-            ? 'bg-sidebar-accent text-sidebar-primary font-bold'
-            : 'text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent/50'
+            ? 'bg-sidebar-accent text-sidebar-primary font-black'
+            : 'text-sidebar-foreground/90 hover:text-sidebar-foreground hover:bg-sidebar-accent/50'
           }
         `}
       >
@@ -150,7 +150,7 @@ export function AppSidebar() {
         {/* Provisionamento Bancário */}
         <SidebarGroup className="py-3">
           {!isCollapsed && (
-            <SidebarGroupLabel className="text-xs uppercase tracking-wider text-sidebar-foreground/60 px-4 py-2 font-bold">
+            <SidebarGroupLabel className="text-xs uppercase tracking-wider text-sidebar-foreground/80 px-4 py-2 font-black">
               Provisionamento Bancário
             </SidebarGroupLabel>
           )}
@@ -169,7 +169,7 @@ export function AppSidebar() {
         {/* Análise de Abusividade de Juros */}
         <SidebarGroup className="py-3">
           {!isCollapsed && (
-            <SidebarGroupLabel className="text-xs uppercase tracking-wider text-sidebar-foreground/60 px-4 py-2 font-bold">
+            <SidebarGroupLabel className="text-xs uppercase tracking-wider text-sidebar-foreground/80 px-4 py-2 font-black">
               Análise de Juros
             </SidebarGroupLabel>
           )}
@@ -188,7 +188,7 @@ export function AppSidebar() {
           {/* Sistema Status Compacto */}
           <div className="flex items-center justify-center mb-3">
           {!isCollapsed ? (
-            <div className="flex items-center gap-2 text-xs text-sidebar-foreground/70 font-semibold">
+            <div className="flex items-center gap-2 text-xs text-sidebar-foreground/80 font-black">
               <div className="w-2 h-2 bg-success rounded-full"></div>
               <span>Sistema Seguro</span>
               <Badge variant="outline" className="ml-2 bg-sidebar-primary/20 text-sidebar-primary text-[10px] px-1.5 py-0 font-bold">
@@ -213,10 +213,10 @@ export function AppSidebar() {
               </Avatar>
               {!isCollapsed && (
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-sidebar-foreground truncate">
+                  <p className="text-sm font-black text-sidebar-foreground truncate">
                     {profile.nome}
                   </p>
-                  <p className="text-xs text-sidebar-foreground/60 truncate font-semibold">
+                  <p className="text-xs text-sidebar-foreground/70 truncate font-extrabold">
                     Usuário Autorizado
                   </p>
                 </div>
@@ -232,11 +232,11 @@ export function AppSidebar() {
                   variant="ghost"
                   size="sm"
                   asChild
-                  className="flex-1 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors duration-200 h-8 font-semibold"
+                  className="flex-1 text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors duration-200 h-8 font-extrabold"
                 >
                   <NavLink to="/configuracoes">
                     <LegalIcons.settings className="h-4 w-4" />
-                    {!isCollapsed && <span className="ml-2 text-xs font-semibold">Configurações</span>}
+                    {!isCollapsed && <span className="ml-2 text-xs font-extrabold">Configurações</span>}
                   </NavLink>
                 </Button>
               </TooltipTrigger>
