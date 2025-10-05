@@ -184,10 +184,14 @@ function DashboardContent() {
             {/* Charts - Dashboard Tabs */}
             <EntranceAnimation animation="scale" delay={300}>
               <Tabs defaultValue="visao-geral" className="space-y-6">
-                <TabsList className="grid w-full grid-cols-4 bg-muted/50 border shadow-sm">
+                <TabsList className="grid w-full grid-cols-5 bg-muted/50 border shadow-sm">
                   <TabsTrigger value="visao-geral" className="flex items-center space-x-2 px-4 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                     <LegalIcons.dashboard className="h-4 w-4" />
                     <span className="hidden sm:inline text-sm font-medium">Painel</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="estrategia" className="flex items-center space-x-2 px-4 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                    <TrendingUp className="h-4 w-4" />
+                    <span className="hidden sm:inline text-sm font-medium">Estratégia</span>
                   </TabsTrigger>
                   <TabsTrigger value="acordos" className="flex items-center space-x-2 px-4 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                     <LegalIcons.agreement className="h-4 w-4" />
@@ -210,6 +214,41 @@ function DashboardContent() {
                   </div>
                 </TabsContent>
 
+                <TabsContent value="estrategia" className="space-y-6">
+                  <Card className="border-2 border-primary/30 bg-gradient-to-br from-primary/5 to-accent/5">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <TrendingUp className="h-5 w-5 text-primary" />
+                        Análise Estratégica do Cliente
+                      </CardTitle>
+                      <CardDescription>
+                        Visualize a situação completa e estratégias de negociação
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <ClienteSelector 
+                        selectedClienteId={selectedClienteId}
+                        onClienteSelect={setSelectedClienteId}
+                      />
+                    </CardContent>
+                  </Card>
+                  
+                  {selectedClienteId ? (
+                    <ClienteAnalysisDetails clienteId={selectedClienteId} />
+                  ) : (
+                    <Card className="border-dashed">
+                      <CardContent className="flex flex-col items-center justify-center py-12">
+                        <LegalIcons.clients className="h-12 w-12 text-muted-foreground mb-4" />
+                        <h3 className="font-semibold text-lg mb-2">Selecione um Cliente</h3>
+                        <p className="text-sm text-muted-foreground text-center max-w-md">
+                          Escolha um cliente acima para visualizar a análise estratégica completa,
+                          incluindo termômetro de situação, projeções futuras e calendário de negociação.
+                        </p>
+                      </CardContent>
+                    </Card>
+                  )}
+                </TabsContent>
+
                 <TabsContent value="acordos">
                   <AcordosChart />
                 </TabsContent>
@@ -221,7 +260,25 @@ function DashboardContent() {
                       onClienteSelect={setSelectedClienteId}
                     />
                     {selectedClienteId ? (
-                      <ClienteAnalysisDetails clienteId={selectedClienteId} />
+                      <Card>
+                        <CardHeader>
+                          <CardTitle>Resumo do Cliente</CardTitle>
+                          <CardDescription>
+                            Para análise completa, acesse a aba "Estratégia"
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <Button 
+                            onClick={() => {
+                              const tabs = document.querySelector('[value="estrategia"]') as HTMLButtonElement;
+                              tabs?.click();
+                            }}
+                            className="w-full"
+                          >
+                            Ver Análise Estratégica Completa
+                          </Button>
+                        </CardContent>
+                      </Card>
                     ) : (
                       <ClientesAnalysisChart />
                     )}
