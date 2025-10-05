@@ -6,6 +6,7 @@ import { useClientes } from "@/hooks/useClientes";
 import { ClassificacaoChart } from "./ClassificacaoChart";
 import { StatsCard } from "./StatsCard";
 import { AnalisePresente } from "./AnalisePresente";
+import { ProjecaoFutura } from "./ProjecaoFutura";
 import { 
   FileText, 
   DollarSign, 
@@ -100,6 +101,11 @@ export function ClienteAnalysisDetails({ clienteId }: ClienteAnalysisDetailsProp
     <div className="space-y-6">
       {/* Análise da Situação Presente */}
       <AnalisePresente contratos={contratos} />
+
+      <Separator className="my-8" />
+
+      {/* Projeção Futura */}
+      <ProjecaoFutura contratos={contratos} />
 
       <Separator className="my-8" />
 
