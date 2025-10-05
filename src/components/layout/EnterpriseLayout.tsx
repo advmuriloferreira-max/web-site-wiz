@@ -31,6 +31,7 @@ import ContratoDetalhes from "@/pages/ContratoDetalhes";
 import Calculos from "@/pages/Calculos";
 import Processos from "@/pages/Processos";
 import Acordos from "@/pages/Acordos";
+import PainelCliente from "@/pages/PainelCliente";
 import Relatorios from "@/pages/Relatorios";
 import RelatoriosAvancados from "@/pages/RelatoriosAvancados";
 import Configuracoes from "@/pages/Configuracoes";
@@ -162,6 +163,7 @@ export function EnterpriseLayout() {
                     <Route path="/calculos" element={<Calculos />} />
                     <Route path="/processos" element={<Processos />} />
                     <Route path="acordos" element={<Acordos />} />
+                    <Route path="painel-cliente" element={<PainelCliente />} />
                     <Route path="relatorios" element={<Relatorios />} />
                     <Route path="relatorios-avancados" element={<RelatoriosAvancados />} />
                     <Route path="configuracoes" element={<Configuracoes />} />

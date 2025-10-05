@@ -22,6 +22,7 @@ import {
 
 const provisionamentoItems = [
   { title: "Painel de Controle", url: "/", icon: LegalIcons.dashboard },
+  { title: "Painel do Cliente", url: "/painel-cliente", icon: LegalIcons.clients, badge: "NOVO", highlight: true },
   { title: "Clientes", url: "/clientes", icon: LegalIcons.clients, dataTour: "sidebar-clientes" },
   { title: "Contratos", url: "/contratos", icon: LegalIcons.contract, dataTour: "sidebar-contratos" },
   { title: "Processos Judiciais", url: "/processos", icon: LegalIcons.process },
@@ -68,6 +69,8 @@ export function AppSidebar() {
           flex items-center gap-3 px-3 py-2.5 mx-2 rounded-lg transition-all duration-200 font-extrabold
           ${active
             ? 'bg-sidebar-accent text-white font-black'
+            : isHighlight 
+            ? 'text-white hover:text-white bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-400/30 hover:from-blue-600/30 hover:to-purple-600/30'
             : 'text-white hover:text-white hover:bg-sidebar-accent/50'
           }
         `}
@@ -79,7 +82,12 @@ export function AppSidebar() {
             {item.badge && (
               <Badge 
                 variant="secondary" 
-                className="text-[10px] px-1.5 py-0 font-bold bg-sidebar-primary/20 text-sidebar-primary border-sidebar-primary/30"
+                className={cn(
+                  "text-[10px] px-1.5 py-0 font-bold",
+                  isHighlight 
+                    ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white border-none animate-pulse" 
+                    : "bg-sidebar-primary/20 text-sidebar-primary border-sidebar-primary/30"
+                )}
               >
                 {item.badge}
               </Badge>
