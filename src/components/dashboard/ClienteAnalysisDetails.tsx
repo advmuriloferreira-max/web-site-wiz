@@ -1,9 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import { useContratosByCliente } from "@/hooks/useContratosByCliente";
 import { useClientes } from "@/hooks/useClientes";
 import { ClassificacaoChart } from "./ClassificacaoChart";
 import { StatsCard } from "./StatsCard";
+import { AnalisePresente } from "./AnalisePresente";
 import { 
   FileText, 
   DollarSign, 
@@ -96,6 +98,11 @@ export function ClienteAnalysisDetails({ clienteId }: ClienteAnalysisDetailsProp
 
   return (
     <div className="space-y-6">
+      {/* Análise da Situação Presente */}
+      <AnalisePresente contratos={contratos} />
+
+      <Separator className="my-8" />
+
       {/* Header do Cliente */}
       <Card>
         <CardHeader>
