@@ -358,6 +358,34 @@ export function ClienteAnalysisDetails({ clienteId }: ClienteAnalysisDetailsProp
           </CardContent>
         </Card>
       </div>
+      
+      {/* Info Card Explicativo */}
+      <Card className="border-blue-200 bg-blue-50">
+        <CardContent className="pt-6">
+          <div className="flex items-start gap-3">
+            <div className="text-3xl">💡</div>
+            <div className="flex-1">
+              <h4 className="font-semibold text-blue-900 mb-1">
+                Entendendo os Conceitos Regulatórios BCB
+              </h4>
+              <div className="space-y-2 text-sm text-blue-800">
+                <p>
+                  <strong>Classificação (C1-C5):</strong> Representa o TIPO de operação bancária baseado em garantias 
+                  (C1 = garantias sólidas, C3 = sem garantia forte, etc.). Não muda com o tempo.
+                </p>
+                <p>
+                  <strong>Estágio (1, 2 ou 3):</strong> Baseado no TEMPO de atraso conforme BCB 4.966/2021. 
+                  Estágio 1 (0-30 dias), Estágio 2 (31-90 dias), Estágio 3 (acima de 90 dias).
+                </p>
+                <p>
+                  <strong>Provisão Bancária:</strong> Quanto MAIOR a provisão, MAIOR o interesse do banco em negociar, 
+                  pois ele não quer manter recursos provisionados. Use isso a seu favor!
+                </p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
 
     {/* Controles de Apresentação */}

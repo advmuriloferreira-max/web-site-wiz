@@ -15,13 +15,24 @@ export function AnalisePresente({ contratos }: AnalisePresenteProps) {
     return null;
   }
 
-  // Pega o contrato mais crítico (maior classificação)
+  // Pega o contrato com maior risco TEMPORAL (estágio + provisão)
   const contratoMaisCritico = contratos.reduce((prev, current) => {
-    const getPeso = (classificacao: string | null) => {
-      const pesos = { 'C5': 5, 'C4': 4, 'C3': 3, 'C2': 2, 'C1': 1 };
-      return pesos[classificacao as keyof typeof pesos] || 0;
+    const calcularRisco = (contrato: Contrato) => {
+      const diasAtraso = contrato.dias_atraso || 0;
+      const percentualProvisao = contrato.valor_divida > 0 
+        ? ((contrato.valor_provisao || 0) / contrato.valor_divida) * 100 
+        : 0;
+      
+      // Estágio baseado em tempo
+      let estagioRisco = 1;
+      if (diasAtraso > 90) estagioRisco = 3;
+      else if (diasAtraso > 30) estagioRisco = 2;
+      
+      // Risco = estágio + provisão (classificação C1-C5 é apenas tipo de operação)
+      return (estagioRisco * 30) + percentualProvisao;
     };
-    return getPeso(current.classificacao) > getPeso(prev.classificacao) ? current : prev;
+    
+    return calcularRisco(current) > calcularRisco(prev) ? current : prev;
   }, contratos[0]);
 
   // Calcula totais agregados
@@ -91,20 +102,32 @@ export function AnalisePresente({ contratos }: AnalisePresenteProps) {
         mesesAtraso={meses_atraso}
       />
 
-      {/* Info Card */}
+      {/* Info Card Explicativo */}
       <Card className="border-blue-200 bg-blue-50">
         <CardContent className="pt-6">
           <div className="flex items-start gap-3">
             <div className="text-3xl">💡</div>
             <div className="flex-1">
               <h4 className="font-semibold text-blue-900 mb-1">
-                Por que isso é importante?
+                Conceitos Regulatórios BCB 4.966/2021 e 352/2023
               </h4>
-              <p className="text-sm text-blue-800">
-                Entender sua situação atual é o primeiro passo para uma negociação eficaz. 
-                O banco já sabe exatamente onde você está nessa linha do tempo e quanto ele espera perder. 
-                Use esse conhecimento a seu favor nas negociações.
-              </p>
+              <div className="space-y-2 text-sm text-blue-800">
+                <p>
+                  <strong>Classificação (C1-C5):</strong> Define o TIPO de operação baseado em garantias. 
+                  C1 = garantias sólidas (imóveis, União), C2 = garantias médias (bancos, penhor), 
+                  C3 = sem garantias fortes (quirografárias). Não é baseado em tempo!
+                </p>
+                <p>
+                  <strong>Estágio (1, 2 ou 3):</strong> Baseado no TEMPO de atraso. 
+                  Estágio 1 (até 30 dias), Estágio 2 (31-90 dias), Estágio 3 (acima de 90 dias). 
+                  Define o período de perda esperada.
+                </p>
+                <p>
+                  <strong>Provisão Bancária:</strong> Quanto MAIOR a provisão (quanto mais próximo de 100%), 
+                  MAIOR o interesse do banco em renegociar, pois eles não querem recursos parados em provisão. 
+                  Esta é a sua principal arma de negociação!
+                </p>
+              </div>
             </div>
           </div>
         </CardContent>

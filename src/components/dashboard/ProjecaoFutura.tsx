@@ -15,13 +15,24 @@ export function ProjecaoFutura({ contratos }: ProjecaoFuturaProps) {
     return null;
   }
 
-  // Pega o contrato mais crítico para as projeções
+  // Pega o contrato com maior risco TEMPORAL (estágio + provisão)
   const contratoMaisCritico = contratos.reduce((prev, current) => {
-    const getPeso = (classificacao: string | null) => {
-      const pesos = { 'C5': 5, 'C4': 4, 'C3': 3, 'C2': 2, 'C1': 1 };
-      return pesos[classificacao as keyof typeof pesos] || 0;
+    const calcularRisco = (contrato: Contrato) => {
+      const diasAtraso = contrato.dias_atraso || 0;
+      const percentualProvisao = contrato.valor_divida > 0 
+        ? ((contrato.valor_provisao || 0) / contrato.valor_divida) * 100 
+        : 0;
+      
+      // Estágio baseado em tempo
+      let estagioRisco = 1;
+      if (diasAtraso > 90) estagioRisco = 3;
+      else if (diasAtraso > 30) estagioRisco = 2;
+      
+      // Risco = estágio + provisão
+      return (estagioRisco * 30) + percentualProvisao;
     };
-    return getPeso(current.classificacao) > getPeso(prev.classificacao) ? current : prev;
+    
+    return calcularRisco(current) > calcularRisco(prev) ? current : prev;
   }, contratos[0]);
 
   // Calcula totais

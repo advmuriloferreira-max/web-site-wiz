@@ -18,22 +18,33 @@ export function TermometroDaSituacao({
 }: TermometroDaSituacaoProps) {
   const [fillLevel, setFillLevel] = useState(0);
 
-  // Determina o nível de risco (0-100)
+  // Determina o nível de risco baseado no TEMPO (estágio) e PROVISÃO
+  // Classificação C1-C5 é o TIPO de operação, não o risco temporal
   const calcularNivelRisco = () => {
-    if (!classificacao) return 0;
+    const percentualProvisao = valorDivida > 0 ? (valorProvisao / valorDivida) * 100 : 0;
     
-    const niveis = {
-      'C1': 10,
-      'C2': 30,
-      'C3': 50,
-      'C4': 75,
-      'C5': 95
-    };
+    // Estágio baseado em dias de atraso (tempo)
+    let estagioRisco = 1;
+    if (diasAtraso > 90) estagioRisco = 3;
+    else if (diasAtraso > 30) estagioRisco = 2;
     
-    return niveis[classificacao as keyof typeof niveis] || 0;
+    // Peso base pelo estágio temporal (0-50)
+    const pesoTempo = estagioRisco === 1 ? 15 : estagioRisco === 2 ? 35 : 50;
+    
+    // Peso adicional pelo percentual de provisão (0-50)
+    const pesoProvisao = Math.min(percentualProvisao / 2, 50);
+    
+    // Risco total: combinação de tempo + provisão
+    return Math.min(pesoTempo + pesoProvisao, 100);
   };
 
   const nivelRisco = calcularNivelRisco();
+  const percentualProvisao = valorDivida > 0 ? (valorProvisao / valorDivida) * 100 : 0;
+  
+  // Determinar estágio baseado no tempo
+  let estagioAtual = 1;
+  if (diasAtraso > 90) estagioAtual = 3;
+  else if (diasAtraso > 30) estagioAtual = 2;
 
   // Determina cor e mensagem baseado no nível
   const getStatusInfo = () => {
@@ -76,8 +87,6 @@ export function TermometroDaSituacao({
     }, 100);
     return () => clearTimeout(timer);
   }, [nivelRisco]);
-
-  const percentualProvisao = valorDivida > 0 ? (valorProvisao / valorDivida) * 100 : 0;
 
   return (
     <Card className="border-slate-200 shadow-sm">
@@ -137,31 +146,41 @@ export function TermometroDaSituacao({
             {status.descricao}
           </p>
           
-          <div className="grid grid-cols-3 gap-3 text-sm">
+          <div className="grid grid-cols-2 gap-3 text-sm">
             <div>
               <div className={cn("font-semibold", status.textCor)}>
                 {classificacao || 'N/A'}
               </div>
               <div className={cn("text-xs", status.textCor)}>
-                Classificação
+                Tipo de Operação
               </div>
             </div>
             <div>
               <div className={cn("font-semibold", status.textCor)}>
-                {diasAtraso} dias
+                Estágio {estagioAtual}
               </div>
               <div className={cn("text-xs", status.textCor)}>
-                Em Atraso
+                ({diasAtraso} dias)
               </div>
             </div>
-            <div>
-              <div className={cn("font-semibold", status.textCor)}>
+          </div>
+          
+          <div className="mt-3 pt-3 border-t border-current/20">
+            <div className="flex justify-between items-center">
+              <span className={cn("text-xs", status.textCor)}>
+                Provisão Bancária
+              </span>
+              <span className={cn("font-bold", status.textCor)}>
                 {percentualProvisao.toFixed(1)}%
-              </div>
-              <div className={cn("text-xs", status.textCor)}>
-                Provisão
-              </div>
+              </span>
             </div>
+            <p className={cn("text-xs mt-1", status.textCor)}>
+              {percentualProvisao > 70 
+                ? "🎯 Excelente oportunidade de negociação! Banco tem alto interesse em resolver."
+                : percentualProvisao > 40
+                ? "👍 Boa janela para negociação com descontos interessantes."
+                : "⏳ Banco ainda não provisionou muito. Aguarde momento melhor."}
+            </p>
           </div>
         </div>
       </CardContent>
