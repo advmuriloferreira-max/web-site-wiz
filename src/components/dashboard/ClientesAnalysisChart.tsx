@@ -89,11 +89,12 @@ export function ClientesAnalysisChart() {
     }
   };
 
-  const getRiscoLevel = (percentual: number) => {
-    if (percentual >= 80) return { level: "Crítico", color: "text-red-600", icon: AlertTriangle };
-    if (percentual >= 50) return { level: "Alto", color: "text-orange-600", icon: TrendingUp };
-    if (percentual >= 20) return { level: "Médio", color: "text-yellow-600", icon: TrendingUp };
-    return { level: "Baixo", color: "text-green-600", icon: TrendingUp };
+  // Quanto MAIOR a provisão, MELHOR a oportunidade de negociação
+  const getOportunidadeLevel = (percentual: number) => {
+    if (percentual >= 70) return { level: "Excelente", color: "text-green-600", icon: TrendingUp };
+    if (percentual >= 40) return { level: "Boa", color: "text-blue-600", icon: TrendingUp };
+    if (percentual >= 20) return { level: "Regular", color: "text-yellow-600", icon: AlertTriangle };
+    return { level: "Aguardar", color: "text-gray-600", icon: AlertTriangle };
   };
 
   if (isLoading) {
@@ -114,16 +115,16 @@ export function ClientesAnalysisChart() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg font-semibold">Oportunidades de Negociação</CardTitle>
+        <CardTitle className="text-lg font-semibold">Melhores Oportunidades de Negociação</CardTitle>
         <p className="text-sm text-muted-foreground">
-          Top 8 clientes com maior provisão bancária - Melhor momento para negociar
+          Top 8 clientes com maior % de provisão bancária (maior interesse do banco em negociar)
         </p>
       </CardHeader>
       <CardContent>
         <div className="space-y-4 max-h-80 overflow-y-auto">
           {clientesRisco?.map((cliente, index) => {
-            const risco = getRiscoLevel(cliente.percentualProvisao);
-            const RiscoIcon = risco.icon;
+            const oportunidade = getOportunidadeLevel(cliente.percentualProvisao);
+            const OportunidadeIcon = oportunidade.icon;
             
             return (
               <div key={cliente.nome} className="flex items-center justify-between p-3 border border-border rounded-lg hover:bg-muted/30 transition-colors">
@@ -146,13 +147,14 @@ export function ClientesAnalysisChart() {
                 
                 <div className="text-right">
                   <div className="flex items-center space-x-2 mb-1">
-                    <RiscoIcon className={`h-4 w-4 ${risco.color}`} />
-                    <span className={`text-sm font-medium ${risco.color}`}>
+                    <OportunidadeIcon className={`h-4 w-4 ${oportunidade.color}`} />
+                    <span className={`text-sm font-medium ${oportunidade.color}`}>
                       {cliente.percentualProvisao.toFixed(1)}%
                     </span>
                   </div>
-                  <div className="flex items-center space-x-1 text-xs text-muted-foreground">
-                    <DollarSign className="h-3 w-3" />
+                  <div className="text-xs text-muted-foreground">
+                    <span className={oportunidade.color}>{oportunidade.level}</span>
+                    {" • "}
                     <span>R$ {(cliente.totalDividas / 1000).toFixed(0)}K</span>
                   </div>
                 </div>

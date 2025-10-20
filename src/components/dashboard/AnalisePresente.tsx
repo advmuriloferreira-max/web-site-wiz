@@ -15,24 +15,12 @@ export function AnalisePresente({ contratos }: AnalisePresenteProps) {
     return null;
   }
 
-  // Pega o contrato com maior risco TEMPORAL (estágio + provisão)
-  const contratoMaisCritico = contratos.reduce((prev, current) => {
-    const calcularRisco = (contrato: Contrato) => {
-      const diasAtraso = contrato.dias_atraso || 0;
-      const percentualProvisao = contrato.valor_divida > 0 
-        ? ((contrato.valor_provisao || 0) / contrato.valor_divida) * 100 
-        : 0;
-      
-      // Estágio baseado em tempo
-      let estagioRisco = 1;
-      if (diasAtraso > 90) estagioRisco = 3;
-      else if (diasAtraso > 30) estagioRisco = 2;
-      
-      // Risco = estágio + provisão (classificação C1-C5 é apenas tipo de operação)
-      return (estagioRisco * 30) + percentualProvisao;
-    };
-    
-    return calcularRisco(current) > calcularRisco(prev) ? current : prev;
+  // Encontrar o contrato com MAIOR PROVISÃO (melhor oportunidade)
+  // NÃO usar classificação C1-C5, usar % de provisão
+  const contratoMelhorOportunidade = contratos.reduce((prev, current) => {
+    const percentualPrev = prev.valor_divida > 0 ? ((prev.valor_provisao || 0) / prev.valor_divida) * 100 : 0;
+    const percentualCurrent = current.valor_divida > 0 ? ((current.valor_provisao || 0) / current.valor_divida) * 100 : 0;
+    return percentualCurrent > percentualPrev ? current : prev;
   }, contratos[0]);
 
   // Calcula totais agregados
@@ -44,7 +32,7 @@ export function AnalisePresente({ contratos }: AnalisePresenteProps) {
     return sum + (c.valor_provisao || 0);
   }, 0);
 
-  // Usa dados do contrato mais crítico para os gráficos
+  // Usa dados REAIS do contrato com maior provisão
   const {
     classificacao,
     dias_atraso,
@@ -52,7 +40,7 @@ export function AnalisePresente({ contratos }: AnalisePresenteProps) {
     valor_divida,
     saldo_contabil,
     valor_provisao
-  } = contratoMaisCritico;
+  } = contratoMelhorOportunidade;
 
   const valorBase = saldo_contabil || valor_divida || 0;
 
