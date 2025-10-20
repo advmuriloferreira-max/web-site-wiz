@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Zap, TrendingUp, AlertTriangle } from "lucide-react";
+import { Clock, Zap, TrendingUp, AlertTriangle, Target } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ContadorOportunidadeProps {
@@ -52,49 +52,80 @@ export function ContadorOportunidade({
     return () => clearInterval(timer);
   }, []);
 
-  // Calcula o custo por dia de atraso
-  const taxaDiaria = valorDivida * 0.0015; // ~4.5% ao mês = 0.15% ao dia
-  const custoDiario = taxaDiaria;
-  const custoAteMomentoDourado = custoDiario * timeLeft.dias;
+  // Calcula provisão atual baseada em dias de atraso
+  let provisaoAtual = 10;
+  if (diasAtraso <= 30) {
+    provisaoAtual = 10 + (diasAtraso / 30) * 10; // 10-20%
+  } else if (diasAtraso <= 90) {
+    provisaoAtual = 20 + ((diasAtraso - 30) / 60) * 30; // 20-50%
+  } else if (diasAtraso <= 180) {
+    provisaoAtual = 50 + ((diasAtraso - 90) / 90) * 20; // 50-70%
+  } else {
+    provisaoAtual = 70 + (Math.min((diasAtraso - 180) / 180, 1)) * 20; // 70-90%
+  }
 
-  // Calcula desconto sazonal baseado em proximidade
-  const calcularDescontoSazonal = () => {
-    const hoje = new Date();
-    const mes = hoje.getMonth();
-    
-    // Dezembro = 70%, Março/Junho/Setembro = 50%, outros = 40%
-    if (mes === 11) {
-      return { percentual: 70, descricao: "Desconto de Fim de Ano", urgencia: "extrema" };
-    } else if ([2, 5, 8].includes(mes)) {
-      return { percentual: 50, descricao: "Desconto de Fim de Trimestre", urgencia: "muito-alta" };
+  const descontoAtual = valorDivida * (provisaoAtual / 100);
+  const valorPropostaAtual = valorDivida - descontoAtual;
+
+  // Avalia o momento atual
+  const avaliarMomento = () => {
+    if (provisaoAtual >= 60) {
+      return {
+        status: "excelente",
+        titulo: "Momento EXCELENTE!",
+        descricao: "Provisão alta + momento dourado chegando = Combinação perfeita!",
+        cor: "from-green-500 to-green-700",
+        textColor: "text-green-50"
+      };
+    } else if (provisaoAtual >= 40) {
+      return {
+        status: "bom",
+        titulo: "Bom Momento!",
+        descricao: "Provisão razoável. Aguarde o momento dourado para negociar!",
+        cor: "from-blue-500 to-blue-700",
+        textColor: "text-blue-50"
+      };
+    } else if (provisaoAtual >= 20) {
+      return {
+        status: "regular",
+        titulo: "Momento Regular",
+        descricao: "Provisão ainda crescendo. Pode negociar ou aguardar mais provisão.",
+        cor: "from-amber-500 to-amber-700",
+        textColor: "text-amber-50"
+      };
     } else {
-      return { percentual: 40, descricao: "Desconto Padrão", urgencia: "alta" };
+      return {
+        status: "inicial",
+        titulo: "Momento Inicial",
+        descricao: "Provisão ainda baixa. Considere aguardar um pouco para mais desconto.",
+        cor: "from-orange-500 to-orange-700",
+        textColor: "text-orange-50"
+      };
     }
   };
 
-  const descontoAtual = calcularDescontoSazonal();
-  const economiaEstimada = valorDivida * (descontoAtual.percentual / 100);
+  const momentoAtual = avaliarMomento();
 
   const getUrgenciaStyles = () => {
     if (timeLeft.dias <= 7) {
       return {
-        bg: "from-red-500 to-red-700",
-        text: "text-red-50",
-        badge: "bg-red-600",
+        bg: "from-purple-500 to-purple-700",
+        text: "text-purple-50",
+        badge: "bg-purple-600",
         pulse: true
       };
     } else if (timeLeft.dias <= 14) {
       return {
-        bg: "from-orange-500 to-orange-700",
-        text: "text-orange-50",
-        badge: "bg-orange-600",
+        bg: "from-blue-500 to-blue-700",
+        text: "text-blue-50",
+        badge: "bg-blue-600",
         pulse: false
       };
     } else {
       return {
-        bg: "from-blue-500 to-blue-700",
-        text: "text-blue-50",
-        badge: "bg-blue-600",
+        bg: "from-slate-500 to-slate-700",
+        text: "text-slate-50",
+        badge: "bg-slate-600",
         pulse: false
       };
     }
@@ -111,10 +142,10 @@ export function ContadorOportunidade({
       )}>
         <CardTitle className="flex items-center gap-2 text-lg font-semibold">
           <Clock className={cn("h-5 w-5", styles.pulse && "animate-pulse")} />
-          Contador de Oportunidade
+          Contagem Regressiva: Momento Dourado
         </CardTitle>
         <p className="text-sm opacity-90 mt-1">
-          Tempo até o próximo "momento dourado" de negociação
+          Tempo até a melhor janela de negociação do mês
         </p>
       </CardHeader>
       <CardContent className="pt-6 space-y-6">
@@ -125,7 +156,7 @@ export function ContadorOportunidade({
           styles.text
         )}>
           <div className="text-center mb-4">
-            <div className="text-sm opacity-90 mb-1">Momento Ideal em:</div>
+            <div className="text-sm opacity-90 mb-1">Próximo Momento Dourado:</div>
             <div className="text-sm font-semibold">
               {dataAlvo.toLocaleDateString('pt-BR', { 
                 day: '2-digit', 
@@ -159,44 +190,83 @@ export function ContadorOportunidade({
           </div>
         </div>
 
-        {/* Desconto Atual */}
-        <div className="bg-green-50 border-2 border-green-300 p-5 rounded-lg">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <Zap className="h-5 w-5 text-green-600" />
-              <h3 className="font-bold text-green-900">Desconto Disponível Agora</h3>
+        {/* Status Atual da Provisão */}
+        <div className={cn(
+          "p-5 rounded-lg border-2",
+          `bg-gradient-to-r ${momentoAtual.cor}`,
+          "text-white"
+        )}>
+          <div className="flex items-center gap-2 mb-3">
+            <Target className="h-5 w-5" />
+            <h3 className="font-bold text-lg">{momentoAtual.titulo}</h3>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-3 mb-3">
+            <div className="bg-white/20 backdrop-blur-sm p-3 rounded">
+              <div className="text-xs opacity-90 mb-1">Provisão Atual:</div>
+              <div className="text-2xl font-bold">
+                {provisaoAtual.toFixed(0)}%
+              </div>
             </div>
-            <Badge className="bg-green-600 text-white">
-              {descontoAtual.percentual}%
-            </Badge>
+            <div className="bg-white/20 backdrop-blur-sm p-3 rounded">
+              <div className="text-xs opacity-90 mb-1">Desconto Disponível:</div>
+              <div className="text-lg font-bold">
+                {descontoAtual.toLocaleString('pt-BR', { 
+                  style: 'currency', 
+                  currency: 'BRL',
+                  maximumFractionDigits: 0
+                })}
+              </div>
+            </div>
+          </div>
+
+          <p className="text-sm opacity-90">
+            {momentoAtual.descricao}
+          </p>
+        </div>
+
+        {/* Valor da Proposta */}
+        <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-5 rounded-lg border-2 border-green-300">
+          <div className="flex items-center gap-2 mb-3">
+            <Zap className="h-5 w-5 text-green-600" />
+            <h3 className="font-bold text-green-900">Valor da Sua Proposta Hoje</h3>
           </div>
           
           <div className="mb-3">
-            <div className="text-sm text-green-800 mb-1">{descontoAtual.descricao}</div>
+            <div className="text-sm text-green-800 mb-1">Com {provisaoAtual.toFixed(0)}% de provisão:</div>
             <div className="text-3xl font-bold text-green-700">
-              {economiaEstimada.toLocaleString('pt-BR', { 
+              {valorPropostaAtual.toLocaleString('pt-BR', { 
                 style: 'currency', 
                 currency: 'BRL' 
               })}
             </div>
-            <div className="text-xs text-green-700">
-              Economia potencial negociando neste período
+            <div className="text-xs text-green-700 mt-1">
+              (Fórmula: R$ {valorDivida.toLocaleString('pt-BR', { maximumFractionDigits: 0 })} - R$ {descontoAtual.toLocaleString('pt-BR', { maximumFractionDigits: 0 })})
             </div>
           </div>
 
           <div className="bg-white p-3 rounded border border-green-200">
-            <div className="text-xs text-slate-600 mb-2">O que isso significa na prática:</div>
+            <div className="text-xs text-slate-600 mb-2">Composição do acordo:</div>
             <div className="space-y-1 text-sm">
               <div className="flex justify-between">
-                <span className="text-slate-700">Valor original da dívida:</span>
+                <span className="text-slate-700">Valor original:</span>
                 <span className="font-semibold text-slate-900">
                   {valorDivida.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                 </span>
               </div>
               <div className="flex justify-between text-green-700">
-                <span>Com desconto de {descontoAtual.percentual}%:</span>
+                <span>Desconto (provisão {provisaoAtual.toFixed(0)}%):</span>
                 <span className="font-bold">
-                  {(valorDivida - economiaEstimada).toLocaleString('pt-BR', { 
+                  -{descontoAtual.toLocaleString('pt-BR', { 
+                    style: 'currency', 
+                    currency: 'BRL' 
+                  })}
+                </span>
+              </div>
+              <div className="border-t border-slate-200 pt-1 flex justify-between">
+                <span className="text-slate-700 font-semibold">Você pagaria:</span>
+                <span className="font-bold text-green-700">
+                  {valorPropostaAtual.toLocaleString('pt-BR', { 
                     style: 'currency', 
                     currency: 'BRL' 
                   })}
@@ -206,68 +276,56 @@ export function ContadorOportunidade({
           </div>
         </div>
 
-        {/* Custo da Espera */}
-        <div className="bg-red-50 border-2 border-red-300 p-5 rounded-lg">
-          <div className="flex items-center gap-2 mb-3">
-            <TrendingUp className="h-5 w-5 text-red-600" />
-            <h3 className="font-bold text-red-900">Custo de Esperar</h3>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3 mb-3">
-            <div className="bg-white p-3 rounded border border-red-200">
-              <div className="text-xs text-slate-600 mb-1">Por dia:</div>
-              <div className="text-lg font-bold text-red-600">
-                +{custoDiario.toLocaleString('pt-BR', { 
-                  style: 'currency', 
-                  currency: 'BRL' 
-                })}
-              </div>
-            </div>
-            <div className="bg-white p-3 rounded border border-red-200">
-              <div className="text-xs text-slate-600 mb-1">Até momento dourado:</div>
-              <div className="text-lg font-bold text-red-600">
-                +{custoAteMomentoDourado.toLocaleString('pt-BR', { 
-                  style: 'currency', 
-                  currency: 'BRL' 
-                })}
-              </div>
+        {/* Estratégia Recomendada */}
+        <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
+          <div className="flex items-start gap-3">
+            <TrendingUp className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+            <div className="flex-1 text-sm text-blue-900">
+              <p className="font-semibold mb-1">📋 Estratégia Recomendada:</p>
+              <p className="text-xs">
+                {provisaoAtual >= 60 && timeLeft.dias <= 7
+                  ? "MOMENTO PERFEITO! Provisão alta + momento dourado chegando. Inicie contato com o banco AGORA!"
+                  : provisaoAtual >= 60 && timeLeft.dias > 7
+                  ? "Provisão excelente! Prepare-se e aguarde o momento dourado (menos de 7 dias) para negociar."
+                  : provisaoAtual >= 40 && timeLeft.dias <= 7
+                  ? "Bom momento! Provisão razoável + momento dourado. Pode negociar agora com boas chances!"
+                  : provisaoAtual >= 40
+                  ? "Provisão crescendo bem. Organize documentos e aguarde o momento dourado para maximizar resultado."
+                  : provisaoAtual >= 20
+                  ? "Provisão ainda moderada. Considere aguardar mais alguns dias para melhorar o desconto."
+                  : "Provisão ainda inicial. Recomendamos aguardar mais tempo para conseguir melhor desconto."
+                }
+              </p>
             </div>
           </div>
-
-          <p className="text-xs text-red-800">
-            💸 Cada dia que você espera, a dívida aumenta. Não deixe o tempo trabalhar contra você!
-          </p>
         </div>
 
-        {/* Alertas de Urgência */}
-        {timeLeft.dias <= 7 && (
-          <div className="bg-gradient-to-r from-red-600 to-red-800 text-white p-5 rounded-lg animate-pulse">
+        {/* Alerta de Urgência */}
+        {timeLeft.dias <= 7 && provisaoAtual >= 40 && (
+          <div className="bg-gradient-to-r from-purple-600 to-purple-800 text-white p-5 rounded-lg animate-pulse">
             <div className="flex items-start gap-3">
               <AlertTriangle className="h-6 w-6 flex-shrink-0" />
               <div>
-                <h3 className="font-bold text-lg mb-1">ÚLTIMA SEMANA!</h3>
+                <h3 className="font-bold text-lg mb-1">⭐ JANELA DE OPORTUNIDADE ABERTA!</h3>
                 <p className="text-sm opacity-90">
-                  O momento dourado está chegando! Este é o melhor período para negociar com o banco. 
-                  Não perca esta oportunidade única!
+                  Provisão de {provisaoAtual.toFixed(0)}% + momento dourado em menos de 7 dias = 
+                  Combinação ideal para negociar! Entre em contato com o banco AGORA!
                 </p>
               </div>
             </div>
           </div>
         )}
 
-        {/* Dica Estratégica */}
-        <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
+        {/* Entendimento */}
+        <div className="bg-amber-50 border border-amber-200 p-4 rounded-lg">
           <div className="flex items-start gap-3">
             <div className="text-2xl">💡</div>
-            <div className="flex-1 text-sm text-blue-900">
-              <p className="font-semibold mb-1">Estratégia Recomendada:</p>
+            <div className="flex-1 text-sm text-amber-900">
+              <p className="font-semibold mb-1">Entenda a Estratégia:</p>
               <p className="text-xs">
-                {timeLeft.dias > 14 
-                  ? "Comece a se preparar agora. Organize documentos e planeje sua proposta. Inicie contato 7-10 dias antes do momento dourado."
-                  : timeLeft.dias > 7
-                  ? "Momento de agir! Entre em contato com o banco agora para ter tempo de negociar até o momento ideal."
-                  : "AÇÃO URGENTE! Este é o melhor momento. Ligue para o banco HOJE e negocie o melhor desconto possível."
-                }
+                Este contador marca o "momento dourado" - quando gerentes estão sob pressão de metas 
+                e mais flexíveis. O IDEAL é combinar: provisão razoável (40-70%) + momento dourado. 
+                Assim você tem desconto bom E gerente motivado a fechar rápido!
               </p>
             </div>
           </div>
