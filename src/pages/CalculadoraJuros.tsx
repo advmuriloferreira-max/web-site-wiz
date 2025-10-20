@@ -4,12 +4,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calculator, TrendingUp, User, Building2, Filter } from "lucide-react";
+import { Calculator, TrendingUp, User, Building2, Filter, Printer } from "lucide-react";
 import { toast } from "sonner";
 import { useModalidadesBacenJuros } from "@/hooks/useModalidadesBacenJuros";
 import { calcularMetricasFinanceiras, compararTaxaBacen } from "@/modules/FinancialAnalysis/lib/financialCalculations";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
+import jsPDF from 'jspdf';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 // Função para calcular taxa real através de método iterativo
 // Encontra a taxa i que satisfaz: PV = PMT × [(1 - (1 + i)^-n) / i]
@@ -47,6 +50,179 @@ function calcularTaxaRealIterativo(pv: number, pmt: number, n: number): number {
   }
   
   return taxa * 100;
+}
+
+// Função para gerar relatório PDF
+function gerarRelatorioPDF(resultado: any, dadosFormulario: {
+  valorFinanciamento: string;
+  valorPrestacao: string;
+  numeroParcelas: string;
+  taxaJurosContratual: string;
+  dataAssinatura: string;
+}) {
+  const doc = new jsPDF();
+  
+  // Cabeçalho
+  doc.setFillColor(37, 99, 235);
+  doc.rect(0, 0, 210, 40, 'F');
+  
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(24);
+  doc.setFont('helvetica', 'bold');
+  doc.text('INTELLBANK', 105, 20, { align: 'center' });
+  
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Análise de Juros Abusivos - BACEN', 105, 30, { align: 'center' });
+  
+  doc.setTextColor(0, 0, 0);
+  
+  let yPos = 50;
+  
+  // Modalidade
+  if (resultado.modalidade) {
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Modalidade Analisada', 20, yPos);
+    yPos += 8;
+    
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    doc.text(resultado.modalidade.nome, 20, yPos);
+    yPos += 6;
+    doc.text(`Tipo: ${resultado.modalidade.tipo_pessoa} | Categoria: ${resultado.modalidade.categoria}`, 20, yPos);
+    yPos += 12;
+  }
+  
+  // Dados do Contrato
+  doc.setFontSize(16);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Dados do Contrato', 20, yPos);
+  yPos += 10;
+  
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'normal');
+  
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+  };
+  
+  const dadosContrato = [
+    ['Valor Financiado:', formatCurrency(parseFloat(dadosFormulario.valorFinanciamento || '0'))],
+    ['Valor da Prestação:', formatCurrency(parseFloat(dadosFormulario.valorPrestacao || '0'))],
+    ['Número de Parcelas:', dadosFormulario.numeroParcelas || '-'],
+    ['Taxa de Juros (a.m.):', `${parseFloat(dadosFormulario.taxaJurosContratual || '0').toFixed(4)}%`],
+    ['Data de Assinatura:', format(new Date(dadosFormulario.dataAssinatura), 'dd/MM/yyyy', { locale: ptBR })],
+  ];
+  
+  dadosContrato.forEach(([label, value]) => {
+    doc.setFont('helvetica', 'bold');
+    doc.text(label, 20, yPos);
+    doc.setFont('helvetica', 'normal');
+    doc.text(value, 80, yPos);
+    yPos += 7;
+  });
+  
+  yPos += 8;
+  
+  // Taxas Comparativas
+  doc.setFontSize(16);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Análise Comparativa', 20, yPos);
+  yPos += 10;
+  
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'normal');
+  
+  const taxas = [
+    ['Taxa Contratual (a.m.):', `${resultado.taxaContratual.toFixed(4)}%`],
+    ['Taxa Real Cobrada (a.m.):', `${resultado.taxaReal.toFixed(4)}%`],
+    ['Taxa BACEN (a.m.):', `${resultado.taxaBacen.taxa_mensal.toFixed(4)}%`],
+    ['Taxa Anual:', `${resultado.metricas.taxaEfetivaAnual.toFixed(2)}%`],
+    ['Limite de Abusividade (1,5x BACEN):', `${resultado.limiteAbusividade.toFixed(4)}%`],
+  ];
+  
+  taxas.forEach(([label, value]) => {
+    doc.setFont('helvetica', 'bold');
+    doc.text(label, 20, yPos);
+    doc.setFont('helvetica', 'normal');
+    doc.text(value, 100, yPos);
+    yPos += 7;
+  });
+  
+  yPos += 8;
+  
+  // Análise de Abusividade
+  doc.setFontSize(16);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Análise de Abusividade', 20, yPos);
+  yPos += 10;
+  
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'normal');
+  
+  const analise = [
+    ['Diferença:', `${resultado.diferencaAbsoluta > 0 ? '+' : ''}${resultado.diferencaAbsoluta.toFixed(4)}% (${resultado.percentualAcimaBacen.toFixed(1)}%)`],
+    ['Multiplicador BACEN:', `${resultado.multiplicadorBacen.toFixed(2)}x`],
+    ['Status:', resultado.mensagemAbusividade],
+  ];
+  
+  analise.forEach(([label, value]) => {
+    doc.setFont('helvetica', 'bold');
+    doc.text(label, 20, yPos);
+    doc.setFont('helvetica', 'normal');
+    
+    const lines = doc.splitTextToSize(value, 120);
+    doc.text(lines, 70, yPos);
+    yPos += lines.length * 7;
+  });
+  
+  // Alerta de ação revisional
+  if (resultado.passivelAcao) {
+    yPos += 5;
+    doc.setFillColor(220, 38, 38);
+    doc.rect(20, yPos - 5, 170, 25, 'F');
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('⚠️ AÇÃO REVISIONAL RECOMENDADA', 105, yPos, { align: 'center' });
+    
+    yPos += 8;
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    const textoAcao = `A taxa cobrada está ${resultado.multiplicadorBacen.toFixed(2)}x acima da média do BACEN, ultrapassando o limite de 1,5x estabelecido pela jurisprudência. Este contrato é passível de revisão judicial.`;
+    const linhasAcao = doc.splitTextToSize(textoAcao, 160);
+    doc.text(linhasAcao, 105, yPos, { align: 'center' });
+    
+    doc.setTextColor(0, 0, 0);
+    yPos += 20;
+  }
+  
+  yPos += 10;
+  
+  // Rodapé
+  const pageHeight = doc.internal.pageSize.height;
+  doc.setFontSize(8);
+  doc.setTextColor(128, 128, 128);
+  doc.text(
+    `Relatório gerado em ${format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}`,
+    105,
+    pageHeight - 15,
+    { align: 'center' }
+  );
+  doc.text(
+    'Fonte: Sistema Gerenciador de Séries Temporais (SGS) - Banco Central do Brasil',
+    105,
+    pageHeight - 10,
+    { align: 'center' }
+  );
+  
+  // Salvar PDF
+  const nomeArquivo = `analise-juros-${format(new Date(), 'yyyyMMdd-HHmmss')}.pdf`;
+  doc.save(nomeArquivo);
+  
+  toast.success('Relatório PDF gerado com sucesso!');
 }
 
 const CalculadoraJuros = () => {
@@ -463,13 +639,31 @@ const CalculadoraJuros = () => {
             {resultado && (
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5" />
-                    Resultado da Análise
-                  </CardTitle>
-                  <CardDescription>
-                    Análise comparativa com taxas médias do BACEN
-                  </CardDescription>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="flex items-center gap-2">
+                        <TrendingUp className="h-5 w-5" />
+                        Resultado da Análise
+                      </CardTitle>
+                      <CardDescription>
+                        Análise comparativa com taxas médias do BACEN
+                      </CardDescription>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => gerarRelatorioPDF(resultado, {
+                        valorFinanciamento,
+                        valorPrestacao,
+                        numeroParcelas,
+                        taxaJurosContratual,
+                        dataAssinatura,
+                      })}
+                    >
+                      <Printer className="h-4 w-4 mr-2" />
+                      Imprimir PDF
+                    </Button>
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {resultado.modalidade && (
