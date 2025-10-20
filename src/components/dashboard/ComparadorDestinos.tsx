@@ -45,7 +45,7 @@ export function ComparadorDestinos({
       estresseEmocional: "Altíssimo",
       impactoCredito: "Severo por anos",
       eventos: [
-        { mes: 3, evento: "Reclassificação para C4", impacto: "negativo" },
+        { mes: 3, evento: "Provisão bancária aumenta", impacto: "negativo" },
         { mes: 6, evento: "Ação judicial iniciada", impacto: "crítico" },
         { mes: 9, evento: "Bloqueio de bens/contas", impacto: "crítico" },
         { mes: 12, evento: "Penhora de patrimônio", impacto: "crítico" }
