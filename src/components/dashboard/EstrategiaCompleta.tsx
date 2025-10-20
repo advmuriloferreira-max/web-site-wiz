@@ -6,25 +6,17 @@ import { Target } from "lucide-react";
 import { Contrato } from "@/hooks/useContratos";
 
 interface EstrategiaCompletaProps {
-  contratos: Contrato[];
+  contrato: Contrato;
 }
 
-export function EstrategiaCompleta({ contratos }: EstrategiaCompletaProps) {
-  if (!contratos || contratos.length === 0) {
+export function EstrategiaCompleta({ contrato }: EstrategiaCompletaProps) {
+  if (!contrato) {
     return null;
   }
 
-  // Calcula totais
-  const valorDividaTotal = contratos.reduce((sum, c) => {
-    return sum + (c.saldo_contabil || c.valor_divida || 0);
-  }, 0);
-
-  // Pegar contrato com maior dias de atraso para o calendário
-  const contratoMaiorAtraso = contratos.reduce((prev, current) => {
-    return (current.dias_atraso || 0) > (prev.dias_atraso || 0) ? current : prev;
-  }, contratos[0]);
-
-  const diasAtraso = contratoMaiorAtraso.dias_atraso || 0;
+  // Dados REAIS do contrato individual
+  const valorDivida = contrato.saldo_contabil || contrato.valor_divida || 0;
+  const diasAtraso = contrato.dias_atraso || 0;
 
   return (
     <div className="space-y-6">
@@ -46,7 +38,7 @@ export function EstrategiaCompleta({ contratos }: EstrategiaCompletaProps) {
         {/* Contador de Oportunidade */}
         <div>
           <ContadorOportunidade
-            valorDivida={valorDividaTotal}
+            valorDivida={valorDivida}
             diasAtraso={diasAtraso}
           />
         </div>
@@ -54,7 +46,7 @@ export function EstrategiaCompleta({ contratos }: EstrategiaCompletaProps) {
         {/* Calendário Estratégico */}
         <div>
           <CalendarioEstrategico
-            valorDivida={valorDividaTotal}
+            valorDivida={valorDivida}
           />
         </div>
       </div>

@@ -7,36 +7,22 @@ import { TrendingUp } from "lucide-react";
 import { Contrato } from "@/hooks/useContratos";
 
 interface ProjecaoFuturaProps {
-  contratos: Contrato[];
+  contrato: Contrato;
 }
 
-export function ProjecaoFutura({ contratos }: ProjecaoFuturaProps) {
-  if (!contratos || contratos.length === 0) {
+export function ProjecaoFutura({ contrato }: ProjecaoFuturaProps) {
+  if (!contrato) {
     return null;
   }
 
-  // Encontrar o contrato com MAIOR PROVISÃO (melhor oportunidade)
-  const contratoMelhorOportunidade = contratos.reduce((prev, current) => {
-    const percentualPrev = prev.valor_divida > 0 ? ((prev.valor_provisao || 0) / prev.valor_divida) * 100 : 0;
-    const percentualCurrent = current.valor_divida > 0 ? ((current.valor_provisao || 0) / current.valor_divida) * 100 : 0;
-    return percentualCurrent > percentualPrev ? current : prev;
-  }, contratos[0]);
-
-  // Calcula totais
-  const valorDividaTotal = contratos.reduce((sum, c) => {
-    return sum + (c.saldo_contabil || c.valor_divida || 0);
-  }, 0);
-
-  const valorProvisaoTotal = contratos.reduce((sum, c) => {
-    return sum + (c.valor_provisao || 0);
-  }, 0);
-
+  // Dados REAIS do contrato individual
   const {
     classificacao,
     dias_atraso,
     valor_divida,
-    saldo_contabil
-  } = contratoMelhorOportunidade;
+    saldo_contabil,
+    valor_provisao
+  } = contrato;
 
   const valorBase = saldo_contabil || valor_divida || 0;
 
@@ -58,7 +44,7 @@ export function ProjecaoFutura({ contratos }: ProjecaoFuturaProps) {
       {/* Bola de Neve */}
       <BoladeNeve
         valorDividaAtual={valorBase}
-        diasAtraso={dias_atraso}
+        diasAtraso={dias_atraso || 0}
         classificacaoAtual={classificacao}
       />
 
@@ -66,13 +52,13 @@ export function ProjecaoFutura({ contratos }: ProjecaoFuturaProps) {
       <TimelineDoTerror
         valorDividaAtual={valorBase}
         classificacaoAtual={classificacao}
-        diasAtrasoAtual={dias_atraso}
+        diasAtrasoAtual={dias_atraso || 0}
       />
 
       {/* Comparador de Destinos */}
       <ComparadorDestinos
         valorDividaAtual={valorBase}
-        valorProvisaoAtual={valorProvisaoTotal}
+        valorProvisaoAtual={valor_provisao || 0}
         classificacaoAtual={classificacao}
       />
 

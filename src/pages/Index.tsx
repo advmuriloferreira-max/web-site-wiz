@@ -10,7 +10,6 @@ import { ClassificacaoChart } from "@/components/dashboard/ClassificacaoChart";
 import { AcordosChart } from "@/components/dashboard/AcordosChart";
 import { ClientesAnalysisChart } from "@/components/dashboard/ClientesAnalysisChart";
 import { ClienteSelector } from "@/components/dashboard/ClienteSelector";
-import { ClienteAnalysisDetails } from "@/components/dashboard/ClienteAnalysisDetails";
 import { TendenciasChart } from "@/components/dashboard/TendenciasChart";
 import { PerformanceCard } from "@/components/dashboard/PerformanceCard";
 import { DashboardLoading } from "@/components/ui/loading-states";
@@ -219,34 +218,31 @@ function DashboardContent() {
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <TrendingUp className="h-5 w-5 text-primary" />
-                        Análise Estratégica do Cliente
+                        Painel de Análise Estratégica
                       </CardTitle>
                       <CardDescription>
-                        Visualize a situação completa e estratégias de negociação
+                        Análise individual por contrato com estratégias de negociação detalhadas
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <ClienteSelector 
-                        selectedClienteId={selectedClienteId}
-                        onClienteSelect={setSelectedClienteId}
-                      />
+                      <div className="flex flex-col items-center justify-center py-8">
+                        <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mb-4">
+                          <TrendingUp className="w-8 h-8 text-white" />
+                        </div>
+                        <h3 className="font-semibold text-xl mb-2">Análise Individualizada por Contrato</h3>
+                        <p className="text-sm text-muted-foreground text-center max-w-md mb-6">
+                          Cada contrato tem sua própria análise estratégica baseada em dados reais:
+                          termômetro de oportunidade, projeções, calendário e estratégias específicas.
+                        </p>
+                        <a 
+                          href="/painel-cliente"
+                          className="inline-flex items-center justify-center rounded-md bg-primary px-6 py-3 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90"
+                        >
+                          Acessar Painel do Cliente
+                        </a>
+                      </div>
                     </CardContent>
                   </Card>
-                  
-                  {selectedClienteId ? (
-                    <ClienteAnalysisDetails clienteId={selectedClienteId} />
-                  ) : (
-                    <Card className="border-dashed">
-                      <CardContent className="flex flex-col items-center justify-center py-12">
-                        <LegalIcons.clients className="h-12 w-12 text-muted-foreground mb-4" />
-                        <h3 className="font-semibold text-lg mb-2">Selecione um Cliente</h3>
-                        <p className="text-sm text-muted-foreground text-center max-w-md">
-                          Escolha um cliente acima para visualizar a análise estratégica completa,
-                          incluindo termômetro de situação, projeções futuras e calendário de negociação.
-                        </p>
-                      </CardContent>
-                    </Card>
-                  )}
                 </TabsContent>
 
                 <TabsContent value="acordos">

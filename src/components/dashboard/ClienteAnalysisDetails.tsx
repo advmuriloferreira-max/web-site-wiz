@@ -2,9 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { useContratosByCliente } from "@/hooks/useContratosByCliente";
+import { useContratoById } from "@/hooks/useContratoById";
 import { useClientes } from "@/hooks/useClientes";
-import { ClassificacaoChart } from "./ClassificacaoChart";
 import { StatsCard } from "./StatsCard";
 import { AnalisePresente } from "./AnalisePresente";
 import { ProjecaoFutura } from "./ProjecaoFutura";
@@ -14,25 +13,21 @@ import {
   FileText, 
   DollarSign, 
   Calculator, 
-  TrendingUp,
-  AlertTriangle,
-  CheckCircle,
-  Clock,
-  Gavel
+  TrendingUp
 } from "lucide-react";
 import { toast } from "sonner";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 
 interface ClienteAnalysisDetailsProps {
-  clienteId: string;
+  contratoId: string;
 }
 
-export function ClienteAnalysisDetails({ clienteId }: ClienteAnalysisDetailsProps) {
-  const { data: contratos, isLoading: loadingContratos } = useContratosByCliente(clienteId);
+export function ClienteAnalysisDetails({ contratoId }: ClienteAnalysisDetailsProps) {
+  const { data: contrato, isLoading } = useContratoById(contratoId);
   const { data: clientes } = useClientes();
   
-  const cliente = clientes?.find(c => c.id === clienteId);
+  const cliente = clientes?.find(c => c.id === contrato?.cliente_id);
 
   // Estados para controle de apresentação
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -40,7 +35,7 @@ export function ClienteAnalysisDetails({ clienteId }: ClienteAnalysisDetailsProp
   const containerRef = useRef<HTMLDivElement>(null);
   const sectionRefs = useRef<HTMLDivElement[]>([]);
 
-  const totalSections = 4; // Análise Presente, Projeção Futura, Estratégia, Detalhes
+  const totalSections = 3; // Análise Presente, Projeção Futura, Estratégia
 
   // Detecta teclas de navegação
   useEffect(() => {
@@ -129,10 +124,19 @@ export function ClienteAnalysisDetails({ clienteId }: ClienteAnalysisDetailsProp
   };
 
   const handleShareWhatsApp = () => {
-    const valorTotal = contratos?.reduce((sum, c) => sum + (c.saldo_contabil || c.valor_divida || 0), 0) || 0;
-    const texto = `📊 *Análise Financeira - ${cliente?.nome}*\n\n` +
-      `💰 Valor Total: ${valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}\n` +
-      `📋 Contratos: ${contratos?.length}\n\n` +
+    if (!contrato) return;
+    
+    const valorDivida = contrato.saldo_contabil || contrato.valor_divida || 0;
+    const valorProvisao = contrato.valor_provisao || 0;
+    const percentualProvisao = valorDivida > 0 ? (valorProvisao / valorDivida) * 100 : 0;
+    
+    const texto = `📊 *Análise de Contrato - ${cliente?.nome}*\n\n` +
+      `📋 Contrato: ${contrato.numero_contrato || "Sem número"}\n` +
+      `🏦 Banco: ${contrato.bancos?.nome || "Não informado"}\n` +
+      `💰 Valor: ${valorDivida.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}\n` +
+      `📊 Provisão: ${percentualProvisao.toFixed(1)}%\n` +
+      `📂 Tipo: ${contrato.classificacao || "N/A"}\n` +
+      `⏱️ Estágio: ${contrato.dias_atraso! <= 30 ? "1" : contrato.dias_atraso! <= 90 ? "2" : "3"}\n\n` +
       `Análise completa gerada pelo IntelBank.\n` +
       `🔗 Acesse: ${window.location.origin}`;
     
@@ -142,13 +146,13 @@ export function ClienteAnalysisDetails({ clienteId }: ClienteAnalysisDetailsProp
     toast.success("Abrindo WhatsApp...");
   };
 
-  if (loadingContratos) {
+  if (isLoading) {
     return (
       <div className="space-y-6">
         <Card>
           <CardContent className="py-8">
             <div className="text-center text-muted-foreground">
-              Carregando análise do cliente...
+              Carregando análise do contrato...
             </div>
           </CardContent>
         </Card>
@@ -156,16 +160,16 @@ export function ClienteAnalysisDetails({ clienteId }: ClienteAnalysisDetailsProp
     );
   }
 
-  if (!contratos || contratos.length === 0) {
+  if (!contrato) {
     return (
       <div className="space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle>Análise do Cliente: {cliente?.nome}</CardTitle>
+            <CardTitle>Contrato não encontrado</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-center text-muted-foreground">
-              Este cliente não possui contratos cadastrados.
+              O contrato selecionado não foi encontrado no sistema.
             </div>
           </CardContent>
         </Card>
@@ -173,43 +177,11 @@ export function ClienteAnalysisDetails({ clienteId }: ClienteAnalysisDetailsProp
     );
   }
 
-  // Calcular estatísticas do cliente
-  const totalContratos = contratos.length;
-  const valorTotalDividas = contratos.reduce((sum, c) => sum + (Number(c.valor_divida) || 0), 0);
-  const valorTotalProvisao = contratos.reduce((sum, c) => sum + (Number(c.valor_provisao) || 0), 0);
-  const percentualProvisao = valorTotalDividas > 0 ? (valorTotalProvisao / valorTotalDividas) * 100 : 0;
-
-  // Distribuição por classificação
-  const porClassificacao = contratos.reduce((acc, contrato) => {
-    const classificacao = contrato.classificacao || "Não classificado";
-    acc[classificacao] = (acc[classificacao] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
-
-  // Distribuição por situação
-  const porSituacao = contratos.reduce((acc, contrato) => {
-    const situacao = contrato.situacao || "Não informado";
-    acc[situacao] = (acc[situacao] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
-
-  const getSituacaoIcon = (situacao: string) => {
-    switch (situacao) {
-      case 'Acordo Finalizado': return CheckCircle;
-      case 'Em processo judicial': return Gavel;
-      case 'Em negociação': return TrendingUp;
-      default: return Clock;
-    }
-  };
-
-  const getSituacaoColor = (situacao: string) => {
-    switch (situacao) {
-      case 'Acordo Finalizado': return 'bg-green-500';
-      case 'Em processo judicial': return 'bg-red-500';
-      case 'Em negociação': return 'bg-blue-500';
-      default: return 'bg-yellow-500';
-    }
-  };
+  // Dados do contrato individual
+  const valorDivida = contrato.saldo_contabil || contrato.valor_divida || 0;
+  const valorProvisao = contrato.valor_provisao || 0;
+  const percentualProvisao = valorDivida > 0 ? (valorProvisao / valorDivida) * 100 : 0;
+  const diasAtraso = contrato.dias_atraso || 0;
 
   return (
     <>
@@ -217,147 +189,78 @@ export function ClienteAnalysisDetails({ clienteId }: ClienteAnalysisDetailsProp
         ref={containerRef}
         className={`${isFullscreen ? 'fixed inset-0 bg-white z-40 overflow-y-auto' : ''} space-y-6`}
       >
-        {/* Seção 0: Análise da Situação Presente */}
-        <div ref={(el) => { if (el) sectionRefs.current[0] = el; }}>
-          <AnalisePresente contratos={contratos} />
-        </div>
-
-        <Separator className="my-8" />
-
-        {/* Seção 1: Projeção Futura */}
-        <div ref={(el) => { if (el) sectionRefs.current[1] = el; }}>
-          <ProjecaoFutura contratos={contratos} />
-        </div>
-
-        <Separator className="my-8" />
-
-        {/* Seção 2: Estratégia Completa */}
-        <div ref={(el) => { if (el) sectionRefs.current[2] = el; }}>
-          <EstrategiaCompleta contratos={contratos} />
-        </div>
-
-        <Separator className="my-8" />
-
-      {/* Seção 3: Detalhes do Cliente */}
-      <div ref={(el) => { if (el) sectionRefs.current[3] = el; }}>
-        {/* Header do Cliente */}
+        {/* Header do Contrato */}
         <Card>
           <CardHeader>
             <CardTitle className="text-xl font-bold">
-              Análise Detalhada: {cliente?.nome}
+              Análise Individual: {contrato.numero_contrato || "Contrato sem número"}
             </CardTitle>
             <div className="flex flex-wrap gap-2 mt-2">
-              {cliente?.cpf_cnpj && (
-                <Badge variant="outline">{cliente.cpf_cnpj}</Badge>
-              )}
-              {cliente?.email && (
-                <Badge variant="outline">{cliente.email}</Badge>
-              )}
-              {cliente?.telefone && (
-                <Badge variant="outline">{cliente.telefone}</Badge>
-              )}
+              <Badge variant="outline">{cliente?.nome}</Badge>
+              <Badge variant="outline">{contrato.bancos?.nome || "Banco não informado"}</Badge>
+              <Badge variant="outline">Tipo: {contrato.classificacao || "N/A"}</Badge>
+              <Badge variant="outline">
+                Estágio {diasAtraso <= 30 ? "1" : diasAtraso <= 90 ? "2" : "3"}
+              </Badge>
             </div>
           </CardHeader>
         </Card>
 
-        {/* KPIs do Cliente */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mt-6">
+        {/* KPIs do Contrato Individual */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <StatsCard
-            title="Contratos"
-            value={totalContratos}
-            description="Total de contratos"
-            icon={FileText}
-          />
-          <StatsCard
-            title="Total de Dívidas"
-            value={`R$ ${(valorTotalDividas / 1000).toFixed(0)}K`}
-            description="Valor total das dívidas"
+            title="Valor da Dívida"
+            value={`R$ ${(valorDivida / 1000).toFixed(0)}K`}
+            description="Saldo atual"
             icon={DollarSign}
           />
           <StatsCard
-            title="Provisão Total"
-            value={`R$ ${(valorTotalProvisao / 1000).toFixed(0)}K`}
+            title="Provisão"
+            value={`R$ ${(valorProvisao / 1000).toFixed(0)}K`}
             description="Valor provisionado"
             icon={Calculator}
           />
           <StatsCard
             title="% Provisão"
             value={`${percentualProvisao.toFixed(1)}%`}
-            description="Percentual de risco"
+            description="Oportunidade"
             icon={TrendingUp}
             className={
-              percentualProvisao > 50 
-                ? "border-destructive/20 bg-destructive/5" 
-                : "border-primary/20 bg-primary/5"
+              percentualProvisao >= 70 
+                ? "border-green-500/20 bg-green-500/5" 
+                : percentualProvisao >= 40
+                ? "border-blue-500/20 bg-blue-500/5"
+                : "border-yellow-500/20 bg-yellow-500/5"
             }
+          />
+          <StatsCard
+            title="Dias em Atraso"
+            value={`${diasAtraso}`}
+            description={`Estágio ${diasAtraso <= 30 ? "1" : diasAtraso <= 90 ? "2" : "3"}`}
+            icon={FileText}
           />
         </div>
 
-        {/* Gráficos */}
-        <div className="grid gap-6 lg:grid-cols-2 mt-6">
-          <ClassificacaoChart data={porClassificacao} />
-          
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold flex items-center space-x-2">
-                <AlertTriangle className="h-5 w-5" />
-                <span>Status dos Contratos</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {Object.entries(porSituacao).map(([situacao, quantidade]) => {
-                  const Icon = getSituacaoIcon(situacao);
-                  return (
-                    <div key={situacao} className="flex items-center justify-between p-3 border border-border rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        <div className={`w-4 h-4 rounded-full ${getSituacaoColor(situacao)}`} />
-                        <Icon className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm font-medium">{situacao}</span>
-                      </div>
-                      <Badge variant="secondary">{quantidade}</Badge>
-                    </div>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
+        {/* Seção 0: Análise da Situação Presente */}
+        <div ref={(el) => { if (el) sectionRefs.current[0] = el; }}>
+          <AnalisePresente contrato={contrato} />
         </div>
 
-        {/* Lista de Contratos */}
-        <Card className="mt-6">
-          <CardHeader>
-            <CardTitle className="text-lg font-semibold">Contratos do Cliente</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3 max-h-80 overflow-y-auto">
-              {contratos.map(contrato => (
-                <div key={contrato.id} className="flex items-center justify-between p-3 border border-border rounded-lg">
-                  <div className="space-y-1">
-                    <div className="flex items-center space-x-2">
-                      <p className="font-medium text-sm">{contrato.numero_contrato || "Contrato sem número"}</p>
-                      <Badge variant="outline" className="text-xs">
-                        {contrato.classificacao || "Não classificado"}
-                      </Badge>
-                    </div>
-                    <div className="flex items-center space-x-4 text-xs text-muted-foreground">
-                      <span>{contrato.bancos?.nome || "Banco não informado"}</span>
-                      <span>{contrato.situacao || "Situação não informada"}</span>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-medium text-sm">R$ {Number(contrato.valor_divida || 0).toLocaleString('pt-BR')}</p>
-                     <p className="text-xs text-muted-foreground">
-                        Provisão: R$ {Number(contrato.valor_provisao || 0).toLocaleString('pt-BR')} 
-                        ({(((contrato.valor_provisao ?? 0) / (contrato.valor_divida || 1)) * 100).toFixed(1)}%)
-                     </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+        <Separator className="my-8" />
+
+        {/* Seção 1: Projeção Futura */}
+        <div ref={(el) => { if (el) sectionRefs.current[1] = el; }}>
+          <ProjecaoFutura contrato={contrato} />
+        </div>
+
+        <Separator className="my-8" />
+
+        {/* Seção 2: Estratégia Completa */}
+        <div ref={(el) => { if (el) sectionRefs.current[2] = el; }}>
+          <EstrategiaCompleta contrato={contrato} />
+        </div>
+
+        <Separator className="my-8" />
       
       {/* Info Card Explicativo */}
       <Card className="border-blue-200 bg-blue-50">

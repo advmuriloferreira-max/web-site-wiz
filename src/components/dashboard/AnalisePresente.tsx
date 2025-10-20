@@ -7,32 +7,15 @@ import { Target } from "lucide-react";
 import { Contrato } from "@/hooks/useContratos";
 
 interface AnalisePresenteProps {
-  contratos: Contrato[];
+  contrato: Contrato;
 }
 
-export function AnalisePresente({ contratos }: AnalisePresenteProps) {
-  if (!contratos || contratos.length === 0) {
+export function AnalisePresente({ contrato }: AnalisePresenteProps) {
+  if (!contrato) {
     return null;
   }
 
-  // Encontrar o contrato com MAIOR PROVISÃO (melhor oportunidade)
-  // NÃO usar classificação C1-C5, usar % de provisão
-  const contratoMelhorOportunidade = contratos.reduce((prev, current) => {
-    const percentualPrev = prev.valor_divida > 0 ? ((prev.valor_provisao || 0) / prev.valor_divida) * 100 : 0;
-    const percentualCurrent = current.valor_divida > 0 ? ((current.valor_provisao || 0) / current.valor_divida) * 100 : 0;
-    return percentualCurrent > percentualPrev ? current : prev;
-  }, contratos[0]);
-
-  // Calcula totais agregados
-  const valorDividaTotal = contratos.reduce((sum, c) => {
-    return sum + (c.saldo_contabil || c.valor_divida || 0);
-  }, 0);
-
-  const valorProvisaoTotal = contratos.reduce((sum, c) => {
-    return sum + (c.valor_provisao || 0);
-  }, 0);
-
-  // Usa dados REAIS do contrato com maior provisão
+  // Dados REAIS do contrato individual
   const {
     classificacao,
     dias_atraso,
@@ -40,7 +23,7 @@ export function AnalisePresente({ contratos }: AnalisePresenteProps) {
     valor_divida,
     saldo_contabil,
     valor_provisao
-  } = contratoMelhorOportunidade;
+  } = contrato;
 
   const valorBase = saldo_contabil || valor_divida || 0;
 
@@ -65,9 +48,9 @@ export function AnalisePresente({ contratos }: AnalisePresenteProps) {
         <div className="lg:col-span-1">
           <TermometroDaSituacao
             classificacao={classificacao}
-            diasAtraso={dias_atraso}
-            valorProvisao={valorProvisaoTotal}
-            valorDivida={valorDividaTotal}
+            diasAtraso={dias_atraso || 0}
+            valorProvisao={valor_provisao || 0}
+            valorDivida={valorBase}
           />
         </div>
 
@@ -86,8 +69,8 @@ export function AnalisePresente({ contratos }: AnalisePresenteProps) {
       {/* Gráfico de Evolução - Largura Total */}
       <GraficoEvolucao
         classificacao={classificacao}
-        diasAtraso={dias_atraso}
-        mesesAtraso={meses_atraso}
+        diasAtraso={dias_atraso || 0}
+        mesesAtraso={meses_atraso || 0}
       />
 
       {/* Info Card Explicativo */}
