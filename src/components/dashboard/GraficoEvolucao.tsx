@@ -4,7 +4,6 @@ import {
   AlertCircle, 
   AlertTriangle, 
   XCircle, 
-  Skull,
   TrendingUp
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -27,77 +26,57 @@ export function GraficoEvolucao({
   mesesAtraso,
 }: GraficoEvolucaoProps) {
   
-  const marcos = [
+  // ESTÁGIOS baseados em TEMPO (BCB 4.966/2021)
+  // Classificação C1-C5 NÃO muda com tempo!
+  const estagios = [
     {
-      nivel: 'C1',
-      dias: 0,
-      titulo: 'Em Dia',
-      descricao: 'Contrato regular, sem atrasos. Cliente em boa situação.',
-      provisao: '0%',
+      estagio: 1,
+      dias: '0-30',
+      titulo: 'Estágio 1',
+      descricao: 'Sem aumento significativo de risco. Perda esperada de 12 meses.',
+      provisaoTipica: '5-15%',
       icon: CheckCircle2,
       cor: 'text-green-600',
       bgCor: 'bg-green-100',
       lineCor: 'bg-green-400'
     },
     {
-      nivel: 'C2',
-      dias: 15,
-      titulo: 'Atraso Inicial',
-      descricao: 'Primeiros sinais de dificuldade. Banco começa a monitorar.',
-      provisao: '1-3%',
+      estagio: 2,
+      dias: '31-90',
+      titulo: 'Estágio 2',
+      descricao: 'Aumento significativo de risco. Perda esperada por toda vida do ativo.',
+      provisaoTipica: '15-40%',
       icon: AlertCircle,
-      cor: 'text-blue-600',
-      bgCor: 'bg-blue-100',
-      lineCor: 'bg-blue-400'
-    },
-    {
-      nivel: 'C3',
-      dias: 60,
-      titulo: 'Situação Preocupante',
-      descricao: 'Atraso significativo. Banco aumenta provisão e pode oferecer acordo.',
-      provisao: '10-30%',
-      icon: AlertTriangle,
       cor: 'text-yellow-600',
       bgCor: 'bg-yellow-100',
       lineCor: 'bg-yellow-400'
     },
     {
-      nivel: 'C4',
-      dias: 90,
-      titulo: 'Alto Risco',
-      descricao: 'Situação crítica. Banco espera grande perda. Negociação urgente necessária.',
-      provisao: '50-70%',
+      estagio: 3,
+      dias: '>90',
+      titulo: 'Estágio 3',
+      descricao: 'Ativo problemático/inadimplido. Perda esperada elevada.',
+      provisaoTipica: '40-100%',
       icon: XCircle,
-      cor: 'text-orange-600',
-      bgCor: 'bg-orange-100',
-      lineCor: 'bg-orange-400'
-    },
-    {
-      nivel: 'C5',
-      dias: 180,
-      titulo: 'Perda Esperada',
-      descricao: 'Banco considera o valor praticamente perdido. Última chance de negociação.',
-      provisao: '100%',
-      icon: Skull,
       cor: 'text-red-600',
       bgCor: 'bg-red-100',
       lineCor: 'bg-red-400'
     }
   ];
 
-  // Encontra o índice atual
-  const indiceAtual = marcos.findIndex(m => m.nivel === classificacao);
-  const marcoAtual = indiceAtual >= 0 ? indiceAtual : 0;
+  // Determina o estágio atual baseado em DIAS DE ATRASO
+  const estagioAtual = diasAtraso <= 30 ? 0 : diasAtraso <= 90 ? 1 : 2;
+  const estagioInfo = estagios[estagioAtual];
 
   return (
     <Card className="border-slate-200 shadow-sm">
       <CardHeader className="pb-4">
         <CardTitle className="flex items-center gap-2 text-lg font-semibold text-slate-800">
           <TrendingUp className="h-5 w-5 text-blue-600" />
-          Evolução da Situação
+          Evolução por Estágios de Risco (BCB 4.966/2021)
         </CardTitle>
         <p className="text-sm text-slate-600 mt-1">
-          Linha do tempo mostrando como a classificação evolui com o passar dos dias
+          Estágios baseados APENAS em dias de atraso. Classificação C1-C5 = tipo de operação.
         </p>
       </CardHeader>
       <CardContent>
@@ -109,23 +88,23 @@ export function GraficoEvolucao({
               <div 
                 className={cn(
                   "h-full rounded-full transition-all duration-1000 ease-out",
-                  marcos[marcoAtual]?.lineCor || 'bg-green-400'
+                  estagios[estagioAtual]?.lineCor || 'bg-green-400'
                 )}
                 style={{ 
-                  width: `${((marcoAtual + 1) / marcos.length) * 100}%` 
+                  width: `${((estagioAtual + 1) / estagios.length) * 100}%` 
                 }}
               />
             </div>
 
             {/* Marcos */}
             <div className="relative flex justify-between">
-              {marcos.map((marco, index) => {
-                const isAtual = index === marcoAtual;
-                const isPast = index < marcoAtual;
-                const Icon = marco.icon;
+              {estagios.map((estagio, index) => {
+                const isAtual = index === estagioAtual;
+                const isPast = index < estagioAtual;
+                const Icon = estagio.icon;
 
                 return (
-                  <Tooltip key={marco.nivel}>
+                  <Tooltip key={estagio.estagio}>
                     <TooltipTrigger asChild>
                       <div 
                         className={cn(
@@ -137,14 +116,14 @@ export function GraficoEvolucao({
                         <div 
                           className={cn(
                             "w-12 h-12 rounded-full flex items-center justify-center border-4 border-white shadow-lg transition-all duration-300 z-10",
-                            isAtual ? marco.bgCor : isPast ? marco.bgCor : "bg-slate-100",
+                            isAtual ? estagio.bgCor : isPast ? estagio.bgCor : "bg-slate-100",
                             isAtual && "animate-pulse"
                           )}
                         >
                           <Icon 
                             className={cn(
                               "h-6 w-6",
-                              isAtual ? marco.cor : isPast ? marco.cor : "text-slate-400"
+                              isAtual ? estagio.cor : isPast ? estagio.cor : "text-slate-400"
                             )} 
                           />
                         </div>
@@ -153,12 +132,12 @@ export function GraficoEvolucao({
                         <div className="mt-2 text-center">
                           <div className={cn(
                             "text-sm font-semibold",
-                            isAtual ? marco.cor : isPast ? marco.cor : "text-slate-400"
+                            isAtual ? estagio.cor : isPast ? estagio.cor : "text-slate-400"
                           )}>
-                            {marco.nivel}
+                            {estagio.titulo}
                           </div>
                           <div className="text-xs text-slate-500 mt-1">
-                            {marco.dias}+ dias
+                            {estagio.dias} dias
                           </div>
                         </div>
 
@@ -167,8 +146,8 @@ export function GraficoEvolucao({
                           <div className="mt-2">
                             <div className={cn(
                               "px-2 py-1 rounded text-xs font-semibold",
-                              marco.bgCor,
-                              marco.cor
+                              estagio.bgCor,
+                              estagio.cor
                             )}>
                               Você está aqui
                             </div>
@@ -183,23 +162,23 @@ export function GraficoEvolucao({
                     >
                       <div className="space-y-2">
                         <div className="flex items-center gap-2">
-                          <Icon className={cn("h-5 w-5", marco.cor)} />
-                          <h4 className="font-semibold">{marco.titulo}</h4>
+                          <Icon className={cn("h-5 w-5", estagio.cor)} />
+                          <h4 className="font-semibold">{estagio.titulo}</h4>
                         </div>
                         <p className="text-sm text-slate-600">
-                          {marco.descricao}
+                          {estagio.descricao}
                         </p>
                         <div className="pt-2 border-t border-slate-200">
                           <div className="flex justify-between text-xs">
-                            <span className="text-slate-600">Provisão bancária:</span>
-                            <span className={cn("font-semibold", marco.cor)}>
-                              {marco.provisao}
+                            <span className="text-slate-600">Provisão típica:</span>
+                            <span className={cn("font-semibold", estagio.cor)}>
+                              {estagio.provisaoTipica}
                             </span>
                           </div>
                           <div className="flex justify-between text-xs mt-1">
-                            <span className="text-slate-600">A partir de:</span>
+                            <span className="text-slate-600">Período:</span>
                             <span className="font-semibold">
-                              {marco.dias} dias de atraso
+                              {estagio.dias} dias de atraso
                             </span>
                           </div>
                         </div>
@@ -217,33 +196,46 @@ export function GraficoEvolucao({
           <div className="flex items-start gap-3">
             <div className={cn(
               "p-2 rounded-lg",
-              marcos[marcoAtual]?.bgCor || 'bg-green-100'
+              estagioInfo.bgCor
             )}>
               <AlertTriangle className={cn(
                 "h-5 w-5",
-                marcos[marcoAtual]?.cor || 'text-green-600'
+                estagioInfo.cor
               )} />
             </div>
             <div className="flex-1">
               <h4 className="font-semibold text-slate-800 mb-1">
-                Situação Atual: {marcos[marcoAtual]?.titulo}
+                Situação Atual: {estagioInfo.titulo}
               </h4>
               <p className="text-sm text-slate-600 mb-2">
-                {marcos[marcoAtual]?.descricao}
+                {estagioInfo.descricao}
               </p>
-              <div className="flex gap-4 text-xs text-slate-600">
+              <div className="flex gap-4 text-xs text-slate-600 flex-wrap">
                 <div>
                   <span className="font-semibold">Dias em atraso:</span> {diasAtraso}
                 </div>
                 <div>
-                  <span className="font-semibold">Meses:</span> {mesesAtraso}
+                  <span className="font-semibold">Meses:</span> {mesesAtraso.toFixed(1)}
                 </div>
                 <div>
-                  <span className="font-semibold">Provisão:</span> {marcos[marcoAtual]?.provisao}
+                  <span className="font-semibold">Tipo de operação:</span> {classificacao || "N/A"}
+                </div>
+                <div>
+                  <span className="font-semibold">Provisão típica:</span> {estagioInfo.provisaoTipica}
                 </div>
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Aviso Importante */}
+        <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-xs text-blue-900">
+            <span className="font-semibold">⚠️ Importante:</span> A <strong>Classificação (C1-C5)</strong> é determinada pelo 
+            TIPO de operação baseado em garantias (C1=garantias sólidas, C2=garantias médias, C3=sem garantia), 
+            e NÃO muda com o tempo de atraso. Já o <strong>Estágio (1, 2 ou 3)</strong> é determinado APENAS 
+            pelos dias de atraso conforme BCB 4.966/2021.
+          </p>
         </div>
       </CardContent>
     </Card>

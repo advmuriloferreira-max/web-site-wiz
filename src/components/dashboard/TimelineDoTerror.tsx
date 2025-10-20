@@ -20,7 +20,8 @@ export function TimelineDoTerror({
   diasAtrasoAtual,
 }: TimelineDoTerrorProps) {
 
-  // Calcula quando ocorrerão as mudanças de classificação
+  // Calcula eventos futuros baseados em TEMPO e PROVISÃO
+  // Classificação C1-C5 NÃO muda! É o tipo de operação.
   const calcularEventosFuturos = () => {
     const taxaMensal = 0.045; // 4.5% ao mês (juros + encargos)
     
@@ -29,10 +30,10 @@ export function TimelineDoTerror({
         mes: 1,
         diasAtraso: diasAtrasoAtual + 30,
         titulo: "1 Mês Depois",
-        classificacao: classificacaoAtual === "C1" ? "C2" : classificacaoAtual,
+        estagio: diasAtrasoAtual + 30 <= 30 ? 1 : diasAtrasoAtual + 30 <= 90 ? 2 : 3,
         valor: valorDividaAtual * (1 + taxaMensal),
-        descricao: "Primeira reclassificação possível",
-        provisao: "1-3%",
+        descricao: "Provisão aumenta. Estágio pode mudar conforme dias de atraso.",
+        provisaoEstimada: "10-20%",
         analogia: "🏃 Corrida de 100m - Ainda dá pra recuperar",
         icon: AlertCircle,
         cor: "text-yellow-600",
@@ -43,10 +44,10 @@ export function TimelineDoTerror({
         mes: 2,
         diasAtraso: diasAtrasoAtual + 60,
         titulo: "2 Meses Depois",
-        classificacao: classificacaoAtual === "C1" || classificacaoAtual === "C2" ? "C3" : classificacaoAtual,
+        estagio: diasAtrasoAtual + 60 <= 30 ? 1 : diasAtrasoAtual + 60 <= 90 ? 2 : 3,
         valor: valorDividaAtual * Math.pow(1 + taxaMensal, 2),
-        descricao: "Situação preocupante - Banco entra em alerta",
-        provisao: "10-30%",
+        descricao: "Banco aumenta provisão. Entra em alerta moderado.",
+        provisaoEstimada: "20-35%",
         analogia: "🏃 Maratona iniciada - Precisa de estratégia",
         icon: AlertCircle,
         cor: "text-orange-600",
@@ -56,11 +57,11 @@ export function TimelineDoTerror({
       {
         mes: 3,
         diasAtraso: diasAtrasoAtual + 90,
-        titulo: "3 Meses Depois",
-        classificacao: "C4",
+        titulo: "3 Meses Depois (Marco 90 dias)",
+        estagio: 3,
         valor: valorDividaAtual * Math.pow(1 + taxaMensal, 3),
-        descricao: "Alto risco - Banco considera perda provável",
-        provisao: "50-70%",
+        descricao: "ESTÁGIO 3 - Ativo problemático. Provisão aumenta significativamente.",
+        provisaoEstimada: "40-70%",
         analogia: "⚠️ Ultramaratona - Situação crítica",
         icon: XCircle,
         cor: "text-red-600",
@@ -71,10 +72,10 @@ export function TimelineDoTerror({
         mes: 6,
         diasAtraso: diasAtrasoAtual + 180,
         titulo: "6 Meses Depois",
-        classificacao: "C5",
+        estagio: 3,
         valor: valorDividaAtual * Math.pow(1 + taxaMensal, 6),
-        descricao: "Perda esperada - Banco já considera irrecuperável",
-        provisao: "100%",
+        descricao: "Provisão elevada. Banco considera grande perda esperada.",
+        provisaoEstimada: "70-100%",
         analogia: "💀 Ironman - Quase impossível recuperar",
         icon: Skull,
         cor: "text-red-800",
@@ -85,10 +86,10 @@ export function TimelineDoTerror({
         mes: 12,
         diasAtraso: diasAtrasoAtual + 360,
         titulo: "1 Ano Depois",
-        classificacao: "C5",
+        estagio: 3,
         valor: valorDividaAtual * Math.pow(1 + taxaMensal, 12),
-        descricao: "Ação judicial iminente - Bloqueio de bens",
-        provisao: "100%",
+        descricao: "Ação judicial provável. Bloqueio de bens e penhora.",
+        provisaoEstimada: "100%",
         analogia: "⚖️ Tribunais - Seu nome na justiça",
         icon: Scale,
         cor: "text-red-900",
@@ -102,15 +103,18 @@ export function TimelineDoTerror({
 
   const eventos = calcularEventosFuturos();
 
+  // Determina estágio atual
+  const estagioAtual = diasAtrasoAtual <= 30 ? 1 : diasAtrasoAtual <= 90 ? 2 : 3;
+
   return (
     <Card className="border-slate-200 shadow-sm">
       <CardHeader className="pb-4 bg-gradient-to-r from-red-50 to-orange-50">
         <CardTitle className="flex items-center gap-2 text-lg font-semibold text-slate-800">
           <Calendar className="h-5 w-5 text-red-600" />
-          Timeline: O Que Te Espera
+          Projeção Temporal: O Que Te Espera
         </CardTitle>
         <p className="text-sm text-slate-600 mt-1">
-          Projeção mês a mês se você não negociar agora
+          Como a provisão e os estágios evoluem se você não negociar
         </p>
       </CardHeader>
       <CardContent className="pt-6">
@@ -122,22 +126,26 @@ export function TimelineDoTerror({
               <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="font-bold text-green-800">HOJE - Você Está Aqui</h3>
-                  <span className="text-xs font-semibold text-green-700 bg-green-200 px-2 py-1 rounded">
-                    {classificacaoAtual || 'N/A'}
-                  </span>
+                  <div className="flex gap-2">
+                    <span className="text-xs font-semibold text-green-700 bg-green-200 px-2 py-1 rounded">
+                      Tipo: {classificacaoAtual || 'N/A'}
+                    </span>
+                    <span className="text-xs font-semibold text-green-700 bg-green-200 px-2 py-1 rounded">
+                      Estágio {estagioAtual}
+                    </span>
+                  </div>
                 </div>
                 <div className="text-2xl font-bold text-green-700 mb-1">
                   {valorDividaAtual.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                 </div>
                 <p className="text-sm text-green-800">
-                  🎯 <span className="font-semibold">Esta é sua melhor chance de negociar!</span> O banco ainda não provisionou muito.
+                  🎯 <span className="font-semibold">Esta é sua melhor chance de negociar!</span> Quanto mais cedo, melhor.
                 </p>
               </div>
             </div>
 
             {/* Eventos Futuros */}
             {eventos.map((evento, index) => {
-              const Icon = evento.icon;
               const aumentoPercentual = ((evento.valor - valorDividaAtual) / valorDividaAtual) * 100;
               const aumentoAbsoluto = evento.valor - valorDividaAtual;
 
@@ -158,7 +166,7 @@ export function TimelineDoTerror({
                       <div className={cn("border rounded-lg p-4", evento.bgCor, evento.bordaCor)}>
                         <div className="flex items-start justify-between mb-3">
                           <div className="flex items-center gap-2">
-                            <Icon className={cn("h-5 w-5", evento.cor)} />
+                            <evento.icon className={cn("h-5 w-5", evento.cor)} />
                             <h3 className={cn("font-bold", evento.cor)}>{evento.titulo}</h3>
                           </div>
                           <span className={cn(
@@ -166,7 +174,7 @@ export function TimelineDoTerror({
                             evento.bgCor.replace('-100', '-200'),
                             evento.cor
                           )}>
-                            {evento.classificacao}
+                            Estágio {evento.estagio}
                           </span>
                         </div>
 
@@ -193,8 +201,8 @@ export function TimelineDoTerror({
                             {evento.descricao}
                           </p>
                           <div className="flex items-center justify-between text-xs">
-                            <span className="text-slate-600">Provisão bancária:</span>
-                            <span className={cn("font-bold", evento.cor)}>{evento.provisao}</span>
+                            <span className="text-slate-600">Provisão estimada:</span>
+                            <span className={cn("font-bold", evento.cor)}>{evento.provisaoEstimada}</span>
                           </div>
                           <div className="flex items-center justify-between text-xs">
                             <span className="text-slate-600">Dias em atraso:</span>
@@ -218,10 +226,10 @@ export function TimelineDoTerror({
                       <p className="font-semibold">Dica para este momento:</p>
                       <p className="text-xs">
                         {evento.mes <= 2 
-                          ? "Ainda há boa margem de negociação. O banco está aberto a acordos."
+                          ? "Ainda há boa margem de negociação. Quanto mais provisão, melhor para você."
                           : evento.mes <= 3
-                          ? "Negociação mais difícil. Banco pode exigir entrada maior."
-                          : "Situação crítica. Acordos muito limitados. Ação judicial provável."
+                          ? "Provisão aumentando. Banco começa a ter mais interesse em negociar."
+                          : "Alta provisão = alto interesse do banco em resolver. Use isso a seu favor!"
                         }
                       </p>
                     </div>
@@ -259,6 +267,15 @@ export function TimelineDoTerror({
               Agindo agora, você controla o futuro
             </p>
           </div>
+        </div>
+
+        {/* Aviso Importante */}
+        <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-xs text-blue-900">
+            <span className="font-semibold">💡 Lembre-se:</span> A <strong>classificação C1-C5 não muda</strong> com o tempo - ela define o tipo de operação. 
+            O que muda é o <strong>estágio (1, 2 ou 3)</strong> baseado em dias de atraso e o <strong>% de provisão</strong>. 
+            Quanto MAIOR a provisão, MELHOR para você negociar descontos!
+          </p>
         </div>
       </CardContent>
     </Card>

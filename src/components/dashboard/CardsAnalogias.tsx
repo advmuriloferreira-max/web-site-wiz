@@ -26,42 +26,44 @@ export function CardsAnalogias({
   const taxaJurosMensal = 0.02; // 2% ao mês (estimativa)
   const jurosPerdidos = valorDivida * taxaJurosMensal * mesesAtraso;
 
-  // Determina o que o banco pensa baseado na classificação
+  // Como o banco vê baseado no PERCENTUAL DE PROVISÃO (não na classificação)
+  // A classificação C1-C5 é apenas o TIPO de operação, não muda com tempo!
   const getVisaoBanco = () => {
-    const visoes = {
-      'C1': {
-        pensamento: "Cliente confiável",
-        acao: "Nenhuma provisão necessária",
+    const percentualProvisao = valorDivida > 0 ? (valorProvisao / valorDivida) * 100 : 0;
+    
+    if (percentualProvisao >= 70) {
+      return {
+        pensamento: "Já consideramos perda provável",
+        acao: `${percentualProvisao.toFixed(0)}% provisionado - QUER NEGOCIAR`,
         cor: "text-green-600",
-        bgCor: "bg-green-50"
-      },
-      'C2': {
-        pensamento: "Começou a preocupar",
-        acao: "Provisão de 1-3% reservada",
+        bgCor: "bg-green-50",
+        oportunidade: "EXCELENTE"
+      };
+    } else if (percentualProvisao >= 40) {
+      return {
+        pensamento: "Provisão moderada",
+        acao: `${percentualProvisao.toFixed(0)}% provisionado - Aberto a acordos`,
+        cor: "text-blue-600",
+        bgCor: "bg-blue-50",
+        oportunidade: "BOA"
+      };
+    } else if (percentualProvisao >= 20) {
+      return {
+        pensamento: "Baixa provisão ainda",
+        acao: `${percentualProvisao.toFixed(0)}% provisionado - Pouca flexibilidade`,
         cor: "text-yellow-600",
-        bgCor: "bg-yellow-50"
-      },
-      'C3': {
-        pensamento: "Situação problemática",
-        acao: "Provisão de 10-30% reservada",
-        cor: "text-orange-600",
-        bgCor: "bg-orange-50"
-      },
-      'C4': {
-        pensamento: "Alto risco de perda",
-        acao: "Provisão de 50-70% reservada",
-        cor: "text-red-600",
-        bgCor: "bg-red-50"
-      },
-      'C5': {
-        pensamento: "Perda quase certa",
-        acao: "100% provisionado",
-        cor: "text-red-700",
-        bgCor: "bg-red-100"
-      }
-    };
-
-    return visoes[classificacao as keyof typeof visoes] || visoes['C1'];
+        bgCor: "bg-yellow-50",
+        oportunidade: "REGULAR"
+      };
+    } else {
+      return {
+        pensamento: "Quase nada provisionado",
+        acao: `${percentualProvisao.toFixed(0)}% provisionado - Aguarde melhor momento`,
+        cor: "text-gray-600",
+        bgCor: "bg-gray-50",
+        oportunidade: "AGUARDAR"
+      };
+    }
   };
 
   const visaoBanco = getVisaoBanco();
@@ -121,16 +123,25 @@ export function CardsAnalogias({
             <div className={cn("text-lg font-bold mb-1", visaoBanco.cor)}>
               "{visaoBanco.pensamento}"
             </div>
-            <div className={cn("text-sm", visaoBanco.cor)}>
+            <div className={cn("text-sm mb-2", visaoBanco.cor)}>
               {visaoBanco.acao}
+            </div>
+            <div className="text-xs font-semibold text-slate-600 mt-2">
+              Oportunidade: <span className={visaoBanco.cor}>{visaoBanco.oportunidade}</span>
             </div>
           </div>
 
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-slate-600">Classificação:</span>
-              <span className={cn("font-bold text-lg", visaoBanco.cor)}>
+              <span className="text-slate-600">Tipo de Operação:</span>
+              <span className={cn("font-bold text-lg")}>
                 {classificacao || 'N/A'}
+              </span>
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-slate-600">Estágio:</span>
+              <span className="font-semibold">
+                {diasAtraso <= 30 ? "1 (0-30 dias)" : diasAtraso <= 90 ? "2 (31-90 dias)" : "3 (>90 dias)"}
               </span>
             </div>
             <div className="flex items-center justify-between text-sm">
@@ -143,13 +154,18 @@ export function CardsAnalogias({
 
           <div className="pt-2 border-t border-slate-200">
             <div className="text-xs text-slate-600 space-y-1">
-              <p>📊 <span className="font-semibold">Provisionamento:</span> É o dinheiro que o banco "congela" esperando que você não pague.</p>
+              <p>📊 <span className="font-semibold">Provisão BCB:</span> Quanto maior, MELHOR para você negociar!</p>
+              <p>🎯 <span className="font-semibold">Classificação:</span> Define o tipo de operação (garantias), não muda com tempo.</p>
             </div>
           </div>
 
-          <div className="bg-purple-50 p-3 rounded-lg">
-            <p className="text-xs text-purple-800">
-              💡 Quanto maior a provisão, mais "perdido" o banco considera esse dinheiro.
+          <div className={cn("p-3 rounded-lg", visaoBanco.bgCor)}>
+            <p className="text-xs font-semibold" style={{ color: visaoBanco.cor.replace('text-', '') }}>
+              💡 {percentualProvisao >= 70 
+                ? "Banco já provisionou muito! Este é O MELHOR momento para conseguir grandes descontos."
+                : percentualProvisao >= 40
+                ? "Provisão moderada. Banco está aberto a negociações razoáveis."
+                : "Provisão ainda baixa. Banco tem pouca pressão para negociar. Aguarde provisão aumentar."}
             </p>
           </div>
         </CardContent>
