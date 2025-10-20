@@ -55,16 +55,17 @@ export function ComparadorDestinos({
 
   // Cenário 2: Negociar agora
   const calcularCenarioNegociacao = () => {
-    // Banco geralmente aceita 50-70% do valor provisionado
-    const descontoProvavel = 0.4; // 40% de desconto
-    const valorAcordo = valorDividaAtual * (1 - descontoProvavel);
-    const economia = valorDividaAtual - valorAcordo;
+    // Fórmula correta: Valor Proposta = Valor Dívida - Valor Provisionado
+    const percentualProvisaoAtual = (valorProvisaoAtual / valorDividaAtual) * 100;
+    const valorAcordo = valorDividaAtual - valorProvisaoAtual; // Fórmula BCB!
+    const economia = valorProvisaoAtual; // O desconto É a provisão!
 
     return {
       titulo: "Negociar Agora",
       subtitulo: "Fazer um acordo hoje",
       custoTotal: valorAcordo,
       economia,
+      percentualProvisao: percentualProvisaoAtual,
       probabilidadeAcaoJudicial: 5,
       probabilidadeBloqueio: 0,
       tempoResolucao: "1-3 meses",
@@ -198,7 +199,7 @@ export function ComparadorDestinos({
                     {cenarioNegociacao.custoTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                   </div>
                   <div className="text-xs text-green-700">
-                    Economia: {cenarioNegociacao.economia.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                    Desconto de {cenarioNegociacao.percentualProvisao.toFixed(0)}% = {cenarioNegociacao.economia.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                   </div>
                 </div>
 
@@ -292,8 +293,9 @@ export function ComparadorDestinos({
               </div>
 
               <div className="text-center text-sm text-slate-600 pt-4">
-                💡 <span className="font-semibold">Dica:</span> Estes valores são estimativas baseadas em acordos típicos. 
-                O valor real do acordo dependerá da sua negociação com o banco.
+                💡 <span className="font-semibold">Dica:</span> Valor da Proposta = Valor da Dívida - Valor Provisionado. 
+                Quanto maior a provisão, menor você paga! A provisão atual de {cenarioNegociacao.percentualProvisao.toFixed(0)}% 
+                significa que você pode pagar apenas {(100 - cenarioNegociacao.percentualProvisao).toFixed(0)}% da dívida.
               </div>
             </div>
           )}

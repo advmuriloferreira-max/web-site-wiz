@@ -16,21 +16,37 @@ export function BoladeNeve({
 }: BoladeNeveProps) {
   const [animateGrowth, setAnimateGrowth] = useState(false);
 
-  // Calcula projeção de 12 meses
+  // Calcula projeção de PROVISÃO de 12 meses (quanto MAIOR, MELHOR para cliente!)
   const calcularProjecao = () => {
-    const taxaJurosMensal = 0.025; // 2.5% ao mês
-    const multasMensais = 0.02; // 2% ao mês de multas/encargos
-    const taxaTotal = taxaJurosMensal + multasMensais;
-
     const projecoes = [];
-    let valorAtual = valorDividaAtual;
 
     for (let mes = 0; mes <= 12; mes++) {
-      const valorProjetado = valorAtual * Math.pow(1 + taxaTotal, mes);
+      const diasAtrasoProjetado = diasAtraso + (mes * 30);
+      
+      // Calcula provisão baseada em dias de atraso
+      // 0-30 dias = 10-20%, 31-90 = 20-50%, 91-180 = 50-70%, 181+ = 70-100%
+      let percentualProvisao = 0;
+      if (diasAtrasoProjetado <= 30) {
+        percentualProvisao = 10 + (diasAtrasoProjetado / 30) * 10; // 10-20%
+      } else if (diasAtrasoProjetado <= 90) {
+        percentualProvisao = 20 + ((diasAtrasoProjetado - 30) / 60) * 30; // 20-50%
+      } else if (diasAtrasoProjetado <= 180) {
+        percentualProvisao = 50 + ((diasAtrasoProjetado - 90) / 90) * 20; // 50-70%
+      } else {
+        percentualProvisao = 70 + (Math.min((diasAtrasoProjetado - 180) / 180, 1)) * 30; // 70-100%
+      }
+
+      const valorProvisao = valorDividaAtual * (percentualProvisao / 100);
+      const descontoDisponivel = valorProvisao;
+      const valorProposta = valorDividaAtual - descontoDisponivel;
+
       projecoes.push({
         mes,
-        valor: valorProjetado,
-        crescimento: ((valorProjetado - valorDividaAtual) / valorDividaAtual) * 100
+        diasAtraso: diasAtrasoProjetado,
+        percentualProvisao: Math.min(percentualProvisao, 100),
+        valorProvisao,
+        descontoDisponivel,
+        valorProposta
       });
     }
 
@@ -38,40 +54,41 @@ export function BoladeNeve({
   };
 
   const projecoes = calcularProjecao();
-  const valorEm12Meses = projecoes[12].valor;
-  const crescimentoTotal = projecoes[12].crescimento;
-  const aumentoAbsoluto = valorEm12Meses - valorDividaAtual;
+  const provisaoAtual = projecoes[0];
+  const provisaoEm12Meses = projecoes[12];
+  const crescimentoProvisao = provisaoEm12Meses.percentualProvisao - provisaoAtual.percentualProvisao;
+  const descontoAdicional = provisaoEm12Meses.descontoDisponivel - provisaoAtual.descontoDisponivel;
 
   useEffect(() => {
     const timer = setTimeout(() => setAnimateGrowth(true), 300);
     return () => clearTimeout(timer);
   }, []);
 
-  // Analogias visuais
+  // Analogias visuais baseadas no DESCONTO ADICIONAL
   const getAnalogia = () => {
-    if (crescimentoTotal < 20) {
+    if (descontoAdicional < 10000) {
       return {
-        icone: "🏠",
-        texto: "Equivale a um carro popular usado",
-        impacto: "baixo"
+        icone: "💰",
+        texto: "Equivale a alguns meses de salário economizados",
+        impacto: "bom"
       };
-    } else if (crescimentoTotal < 40) {
+    } else if (descontoAdicional < 30000) {
       return {
         icone: "🚗",
-        texto: "Equivale a um carro novo de entrada",
-        impacto: "moderado"
+        texto: "Equivale a entrada de um carro novo",
+        impacto: "muito-bom"
       };
-    } else if (crescimentoTotal < 60) {
+    } else if (descontoAdicional < 100000) {
       return {
         icone: "🏡",
-        texto: "Equivale a um terreno pequeno",
-        impacto: "alto"
+        texto: "Equivale a entrada de um imóvel",
+        impacto: "excelente"
       };
     } else {
       return {
         icone: "🏢",
         texto: "Equivale a um imóvel de médio porte",
-        impacto: "crítico"
+        impacto: "extraordinário"
       };
     }
   };
@@ -80,98 +97,107 @@ export function BoladeNeve({
 
   return (
     <Card className="border-slate-200 shadow-sm overflow-hidden">
-      <CardHeader className="pb-4 bg-gradient-to-r from-blue-50 to-indigo-50">
+      <CardHeader className="pb-4 bg-gradient-to-r from-green-50 to-emerald-50">
         <CardTitle className="flex items-center gap-2 text-lg font-semibold text-slate-800">
-          <Snowflake className="h-5 w-5 text-blue-600" />
-          Efeito Bola de Neve
+          <Snowflake className="h-5 w-5 text-green-600" />
+          Efeito Bola de Neve: Seu Desconto Crescendo
         </CardTitle>
         <p className="text-sm text-slate-600 mt-1">
-          Como sua dívida cresce se você não agir
+          Como a PROVISÃO aumenta com o tempo - quanto maior, melhor para você!
         </p>
       </CardHeader>
       <CardContent className="pt-6 space-y-6">
-        {/* Visualização da Bola Crescendo */}
-        <div className="relative h-64 flex items-end justify-center bg-gradient-to-b from-blue-50 to-white rounded-lg p-6">
-          {/* Bola Inicial */}
+        {/* Visualização da Provisão Crescendo (POSITIVO!) */}
+        <div className="relative h-64 flex items-end justify-center bg-gradient-to-b from-green-50 to-white rounded-lg p-6">
+          {/* Provisão Inicial */}
           <div className="absolute left-8 bottom-8 flex flex-col items-center">
             <div 
-              className="relative w-20 h-20 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 shadow-lg flex items-center justify-center"
+              className="relative w-20 h-20 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 shadow-lg flex items-center justify-center"
             >
               <div className="text-white text-xs font-bold text-center">
                 HOJE<br/>
-                R$ {(valorDividaAtual / 1000).toFixed(0)}k
+                {provisaoAtual.percentualProvisao.toFixed(0)}%
               </div>
             </div>
-            <div className="text-xs text-slate-600 mt-2 font-semibold">Agora</div>
+            <div className="text-xs text-slate-600 mt-2 font-semibold">Provisão Atual</div>
           </div>
 
           {/* Linha de Crescimento */}
-          <div className="absolute left-28 bottom-16 w-32 h-0.5 bg-gradient-to-r from-blue-400 to-red-400"></div>
+          <div className="absolute left-28 bottom-16 w-32 h-0.5 bg-gradient-to-r from-orange-400 to-green-400"></div>
 
-          {/* Bola Final (Animada) */}
+          {/* Provisão Final (Animada) - MAIOR É MELHOR! */}
           <div className="absolute right-8 bottom-8 flex flex-col items-center">
             <div 
               className={cn(
-                "relative rounded-full bg-gradient-to-br from-red-500 to-red-700 shadow-2xl flex items-center justify-center transition-all duration-1000 ease-out",
+                "relative rounded-full bg-gradient-to-br from-green-500 to-green-700 shadow-2xl flex items-center justify-center transition-all duration-1000 ease-out",
                 animateGrowth ? "w-32 h-32 opacity-100" : "w-20 h-20 opacity-0"
               )}
             >
-              <div className="absolute inset-0 rounded-full bg-red-400 opacity-50 animate-pulse"></div>
+              <div className="absolute inset-0 rounded-full bg-green-400 opacity-50 animate-pulse"></div>
               <div className="text-white text-xs font-bold text-center relative z-10">
                 12 MESES<br/>
-                R$ {(valorEm12Meses / 1000).toFixed(0)}k
+                {provisaoEm12Meses.percentualProvisao.toFixed(0)}%
               </div>
             </div>
-            <div className="text-xs text-red-600 mt-2 font-semibold">Daqui 1 ano</div>
+            <div className="text-xs text-green-600 mt-2 font-semibold">Provisão Futura</div>
           </div>
 
-          {/* Alerta Flutuante */}
+          {/* Alerta Flutuante POSITIVO */}
           <div className="absolute top-4 right-4 animate-bounce">
-            <div className="bg-red-100 text-red-700 px-3 py-2 rounded-lg text-xs font-semibold shadow-lg">
-              +{crescimentoTotal.toFixed(0)}%
+            <div className="bg-green-100 text-green-700 px-3 py-2 rounded-lg text-xs font-semibold shadow-lg">
+              +{crescimentoProvisao.toFixed(0)}% ✓
             </div>
           </div>
         </div>
 
-        {/* Números do Crescimento */}
+        {/* Números da Oportunidade */}
         <div className="grid grid-cols-3 gap-4">
-          <div className="text-center p-4 bg-blue-50 rounded-lg">
-            <div className="text-2xl font-bold text-blue-600">
-              {valorDividaAtual.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })}
-            </div>
-            <div className="text-xs text-slate-600 mt-1">Hoje</div>
-          </div>
-          
           <div className="text-center p-4 bg-orange-50 rounded-lg">
-            <div className="text-2xl font-bold text-orange-600 flex items-center justify-center gap-1">
-              <TrendingUp className="h-5 w-5" />
-              +{aumentoAbsoluto.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })}
+            <div className="text-2xl font-bold text-orange-600">
+              {provisaoAtual.percentualProvisao.toFixed(0)}%
             </div>
-            <div className="text-xs text-slate-600 mt-1">Aumento</div>
+            <div className="text-xs text-slate-600 mt-1">Provisão Hoje</div>
+            <div className="text-xs text-slate-500 mt-1">
+              {provisaoAtual.descontoDisponivel.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })}
+            </div>
           </div>
           
-          <div className="text-center p-4 bg-red-50 rounded-lg">
-            <div className="text-2xl font-bold text-red-600">
-              {valorEm12Meses.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })}
+          <div className="text-center p-4 bg-green-50 rounded-lg">
+            <div className="text-2xl font-bold text-green-600 flex items-center justify-center gap-1">
+              <TrendingUp className="h-5 w-5" />
+              +{crescimentoProvisao.toFixed(0)}%
             </div>
-            <div className="text-xs text-slate-600 mt-1">Em 12 meses</div>
+            <div className="text-xs text-slate-600 mt-1">Aumento Provisão</div>
+            <div className="text-xs text-slate-500 mt-1">
+              +{descontoAdicional.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })}
+            </div>
+          </div>
+          
+          <div className="text-center p-4 bg-emerald-50 rounded-lg">
+            <div className="text-2xl font-bold text-emerald-600">
+              {provisaoEm12Meses.percentualProvisao.toFixed(0)}%
+            </div>
+            <div className="text-xs text-slate-600 mt-1">Provisão em 12m</div>
+            <div className="text-xs text-slate-500 mt-1">
+              {provisaoEm12Meses.descontoDisponivel.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })}
+            </div>
           </div>
         </div>
 
-        {/* Projeção Mensal Compacta */}
+        {/* Projeção Mensal de DESCONTOS */}
         <div className="space-y-2">
-          <h4 className="text-sm font-semibold text-slate-700">Crescimento Mês a Mês:</h4>
+          <h4 className="text-sm font-semibold text-slate-700">Evolução do Seu Desconto:</h4>
           <div className="grid grid-cols-4 gap-2">
             {[3, 6, 9, 12].map(mes => {
               const projecao = projecoes[mes];
               return (
-                <div key={mes} className="text-center p-3 bg-slate-50 rounded border border-slate-200">
+                <div key={mes} className="text-center p-3 bg-green-50 rounded border border-green-200">
                   <div className="text-xs text-slate-600 mb-1">{mes} meses</div>
-                  <div className="text-sm font-bold text-slate-800">
-                    R$ {(projecao.valor / 1000).toFixed(0)}k
+                  <div className="text-sm font-bold text-green-700">
+                    {projecao.percentualProvisao.toFixed(0)}%
                   </div>
-                  <div className="text-xs text-red-600">
-                    +{projecao.crescimento.toFixed(0)}%
+                  <div className="text-xs text-green-600">
+                    {projecao.descontoDisponivel.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })}
                   </div>
                 </div>
               );
@@ -179,42 +205,43 @@ export function BoladeNeve({
           </div>
         </div>
 
-        {/* Analogia Visual */}
-        <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-lg border border-purple-200">
+        {/* Analogia Visual - POSITIVA */}
+        <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200">
           <div className="flex items-start gap-3">
             <div className="text-4xl">{analogia.icone}</div>
             <div className="flex-1">
-              <h4 className="font-semibold text-purple-900 mb-1">
-                Para Você Entender Melhor:
+              <h4 className="font-semibold text-green-900 mb-1">
+                Quanto Você Pode Economizar:
               </h4>
-              <p className="text-sm text-purple-800 mb-2">
-                O aumento de <span className="font-bold">
-                  {aumentoAbsoluto.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                </span> em 12 meses {analogia.texto}.
+              <p className="text-sm text-green-800 mb-2">
+                Com mais <span className="font-bold">
+                  {descontoAdicional.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                </span> de desconto em 12 meses, {analogia.texto}.
               </p>
               <div className="flex items-center gap-2">
-                <AlertTriangle className={cn(
+                <TrendingUp className={cn(
                   "h-4 w-4",
-                  analogia.impacto === "crítico" && "text-red-600",
-                  analogia.impacto === "alto" && "text-orange-600",
-                  analogia.impacto === "moderado" && "text-yellow-600",
-                  analogia.impacto === "baixo" && "text-blue-600"
+                  analogia.impacto === "extraordinário" && "text-green-700",
+                  analogia.impacto === "excelente" && "text-green-600",
+                  analogia.impacto === "muito-bom" && "text-emerald-600",
+                  analogia.impacto === "bom" && "text-teal-600"
                 )} />
-                <span className="text-xs font-semibold text-purple-900 uppercase">
-                  Impacto: {analogia.impacto}
+                <span className="text-xs font-semibold text-green-900 uppercase">
+                  Oportunidade: {analogia.impacto}
                 </span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Alerta Final */}
-        <div className="bg-red-50 border border-red-200 p-4 rounded-lg">
+        {/* Alerta Final POSITIVO */}
+        <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
           <div className="flex items-start gap-3">
-            <AlertTriangle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
-            <div className="text-sm text-red-900">
-              <span className="font-semibold">Atenção:</span> Estes cálculos consideram juros de 2,5% ao mês + 2% de multas e encargos. 
-              Na prática, os valores podem ser ainda maiores. <span className="font-bold">Quanto antes você agir, menor será o prejuízo.</span>
+            <AlertTriangle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+            <div className="text-sm text-blue-900">
+              <span className="font-semibold">💡 Entenda:</span> Quanto MAIOR a provisão bancária, MAIOR o desconto que você consegue! 
+              A provisão ideal é de 90%, que representa o melhor momento para negociar. <span className="font-bold">
+              Fórmula: Valor da Proposta = Valor da Dívida - Valor Provisionado.</span>
             </div>
           </div>
         </div>

@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, AlertCircle, XCircle, Skull, TrendingDown, Scale } from "lucide-react";
+import { Calendar, Star, TrendingUp, CheckCircle, Gift } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Tooltip,
@@ -20,81 +20,73 @@ export function TimelineDoTerror({
   diasAtrasoAtual,
 }: TimelineDoTerrorProps) {
 
-  // Calcula eventos futuros baseados em TEMPO e PROVISÃO
-  // Classificação C1-C5 NÃO muda! É o tipo de operação.
+  // Calcula eventos futuros baseados em PROVISÃO CRESCENTE (quanto maior, melhor!)
   const calcularEventosFuturos = () => {
-    const taxaMensal = 0.045; // 4.5% ao mês (juros + encargos)
-    
     const eventos = [
       {
         mes: 1,
         diasAtraso: diasAtrasoAtual + 30,
         titulo: "1 Mês Depois",
         estagio: diasAtrasoAtual + 30 <= 30 ? 1 : diasAtrasoAtual + 30 <= 90 ? 2 : 3,
-        valor: valorDividaAtual * (1 + taxaMensal),
-        descricao: "Provisão aumenta. Estágio pode mudar conforme dias de atraso.",
-        provisaoEstimada: "10-20%",
-        analogia: "🏃 Corrida de 100m - Ainda dá pra recuperar",
-        icon: AlertCircle,
-        cor: "text-yellow-600",
-        bgCor: "bg-yellow-100",
-        bordaCor: "border-yellow-300"
+        percentualProvisao: Math.min(15 + (diasAtrasoAtual + 30) * 0.2, 30),
+        descricao: "Provisão aumentando. Seu desconto começa a crescer!",
+        analogia: "🌱 Semente plantada - Oportunidade nascendo",
+        icon: Star,
+        cor: "text-blue-600",
+        bgCor: "bg-blue-100",
+        bordaCor: "border-blue-300"
       },
       {
         mes: 2,
         diasAtraso: diasAtrasoAtual + 60,
         titulo: "2 Meses Depois",
         estagio: diasAtrasoAtual + 60 <= 30 ? 1 : diasAtrasoAtual + 60 <= 90 ? 2 : 3,
-        valor: valorDividaAtual * Math.pow(1 + taxaMensal, 2),
-        descricao: "Banco aumenta provisão. Entra em alerta moderado.",
-        provisaoEstimada: "20-35%",
-        analogia: "🏃 Maratona iniciada - Precisa de estratégia",
-        icon: AlertCircle,
-        cor: "text-orange-600",
-        bgCor: "bg-orange-100",
-        bordaCor: "border-orange-300"
+        percentualProvisao: Math.min(20 + (diasAtrasoAtual + 60) * 0.3, 40),
+        descricao: "Provisão crescendo. Banco começa a ter mais interesse em acordos.",
+        analogia: "🌿 Brotando - Desconto ficando interessante",
+        icon: TrendingUp,
+        cor: "text-green-600",
+        bgCor: "bg-green-100",
+        bordaCor: "border-green-300"
       },
       {
         mes: 3,
         diasAtraso: diasAtrasoAtual + 90,
         titulo: "3 Meses Depois (Marco 90 dias)",
         estagio: 3,
-        valor: valorDividaAtual * Math.pow(1 + taxaMensal, 3),
-        descricao: "ESTÁGIO 3 - Ativo problemático. Provisão aumenta significativamente.",
-        provisaoEstimada: "40-70%",
-        analogia: "⚠️ Ultramaratona - Situação crítica",
-        icon: XCircle,
-        cor: "text-red-600",
-        bgCor: "bg-red-100",
-        bordaCor: "border-red-300"
+        percentualProvisao: Math.min(40 + (diasAtrasoAtual + 90) * 0.2, 55),
+        descricao: "ESTÁGIO 3 atingido! Provisão alta = ótimo momento para negociar.",
+        analogia: "🌳 Crescendo forte - Bom desconto disponível",
+        icon: CheckCircle,
+        cor: "text-emerald-600",
+        bgCor: "bg-emerald-100",
+        bordaCor: "border-emerald-300"
       },
       {
         mes: 6,
         diasAtraso: diasAtrasoAtual + 180,
         titulo: "6 Meses Depois",
         estagio: 3,
-        valor: valorDividaAtual * Math.pow(1 + taxaMensal, 6),
-        descricao: "Provisão elevada. Banco considera grande perda esperada.",
-        provisaoEstimada: "70-100%",
-        analogia: "💀 Ironman - Quase impossível recuperar",
-        icon: Skull,
-        cor: "text-red-800",
-        bgCor: "bg-red-200",
-        bordaCor: "border-red-500"
+        percentualProvisao: Math.min(60 + (diasAtrasoAtual + 180) * 0.15, 75),
+        descricao: "Provisão elevada! Excelente desconto disponível - ótimo para negociar!",
+        analogia: "🎁 Presente crescendo - Desconto grande!",
+        icon: Gift,
+        cor: "text-purple-600",
+        bgCor: "bg-purple-100",
+        bordaCor: "border-purple-300"
       },
       {
         mes: 12,
         diasAtraso: diasAtrasoAtual + 360,
-        titulo: "1 Ano Depois",
+        titulo: "1 Ano Depois - MELHOR MOMENTO!",
         estagio: 3,
-        valor: valorDividaAtual * Math.pow(1 + taxaMensal, 12),
-        descricao: "Ação judicial provável. Bloqueio de bens e penhora.",
-        provisaoEstimada: "100%",
-        analogia: "⚖️ Tribunais - Seu nome na justiça",
-        icon: Scale,
-        cor: "text-red-900",
-        bgCor: "bg-red-300",
-        bordaCor: "border-red-600"
+        percentualProvisao: Math.min(75 + (diasAtrasoAtual + 360) * 0.08, 90),
+        descricao: "Provisão próxima de 90%! MELHOR desconto possível - momento ideal!",
+        analogia: "⭐ Momento dourado - Máximo desconto!",
+        icon: Star,
+        cor: "text-amber-600",
+        bgCor: "bg-amber-100",
+        bordaCor: "border-amber-300"
       }
     ];
 
@@ -105,49 +97,82 @@ export function TimelineDoTerror({
 
   // Determina estágio atual
   const estagioAtual = diasAtrasoAtual <= 30 ? 1 : diasAtrasoAtual <= 90 ? 2 : 3;
+  
+  // Calcula provisão atual
+  let provisaoAtual = 10;
+  if (diasAtrasoAtual <= 30) {
+    provisaoAtual = 10 + (diasAtrasoAtual / 30) * 10;
+  } else if (diasAtrasoAtual <= 90) {
+    provisaoAtual = 20 + ((diasAtrasoAtual - 30) / 60) * 30;
+  } else if (diasAtrasoAtual <= 180) {
+    provisaoAtual = 50 + ((diasAtrasoAtual - 90) / 90) * 20;
+  } else {
+    provisaoAtual = 70 + (Math.min((diasAtrasoAtual - 180) / 180, 1)) * 20;
+  }
+
+  const descontoAtual = valorDividaAtual * (provisaoAtual / 100);
+  const valorPropostaAtual = valorDividaAtual - descontoAtual;
 
   return (
     <Card className="border-slate-200 shadow-sm">
-      <CardHeader className="pb-4 bg-gradient-to-r from-red-50 to-orange-50">
+      <CardHeader className="pb-4 bg-gradient-to-r from-green-50 to-emerald-50">
         <CardTitle className="flex items-center gap-2 text-lg font-semibold text-slate-800">
-          <Calendar className="h-5 w-5 text-red-600" />
-          Projeção Temporal: O Que Te Espera
+          <Calendar className="h-5 w-5 text-green-600" />
+          Linha do Tempo: Seu Desconto Crescendo
         </CardTitle>
         <p className="text-sm text-slate-600 mt-1">
-          Como a provisão e os estágios evoluem se você não negociar
+          Como a provisão (e seu desconto!) aumenta com o tempo
         </p>
       </CardHeader>
       <CardContent className="pt-6">
         <TooltipProvider>
           <div className="space-y-6">
             {/* Ponto Atual */}
-            <div className="relative pl-8 pb-6 border-l-4 border-green-400">
-              <div className="absolute -left-3 top-0 w-6 h-6 rounded-full bg-green-500 border-4 border-white shadow-lg"></div>
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+            <div className="relative pl-8 pb-6 border-l-4 border-blue-400">
+              <div className="absolute -left-3 top-0 w-6 h-6 rounded-full bg-blue-500 border-4 border-white shadow-lg"></div>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="font-bold text-green-800">HOJE - Você Está Aqui</h3>
+                  <h3 className="font-bold text-blue-800">HOJE - Você Está Aqui</h3>
                   <div className="flex gap-2">
-                    <span className="text-xs font-semibold text-green-700 bg-green-200 px-2 py-1 rounded">
+                    <span className="text-xs font-semibold text-blue-700 bg-blue-200 px-2 py-1 rounded">
                       Tipo: {classificacaoAtual || 'N/A'}
                     </span>
-                    <span className="text-xs font-semibold text-green-700 bg-green-200 px-2 py-1 rounded">
+                    <span className="text-xs font-semibold text-blue-700 bg-blue-200 px-2 py-1 rounded">
                       Estágio {estagioAtual}
+                    </span>
+                    <span className="text-xs font-semibold text-blue-700 bg-blue-200 px-2 py-1 rounded">
+                      Provisão: {provisaoAtual.toFixed(0)}%
                     </span>
                   </div>
                 </div>
-                <div className="text-2xl font-bold text-green-700 mb-1">
-                  {valorDividaAtual.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                <div className="grid grid-cols-2 gap-3 mb-2">
+                  <div>
+                    <div className="text-sm text-slate-600">Valor da dívida:</div>
+                    <div className="text-lg font-bold text-blue-700">
+                      {valorDividaAtual.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-slate-600">Desconto disponível:</div>
+                    <div className="text-lg font-bold text-green-600">
+                      {descontoAtual.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                    </div>
+                  </div>
                 </div>
-                <p className="text-sm text-green-800">
-                  🎯 <span className="font-semibold">Esta é sua melhor chance de negociar!</span> Quanto mais cedo, melhor.
-                </p>
+                <div className="bg-white p-2 rounded border border-blue-200">
+                  <div className="text-xs text-slate-600">Valor proposta hoje:</div>
+                  <div className="text-xl font-bold text-blue-800">
+                    {valorPropostaAtual.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Eventos Futuros */}
+            {/* Eventos Futuros - POSITIVOS! */}
             {eventos.map((evento, index) => {
-              const aumentoPercentual = ((evento.valor - valorDividaAtual) / valorDividaAtual) * 100;
-              const aumentoAbsoluto = evento.valor - valorDividaAtual;
+              const descontoFuturo = valorDividaAtual * (evento.percentualProvisao / 100);
+              const valorPropostaFuturo = valorDividaAtual - descontoFuturo;
+              const descontoAdicional = descontoFuturo - descontoAtual;
 
               return (
                 <Tooltip key={evento.mes}>
@@ -174,24 +199,24 @@ export function TimelineDoTerror({
                             evento.bgCor.replace('-100', '-200'),
                             evento.cor
                           )}>
-                            Estágio {evento.estagio}
+                            {evento.percentualProvisao.toFixed(0)}% Provisão
                           </span>
                         </div>
 
                         <div className="grid grid-cols-2 gap-3 mb-3">
                           <div>
-                            <div className="text-xs text-slate-600 mb-1">Valor da Dívida:</div>
+                            <div className="text-xs text-slate-600 mb-1">Desconto disponível:</div>
                             <div className={cn("text-xl font-bold", evento.cor)}>
-                              {evento.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })}
+                              {descontoFuturo.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })}
+                            </div>
+                            <div className="text-xs text-green-600 font-semibold">
+                              +{descontoAdicional.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })} a mais!
                             </div>
                           </div>
                           <div>
-                            <div className="text-xs text-slate-600 mb-1">Aumento:</div>
-                            <div className="text-xl font-bold text-red-600">
-                              +{aumentoPercentual.toFixed(0)}%
-                            </div>
-                            <div className="text-xs text-slate-600">
-                              (+{aumentoAbsoluto.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })})
+                            <div className="text-xs text-slate-600 mb-1">Valor proposta:</div>
+                            <div className="text-xl font-bold text-slate-800">
+                              {valorPropostaFuturo.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })}
                             </div>
                           </div>
                         </div>
@@ -200,10 +225,6 @@ export function TimelineDoTerror({
                           <p className={cn("font-semibold", evento.cor)}>
                             {evento.descricao}
                           </p>
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="text-slate-600">Provisão estimada:</span>
-                            <span className={cn("font-bold", evento.cor)}>{evento.provisaoEstimada}</span>
-                          </div>
                           <div className="flex items-center justify-between text-xs">
                             <span className="text-slate-600">Dias em atraso:</span>
                             <span className="font-bold text-slate-800">{evento.diasAtraso} dias</span>
@@ -223,13 +244,15 @@ export function TimelineDoTerror({
                   </TooltipTrigger>
                   <TooltipContent side="right" className="max-w-xs">
                     <div className="space-y-2">
-                      <p className="font-semibold">Dica para este momento:</p>
+                      <p className="font-semibold">💡 Por que isso é bom para você:</p>
                       <p className="text-xs">
-                        {evento.mes <= 2 
-                          ? "Ainda há boa margem de negociação. Quanto mais provisão, melhor para você."
-                          : evento.mes <= 3
-                          ? "Provisão aumentando. Banco começa a ter mais interesse em negociar."
-                          : "Alta provisão = alto interesse do banco em resolver. Use isso a seu favor!"
+                        {evento.percentualProvisao < 30
+                          ? "A provisão está começando a crescer. Quanto maior, melhor será seu desconto!"
+                          : evento.percentualProvisao < 60
+                          ? "Provisão em crescimento! O banco tem mais interesse em fazer acordo agora."
+                          : evento.percentualProvisao < 80
+                          ? "Provisão alta = ótimo desconto! Este é um excelente momento para negociar."
+                          : "PROVISÃO MÁXIMA! Este é o MELHOR momento - você pode conseguir até 90% de desconto!"
                         }
                       </p>
                     </div>
@@ -242,29 +265,33 @@ export function TimelineDoTerror({
 
         {/* Resumo Visual */}
         <div className="mt-8 grid grid-cols-2 gap-4">
-          <div className="bg-gradient-to-br from-red-50 to-red-100 p-4 rounded-lg border border-red-200">
+          <div className="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg border border-green-200">
             <div className="flex items-center gap-2 mb-2">
-              <TrendingDown className="h-5 w-5 text-red-600" />
-              <h4 className="font-semibold text-red-900">Quanto Você Perde:</h4>
+              <TrendingUp className="h-5 w-5 text-green-600" />
+              <h4 className="font-semibold text-green-900">Seu Desconto Crescendo:</h4>
             </div>
-            <div className="text-3xl font-bold text-red-700 mb-1">
-              {((eventos[4].valor - valorDividaAtual) / 1000).toFixed(0)}k
+            <div className="text-3xl font-bold text-green-700 mb-1">
+              +{((eventos[4].percentualProvisao - provisaoAtual) / provisaoAtual * 100).toFixed(0)}%
             </div>
-            <p className="text-xs text-red-800">
-              em 1 ano se não negociar
+            <p className="text-xs text-green-800">
+              de aumento na provisão em 1 ano
             </p>
           </div>
 
-          <div className="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg border border-green-200">
+          <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 p-4 rounded-lg border border-emerald-200">
             <div className="flex items-center gap-2 mb-2">
-              <Calendar className="h-5 w-5 text-green-600" />
-              <h4 className="font-semibold text-green-900">Quanto Você Ganha:</h4>
+              <Gift className="h-5 w-5 text-emerald-600" />
+              <h4 className="font-semibold text-emerald-900">Economia Extra:</h4>
             </div>
-            <div className="text-3xl font-bold text-green-700 mb-1">
-              TEMPO
+            <div className="text-3xl font-bold text-emerald-700 mb-1">
+              {(valorDividaAtual * (eventos[4].percentualProvisao / 100) - descontoAtual).toLocaleString('pt-BR', { 
+                style: 'currency', 
+                currency: 'BRL',
+                maximumFractionDigits: 0 
+              })}
             </div>
-            <p className="text-xs text-green-800">
-              Agindo agora, você controla o futuro
+            <p className="text-xs text-emerald-800">
+              de desconto adicional esperando você!
             </p>
           </div>
         </div>
@@ -272,9 +299,11 @@ export function TimelineDoTerror({
         {/* Aviso Importante */}
         <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
           <p className="text-xs text-blue-900">
-            <span className="font-semibold">💡 Lembre-se:</span> A <strong>classificação C1-C5 não muda</strong> com o tempo - ela define o tipo de operação. 
-            O que muda é o <strong>estágio (1, 2 ou 3)</strong> baseado em dias de atraso e o <strong>% de provisão</strong>. 
-            Quanto MAIOR a provisão, MELHOR para você negociar descontos!
+            <span className="font-semibold">💡 Entenda a Fórmula:</span> <strong>Valor da Proposta = Valor da Dívida - Valor Provisionado</strong>
+            <br/>
+            Quanto MAIOR a provisão, MENOR o valor que você paga! A provisão de 90% é o momento ideal - você paga apenas 10% da dívida original.
+            <br/>
+            <strong>C1-C5 não muda</strong> (é o tipo de operação). O que muda é a <strong>provisão</strong> e os <strong>estágios (1-3)</strong> baseados em dias de atraso.
           </p>
         </div>
       </CardContent>
