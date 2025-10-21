@@ -57,6 +57,9 @@ export function ProjecaoFutura({ contrato }: ProjecaoFuturaProps) {
         valorDividaAtual={valorBase}
         classificacaoAtual={classificacao}
         diasAtrasoAtual={dias_atraso || 0}
+        percentualProvisaoAtual={percentualProvisaoAtual}
+        valorProvisaoAtual={valor_provisao || 0}
+        estagioRiscoAtual={contrato.estagio_risco || 1}
       />
 
       {/* Comparador de Destinos */}
@@ -64,6 +67,7 @@ export function ProjecaoFutura({ contrato }: ProjecaoFuturaProps) {
         valorDividaAtual={valorBase}
         valorProvisaoAtual={valor_provisao || 0}
         classificacaoAtual={classificacao}
+        percentualProvisaoAtual={percentualProvisaoAtual}
       />
 
       {/* Info Card Final */}

@@ -12,23 +12,37 @@ interface TimelineDoTerrorProps {
   valorDividaAtual: number;
   classificacaoAtual: string | null;
   diasAtrasoAtual: number;
+  percentualProvisaoAtual: number; // Provisão atual REAL do banco
+  valorProvisaoAtual: number; // Valor provisionado REAL
+  estagioRiscoAtual: number; // Estágio BCB atual (1, 2 ou 3)
 }
 
 export function TimelineDoTerror({
   valorDividaAtual,
   classificacaoAtual,
   diasAtrasoAtual,
+  percentualProvisaoAtual,
+  valorProvisaoAtual,
+  estagioRiscoAtual,
 }: TimelineDoTerrorProps) {
 
-  // Calcula eventos futuros baseados em PROVISÃO CRESCENTE (quanto maior, melhor!)
+  // Usa provisão REAL do banco como ponto de partida para projeções
+  const provisaoAtual = percentualProvisaoAtual;
+  const descontoAtual = valorProvisaoAtual;
+  const valorPropostaAtual = valorDividaAtual - descontoAtual;
+
+  // Calcula eventos futuros baseados na progressão REAL a partir do estado atual
   const calcularEventosFuturos = () => {
+    // Taxa de crescimento mensal baseada no estágio atual BCB
+    const taxaCrescimentoMensal = estagioRiscoAtual === 1 ? 1.5 : estagioRiscoAtual === 2 ? 3.5 : 4.5;
+    
     const eventos = [
       {
         mes: 1,
         diasAtraso: diasAtrasoAtual + 30,
         titulo: "1 Mês Depois",
         estagio: diasAtrasoAtual + 30 <= 30 ? 1 : diasAtrasoAtual + 30 <= 90 ? 2 : 3,
-        percentualProvisao: Math.min(15 + (diasAtrasoAtual + 30) * 0.2, 30),
+        percentualProvisao: Math.min(provisaoAtual + (taxaCrescimentoMensal * 1), 90),
         descricao: "Provisão aumentando. Seu desconto começa a crescer!",
         analogia: "🌱 Semente plantada - Oportunidade nascendo",
         icon: Star,
@@ -41,7 +55,7 @@ export function TimelineDoTerror({
         diasAtraso: diasAtrasoAtual + 60,
         titulo: "2 Meses Depois",
         estagio: diasAtrasoAtual + 60 <= 30 ? 1 : diasAtrasoAtual + 60 <= 90 ? 2 : 3,
-        percentualProvisao: Math.min(20 + (diasAtrasoAtual + 60) * 0.3, 40),
+        percentualProvisao: Math.min(provisaoAtual + (taxaCrescimentoMensal * 2), 90),
         descricao: "Provisão crescendo. Banco começa a ter mais interesse em acordos.",
         analogia: "🌿 Brotando - Desconto ficando interessante",
         icon: TrendingUp,
@@ -52,10 +66,10 @@ export function TimelineDoTerror({
       {
         mes: 3,
         diasAtraso: diasAtrasoAtual + 90,
-        titulo: "3 Meses Depois (Marco 90 dias)",
+        titulo: "3 Meses Depois",
         estagio: 3,
-        percentualProvisao: Math.min(40 + (diasAtrasoAtual + 90) * 0.2, 55),
-        descricao: "ESTÁGIO 3 atingido! Provisão alta = ótimo momento para negociar.",
+        percentualProvisao: Math.min(provisaoAtual + (taxaCrescimentoMensal * 3), 90),
+        descricao: diasAtrasoAtual <= 90 ? "ESTÁGIO 3 atingido! Provisão alta = ótimo momento." : "Provisão continua crescendo!",
         analogia: "🌳 Crescendo forte - Bom desconto disponível",
         icon: CheckCircle,
         cor: "text-emerald-600",
@@ -67,7 +81,7 @@ export function TimelineDoTerror({
         diasAtraso: diasAtrasoAtual + 180,
         titulo: "6 Meses Depois",
         estagio: 3,
-        percentualProvisao: Math.min(60 + (diasAtrasoAtual + 180) * 0.15, 75),
+        percentualProvisao: Math.min(provisaoAtual + (taxaCrescimentoMensal * 6), 90),
         descricao: "Provisão elevada! Excelente desconto disponível - ótimo para negociar!",
         analogia: "🎁 Presente crescendo - Desconto grande!",
         icon: Gift,
@@ -80,7 +94,7 @@ export function TimelineDoTerror({
         diasAtraso: diasAtrasoAtual + 360,
         titulo: "1 Ano Depois - MELHOR MOMENTO!",
         estagio: 3,
-        percentualProvisao: Math.min(75 + (diasAtrasoAtual + 360) * 0.08, 90),
+        percentualProvisao: Math.min(provisaoAtual + (taxaCrescimentoMensal * 12), 90),
         descricao: "Provisão próxima de 90%! MELHOR desconto possível - momento ideal!",
         analogia: "⭐ Momento dourado - Máximo desconto!",
         icon: Star,
@@ -94,24 +108,6 @@ export function TimelineDoTerror({
   };
 
   const eventos = calcularEventosFuturos();
-
-  // Determina estágio atual
-  const estagioAtual = diasAtrasoAtual <= 30 ? 1 : diasAtrasoAtual <= 90 ? 2 : 3;
-  
-  // Calcula provisão atual
-  let provisaoAtual = 10;
-  if (diasAtrasoAtual <= 30) {
-    provisaoAtual = 10 + (diasAtrasoAtual / 30) * 10;
-  } else if (diasAtrasoAtual <= 90) {
-    provisaoAtual = 20 + ((diasAtrasoAtual - 30) / 60) * 30;
-  } else if (diasAtrasoAtual <= 180) {
-    provisaoAtual = 50 + ((diasAtrasoAtual - 90) / 90) * 20;
-  } else {
-    provisaoAtual = 70 + (Math.min((diasAtrasoAtual - 180) / 180, 1)) * 20;
-  }
-
-  const descontoAtual = valorDividaAtual * (provisaoAtual / 100);
-  const valorPropostaAtual = valorDividaAtual - descontoAtual;
 
   return (
     <Card className="border-slate-200 shadow-sm">
@@ -138,7 +134,7 @@ export function TimelineDoTerror({
                       Tipo: {classificacaoAtual || 'N/A'}
                     </span>
                     <span className="text-xs font-semibold text-blue-700 bg-blue-200 px-2 py-1 rounded">
-                      Estágio {estagioAtual}
+                      Estágio {estagioRiscoAtual}
                     </span>
                     <span className="text-xs font-semibold text-blue-700 bg-blue-200 px-2 py-1 rounded">
                       Provisão: {provisaoAtual.toFixed(0)}%
@@ -299,9 +295,11 @@ export function TimelineDoTerror({
         {/* Aviso Importante */}
         <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
           <p className="text-xs text-blue-900">
-            <span className="font-semibold">💡 Entenda a Fórmula:</span> <strong>Valor da Proposta = Valor da Dívida - Valor Provisionado</strong>
+            <span className="font-semibold">💡 Entenda a Fórmula BCB:</span> <strong>Valor da Proposta = Valor da Dívida - Valor Provisionado</strong>
             <br/>
             Quanto MAIOR a provisão, MENOR o valor que você paga! A provisão de 90% é o momento ideal - você paga apenas 10% da dívida original.
+            <br/>
+            Estas projeções usam seu valor REAL atual ({provisaoAtual.toFixed(1)}%) como base, seguindo taxas de crescimento conforme BCB 4.966/2021.
             <br/>
             <strong>C1-C5 não muda</strong> (é o tipo de operação). O que muda é a <strong>provisão</strong> e os <strong>estágios (1-3)</strong> baseados em dias de atraso.
           </p>

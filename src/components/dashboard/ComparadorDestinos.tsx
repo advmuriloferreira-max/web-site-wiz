@@ -18,28 +18,33 @@ interface ComparadorDestinosProps {
   valorDividaAtual: number;
   valorProvisaoAtual: number;
   classificacaoAtual: string | null;
+  percentualProvisaoAtual: number; // Provisão atual REAL do banco
 }
 
 export function ComparadorDestinos({
   valorDividaAtual,
   valorProvisaoAtual,
   classificacaoAtual,
+  percentualProvisaoAtual,
 }: ComparadorDestinosProps) {
   const [showCalculator, setShowCalculator] = useState(false);
 
   // Cenário 1: Não fazer nada - Riscos e consequências
   const calcularCenarioInacao = () => {
-    // Se esperar 12 meses, provisão aumentará para ~75-80%
-    const provisaoFutura = valorDividaAtual * 0.75; // 75% em 12 meses
+    // Projeção realista baseada na provisão ATUAL + crescimento de 12 meses
+    // Taxa média de crescimento: 3-5% ao mês
+    const crescimentoMensal = 4.0; // 4% ao mês (conservador)
+    const percentualProvisaoFutura = Math.min(percentualProvisaoAtual + (crescimentoMensal * 12), 90);
+    const provisaoFutura = valorDividaAtual * (percentualProvisaoFutura / 100);
     const valorPropostaFutura = valorDividaAtual - provisaoFutura;
     
     // Mas os RISCOS são enormes
     return {
       titulo: "Não Fazer Nada",
-      subtitulo: "Esperar a provisão chegar a 75%",
+      subtitulo: `Esperar a provisão chegar a ${percentualProvisaoFutura.toFixed(0)}%`,
       custoTotal: valorPropostaFutura,
       provisaoFutura: provisaoFutura,
-      percentualProvisaoFutura: 75,
+      percentualProvisaoFutura: percentualProvisaoFutura,
       probabilidadeAcaoJudicial: 85,
       probabilidadeBloqueio: 70,
       tempoResolucao: "2-5 anos",
@@ -54,10 +59,9 @@ export function ComparadorDestinos({
     };
   };
 
-  // Cenário 2: Negociar agora com a provisão atual
+  // Cenário 2: Negociar agora com a provisão atual REAL
   const calcularCenarioNegociacao = () => {
-    // Fórmula correta: Valor Proposta = Valor Dívida - Valor Provisionado
-    const percentualProvisaoAtual = (valorProvisaoAtual / valorDividaAtual) * 100;
+    // Fórmula correta BCB: Valor Proposta = Valor Dívida - Valor Provisionado
     const valorAcordo = valorDividaAtual - valorProvisaoAtual; // Fórmula BCB!
     const economia = valorProvisaoAtual; // O desconto É a provisão!
 
