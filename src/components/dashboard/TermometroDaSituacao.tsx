@@ -5,9 +5,10 @@ import { cn } from "@/lib/utils";
 
 interface TermometroDaSituacaoProps {
   classificacao: string | null; // Tipo de operação (C1-C5) - apenas informativo
-  diasAtraso: number; // Define o estágio temporal
+  diasAtraso: number; // Dias de atraso
   valorProvisao: number; // Quanto maior, melhor para negociar
   valorDivida: number;
+  estagioRisco: number; // Estágio BCB (1, 2 ou 3) - vem do banco
 }
 
 export function TermometroDaSituacao({
@@ -15,20 +16,16 @@ export function TermometroDaSituacao({
   diasAtraso,
   valorProvisao,
   valorDivida,
+  estagioRisco,
 }: TermometroDaSituacaoProps) {
   const [fillLevel, setFillLevel] = useState(0);
 
   // LÓGICA BCB 4.966/2021 e 352/2023:
-  // - Estágio (1-3) baseado APENAS em dias de atraso
+  // - Estágio (1-3) vem do banco, calculado corretamente
   // - Percentual de provisão indica OPORTUNIDADE de negociação
   // - Quanto MAIOR a provisão, MAIOR o interesse do banco em resolver
   
   const percentualProvisao = valorDivida > 0 ? (valorProvisao / valorDivida) * 100 : 0;
-  
-  // Estágio baseado APENAS em tempo de atraso (BCB 4.966/2021)
-  let estagioAtual = 1;
-  if (diasAtraso > 90) estagioAtual = 3;
-  else if (diasAtraso > 30) estagioAtual = 2;
   
   // Nível do termômetro = percentual de provisão (0-100%)
   // Este percentual indica a OPORTUNIDADE de negociação
@@ -151,10 +148,10 @@ export function TermometroDaSituacao({
             </div>
             <div>
               <div className={cn("font-semibold", status.textCor)}>
-                Estágio {estagioAtual}
+                Estágio {estagioRisco}
               </div>
               <div className={cn("text-xs", status.textCor)}>
-                {estagioAtual === 1 ? "0-30 dias" : estagioAtual === 2 ? "31-90 dias" : ">90 dias"}
+                {estagioRisco === 1 ? "0-30 dias" : estagioRisco === 2 ? "31-90 dias" : ">90 dias"}
               </div>
             </div>
             <div>

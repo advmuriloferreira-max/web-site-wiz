@@ -7,33 +7,46 @@ interface BoladeNeveProps {
   valorDividaAtual: number;
   diasAtraso: number;
   classificacaoAtual: string | null;
+  percentualProvisaoAtual: number; // Provisão atual REAL do banco
+  valorProvisaoAtual: number; // Valor provisionado REAL
 }
 
 export function BoladeNeve({
   valorDividaAtual,
   diasAtraso,
   classificacaoAtual,
+  percentualProvisaoAtual,
+  valorProvisaoAtual,
 }: BoladeNeveProps) {
   const [animateGrowth, setAnimateGrowth] = useState(false);
 
-  // Calcula projeção de PROVISÃO de 12 meses (quanto MAIOR, MELHOR para cliente!)
+  // Calcula projeção de PROVISÃO de 12 meses usando dados REAIS do banco
+  // Usa progressão baseada no percentual atual para ser mais realista
   const calcularProjecao = () => {
     const projecoes = [];
 
     for (let mes = 0; mes <= 12; mes++) {
       const diasAtrasoProjetado = diasAtraso + (mes * 30);
       
-      // Calcula provisão baseada em dias de atraso
-      // 0-30 dias = 10-20%, 31-90 = 20-50%, 91-180 = 50-70%, 181+ = 70-100%
+      // Para o mês 0, usa provisão REAL do banco
       let percentualProvisao = 0;
-      if (diasAtrasoProjetado <= 30) {
-        percentualProvisao = 10 + (diasAtrasoProjetado / 30) * 10; // 10-20%
-      } else if (diasAtrasoProjetado <= 90) {
-        percentualProvisao = 20 + ((diasAtrasoProjetado - 30) / 60) * 30; // 20-50%
-      } else if (diasAtrasoProjetado <= 180) {
-        percentualProvisao = 50 + ((diasAtrasoProjetado - 90) / 90) * 20; // 50-70%
+      if (mes === 0) {
+        percentualProvisao = percentualProvisaoAtual;
       } else {
-        percentualProvisao = 70 + (Math.min((diasAtrasoProjetado - 180) / 180, 1)) * 30; // 70-100%
+        // Projeção baseada em estágios BCB com crescimento realista
+        if (diasAtrasoProjetado <= 30) {
+          // Estágio 1: crescimento lento
+          percentualProvisao = percentualProvisaoAtual + (mes * 1.5);
+        } else if (diasAtrasoProjetado <= 90) {
+          // Estágio 2: crescimento moderado
+          percentualProvisao = percentualProvisaoAtual + (mes * 3);
+        } else if (diasAtrasoProjetado <= 180) {
+          // Estágio 3 inicial: crescimento acelerado
+          percentualProvisao = percentualProvisaoAtual + (mes * 4.5);
+        } else {
+          // Estágio 3 avançado: aproximando de 100%
+          percentualProvisao = percentualProvisaoAtual + (mes * 5);
+        }
       }
 
       const valorProvisao = valorDividaAtual * (percentualProvisao / 100);

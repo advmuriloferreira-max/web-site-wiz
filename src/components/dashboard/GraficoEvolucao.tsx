@@ -18,12 +18,14 @@ interface GraficoEvolucaoProps {
   classificacao: string | null;
   diasAtraso: number;
   mesesAtraso: number;
+  estagioRisco: number; // Estágio BCB (1, 2 ou 3) - vem do banco
 }
 
 export function GraficoEvolucao({
   classificacao,
   diasAtraso,
   mesesAtraso,
+  estagioRisco,
 }: GraficoEvolucaoProps) {
   
   // ESTÁGIOS baseados em TEMPO (BCB 4.966/2021)
@@ -64,9 +66,9 @@ export function GraficoEvolucao({
     }
   ];
 
-  // Determina o estágio atual baseado em DIAS DE ATRASO
-  const estagioAtual = diasAtraso <= 30 ? 0 : diasAtraso <= 90 ? 1 : 2;
-  const estagioInfo = estagios[estagioAtual];
+  // Usa o estágio REAL do banco (já calculado corretamente)
+  const estagioAtual = estagioRisco - 1; // Converter de 1-3 para índice 0-2
+  const estagioInfo = estagios[estagioAtual] || estagios[0];
 
   return (
     <Card className="border-slate-200 shadow-sm">

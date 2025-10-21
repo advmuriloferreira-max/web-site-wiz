@@ -22,10 +22,12 @@ export function AnalisePresente({ contrato }: AnalisePresenteProps) {
     meses_atraso,
     valor_divida,
     saldo_contabil,
-    valor_provisao
+    valor_provisao,
+    estagio_risco
   } = contrato;
 
   const valorBase = saldo_contabil || valor_divida || 0;
+  const estagioRisco = estagio_risco || 1;
 
   return (
     <div className="space-y-6">
@@ -51,6 +53,7 @@ export function AnalisePresente({ contrato }: AnalisePresenteProps) {
             diasAtraso={dias_atraso || 0}
             valorProvisao={valor_provisao || 0}
             valorDivida={valorBase}
+            estagioRisco={estagioRisco}
           />
         </div>
 
@@ -62,6 +65,7 @@ export function AnalisePresente({ contrato }: AnalisePresenteProps) {
             classificacao={classificacao}
             diasAtraso={dias_atraso}
             mesesAtraso={meses_atraso}
+            estagioRisco={estagioRisco}
           />
         </div>
       </div>
@@ -71,6 +75,7 @@ export function AnalisePresente({ contrato }: AnalisePresenteProps) {
         classificacao={classificacao}
         diasAtraso={dias_atraso || 0}
         mesesAtraso={meses_atraso || 0}
+        estagioRisco={estagioRisco}
       />
 
       {/* Info Card Explicativo */}

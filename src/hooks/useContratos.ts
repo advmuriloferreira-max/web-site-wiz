@@ -15,6 +15,7 @@ export interface Contrato {
   dias_atraso: number;
   meses_atraso: number;
   classificacao: 'C1' | 'C2' | 'C3' | 'C4' | 'C5' | null;
+  estagio_risco: number | null;
   percentual_provisao: number;
   valor_provisao: number;
   situacao: string;

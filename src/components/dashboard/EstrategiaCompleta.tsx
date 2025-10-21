@@ -17,6 +17,8 @@ export function EstrategiaCompleta({ contrato }: EstrategiaCompletaProps) {
   // Dados REAIS do contrato individual
   const valorDivida = contrato.saldo_contabil || contrato.valor_divida || 0;
   const diasAtraso = contrato.dias_atraso || 0;
+  const percentualProvisaoAtual = contrato.percentual_provisao || 0;
+  const valorProvisaoAtual = contrato.valor_provisao || 0;
 
   return (
     <div className="space-y-6">
@@ -40,6 +42,8 @@ export function EstrategiaCompleta({ contrato }: EstrategiaCompletaProps) {
           <ContadorOportunidade
             valorDivida={valorDivida}
             diasAtraso={diasAtraso}
+            percentualProvisaoAtual={percentualProvisaoAtual}
+            valorProvisaoAtual={valorProvisaoAtual}
           />
         </div>
 

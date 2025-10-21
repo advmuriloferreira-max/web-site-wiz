@@ -7,11 +7,15 @@ import { cn } from "@/lib/utils";
 interface ContadorOportunidadeProps {
   valorDivida: number;
   diasAtraso: number;
+  percentualProvisaoAtual: number; // Provisão atual REAL do banco
+  valorProvisaoAtual: number; // Valor provisionado REAL
 }
 
 export function ContadorOportunidade({ 
   valorDivida, 
-  diasAtraso 
+  diasAtraso,
+  percentualProvisaoAtual,
+  valorProvisaoAtual
 }: ContadorOportunidadeProps) {
   const [timeLeft, setTimeLeft] = useState({
     dias: 0,
@@ -52,19 +56,9 @@ export function ContadorOportunidade({
     return () => clearInterval(timer);
   }, []);
 
-  // Calcula provisão atual baseada em dias de atraso
-  let provisaoAtual = 10;
-  if (diasAtraso <= 30) {
-    provisaoAtual = 10 + (diasAtraso / 30) * 10; // 10-20%
-  } else if (diasAtraso <= 90) {
-    provisaoAtual = 20 + ((diasAtraso - 30) / 60) * 30; // 20-50%
-  } else if (diasAtraso <= 180) {
-    provisaoAtual = 50 + ((diasAtraso - 90) / 90) * 20; // 50-70%
-  } else {
-    provisaoAtual = 70 + (Math.min((diasAtraso - 180) / 180, 1)) * 20; // 70-90%
-  }
-
-  const descontoAtual = valorDivida * (provisaoAtual / 100);
+  // Usa provisão REAL do banco (não estimativa!)
+  const provisaoAtual = percentualProvisaoAtual;
+  const descontoAtual = valorProvisaoAtual;
   const valorPropostaAtual = valorDivida - descontoAtual;
 
   // Avalia o momento atual

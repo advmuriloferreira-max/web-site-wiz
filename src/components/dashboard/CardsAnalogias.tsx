@@ -8,6 +8,7 @@ interface CardsAnalogiasProps {
   classificacao: string | null;
   diasAtraso: number;
   mesesAtraso: number;
+  estagioRisco: number; // Estágio BCB (1, 2 ou 3) - vem do banco
 }
 
 export function CardsAnalogias({
@@ -16,6 +17,7 @@ export function CardsAnalogias({
   classificacao,
   diasAtraso,
   mesesAtraso,
+  estagioRisco,
 }: CardsAnalogiasProps) {
   
   // Calcula o "peso" da dívida em salários mínimos (aproximado)
@@ -141,7 +143,7 @@ export function CardsAnalogias({
             <div className="flex items-center justify-between text-sm">
               <span className="text-slate-600">Estágio:</span>
               <span className="font-semibold">
-                {diasAtraso <= 30 ? "1 (0-30 dias)" : diasAtraso <= 90 ? "2 (31-90 dias)" : "3 (>90 dias)"}
+                {estagioRisco} ({estagioRisco === 1 ? "0-30 dias" : estagioRisco === 2 ? "31-90 dias" : ">90 dias"})
               </span>
             </div>
             <div className="flex items-center justify-between text-sm">
@@ -205,9 +207,9 @@ export function CardsAnalogias({
               ⏰ Cada mês que passa:
             </p>
             <ul className="text-xs text-orange-800 space-y-1 list-disc list-inside">
-              <li>Aumenta a classificação de risco</li>
-              <li>Cresce a provisão do banco</li>
-              <li>Diminui seu poder de negociação</li>
+              <li>Pode mudar o estágio de risco (baseado em dias)</li>
+              <li>Cresce a provisão do banco (BOM para você!)</li>
+              <li>Mas aumenta juros e encargos</li>
             </ul>
           </div>
         </CardContent>

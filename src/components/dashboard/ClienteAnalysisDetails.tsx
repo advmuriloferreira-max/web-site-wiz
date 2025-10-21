@@ -130,13 +130,15 @@ export function ClienteAnalysisDetails({ contratoId }: ClienteAnalysisDetailsPro
     const valorProvisao = contrato.valor_provisao || 0;
     const percentualProvisao = valorDivida > 0 ? (valorProvisao / valorDivida) * 100 : 0;
     
+    const estagioRisco = contrato.estagio_risco || (contrato.dias_atraso! <= 30 ? 1 : contrato.dias_atraso! <= 90 ? 2 : 3);
+    
     const texto = `📊 *Análise de Contrato - ${cliente?.nome}*\n\n` +
       `📋 Contrato: ${contrato.numero_contrato || "Sem número"}\n` +
       `🏦 Banco: ${contrato.bancos?.nome || "Não informado"}\n` +
       `💰 Valor: ${valorDivida.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}\n` +
       `📊 Provisão: ${percentualProvisao.toFixed(1)}%\n` +
       `📂 Tipo: ${contrato.classificacao || "N/A"}\n` +
-      `⏱️ Estágio: ${contrato.dias_atraso! <= 30 ? "1" : contrato.dias_atraso! <= 90 ? "2" : "3"}\n\n` +
+      `⏱️ Estágio: ${estagioRisco}\n\n` +
       `Análise completa gerada pelo IntelBank.\n` +
       `🔗 Acesse: ${window.location.origin}`;
     
@@ -177,11 +179,12 @@ export function ClienteAnalysisDetails({ contratoId }: ClienteAnalysisDetailsPro
     );
   }
 
-  // Dados do contrato individual
+  // Dados do contrato individual - USAR DADOS REAIS DO BANCO
   const valorDivida = contrato.saldo_contabil || contrato.valor_divida || 0;
   const valorProvisao = contrato.valor_provisao || 0;
   const percentualProvisao = valorDivida > 0 ? (valorProvisao / valorDivida) * 100 : 0;
   const diasAtraso = contrato.dias_atraso || 0;
+  const estagioRisco = contrato.estagio_risco || 1;
 
   return (
     <>
@@ -199,9 +202,7 @@ export function ClienteAnalysisDetails({ contratoId }: ClienteAnalysisDetailsPro
               <Badge variant="outline">{cliente?.nome}</Badge>
               <Badge variant="outline">{contrato.bancos?.nome || "Banco não informado"}</Badge>
               <Badge variant="outline">Tipo: {contrato.classificacao || "N/A"}</Badge>
-              <Badge variant="outline">
-                Estágio {diasAtraso <= 30 ? "1" : diasAtraso <= 90 ? "2" : "3"}
-              </Badge>
+              <Badge variant="outline">Estágio {estagioRisco}</Badge>
             </div>
           </CardHeader>
         </Card>
@@ -236,7 +237,7 @@ export function ClienteAnalysisDetails({ contratoId }: ClienteAnalysisDetailsPro
           <StatsCard
             title="Dias em Atraso"
             value={`${diasAtraso}`}
-            description={`Estágio ${diasAtraso <= 30 ? "1" : diasAtraso <= 90 ? "2" : "3"}`}
+            description={`Estágio ${estagioRisco}`}
             icon={FileText}
           />
         </div>

@@ -21,10 +21,12 @@ export function ProjecaoFutura({ contrato }: ProjecaoFuturaProps) {
     dias_atraso,
     valor_divida,
     saldo_contabil,
-    valor_provisao
+    valor_provisao,
+    percentual_provisao
   } = contrato;
 
   const valorBase = saldo_contabil || valor_divida || 0;
+  const percentualProvisaoAtual = percentual_provisao || 0;
 
   return (
     <div className="space-y-6">
@@ -46,6 +48,8 @@ export function ProjecaoFutura({ contrato }: ProjecaoFuturaProps) {
         valorDividaAtual={valorBase}
         diasAtraso={dias_atraso || 0}
         classificacaoAtual={classificacao}
+        percentualProvisaoAtual={percentualProvisaoAtual}
+        valorProvisaoAtual={valor_provisao || 0}
       />
 
       {/* Timeline do Terror */}
