@@ -16,8 +16,8 @@ import {
   TrendingUp
 } from "lucide-react";
 import { toast } from "sonner";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
+import { saveAnalysisReport } from "@/modules/FinancialAnalysis/lib/analysisReportGenerator";
+import type { AnalysisReportData } from "@/modules/FinancialAnalysis/lib/analysisReportGenerator";
 
 interface ClienteAnalysisDetailsProps {
   contratoId: string;
@@ -84,139 +84,42 @@ export function ClienteAnalysisDetails({ contratoId }: ClienteAnalysisDetailsPro
   };
 
   const handleExportPDF = async () => {
-    if (!containerRef.current) return;
+    if (!contrato || !cliente) return;
     
-    const loadingToast = toast.loading("Preparando documento profissional...");
+    const loadingToast = toast.loading("Gerando relatório profissional...");
     
     try {
-      const sections = sectionRefs.current.filter(ref => ref !== null);
-      
-      if (sections.length === 0) {
-        toast.error("Nenhuma seção encontrada para exportar");
-        return;
-      }
-
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      const margin = 15;
-      const headerHeight = 28;
-      const footerHeight = 12;
-      const availableHeight = pageHeight - headerHeight - footerHeight;
-
-      // Função para adicionar cabeçalho profissional
-      const addHeader = (pageNum: number) => {
-        pdf.setFillColor(30, 58, 138);
-        pdf.rect(0, 0, pageWidth, 25, 'F');
-        
-        pdf.setTextColor(255, 255, 255);
-        pdf.setFontSize(16);
-        pdf.setFont('helvetica', 'bold');
-        pdf.text('Análise Estratégica de Contrato', margin, 12);
-        
-        pdf.setFontSize(9);
-        pdf.setFont('helvetica', 'normal');
-        pdf.text(`${cliente?.nome || 'Cliente'}`, margin, 19);
-        
-        pdf.setTextColor(200, 200, 200);
-        pdf.text(`Página ${pageNum}`, pageWidth - margin - 20, 19);
+      // Preparar dados para o relatório
+      const reportData: AnalysisReportData = {
+        contrato: {
+          numero: contrato.numero_contrato || "Sem número",
+          cliente: cliente.nome || "Cliente não identificado",
+          banco: contrato.bancos?.nome || "Banco não informado",
+          valorDivida: valorDivida,
+          dataContrato: contrato.data_entrada || new Date().toISOString(),
+        },
+        metricas: {
+          taxaEfetivaAnual: contrato.taxa_bacen || 0,
+          taxaEfetivaMensal: contrato.taxa_bacen ? contrato.taxa_bacen / 12 : 0,
+          custoEfetivoTotal: contrato.taxa_bacen || 0,
+          valorPresenteLiquido: valorDivida - valorProvisao,
+          taxaInternaRetorno: contrato.taxa_bacen || 0,
+          indiceCoberturaDivida: valorProvisao > 0 ? valorDivida / valorProvisao : 0,
+          relacaoGarantias: percentualProvisao,
+        },
+        recomendacoes: [
+          `O contrato está no Estágio ${estagioRisco} com ${diasAtraso} dias de atraso.`,
+          `Provisão de ${percentualProvisao.toFixed(1)}% indica ${percentualProvisao >= 70 ? 'alta' : percentualProvisao >= 40 ? 'média' : 'baixa'} oportunidade de negociação.`,
+          `Classificação ${contrato.classificacao || 'não definida'} requer atenção ${estagioRisco >= 2 ? 'urgente' : 'moderada'}.`,
+          percentualProvisao >= 70 
+            ? "Recomendação: Negociar desconto agressivo aproveitando alta provisão bancária."
+            : percentualProvisao >= 40
+            ? "Recomendação: Propor acordo com desconto moderado baseado na provisão atual."
+            : "Recomendação: Foco em renegociação de prazo e condições de pagamento.",
+        ],
       };
 
-      // Função para adicionar rodapé
-      const addFooter = () => {
-        pdf.setTextColor(120, 120, 120);
-        pdf.setFontSize(8);
-        pdf.setFont('helvetica', 'italic');
-        const dataGeracao = new Date().toLocaleDateString('pt-BR', { 
-          day: '2-digit', 
-          month: 'long', 
-          year: 'numeric' 
-        });
-        pdf.text(`Gerado em ${dataGeracao} • IntelBank`, margin, pageHeight - 8);
-        pdf.text(`Contrato: ${contrato?.numero_contrato || 'N/A'}`, pageWidth - margin - 60, pageHeight - 8);
-      };
-
-      let pageNumber = 1;
-
-      for (let i = 0; i < sections.length; i++) {
-        const section = sections[i];
-        
-        toast.loading(`Capturando seção ${i + 1} de ${sections.length}...`, { id: loadingToast });
-        
-        // Delay para garantir renderização completa
-        await new Promise(resolve => setTimeout(resolve, 300));
-        
-        const canvas = await html2canvas(section, {
-          scale: 2.2,
-          useCORS: true,
-          allowTaint: true,
-          backgroundColor: '#ffffff',
-          logging: false,
-          imageTimeout: 0,
-          windowWidth: 800,
-          onclone: (clonedDoc) => {
-            const clonedSection = clonedDoc.body.querySelector('[data-html2canvas-ignore]');
-            if (clonedSection) {
-              clonedSection.remove();
-            }
-            const allElements = clonedDoc.body.querySelectorAll('*');
-            allElements.forEach((el) => {
-              (el as HTMLElement).style.animation = 'none';
-              (el as HTMLElement).style.transition = 'none';
-            });
-          }
-        });
-
-        if (canvas.width === 0 || canvas.height === 0) {
-          console.error(`Seção ${i} vazia, pulando...`);
-          continue;
-        }
-
-        const imgData = canvas.toDataURL('image/jpeg', 0.90);
-        
-        // Mantém aspect ratio original
-        const canvasAspectRatio = canvas.height / canvas.width;
-        
-        // Calcula largura disponível (com margens)
-        const maxWidth = pageWidth - (margin * 2);
-        const maxHeight = availableHeight;
-        
-        // Sempre usa a largura máxima disponível
-        let finalWidth = maxWidth;
-        let finalHeight = finalWidth * canvasAspectRatio;
-        
-        // Se a altura calculada ultrapassar o disponível, reduz proporcionalmente
-        if (finalHeight > maxHeight) {
-          finalHeight = maxHeight;
-          finalWidth = finalHeight / canvasAspectRatio;
-        }
-        
-        // Sempre posiciona na margem esquerda (sem centralizar)
-        const xPosition = margin;
-        
-        // Adiciona nova página se não for a primeira
-        if (pageNumber > 1) {
-          pdf.addPage();
-        }
-        
-        addHeader(pageNumber);
-        
-        // Adiciona imagem centralizada e proporcional
-        pdf.addImage(
-          imgData,
-          'JPEG',
-          xPosition,
-          headerHeight,
-          finalWidth,
-          finalHeight
-        );
-        
-        addFooter();
-        pageNumber++;
-      }
-
-      const nomeArquivo = `Analise_${cliente?.nome.replace(/\s+/g, '_')}_${contrato?.numero_contrato?.replace(/\//g, '-')}_${new Date().toISOString().split('T')[0]}.pdf`;
-      pdf.save(nomeArquivo);
+      saveAnalysisReport(reportData);
       
       toast.success("PDF profissional gerado!", { id: loadingToast });
     } catch (error) {
