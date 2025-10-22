@@ -101,11 +101,13 @@ export function ClienteAnalysisDetails({ contratoId }: ClienteAnalysisDetailsPro
       const pageHeight = pdf.internal.pageSize.getHeight();
       const margin = 15;
       const contentWidth = pageWidth - (margin * 2);
-      const contentHeight = pageHeight - (margin * 2);
+      const headerHeight = 30;
+      const footerHeight = 15;
+      const availableHeight = pageHeight - headerHeight - footerHeight - margin;
 
       // Função para adicionar cabeçalho profissional
       const addHeader = (pageNum: number) => {
-        pdf.setFillColor(30, 58, 138); // Azul escuro
+        pdf.setFillColor(30, 58, 138);
         pdf.rect(0, 0, pageWidth, 25, 'F');
         
         pdf.setTextColor(255, 255, 255);
@@ -143,22 +145,22 @@ export function ClienteAnalysisDetails({ contratoId }: ClienteAnalysisDetailsPro
         toast.loading(`Processando seção ${i + 1} de ${sections.length}...`, { id: loadingToast });
         
         // Delay para renderização completa
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await new Promise(resolve => setTimeout(resolve, 300));
         
         const canvas = await html2canvas(section, {
-          scale: 3, // Alta qualidade
+          scale: 2.5,
           useCORS: true,
           allowTaint: true,
           backgroundColor: '#ffffff',
           logging: false,
           imageTimeout: 0,
-          windowWidth: 1200, // Largura fixa para consistência
+          windowWidth: 1200,
           onclone: (clonedDoc) => {
             const clonedSection = clonedDoc.body.querySelector('[data-html2canvas-ignore]');
             if (clonedSection) {
               clonedSection.remove();
             }
-            // Remove animações
+            // Remove animações e transições
             const allElements = clonedDoc.body.querySelectorAll('*');
             allElements.forEach((el) => {
               (el as HTMLElement).style.animation = 'none';
@@ -172,76 +174,77 @@ export function ClienteAnalysisDetails({ contratoId }: ClienteAnalysisDetailsPro
           continue;
         }
 
-        const imgData = canvas.toDataURL('image/jpeg', 0.95); // JPEG com alta qualidade
+        const imgData = canvas.toDataURL('image/jpeg', 0.92);
         
         // Calcula dimensões mantendo aspect ratio
         const imgAspectRatio = canvas.height / canvas.width;
-        let imgWidth = contentWidth;
-        let imgHeight = imgWidth * imgAspectRatio;
+        const imgWidth = contentWidth;
+        const imgHeight = imgWidth * imgAspectRatio;
 
-        // Se a imagem for muito alta, divide em múltiplas páginas
-        if (imgHeight > contentHeight) {
-          const numPages = Math.ceil(imgHeight / contentHeight);
+        // Estratégia inteligente de paginação
+        const maxHeightPerPage = availableHeight;
+        
+        if (imgHeight <= maxHeightPerPage) {
+          // Cabe em uma página
+          if (pageNumber > 1) {
+            pdf.addPage();
+          }
           
-          for (let page = 0; page < numPages; page++) {
+          addHeader(pageNumber);
+          pdf.addImage(imgData, 'JPEG', margin, headerHeight, imgWidth, imgHeight);
+          addFooter();
+          pageNumber++;
+        } else {
+          // Divide em múltiplas páginas com quebra inteligente
+          const pagesNeeded = Math.ceil(imgHeight / maxHeightPerPage);
+          const overlap = 10; // mm de sobreposição para evitar cortes
+          
+          for (let page = 0; page < pagesNeeded; page++) {
             if (pageNumber > 1 || page > 0) {
               pdf.addPage();
             }
             
             addHeader(pageNumber);
             
-            // Calcula a porção da imagem para esta página
-            const srcY = (canvas.height / numPages) * page;
-            const srcHeight = canvas.height / numPages;
+            // Calcula posição Y com sobreposição
+            const startY = page === 0 ? 0 : (page * maxHeightPerPage * (canvas.height / imgHeight)) - (overlap * canvas.height / imgHeight);
+            const heightToCopy = Math.min(
+              maxHeightPerPage * (canvas.height / imgHeight) + (page > 0 ? overlap * canvas.height / imgHeight : 0),
+              canvas.height - startY
+            );
             
-            // Cria um canvas temporário com a porção correta
+            // Cria canvas temporário
             const tempCanvas = document.createElement('canvas');
             tempCanvas.width = canvas.width;
-            tempCanvas.height = srcHeight;
+            tempCanvas.height = heightToCopy;
             const tempCtx = tempCanvas.getContext('2d');
             
             if (tempCtx) {
+              tempCtx.fillStyle = '#ffffff';
+              tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+              
               tempCtx.drawImage(
                 canvas,
-                0, srcY, canvas.width, srcHeight,
-                0, 0, canvas.width, srcHeight
+                0, startY, canvas.width, heightToCopy,
+                0, 0, canvas.width, heightToCopy
               );
               
-              const tempImgData = tempCanvas.toDataURL('image/jpeg', 0.95);
-              const tempImgHeight = contentWidth * (srcHeight / canvas.width);
+              const tempImgData = tempCanvas.toDataURL('image/jpeg', 0.92);
+              const tempImgHeight = imgWidth * (heightToCopy / canvas.width);
               
               pdf.addImage(
                 tempImgData,
                 'JPEG',
                 margin,
-                30, // Abaixo do cabeçalho
-                contentWidth,
-                Math.min(tempImgHeight, contentHeight - 20)
+                headerHeight,
+                imgWidth,
+                Math.min(tempImgHeight, maxHeightPerPage)
               );
             }
             
             addFooter();
             pageNumber++;
           }
-        } else {
-          // Imagem cabe em uma página
-          if (pageNumber > 1) {
-            pdf.addPage();
-          }
-          
-          addHeader(pageNumber);
-          
-          pdf.addImage(
-            imgData,
-            'JPEG',
-            margin,
-            30, // Abaixo do cabeçalho
-            imgWidth,
-            imgHeight
-          );
-          
-          addFooter();
-          pageNumber++;
         }
       }
 
