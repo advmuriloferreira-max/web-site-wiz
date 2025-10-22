@@ -86,40 +86,86 @@ export function ClienteAnalysisDetails({ contratoId }: ClienteAnalysisDetailsPro
   const handleExportPDF = async () => {
     if (!containerRef.current) return;
     
-    toast.loading("Gerando PDF...");
+    const loadingToast = toast.loading("Preparando documento...");
     
     try {
       const sections = sectionRefs.current.filter(ref => ref !== null);
+      
+      if (sections.length === 0) {
+        toast.error("Nenhuma seção encontrada para exportar");
+        return;
+      }
+
       const pdf = new jsPDF('p', 'mm', 'a4');
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 10;
 
       for (let i = 0; i < sections.length; i++) {
         const section = sections[i];
+        
+        toast.loading(`Processando seção ${i + 1} de ${sections.length}...`, { id: loadingToast });
+        
+        // Pequeno delay para garantir que a seção esteja renderizada
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
         const canvas = await html2canvas(section, {
           scale: 2,
           useCORS: true,
-          logging: false
+          allowTaint: true,
+          backgroundColor: '#ffffff',
+          logging: false,
+          windowWidth: section.scrollWidth,
+          windowHeight: section.scrollHeight,
+          onclone: (clonedDoc) => {
+            // Remove animações e transições do clone para captura limpa
+            const clonedSection = clonedDoc.querySelector('[data-html2canvas-clone]');
+            if (clonedSection) {
+              (clonedSection as HTMLElement).style.animation = 'none';
+              (clonedSection as HTMLElement).style.transition = 'none';
+            }
+          }
         });
 
-        const imgData = canvas.toDataURL('image/png');
-        const imgWidth = pageWidth - 20;
+        // Verifica se o canvas tem conteúdo
+        if (canvas.width === 0 || canvas.height === 0) {
+          console.error(`Seção ${i} resultou em canvas vazio`);
+          continue;
+        }
+
+        const imgData = canvas.toDataURL('image/png', 1.0);
+        
+        // Verifica se a imagem tem dados
+        if (imgData === 'data:,') {
+          console.error(`Seção ${i} resultou em imagem vazia`);
+          continue;
+        }
+
+        const imgWidth = pageWidth - (margin * 2);
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
         if (i > 0) {
           pdf.addPage();
         }
 
-        pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, Math.min(imgHeight, pageHeight - 20));
+        // Adiciona a imagem centralizada na página
+        pdf.addImage(
+          imgData, 
+          'PNG', 
+          margin, 
+          margin, 
+          imgWidth, 
+          Math.min(imgHeight, pageHeight - (margin * 2))
+        );
       }
 
       const nomeArquivo = `analise_${cliente?.nome.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
       pdf.save(nomeArquivo);
       
-      toast.success("PDF gerado com sucesso!");
+      toast.success("PDF gerado com sucesso!", { id: loadingToast });
     } catch (error) {
-      console.error("Erro ao gerar PDF:", error);
-      toast.error("Erro ao gerar PDF");
+      console.error("Erro detalhado ao gerar PDF:", error);
+      toast.error(`Erro ao gerar PDF: ${error instanceof Error ? error.message : 'Erro desconhecido'}`, { id: loadingToast });
     }
   };
 
