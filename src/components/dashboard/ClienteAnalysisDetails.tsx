@@ -100,10 +100,9 @@ export function ClienteAnalysisDetails({ contratoId }: ClienteAnalysisDetailsPro
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
       const margin = 15;
-      const contentWidth = pageWidth - (margin * 2);
-      const headerHeight = 30;
-      const footerHeight = 15;
-      const availableHeight = pageHeight - headerHeight - footerHeight - margin;
+      const headerHeight = 28;
+      const footerHeight = 12;
+      const availableHeight = pageHeight - headerHeight - footerHeight;
 
       // Função para adicionar cabeçalho profissional
       const addHeader = (pageNum: number) => {
@@ -142,13 +141,13 @@ export function ClienteAnalysisDetails({ contratoId }: ClienteAnalysisDetailsPro
       for (let i = 0; i < sections.length; i++) {
         const section = sections[i];
         
-        toast.loading(`Processando seção ${i + 1} de ${sections.length}...`, { id: loadingToast });
+        toast.loading(`Capturando seção ${i + 1} de ${sections.length}...`, { id: loadingToast });
         
-        // Delay para renderização completa
+        // Delay para garantir renderização completa
         await new Promise(resolve => setTimeout(resolve, 300));
         
         const canvas = await html2canvas(section, {
-          scale: 2.5,
+          scale: 2,
           useCORS: true,
           allowTaint: true,
           backgroundColor: '#ffffff',
@@ -160,7 +159,6 @@ export function ClienteAnalysisDetails({ contratoId }: ClienteAnalysisDetailsPro
             if (clonedSection) {
               clonedSection.remove();
             }
-            // Remove animações e transições
             const allElements = clonedDoc.body.querySelectorAll('*');
             allElements.forEach((el) => {
               (el as HTMLElement).style.animation = 'none';
@@ -170,90 +168,59 @@ export function ClienteAnalysisDetails({ contratoId }: ClienteAnalysisDetailsPro
         });
 
         if (canvas.width === 0 || canvas.height === 0) {
-          console.error(`Seção ${i} vazia`);
+          console.error(`Seção ${i} vazia, pulando...`);
           continue;
         }
 
-        const imgData = canvas.toDataURL('image/jpeg', 0.92);
+        const imgData = canvas.toDataURL('image/jpeg', 0.90);
         
-        // Calcula dimensões mantendo aspect ratio
-        const imgAspectRatio = canvas.height / canvas.width;
-        const imgWidth = contentWidth;
-        const imgHeight = imgWidth * imgAspectRatio;
-
-        // Estratégia inteligente de paginação
-        const maxHeightPerPage = availableHeight;
+        // Mantém aspect ratio original
+        const canvasAspectRatio = canvas.height / canvas.width;
         
-        if (imgHeight <= maxHeightPerPage) {
-          // Cabe em uma página
-          if (pageNumber > 1) {
-            pdf.addPage();
-          }
-          
-          addHeader(pageNumber);
-          pdf.addImage(imgData, 'JPEG', margin, headerHeight, imgWidth, imgHeight);
-          addFooter();
-          pageNumber++;
-        } else {
-          // Divide em múltiplas páginas com quebra inteligente
-          const pagesNeeded = Math.ceil(imgHeight / maxHeightPerPage);
-          const overlap = 10; // mm de sobreposição para evitar cortes
-          
-          for (let page = 0; page < pagesNeeded; page++) {
-            if (pageNumber > 1 || page > 0) {
-              pdf.addPage();
-            }
-            
-            addHeader(pageNumber);
-            
-            // Calcula posição Y com sobreposição
-            const startY = page === 0 ? 0 : (page * maxHeightPerPage * (canvas.height / imgHeight)) - (overlap * canvas.height / imgHeight);
-            const heightToCopy = Math.min(
-              maxHeightPerPage * (canvas.height / imgHeight) + (page > 0 ? overlap * canvas.height / imgHeight : 0),
-              canvas.height - startY
-            );
-            
-            // Cria canvas temporário
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = canvas.width;
-            tempCanvas.height = heightToCopy;
-            const tempCtx = tempCanvas.getContext('2d');
-            
-            if (tempCtx) {
-              tempCtx.fillStyle = '#ffffff';
-              tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-              
-              tempCtx.drawImage(
-                canvas,
-                0, startY, canvas.width, heightToCopy,
-                0, 0, canvas.width, heightToCopy
-              );
-              
-              const tempImgData = tempCanvas.toDataURL('image/jpeg', 0.92);
-              const tempImgHeight = imgWidth * (heightToCopy / canvas.width);
-              
-              pdf.addImage(
-                tempImgData,
-                'JPEG',
-                margin,
-                headerHeight,
-                imgWidth,
-                Math.min(tempImgHeight, maxHeightPerPage)
-              );
-            }
-            
-            addFooter();
-            pageNumber++;
-          }
+        // Calcula largura disponível (com margens)
+        const maxWidth = pageWidth - (margin * 2);
+        const maxHeight = availableHeight;
+        
+        // Calcula dimensões otimizadas mantendo proporção
+        let finalWidth = maxWidth;
+        let finalHeight = finalWidth * canvasAspectRatio;
+        
+        // Se a altura calculada ultrapassar o disponível, ajusta pela altura
+        if (finalHeight > maxHeight) {
+          finalHeight = maxHeight;
+          finalWidth = finalHeight / canvasAspectRatio;
         }
+        
+        // Centraliza horizontalmente se necessário
+        const xPosition = margin + (maxWidth - finalWidth) / 2;
+        
+        // Adiciona nova página se não for a primeira
+        if (pageNumber > 1) {
+          pdf.addPage();
+        }
+        
+        addHeader(pageNumber);
+        
+        // Adiciona imagem centralizada e proporcional
+        pdf.addImage(
+          imgData,
+          'JPEG',
+          xPosition,
+          headerHeight,
+          finalWidth,
+          finalHeight
+        );
+        
+        addFooter();
+        pageNumber++;
       }
 
       const nomeArquivo = `Analise_${cliente?.nome.replace(/\s+/g, '_')}_${contrato?.numero_contrato?.replace(/\//g, '-')}_${new Date().toISOString().split('T')[0]}.pdf`;
       pdf.save(nomeArquivo);
       
-      toast.success("PDF profissional gerado com sucesso!", { id: loadingToast });
+      toast.success("PDF profissional gerado!", { id: loadingToast });
     } catch (error) {
-      console.error("Erro detalhado ao gerar PDF:", error);
+      console.error("Erro ao gerar PDF:", error);
       toast.error(`Erro ao gerar PDF: ${error instanceof Error ? error.message : 'Erro desconhecido'}`, { id: loadingToast });
     }
   };
