@@ -86,7 +86,7 @@ export function ClienteAnalysisDetails({ contratoId }: ClienteAnalysisDetailsPro
   const handleExportPDF = async () => {
     if (!containerRef.current) return;
     
-    const loadingToast = toast.loading("Preparando documento...");
+    const loadingToast = toast.loading("Preparando documento profissional...");
     
     try {
       const sections = sectionRefs.current.filter(ref => ref !== null);
@@ -99,70 +99,156 @@ export function ClienteAnalysisDetails({ contratoId }: ClienteAnalysisDetailsPro
       const pdf = new jsPDF('p', 'mm', 'a4');
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
-      const margin = 10;
+      const margin = 15;
+      const contentWidth = pageWidth - (margin * 2);
+      const contentHeight = pageHeight - (margin * 2);
+
+      // Função para adicionar cabeçalho profissional
+      const addHeader = (pageNum: number) => {
+        pdf.setFillColor(30, 58, 138); // Azul escuro
+        pdf.rect(0, 0, pageWidth, 25, 'F');
+        
+        pdf.setTextColor(255, 255, 255);
+        pdf.setFontSize(16);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text('Análise Estratégica de Contrato', margin, 12);
+        
+        pdf.setFontSize(9);
+        pdf.setFont('helvetica', 'normal');
+        pdf.text(`${cliente?.nome || 'Cliente'}`, margin, 19);
+        
+        pdf.setTextColor(200, 200, 200);
+        pdf.text(`Página ${pageNum}`, pageWidth - margin - 20, 19);
+      };
+
+      // Função para adicionar rodapé
+      const addFooter = () => {
+        pdf.setTextColor(120, 120, 120);
+        pdf.setFontSize(8);
+        pdf.setFont('helvetica', 'italic');
+        const dataGeracao = new Date().toLocaleDateString('pt-BR', { 
+          day: '2-digit', 
+          month: 'long', 
+          year: 'numeric' 
+        });
+        pdf.text(`Gerado em ${dataGeracao} • IntelBank`, margin, pageHeight - 8);
+        pdf.text(`Contrato: ${contrato?.numero_contrato || 'N/A'}`, pageWidth - margin - 60, pageHeight - 8);
+      };
+
+      let pageNumber = 1;
 
       for (let i = 0; i < sections.length; i++) {
         const section = sections[i];
         
         toast.loading(`Processando seção ${i + 1} de ${sections.length}...`, { id: loadingToast });
         
-        // Pequeno delay para garantir que a seção esteja renderizada
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // Delay para renderização completa
+        await new Promise(resolve => setTimeout(resolve, 200));
         
         const canvas = await html2canvas(section, {
-          scale: 2,
+          scale: 3, // Alta qualidade
           useCORS: true,
           allowTaint: true,
           backgroundColor: '#ffffff',
           logging: false,
-          windowWidth: section.scrollWidth,
-          windowHeight: section.scrollHeight,
+          imageTimeout: 0,
+          windowWidth: 1200, // Largura fixa para consistência
           onclone: (clonedDoc) => {
-            // Remove animações e transições do clone para captura limpa
-            const clonedSection = clonedDoc.querySelector('[data-html2canvas-clone]');
+            const clonedSection = clonedDoc.body.querySelector('[data-html2canvas-ignore]');
             if (clonedSection) {
-              (clonedSection as HTMLElement).style.animation = 'none';
-              (clonedSection as HTMLElement).style.transition = 'none';
+              clonedSection.remove();
             }
+            // Remove animações
+            const allElements = clonedDoc.body.querySelectorAll('*');
+            allElements.forEach((el) => {
+              (el as HTMLElement).style.animation = 'none';
+              (el as HTMLElement).style.transition = 'none';
+            });
           }
         });
 
-        // Verifica se o canvas tem conteúdo
         if (canvas.width === 0 || canvas.height === 0) {
-          console.error(`Seção ${i} resultou em canvas vazio`);
+          console.error(`Seção ${i} vazia`);
           continue;
         }
 
-        const imgData = canvas.toDataURL('image/png', 1.0);
+        const imgData = canvas.toDataURL('image/jpeg', 0.95); // JPEG com alta qualidade
         
-        // Verifica se a imagem tem dados
-        if (imgData === 'data:,') {
-          console.error(`Seção ${i} resultou em imagem vazia`);
-          continue;
+        // Calcula dimensões mantendo aspect ratio
+        const imgAspectRatio = canvas.height / canvas.width;
+        let imgWidth = contentWidth;
+        let imgHeight = imgWidth * imgAspectRatio;
+
+        // Se a imagem for muito alta, divide em múltiplas páginas
+        if (imgHeight > contentHeight) {
+          const numPages = Math.ceil(imgHeight / contentHeight);
+          
+          for (let page = 0; page < numPages; page++) {
+            if (pageNumber > 1 || page > 0) {
+              pdf.addPage();
+            }
+            
+            addHeader(pageNumber);
+            
+            // Calcula a porção da imagem para esta página
+            const srcY = (canvas.height / numPages) * page;
+            const srcHeight = canvas.height / numPages;
+            
+            // Cria um canvas temporário com a porção correta
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = srcHeight;
+            const tempCtx = tempCanvas.getContext('2d');
+            
+            if (tempCtx) {
+              tempCtx.drawImage(
+                canvas,
+                0, srcY, canvas.width, srcHeight,
+                0, 0, canvas.width, srcHeight
+              );
+              
+              const tempImgData = tempCanvas.toDataURL('image/jpeg', 0.95);
+              const tempImgHeight = contentWidth * (srcHeight / canvas.width);
+              
+              pdf.addImage(
+                tempImgData,
+                'JPEG',
+                margin,
+                30, // Abaixo do cabeçalho
+                contentWidth,
+                Math.min(tempImgHeight, contentHeight - 20)
+              );
+            }
+            
+            addFooter();
+            pageNumber++;
+          }
+        } else {
+          // Imagem cabe em uma página
+          if (pageNumber > 1) {
+            pdf.addPage();
+          }
+          
+          addHeader(pageNumber);
+          
+          pdf.addImage(
+            imgData,
+            'JPEG',
+            margin,
+            30, // Abaixo do cabeçalho
+            imgWidth,
+            imgHeight
+          );
+          
+          addFooter();
+          pageNumber++;
         }
-
-        const imgWidth = pageWidth - (margin * 2);
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-        if (i > 0) {
-          pdf.addPage();
-        }
-
-        // Adiciona a imagem centralizada na página
-        pdf.addImage(
-          imgData, 
-          'PNG', 
-          margin, 
-          margin, 
-          imgWidth, 
-          Math.min(imgHeight, pageHeight - (margin * 2))
-        );
       }
 
-      const nomeArquivo = `analise_${cliente?.nome.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
+      const nomeArquivo = `Analise_${cliente?.nome.replace(/\s+/g, '_')}_${contrato?.numero_contrato?.replace(/\//g, '-')}_${new Date().toISOString().split('T')[0]}.pdf`;
       pdf.save(nomeArquivo);
       
-      toast.success("PDF gerado com sucesso!", { id: loadingToast });
+      toast.success("PDF profissional gerado com sucesso!", { id: loadingToast });
     } catch (error) {
       console.error("Erro detalhado ao gerar PDF:", error);
       toast.error(`Erro ao gerar PDF: ${error instanceof Error ? error.message : 'Erro desconhecido'}`, { id: loadingToast });
