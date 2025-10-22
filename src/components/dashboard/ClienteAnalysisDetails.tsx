@@ -147,13 +147,13 @@ export function ClienteAnalysisDetails({ contratoId }: ClienteAnalysisDetailsPro
         await new Promise(resolve => setTimeout(resolve, 300));
         
         const canvas = await html2canvas(section, {
-          scale: 2,
+          scale: 2.2,
           useCORS: true,
           allowTaint: true,
           backgroundColor: '#ffffff',
           logging: false,
           imageTimeout: 0,
-          windowWidth: 1200,
+          windowWidth: 800,
           onclone: (clonedDoc) => {
             const clonedSection = clonedDoc.body.querySelector('[data-html2canvas-ignore]');
             if (clonedSection) {
@@ -181,18 +181,18 @@ export function ClienteAnalysisDetails({ contratoId }: ClienteAnalysisDetailsPro
         const maxWidth = pageWidth - (margin * 2);
         const maxHeight = availableHeight;
         
-        // Calcula dimensões otimizadas mantendo proporção
+        // Sempre usa a largura máxima disponível
         let finalWidth = maxWidth;
         let finalHeight = finalWidth * canvasAspectRatio;
         
-        // Se a altura calculada ultrapassar o disponível, ajusta pela altura
+        // Se a altura calculada ultrapassar o disponível, reduz proporcionalmente
         if (finalHeight > maxHeight) {
           finalHeight = maxHeight;
           finalWidth = finalHeight / canvasAspectRatio;
         }
         
-        // Centraliza horizontalmente se necessário
-        const xPosition = margin + (maxWidth - finalWidth) / 2;
+        // Sempre posiciona na margem esquerda (sem centralizar)
+        const xPosition = margin;
         
         // Adiciona nova página se não for a primeira
         if (pageNumber > 1) {
