@@ -19,6 +19,13 @@ import { toast } from "sonner";
 import { saveAnalysisReport } from "@/modules/FinancialAnalysis/lib/analysisReportGenerator";
 import type { AnalysisReportData } from "@/modules/FinancialAnalysis/lib/analysisReportGenerator";
 
+const formatCurrency = (value: number): string => {
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  }).format(value);
+};
+
 interface ClienteAnalysisDetailsProps {
   contratoId: string;
 }
@@ -86,9 +93,63 @@ export function ClienteAnalysisDetails({ contratoId }: ClienteAnalysisDetailsPro
   const handleExportPDF = async () => {
     if (!contrato || !cliente) return;
     
-    const loadingToast = toast.loading("Gerando relatório profissional...");
+    const loadingToast = toast.loading("Gerando relatório completo profissional...");
     
     try {
+      // Calcular projeções
+      const taxaJurosMensal = 0.02; // 2% ao mês (estimativa conservadora)
+      const valor30Dias = valorDivida * (1 + taxaJurosMensal);
+      const valor60Dias = valorDivida * Math.pow(1 + taxaJurosMensal, 2);
+      const valor90Dias = valorDivida * Math.pow(1 + taxaJurosMensal, 3);
+      const valor180Dias = valorDivida * Math.pow(1 + taxaJurosMensal, 6);
+      const valor360Dias = valorDivida * Math.pow(1 + taxaJurosMensal, 12);
+      
+      // Calcular provisões projetadas (baseado nas regras BCB)
+      const calcularProvisao = (dias: number, classificacao?: string) => {
+        let base = 0;
+        if (classificacao === 'C1') base = 0.5;
+        else if (classificacao === 'C2') base = 1;
+        else if (classificacao === 'C3') base = 3;
+        else if (classificacao === 'C4') base = 10;
+        else base = 30;
+        
+        if (dias <= 30) return base;
+        if (dias <= 60) return base * 1.5;
+        if (dias <= 90) return base * 2;
+        if (dias <= 180) return base * 3;
+        return Math.min(base * 5, 100);
+      };
+      
+      const provisao30Dias = calcularProvisao(diasAtraso + 30, contrato.classificacao);
+      const provisao60Dias = calcularProvisao(diasAtraso + 60, contrato.classificacao);
+      const provisao90Dias = calcularProvisao(diasAtraso + 90, contrato.classificacao);
+      const provisao180Dias = calcularProvisao(diasAtraso + 180, contrato.classificacao);
+      const provisao360Dias = calcularProvisao(diasAtraso + 360, contrato.classificacao);
+      
+      // Calcular estratégia
+      const descontoEsperado = percentualProvisao >= 70 ? 60 : percentualProvisao >= 40 ? 40 : 25;
+      const valorAcordoEstimado = valorDivida * (1 - descontoEsperado / 100);
+      const economiaEstimada = valorDivida - valorAcordoEstimado;
+      
+      let momentoIdeal = '';
+      const hoje = new Date();
+      const mesAtual = hoje.getMonth();
+      if (mesAtual >= 8) {
+        momentoIdeal = 'Final de trimestre (Setembro) ou fim de ano (Dezembro) - Momento ideal!';
+      } else if (mesAtual >= 5) {
+        momentoIdeal = 'Aguardar até Setembro (fim de trimestre) para maximizar desconto';
+      } else if (mesAtual >= 2) {
+        momentoIdeal = 'Aguardar até Junho (fim de semestre) ou Setembro (fim de trimestre)';
+      } else {
+        momentoIdeal = 'Próximo ao fim de trimestre (Março, Junho, Setembro ou Dezembro)';
+      }
+      
+      const janelaNegociacao = diasAtraso >= 90 
+        ? 'Janela aberta AGORA - Alta provisão favorece negociação imediata'
+        : diasAtraso >= 60
+        ? 'Aguardar mais 30 dias para aumentar poder de negociação'
+        : 'Aguardar 60-90 dias para melhor posicionamento';
+      
       // Preparar dados para o relatório
       const reportData: AnalysisReportData = {
         contrato: {
@@ -97,6 +158,17 @@ export function ClienteAnalysisDetails({ contratoId }: ClienteAnalysisDetailsPro
           banco: contrato.bancos?.nome || "Banco não informado",
           valorDivida: valorDivida,
           dataContrato: contrato.data_entrada || new Date().toISOString(),
+          classificacao: contrato.classificacao || "Não definida",
+          tipoOperacao: contrato.tipo_operacao || "Não informado",
+          situacao: contrato.situacao || "Em análise",
+        },
+        situacaoAtual: {
+          diasAtraso: diasAtraso,
+          mesesAtraso: contrato.meses_atraso || 0,
+          estagioRisco: estagioRisco,
+          valorProvisao: valorProvisao,
+          percentualProvisao: percentualProvisao,
+          saldoContabil: valorDivida,
         },
         metricas: {
           taxaEfetivaAnual: contrato.taxa_bacen || 0,
@@ -107,21 +179,45 @@ export function ClienteAnalysisDetails({ contratoId }: ClienteAnalysisDetailsPro
           indiceCoberturaDivida: valorProvisao > 0 ? valorDivida / valorProvisao : 0,
           relacaoGarantias: percentualProvisao,
         },
+        projecoes: {
+          valor30Dias,
+          valor60Dias,
+          valor90Dias,
+          valor180Dias,
+          valor360Dias,
+          provisao30Dias,
+          provisao60Dias,
+          provisao90Dias,
+          provisao180Dias,
+          provisao360Dias,
+        },
+        estrategia: {
+          momentoIdeal,
+          descontoEsperado,
+          valorAcordoEstimado,
+          economiaEstimada,
+          janelaNegociacao,
+        },
         recomendacoes: [
-          `O contrato está no Estágio ${estagioRisco} com ${diasAtraso} dias de atraso.`,
-          `Provisão de ${percentualProvisao.toFixed(1)}% indica ${percentualProvisao >= 70 ? 'alta' : percentualProvisao >= 40 ? 'média' : 'baixa'} oportunidade de negociação.`,
-          `Classificação ${contrato.classificacao || 'não definida'} requer atenção ${estagioRisco >= 2 ? 'urgente' : 'moderada'}.`,
+          `O contrato está no Estágio ${estagioRisco} com ${diasAtraso} dias de atraso, classificação ${contrato.classificacao || 'não definida'}.`,
+          `Provisão atual de ${percentualProvisao.toFixed(1)}% indica ${percentualProvisao >= 70 ? 'ALTA' : percentualProvisao >= 40 ? 'MÉDIA' : 'BAIXA'} oportunidade de negociação.`,
+          `Valor atual da dívida: ${formatCurrency(valorDivida)}. Provisão bancária: ${formatCurrency(valorProvisao)}.`,
           percentualProvisao >= 70 
-            ? "Recomendação: Negociar desconto agressivo aproveitando alta provisão bancária."
+            ? "✓ RECOMENDAÇÃO: Negociar AGORA com desconto agressivo de 50-70%. Alta provisão dá forte poder de barganha."
             : percentualProvisao >= 40
-            ? "Recomendação: Propor acordo com desconto moderado baseado na provisão atual."
-            : "Recomendação: Foco em renegociação de prazo e condições de pagamento.",
+            ? "✓ RECOMENDAÇÃO: Propor acordo com desconto moderado de 30-50%. Boa oportunidade de negociação."
+            : "✓ RECOMENDAÇÃO: Foco em renegociação de prazo. Aguardar aumento da provisão para melhor desconto.",
+          `Economia estimada com negociação: ${formatCurrency(economiaEstimada)} (desconto de ${descontoEsperado}%).`,
+          `${momentoIdeal}`,
+          `${janelaNegociacao}`,
+          "IMPORTANTE: Prepare documentação completa antes de iniciar negociação (contrato, comprovantes, correspondências).",
+          "DICA: Bancos são mais flexíveis no fim de trimestre/ano. Use isso a seu favor!",
         ],
       };
 
       saveAnalysisReport(reportData);
       
-      toast.success("PDF profissional gerado!", { id: loadingToast });
+      toast.success("Relatório completo gerado com sucesso!", { id: loadingToast });
     } catch (error) {
       console.error("Erro ao gerar PDF:", error);
       toast.error(`Erro ao gerar PDF: ${error instanceof Error ? error.message : 'Erro desconhecido'}`, { id: loadingToast });
