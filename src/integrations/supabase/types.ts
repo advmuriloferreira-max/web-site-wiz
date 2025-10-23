@@ -82,6 +82,53 @@ export type Database = {
           },
         ]
       }
+      analises_socioeconomicas: {
+        Row: {
+          capacidade_pagamento: number
+          cliente_id: string | null
+          created_at: string | null
+          despesas_essenciais: number
+          detalhes_despesas: Json | null
+          id: string
+          minimo_existencial: number
+          percentual_comprometimento: number
+          renda_liquida: number
+          situacao: string | null
+        }
+        Insert: {
+          capacidade_pagamento: number
+          cliente_id?: string | null
+          created_at?: string | null
+          despesas_essenciais: number
+          detalhes_despesas?: Json | null
+          id?: string
+          minimo_existencial: number
+          percentual_comprometimento: number
+          renda_liquida: number
+          situacao?: string | null
+        }
+        Update: {
+          capacidade_pagamento?: number
+          cliente_id?: string | null
+          created_at?: string | null
+          despesas_essenciais?: number
+          detalhes_despesas?: Json | null
+          id?: string
+          minimo_existencial?: number
+          percentual_comprometimento?: number
+          renda_liquida?: number
+          situacao?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analises_socioeconomicas_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes_superendividamento"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       analyses: {
         Row: {
           contrato_id: string
@@ -264,6 +311,48 @@ export type Database = {
           responsavel?: string | null
           telefone?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      clientes_superendividamento: {
+        Row: {
+          composicao_familiar: Json | null
+          cpf: string | null
+          created_at: string | null
+          desconto_inss: number | null
+          desconto_ir: number | null
+          id: string
+          nome: string
+          observacoes: string | null
+          renda_bruta: number | null
+          renda_liquida: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          composicao_familiar?: Json | null
+          cpf?: string | null
+          created_at?: string | null
+          desconto_inss?: number | null
+          desconto_ir?: number | null
+          id?: string
+          nome: string
+          observacoes?: string | null
+          renda_bruta?: number | null
+          renda_liquida?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          composicao_familiar?: Json | null
+          cpf?: string | null
+          created_at?: string | null
+          desconto_inss?: number | null
+          desconto_ir?: number | null
+          id?: string
+          nome?: string
+          observacoes?: string | null
+          renda_bruta?: number | null
+          renda_liquida?: number | null
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -597,6 +686,91 @@ export type Database = {
           },
         ]
       }
+      dividas_superendividamento: {
+        Row: {
+          cliente_id: string | null
+          created_at: string | null
+          credor: string
+          id: string
+          observacoes: string | null
+          parcela_mensal_atual: number | null
+          tipo_divida: string | null
+          valor_atual: number
+          valor_original: number
+        }
+        Insert: {
+          cliente_id?: string | null
+          created_at?: string | null
+          credor: string
+          id?: string
+          observacoes?: string | null
+          parcela_mensal_atual?: number | null
+          tipo_divida?: string | null
+          valor_atual: number
+          valor_original: number
+        }
+        Update: {
+          cliente_id?: string | null
+          created_at?: string | null
+          credor?: string
+          id?: string
+          observacoes?: string | null
+          parcela_mensal_atual?: number | null
+          tipo_divida?: string | null
+          valor_atual?: number
+          valor_original?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dividas_superendividamento_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes_superendividamento"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fases_plano: {
+        Row: {
+          created_at: string | null
+          credor_quitado: string | null
+          credores_ativos: Json | null
+          distribuicao: Json | null
+          id: string
+          numero_fase: number
+          parcelas_na_fase: number
+          plano_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          credor_quitado?: string | null
+          credores_ativos?: Json | null
+          distribuicao?: Json | null
+          id?: string
+          numero_fase: number
+          parcelas_na_fase: number
+          plano_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          credor_quitado?: string | null
+          credores_ativos?: Json | null
+          distribuicao?: Json | null
+          id?: string
+          numero_fase?: number
+          parcelas_na_fase?: number
+          plano_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fases_plano_plano_id_fkey"
+            columns: ["plano_id"]
+            isOneToOne: false
+            referencedRelation: "planos_pagamento"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       garantias_provisao: {
         Row: {
           contrato_id: string
@@ -759,6 +933,50 @@ export type Database = {
             columns: ["contrato_id"]
             isOneToOne: false
             referencedRelation: "contratos_juros"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      planos_pagamento: {
+        Row: {
+          cliente_id: string | null
+          created_at: string | null
+          id: string
+          percentual_renda: number | null
+          status: string | null
+          total_dividas: number
+          total_fases: number
+          total_parcelas: number
+          valor_mensal_total: number
+        }
+        Insert: {
+          cliente_id?: string | null
+          created_at?: string | null
+          id?: string
+          percentual_renda?: number | null
+          status?: string | null
+          total_dividas: number
+          total_fases: number
+          total_parcelas: number
+          valor_mensal_total: number
+        }
+        Update: {
+          cliente_id?: string | null
+          created_at?: string | null
+          id?: string
+          percentual_renda?: number | null
+          status?: string | null
+          total_dividas?: number
+          total_fases?: number
+          total_parcelas?: number
+          valor_mensal_total?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "planos_pagamento_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes_superendividamento"
             referencedColumns: ["id"]
           },
         ]
@@ -1200,14 +1418,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      convite_valido: {
-        Args: { invite_token: string }
-        Returns: boolean
-      }
-      generate_invite_token: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      convite_valido: { Args: { invite_token: string }; Returns: boolean }
+      generate_invite_token: { Args: never; Returns: string }
       get_convite_data: {
         Args: { invite_token: string }
         Returns: {
@@ -1227,10 +1439,7 @@ export type Database = {
         }
         Returns: boolean
       }
-      is_admin: {
-        Args: { user_uuid: string }
-        Returns: boolean
-      }
+      is_admin: { Args: { user_uuid: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "advogado" | "assistente"

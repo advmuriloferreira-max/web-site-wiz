@@ -38,6 +38,14 @@ const jurosItems = [
   { title: "Calculadora de Juros", url: "/calculadora-juros", icon: LegalIcons.calculations },
 ];
 
+const superendividamentoItems = [
+  { title: "Dashboard", url: "/superendividamento", icon: LegalIcons.dashboard },
+  { title: "Clientes", url: "/superendividamento/clientes", icon: LegalIcons.clients },
+  { title: "Análise Socioeconômica", url: "/superendividamento/analise", icon: LegalIcons.calculations },
+  { title: "Planos de Pagamento", url: "/superendividamento/planos", icon: LegalIcons.agreement },
+  { title: "Calculadora Rápida", url: "/superendividamento/calculadora", icon: LegalIcons.calculations },
+];
+
 export function AppSidebar() {
   const { state, toggleSidebar } = useSidebar();
   const { profile } = useAuth();
@@ -190,6 +198,28 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <div className="space-y-1 px-2">
               {jurosItems.map((item) => (
+                <MenuItem key={item.title} item={item} tooltip />
+              ))}
+            </div>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Separador */}
+        <div className="mx-4 my-2 border-t border-sidebar-border/50" />
+
+        {/* Superendividamento - Lei 14.181/2021 */}
+        <SidebarGroup className="py-3">
+          {!isCollapsed && (
+            <>
+              <SidebarGroupLabel className="text-sm uppercase tracking-wider text-sidebar-foreground/80 px-4 py-2 font-black">
+                Superendividamento
+              </SidebarGroupLabel>
+              <div className="h-1 bg-accent mx-4 rounded-full"></div>
+            </>
+          )}
+          <SidebarGroupContent>
+            <div className="space-y-1 px-2">
+              {superendividamentoItems.map((item) => (
                 <MenuItem key={item.title} item={item} tooltip />
               ))}
             </div>

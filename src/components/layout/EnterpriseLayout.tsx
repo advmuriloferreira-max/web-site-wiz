@@ -44,6 +44,11 @@ import ClientesJuros from "@/pages/juros/ClientesJuros";
 import ContratosJuros from "@/pages/juros/ContratosJuros";
 import AnaliseContratoJurosPage from "@/pages/juros/AnaliseContratoJuros";
 import ImportarSeriesBacen from "@/pages/ImportarSeriesBacen";
+import SuperendividamentoDashboard from "@/pages/superendividamento/Dashboard";
+import SuperendividamentoClientes from "@/pages/superendividamento/Clientes";
+import SuperendividamentoAnalise from "@/pages/superendividamento/Analise";
+import SuperendividamentoPlanos from "@/pages/superendividamento/Planos";
+import SuperendividamentoCalculadora from "@/pages/superendividamento/Calculadora";
 
 export function EnterpriseLayout() {
   const [searchOpen, setSearchOpen] = useState(false);
@@ -160,6 +165,11 @@ export function EnterpriseLayout() {
                     <Route path="/juros/contratos" element={<ContratosJuros />} />
                     <Route path="/juros/contratos/:id/analise" element={<AnaliseContratoJurosPage />} />
                     <Route path="/admin/importar-series-bacen" element={<ImportarSeriesBacen />} />
+                    <Route path="/superendividamento" element={<SuperendividamentoDashboard />} />
+                    <Route path="/superendividamento/clientes" element={<SuperendividamentoClientes />} />
+                    <Route path="/superendividamento/analise" element={<SuperendividamentoAnalise />} />
+                    <Route path="/superendividamento/planos" element={<SuperendividamentoPlanos />} />
+                    <Route path="/superendividamento/calculadora" element={<SuperendividamentoCalculadora />} />
                     <Route path="/calculos" element={<Calculos />} />
                     <Route path="/processos" element={<Processos />} />
                     <Route path="acordos" element={<Acordos />} />
