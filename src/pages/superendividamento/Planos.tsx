@@ -63,6 +63,7 @@ export default function SuperendividamentoPlanos() {
     
     while (dividasProcessamento.length > 0 && parcelasAcumuladas < 60) {
       console.log(`\n🟢 ITERAÇÃO - Parcelas acumuladas: ${parcelasAcumuladas}, Dívidas ativas: ${dividasProcessamento.length}`);
+      console.log('Dívidas atuais:', dividasProcessamento.map(d => `${d.credor}: R$ ${d.saldoAtual.toFixed(2)}`));
       
       const totalDividasAtivas = dividasProcessamento.reduce((sum, d) => sum + d.saldoAtual, 0);
       console.log('Saldo total das dívidas:', totalDividasAtivas);
@@ -93,11 +94,13 @@ export default function SuperendividamentoPlanos() {
         const parcelasRestantes = 60 - parcelasAcumuladas;
         const parcelasNaFase = Math.min(parcelasCompletasMaximas, parcelasRestantes);
         
-        console.log(`  → Criando FASE NORMAL com ${parcelasNaFase} parcelas`);
+        console.log(`  → Criando FASE NORMAL com ${parcelasNaFase} parcelas (máximo: ${parcelasCompletasMaximas}, restantes: ${parcelasRestantes})`);
         
         const distribuicaoNormal: DistribuicaoFase[] = calculosParcelas.map(calc => {
           const valorPago = calc.parcelaOriginal * parcelasNaFase;
           const novoSaldo = calc.saldoAtual - valorPago;
+          
+          console.log(`    ${calc.credor}: Paga R$ ${valorPago.toFixed(2)} (${parcelasNaFase}x R$ ${calc.parcelaOriginal.toFixed(2)}), novo saldo: R$ ${novoSaldo.toFixed(2)}`);
           
           return {
             credor: calc.credor,
@@ -121,6 +124,7 @@ export default function SuperendividamentoPlanos() {
         });
         
         parcelasAcumuladas += parcelasNaFase;
+        console.log(`  ✅ Fase ${fasesCalculadas.length} criada, parcelas acumuladas: ${parcelasAcumuladas}`);
         
         // Atualizar saldos
         dividasProcessamento = dividasProcessamento.map(d => {
@@ -131,16 +135,18 @@ export default function SuperendividamentoPlanos() {
           };
         }).filter(d => d.saldoAtual > 0.01); // Tolerância para erros de arredondamento
         
+        console.log(`  Dívidas restantes: ${dividasProcessamento.length}`);
+        
       } else {
         // FASE DE AJUSTE - Pelo menos uma dívida será quitada
-        console.log(`  → Criando FASE DE AJUSTE (${menorParcelas.toFixed(4)} < 1)`);
+        console.log(`  → Criando FASE DE AJUSTE (menor parcelas: ${menorParcelas.toFixed(4)} < 1)`);
         
         // Identificar quais dívidas serão quitadas
         const credoresQuitando = calculosParcelas.filter(c => c.parcelasNecessarias < 1);
         const credoresAtivos = calculosParcelas.filter(c => c.parcelasNecessarias >= 1);
         
-        console.log(`  Quitando: ${credoresQuitando.map(c => c.credor).join(', ')}`);
-        console.log(`  Continuam: ${credoresAtivos.map(c => c.credor).join(', ')}`);
+        console.log(`  Quitando (${credoresQuitando.length}): ${credoresQuitando.map(c => c.credor).join(', ')}`);
+        console.log(`  Continuam (${credoresAtivos.length}): ${credoresAtivos.map(c => c.credor).join(', ')}`);
         
         const distribuicaoAjuste: DistribuicaoFase[] = [];
         let sobraTotal = 0;
@@ -149,6 +155,8 @@ export default function SuperendividamentoPlanos() {
         credoresQuitando.forEach(calc => {
           const sobra = calc.parcelaOriginal - calc.saldoAtual;
           sobraTotal += sobra;
+          
+          console.log(`    ${calc.credor}: Quita R$ ${calc.saldoAtual.toFixed(2)}, sobra R$ ${sobra.toFixed(2)}`);
           
           distribuicaoAjuste.push({
             credor: calc.credor,
@@ -170,6 +178,8 @@ export default function SuperendividamentoPlanos() {
         credoresAtivos.forEach(calc => {
           const parcelaFinal = calc.parcelaOriginal + sobraPorCredor;
           const novoSaldo = calc.saldoAtual - parcelaFinal;
+          
+          console.log(`    ${calc.credor}: Parcela R$ ${calc.parcelaOriginal.toFixed(2)} + sobra R$ ${sobraPorCredor.toFixed(2)} = R$ ${parcelaFinal.toFixed(2)}, novo saldo: R$ ${novoSaldo.toFixed(2)}`);
           
           distribuicaoAjuste.push({
             credor: calc.credor,
@@ -193,6 +203,7 @@ export default function SuperendividamentoPlanos() {
         });
         
         parcelasAcumuladas += 1;
+        console.log(`  ✅ Fase ${fasesCalculadas.length} criada (ajuste), parcelas acumuladas: ${parcelasAcumuladas}`);
         
         // Atualizar dívidas - remover quitadas e atualizar saldos das ativas
         dividasProcessamento = dividasProcessamento
@@ -204,6 +215,14 @@ export default function SuperendividamentoPlanos() {
             };
           })
           .filter(d => d.saldoAtual > 0.01);
+          
+        console.log(`  Dívidas restantes: ${dividasProcessamento.length}`);
+      }
+      
+      // Verificação de segurança para evitar loop infinito
+      if (fasesCalculadas.length > 100) {
+        console.log('⚠️ ATENÇÃO: Mais de 100 fases criadas, interrompendo por segurança');
+        break;
       }
     }
     
