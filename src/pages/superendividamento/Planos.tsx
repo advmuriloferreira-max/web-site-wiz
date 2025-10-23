@@ -212,10 +212,20 @@ export default function SuperendividamentoPlanos() {
   };
 
   const calcularPlano = () => {
-    if (rendaLiquida > 0 && dividas.length > 0) {
-      const fasesCalculadas = calcularPlanoCompleto(dividas, rendaLiquida, percentualRenda);
-      setFases(fasesCalculadas);
+    const dividasInclusas = dividas.filter(d => d.tipo === 'inclusa');
+    
+    if (rendaLiquida <= 0) {
+      alert('Por favor, informe uma renda líquida válida.');
+      return;
     }
+    
+    if (dividasInclusas.length === 0) {
+      alert('Por favor, adicione pelo menos uma dívida para calcular o plano.');
+      return;
+    }
+    
+    const fasesCalculadas = calcularPlanoCompleto(dividas, rendaLiquida, percentualRenda);
+    setFases(fasesCalculadas);
   };
 
   const valorMensalTotal = rendaLiquida * (percentualRenda / 100);
@@ -339,10 +349,22 @@ export default function SuperendividamentoPlanos() {
                 </div>
               </div>
               
-              <Button onClick={calcularPlano} className="w-full" disabled={!rendaLiquida || dividas.length === 0}>
+              <Button onClick={calcularPlano} className="w-full">
                 <Calculator className="h-4 w-4 mr-2" />
                 Calcular Plano de Pagamento
               </Button>
+              
+              {dividas.length === 0 && (
+                <p className="text-sm text-muted-foreground text-center">
+                  Adicione pelo menos uma dívida para calcular
+                </p>
+              )}
+              
+              {rendaLiquida <= 0 && dividas.length > 0 && (
+                <p className="text-sm text-muted-foreground text-center">
+                  Informe a renda líquida mensal
+                </p>
+              )}
             </CardContent>
           </Card>
         </div>
