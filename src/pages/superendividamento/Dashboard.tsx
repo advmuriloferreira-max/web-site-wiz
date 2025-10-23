@@ -1,9 +1,63 @@
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Scale, Users, FileText, TrendingUp, Calculator } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function SuperendividamentoDashboard() {
   const navigate = useNavigate();
+  const [metricas, setMetricas] = useState({
+    totalClientes: 0,
+    planosAtivos: 0,
+    planosConcluidos: 0,
+    valorTotalRenegociado: 0,
+    taxaSucesso: 0
+  });
+
+  useEffect(() => {
+    const buscarMetricas = async () => {
+      try {
+        // Query para contar clientes
+        const { count: clientesCount } = await supabase
+          .from('clientes_superendividamento')
+          .select('*', { count: 'exact', head: true });
+        
+        // Query para contar planos ativos
+        const { count: planosAtivosCount } = await supabase
+          .from('planos_pagamento')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'ativo');
+        
+        // Query para contar planos concluídos
+        const { count: planosConcluidosCount } = await supabase
+          .from('planos_pagamento')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'concluido');
+        
+        // Query para somar valor total renegociado
+        const { data: planosData } = await supabase
+          .from('planos_pagamento')
+          .select('total_dividas');
+        
+        const valorTotal = planosData?.reduce((sum, plano) => sum + (plano.total_dividas || 0), 0) || 0;
+        const taxaSucessoCalc = planosConcluidosCount && (planosAtivosCount + planosConcluidosCount) 
+          ? (planosConcluidosCount / (planosAtivosCount + planosConcluidosCount)) * 100 
+          : 0;
+        
+        setMetricas({
+          totalClientes: clientesCount || 0,
+          planosAtivos: planosAtivosCount || 0,
+          planosConcluidos: planosConcluidosCount || 0,
+          valorTotalRenegociado: valorTotal,
+          taxaSucesso: taxaSucessoCalc
+        });
+      } catch (error) {
+        console.error('Erro ao buscar métricas:', error);
+      }
+    };
+    
+    buscarMetricas();
+  }, []);
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -26,9 +80,9 @@ export default function SuperendividamentoDashboard() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
+            <div className="text-2xl font-bold">{metricas.totalClientes}</div>
             <p className="text-xs text-muted-foreground">
-              +0% em relação ao mês anterior
+              Cadastrados no sistema
             </p>
           </CardContent>
         </Card>
@@ -41,9 +95,9 @@ export default function SuperendividamentoDashboard() {
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
+            <div className="text-2xl font-bold">{metricas.planosAtivos}</div>
             <p className="text-xs text-muted-foreground">
-              Em andamento
+              Planos em andamento
             </p>
           </CardContent>
         </Card>
@@ -54,9 +108,9 @@ export default function SuperendividamentoDashboard() {
             <Calculator className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">R$ 0</div>
+            <div className="text-2xl font-bold">R$ {metricas.valorTotalRenegociado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
             <p className="text-xs text-muted-foreground">
-              Total no mês atual
+              Total renegociado
             </p>
           </CardContent>
         </Card>
@@ -69,9 +123,9 @@ export default function SuperendividamentoDashboard() {
             <Scale className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0%</div>
+            <div className="text-2xl font-bold">{metricas.taxaSucesso.toFixed(1)}%</div>
             <p className="text-xs text-muted-foreground">
-              Planos concluídos
+              Taxa de sucesso ({metricas.planosConcluidos} concluídos)
             </p>
           </CardContent>
         </Card>
