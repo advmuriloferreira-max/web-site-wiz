@@ -54,8 +54,15 @@ export default function SuperendividamentoPlanos() {
     let fasesCalculadas: Fase[] = [];
     let parcelasAcumuladas = 0;
     
+    console.log('🔵 INICIANDO CÁLCULO DO PLANO');
+    console.log('Valor mensal total:', valorMensalTotal);
+    console.log('Dívidas para processar:', dividasProcessamento);
+    console.log('Total dívidas:', dividasProcessamento.reduce((sum, d) => sum + d.valor, 0));
+    
     while (dividasProcessamento.length > 0 && parcelasAcumuladas < 60) {
+      console.log(`\n🟢 ITERAÇÃO ${fasesCalculadas.length + 1} - Parcelas acumuladas: ${parcelasAcumuladas}`);
       const totalDividasAtivas = dividasProcessamento.reduce((sum, d) => sum + d.valor, 0);
+      console.log('Dívidas ativas:', dividasProcessamento.length, 'Total:', totalDividasAtivas);
       
       // Calcular parcelas proporcionais originais
       const distribuicaoBase = dividasProcessamento.map(divida => {
@@ -72,6 +79,7 @@ export default function SuperendividamentoPlanos() {
       // Encontrar quantas parcelas completas podemos fazer
       const menorParcelas = Math.min(...distribuicaoBase.map(d => d.parcelasNecessarias));
       const parcelasCompletas = Math.floor(menorParcelas);
+      console.log('Menor parcelas necessárias:', menorParcelas, 'Parcelas completas:', parcelasCompletas);
       
       if (parcelasCompletas > 0) {
         // FASE NORMAL - Parcelas completas com distribuição proporcional
@@ -100,12 +108,14 @@ export default function SuperendividamentoPlanos() {
         
         fasesCalculadas.push(faseNormal);
         parcelasAcumuladas += parcelasEfetivas;
+        console.log(`✅ FASE NORMAL ${faseNormal.numero} criada - ${parcelasEfetivas} parcelas`);
         
         // Atualizar dívidas ativas
         dividasProcessamento = dividasProcessamento.map(d => ({
           ...d,
           valor: distribuicaoNormal.find(dist => dist.credor === d.credor)?.saldoRestante || 0
         })).filter(d => d.valor > 0);
+        console.log('Dívidas restantes após fase normal:', dividasProcessamento.length);
       }
       
       // Verificar se precisa de fase de ajuste (quitação com sobra)
@@ -178,6 +188,7 @@ export default function SuperendividamentoPlanos() {
           
           fasesCalculadas.push(faseAjuste);
           parcelasAcumuladas += 1;
+          console.log(`✅ FASE AJUSTE ${faseAjuste.numero} criada - Quitando: ${credoresParaQuitar.map(c => c.credor).join(', ')}`);
           
           // Atualizar dívidas ativas
           dividasProcessamento = dividasProcessamento
@@ -186,10 +197,16 @@ export default function SuperendividamentoPlanos() {
               valor: distribuicaoAjuste.find(dist => dist.credor === d.credor)?.saldoRestante || 0
             }))
             .filter(d => d.valor > 0);
+          console.log('Dívidas restantes após ajuste:', dividasProcessamento.length);
+        } else {
+          console.log('⚠️ Nenhum credor para quitar, saindo do loop');
+          break; // Evitar loop infinito se não houver credores para quitar
         }
       }
     }
     
+    console.log(`\n🏁 CÁLCULO FINALIZADO - Total de fases: ${fasesCalculadas.length}`);
+    console.log('Parcelas totais:', parcelasAcumuladas);
     return fasesCalculadas;
   };
 
