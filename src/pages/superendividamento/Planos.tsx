@@ -229,20 +229,32 @@ export default function SuperendividamentoPlanos() {
   };
 
   const calcularPlano = () => {
+    console.log('🚀 BOTÃO CALCULAR CLICADO!');
+    console.log('Renda líquida:', rendaLiquida);
+    console.log('Dívidas totais:', dividas);
+    
     const dividasInclusas = dividas.filter(d => d.tipo === 'inclusa');
+    console.log('Dívidas inclusas:', dividasInclusas);
     
     if (rendaLiquida <= 0) {
+      console.log('❌ Renda líquida inválida');
       alert('Por favor, informe uma renda líquida válida.');
       return;
     }
     
     if (dividasInclusas.length === 0) {
+      console.log('❌ Nenhuma dívida inclusa');
       alert('Por favor, adicione pelo menos uma dívida para calcular o plano.');
       return;
     }
     
+    console.log('✅ Validações OK, chamando calcularPlanoCompleto...');
     const fasesCalculadas = calcularPlanoCompleto(dividas, rendaLiquida, percentualRenda);
+    console.log('📊 Fases calculadas:', fasesCalculadas);
+    console.log('📊 Número de fases:', fasesCalculadas.length);
+    
     setFases(fasesCalculadas);
+    console.log('✅ Estado atualizado com as fases');
   };
 
   const valorMensalTotal = rendaLiquida * (percentualRenda / 100);
