@@ -235,11 +235,133 @@ export default function PlanosPagamento() {
                       </div>
                     </div>
                   )}
-                </CardContent>
-              </Card>
+              </CardContent>
+            </Card>
 
-              <div className="space-y-4">
-                {resultado.fases.map((fase) => (
+            {/* QUADRO 1: ANÁLISE DOS PERCENTUAIS ATUAIS */}
+            <Card>
+              <CardHeader>
+                <CardTitle>1. Análise dos Percentuais Atuais</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Cada parcela mensal atual representa um percentual do encargo total
+                </p>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse border">
+                    <thead>
+                      <tr className="bg-muted/50">
+                        <th className="border p-3 text-left">Credor</th>
+                        <th className="border p-3 text-right">Parcela Atual</th>
+                        <th className="border p-3 text-right">Percentual</th>
+                        <th className="border p-3 text-left">Cálculo</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {contratos.map((contrato) => {
+                        const percentual = (contrato.parcelaMensalAtual / encargoMensalAtual) * 100;
+                        return (
+                          <tr key={contrato.id}>
+                            <td className="border p-3 font-medium">{contrato.credor}</td>
+                            <td className="border p-3 text-right">
+                              R$ {contrato.parcelaMensalAtual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                            </td>
+                            <td className="border p-3 text-right font-bold text-primary">
+                              {percentual.toFixed(2)}%
+                            </td>
+                            <td className="border p-3 text-sm text-muted-foreground">
+                              R$ {contrato.parcelaMensalAtual.toFixed(2)} ÷ R$ {encargoMensalAtual.toFixed(2)} × 100
+                            </td>
+                          </tr>
+                        );
+                      })}
+                      <tr className="bg-muted/50 font-bold">
+                        <td className="border p-3">TOTAL</td>
+                        <td className="border p-3 text-right">
+                          R$ {encargoMensalAtual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        </td>
+                        <td className="border p-3 text-right">100,00%</td>
+                        <td className="border p-3"></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* QUADRO 2: REDISTRIBUIÇÃO COM LIMITAÇÃO */}
+            <Card>
+              <CardHeader>
+                <CardTitle>2. Redistribuição com Limitação de {percentualRenda}% da Renda</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Mantendo os mesmos percentuais, mas limitando a {percentualRenda}% da renda líquida
+                </p>
+              </CardHeader>
+              <CardContent>
+                <div className="mb-4 p-4 bg-primary/10 rounded-lg">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                    <div>
+                      <div className="text-sm text-muted-foreground">Renda Líquida Mensal:</div>
+                      <div className="text-lg font-bold">R$ {rendaLiquida.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-muted-foreground">Limitação ({percentualRenda}%):</div>
+                      <div className="text-lg font-bold text-primary">R$ {valorMensalDisponivel.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-muted-foreground">Redução:</div>
+                      <div className="text-lg font-bold text-green-600 dark:text-green-400">
+                        {resultado.resumo.reducaoPercentual.toFixed(1)}%
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse border">
+                    <thead>
+                      <tr className="bg-muted/50">
+                        <th className="border p-3 text-left">Credor</th>
+                        <th className="border p-3 text-right">Percentual Mantido</th>
+                        <th className="border p-3 text-right">Nova Parcela</th>
+                        <th className="border p-3 text-left">Cálculo</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {contratos.map((contrato) => {
+                        const percentual = (contrato.parcelaMensalAtual / encargoMensalAtual) * 100;
+                        const novaParcela = (percentual / 100) * valorMensalDisponivel;
+                        return (
+                          <tr key={contrato.id}>
+                            <td className="border p-3 font-medium">{contrato.credor}</td>
+                            <td className="border p-3 text-right font-bold text-primary">
+                              {percentual.toFixed(2)}%
+                            </td>
+                            <td className="border p-3 text-right">
+                              R$ {novaParcela.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                            </td>
+                            <td className="border p-3 text-sm text-muted-foreground">
+                              {percentual.toFixed(2)}% × R$ {valorMensalDisponivel.toFixed(2)}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                      <tr className="bg-muted/50 font-bold">
+                        <td className="border p-3">TOTAL</td>
+                        <td className="border p-3 text-right">100,00%</td>
+                        <td className="border p-3 text-right">
+                          R$ {valorMensalDisponivel.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        </td>
+                        <td className="border p-3"></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+
+            <div className="space-y-4">
+              {resultado.fases.map((fase) => (
                   <Card key={fase.numeroFase}>
                     <CardHeader>
                       <CardTitle className="flex items-center justify-between">
