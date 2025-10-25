@@ -58,7 +58,13 @@ export default function PlanosPagamento() {
     if (fase.tipoFase === 'ajuste') {
       const credorQuitado = fase.calculos.find(c => c.quitado);
       const creditoresRestantes = fase.calculos.filter(c => !c.quitado);
-      const sobraTotal = credorQuitado ? credorQuitado.parcelaMensalAtual - credorQuitado.novaParcela : 0;
+      
+      // Pegar o valor da parcela que o credor pagava na fase anterior (já com 35% aplicado)
+      const parcelaAnterior = faseAnterior 
+        ? faseAnterior.calculos.find(c => c.credor === credorQuitado?.credor)?.novaParcela || 0
+        : 0;
+      
+      const sobraTotal = parcelaAnterior - (credorQuitado?.novaParcela || 0);
       const sobraPorCredor = creditoresRestantes.length > 0 ? sobraTotal / creditoresRestantes.length : 0;
 
       return (
@@ -82,8 +88,8 @@ export default function PlanosPagamento() {
               <div className="bg-card p-4 rounded border">
                 <div className="space-y-2">
                   <div className="flex justify-between">
-                    <span>Parcela proporcional anterior:</span>
-                    <span>R$ {credorQuitado?.parcelaMensalAtual.toFixed(2)}</span>
+                    <span>Parcela na fase anterior:</span>
+                    <span>R$ {parcelaAnterior.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Valor exato para quitação:</span>
