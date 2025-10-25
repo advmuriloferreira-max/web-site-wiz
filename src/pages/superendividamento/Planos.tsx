@@ -14,22 +14,22 @@ export default function PlanosPagamento() {
   const [percentualRenda, setPercentualRenda] = useState<number>(30);
   const [contratos, setContratos] = useState<Contrato[]>([]);
   const [novoCredor, setNovoCredor] = useState<string>("");
-  const [novoValor, setNovoValor] = useState<number>(0);
-  const [novaParcela, setNovaParcela] = useState<number>(0);
+  const [novoValorTotal, setNovoValorTotal] = useState<number>(0);
+  const [novaParcelaMensal, setNovaParcelaMensal] = useState<number>(0);
   const [resultado, setResultado] = useState<ResultadoPlano | null>(null);
 
   const adicionarContrato = () => {
-    if (novoCredor.trim() && novoValor > 0 && novaParcela > 0) {
+    if (novoCredor.trim() && novoValorTotal > 0 && novaParcelaMensal > 0) {
       const novoContrato: Contrato = {
         id: Date.now().toString(),
         credor: novoCredor.trim(),
-        valorTotalDivida: novoValor,
-        parcelaMensalAtual: novaParcela
+        valorTotalDivida: novoValorTotal,
+        parcelaMensalAtual: novaParcelaMensal
       };
       setContratos([...contratos, novoContrato]);
       setNovoCredor("");
-      setNovoValor(0);
-      setNovaParcela(0);
+      setNovoValorTotal(0);
+      setNovaParcelaMensal(0);
     }
   };
 
@@ -46,8 +46,8 @@ export default function PlanosPagamento() {
 
   const valorMensalDisponivel = rendaLiquida * (percentualRenda / 100);
   const totalDividas = contratos.reduce((soma, c) => soma + c.valorTotalDivida, 0);
-  const totalParcelasAtuais = contratos.reduce((soma, c) => soma + c.parcelaMensalAtual, 0);
-  const percentualAtual = rendaLiquida > 0 ? (totalParcelasAtuais / rendaLiquida) * 100 : 0;
+  const encargoMensalAtual = contratos.reduce((soma, c) => soma + c.parcelaMensalAtual, 0);
+  const percentualAtual = rendaLiquida > 0 ? (encargoMensalAtual / rendaLiquida) * 100 : 0;
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -97,14 +97,14 @@ export default function PlanosPagamento() {
                 </div>
               </div>
 
-              {totalParcelasAtuais > 0 && (
+              {encargoMensalAtual > 0 && (
                 <div className="bg-destructive/10 p-4 rounded-lg">
                   <div className="text-sm text-muted-foreground">Encargo atual:</div>
                   <div className="text-2xl font-bold text-destructive">
                     {percentualAtual.toFixed(1)}% da renda
                   </div>
                   <div className="text-sm text-muted-foreground mt-1">
-                    R$ {totalParcelasAtuais.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}/mês
+                    R$ {encargoMensalAtual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}/mês
                   </div>
                 </div>
               )}
@@ -114,9 +114,12 @@ export default function PlanosPagamento() {
           <Card>
             <CardHeader>
               <CardTitle>Contratos do Cliente</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Adicione cada contrato com o valor total da dívida e a parcela mensal atual
+              </p>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                 <Input
                   placeholder="Nome do credor"
                   value={novoCredor}
@@ -125,31 +128,32 @@ export default function PlanosPagamento() {
                 <Input
                   type="number"
                   placeholder="Valor total da dívida"
-                  value={novoValor || ""}
-                  onChange={(e) => setNovoValor(Number(e.target.value))}
+                  value={novoValorTotal || ""}
+                  onChange={(e) => setNovoValorTotal(Number(e.target.value))}
                 />
                 <Input
                   type="number"
                   placeholder="Parcela mensal atual"
-                  value={novaParcela || ""}
-                  onChange={(e) => setNovaParcela(Number(e.target.value))}
+                  value={novaParcelaMensal || ""}
+                  onChange={(e) => setNovaParcelaMensal(Number(e.target.value))}
                 />
-                <Button onClick={adicionarContrato} className="w-full">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Adicionar Contrato
-                </Button>
               </div>
+              
+              <Button onClick={adicionarContrato} className="w-full" size="sm">
+                <Plus className="h-4 w-4 mr-2" />
+                Adicionar Contrato
+              </Button>
               
               <div className="space-y-2">
                 {contratos.map((contrato) => (
                   <div key={contrato.id} className="flex items-center justify-between p-3 border rounded-lg">
-                    <div>
+                    <div className="flex-1">
                       <div className="font-medium">{contrato.credor}</div>
                       <div className="text-sm text-muted-foreground">
                         Dívida: R$ {contrato.valorTotalDivida.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                       </div>
                       <div className="text-sm text-muted-foreground">
-                        Parcela atual: R$ {contrato.parcelaMensalAtual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        Parcela: R$ {contrato.parcelaMensalAtual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                       </div>
                     </div>
                     <Button variant="ghost" size="sm" onClick={() => removerContrato(contrato.id)}>
@@ -159,11 +163,20 @@ export default function PlanosPagamento() {
                 ))}
               </div>
               
-              {totalDividas > 0 && (
-                <div className="bg-muted p-4 rounded-lg">
-                  <div className="text-sm text-muted-foreground">Total de dívidas:</div>
-                  <div className="text-xl font-bold">
-                    R$ {totalDividas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              {contratos.length > 0 && (
+                <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                  <div className="bg-primary/10 p-3 rounded-lg">
+                    <div className="text-sm text-muted-foreground">Total de Dívidas:</div>
+                    <div className="text-lg font-bold text-primary">
+                      R$ {totalDividas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </div>
+                  </div>
+                  
+                  <div className="bg-destructive/10 p-3 rounded-lg">
+                    <div className="text-sm text-muted-foreground">Encargo Mensal Atual:</div>
+                    <div className="text-lg font-bold text-destructive">
+                      R$ {encargoMensalAtual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </div>
                   </div>
                 </div>
               )}
