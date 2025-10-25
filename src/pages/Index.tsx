@@ -1,6 +1,8 @@
 import { Suspense, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useContratosStats } from "@/hooks/useContratos";
+import { useClientes } from "@/hooks/useClientes";
+import { useAuth } from "@/hooks/useAuth";
 import { ResponsiveGrid, AdaptiveCard } from "@/components/ui/responsive-grid";
 import { HeroSection } from "@/components/dashboard/HeroSection";
 import { PremiumStatsCard } from "@/components/dashboard/PremiumStatsCard";
@@ -21,6 +23,9 @@ import { AnimatedCounter } from "@/components/ui/animated-counter";
 import { GlassCard } from "@/components/ui/glassmorphism";
 import { GradientBackground, GradientText } from "@/components/ui/gradient-elements";
 import { LoadingIllustration } from "@/components/ui/premium-illustrations";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -28,12 +33,56 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LegalIcons } from "@/components/ui/legal-icons";
 import { BCBComplianceBadge } from "@/components/ui/legal-compliance-badge";
-import { Calculator, TrendingUp, AlertCircle } from "lucide-react";
+import { Calculator, TrendingUp, AlertCircle, AlertTriangle, Calendar, Users as UsersIcon } from "lucide-react";
 
 function DashboardContent() {
+  const { usuarioEscritorio } = useAuth();
   const { data: stats, isLoading, error } = useContratosStats();
+  const { data: clientes = [] } = useClientes();
   const [selectedClienteId, setSelectedClienteId] = useState<string | null>(null);
   const navigate = useNavigate();
+
+  const escritorio = usuarioEscritorio?.escritorio;
+  const totalContratos = stats?.totalContratos || 0;
+  const totalClientes = clientes.length;
+
+  // Calcular status e alertas do plano
+  const getPlanoStatus = () => {
+    if (!escritorio) return null;
+    
+    const dataVencimento = new Date(escritorio.data_vencimento);
+    const hoje = new Date();
+    const diasRestantes = Math.ceil((dataVencimento.getTime() - hoje.getTime()) / (1000 * 60 * 60 * 24));
+    const isExpired = diasRestantes < 0;
+    const isTrial = diasRestantes <= 30 && diasRestantes >= 0;
+
+    const percentualClientes = (totalClientes / (escritorio.limite_clientes || 1)) * 100;
+    const percentualContratos = (totalContratos / (escritorio.limite_contratos || 1)) * 100;
+
+    const alertas = [];
+    if (isExpired) {
+      alertas.push({ tipo: 'critico', mensagem: 'Plano vencido! Regularize para continuar usando.' });
+    } else if (isTrial && diasRestantes <= 7) {
+      alertas.push({ tipo: 'warning', mensagem: `Trial expira em ${diasRestantes} dias` });
+    }
+    if (percentualClientes >= 90) {
+      alertas.push({ tipo: 'warning', mensagem: `${percentualClientes.toFixed(0)}% do limite de clientes atingido` });
+    }
+    if (percentualContratos >= 90) {
+      alertas.push({ tipo: 'warning', mensagem: `${percentualContratos.toFixed(0)}% do limite de contratos atingido` });
+    }
+
+    return {
+      isExpired,
+      isTrial,
+      diasRestantes,
+      percentualClientes,
+      percentualContratos,
+      alertas,
+    };
+  };
+
+  const planoStatus = getPlanoStatus();
 
   const { ProgressBarComponent } = useProgressBar(isLoading, {
     label: "Carregando dados do dashboard...",
@@ -89,6 +138,84 @@ function DashboardContent() {
     <GradientBackground variant="subtle" className="min-h-screen">
       <div className="container mx-auto space-y-8 animate-fade-in">
         <ProgressBarComponent />
+
+        {/* Status do Escritório e Alertas */}
+        {escritorio && planoStatus && (
+          <EntranceAnimation animation="fade" delay={50}>
+            <div className="px-4 md:px-6 space-y-4">
+              {/* Card de Status do Escritório */}
+              <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-accent/5">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-lg">{escritorio.nome}</CardTitle>
+                      <CardDescription className="flex items-center gap-2 mt-1">
+                        <Badge variant="outline" className="uppercase font-bold">
+                          {escritorio.plano}
+                        </Badge>
+                        {planoStatus.isExpired ? (
+                          <Badge variant="destructive">VENCIDO</Badge>
+                        ) : planoStatus.isTrial ? (
+                          <Badge variant="secondary" className="bg-warning/20 text-warning">
+                            TRIAL - {planoStatus.diasRestantes} dias
+                          </Badge>
+                        ) : (
+                          <Badge variant="secondary" className="bg-success/20 text-success">ATIVO</Badge>
+                        )}
+                      </CardDescription>
+                    </div>
+                    {!planoStatus.isExpired && (
+                      <div className="text-right">
+                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                          <Calendar className="h-4 w-4" />
+                          <span>Expira em {planoStatus.diasRestantes} dias</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {/* Limites de Uso */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground flex items-center gap-2">
+                          <UsersIcon className="h-4 w-4" />
+                          Clientes
+                        </span>
+                        <span className="font-medium">{totalClientes} / {escritorio.limite_clientes}</span>
+                      </div>
+                      <Progress value={planoStatus.percentualClientes} className="h-2" />
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground flex items-center gap-2">
+                          <LegalIcons.contract className="h-4 w-4" />
+                          Contratos
+                        </span>
+                        <span className="font-medium">{totalContratos} / {escritorio.limite_contratos}</span>
+                      </div>
+                      <Progress value={planoStatus.percentualContratos} className="h-2" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Alertas */}
+              {planoStatus.alertas.length > 0 && (
+                <div className="space-y-2">
+                  {planoStatus.alertas.map((alerta, idx) => (
+                    <Alert key={idx} variant={alerta.tipo === 'critico' ? 'destructive' : 'default'}>
+                      <AlertTriangle className="h-4 w-4" />
+                      <AlertTitle>{alerta.tipo === 'critico' ? 'Atenção Crítica' : 'Aviso'}</AlertTitle>
+                      <AlertDescription>{alerta.mensagem}</AlertDescription>
+                    </Alert>
+                  ))}
+                </div>
+              )}
+            </div>
+          </EntranceAnimation>
+        )}
 
         {/* Hero Section - Seção Principal */}
         <EntranceAnimation animation="fade" delay={100}>
