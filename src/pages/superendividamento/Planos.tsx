@@ -54,17 +54,23 @@ export default function PlanosPagamento() {
   const percentualAtual = rendaLiquida > 0 ? (encargoMensalAtual / rendaLiquida) * 100 : 0;
 
   function gerarExplicacaoRedistribuicao(fase: FasePagamento, faseAnterior?: FasePagamento): JSX.Element | null {
-    // Fase de ajuste - explicar redistribuição do credor sendo quitado
+    // Fase de ajuste - explicar a quitação exata e redistribuição da sobra
     if (fase.tipoFase === 'ajuste') {
       const credorQuitado = fase.calculos.find(c => c.quitado);
       const creditoresRestantes = fase.calculos.filter(c => !c.quitado);
       
-      // Pegar o valor da parcela que o credor pagava na fase anterior (já com 35% aplicado)
-      const parcelaAnterior = faseAnterior 
-        ? faseAnterior.calculos.find(c => c.credor === credorQuitado?.credor)?.novaParcela || 0
-        : 0;
+      if (!credorQuitado || !faseAnterior) return null;
       
-      const sobraTotal = parcelaAnterior - (credorQuitado?.novaParcela || 0);
+      // Buscar o valor que esse credor estava pagando na fase imediatamente anterior
+      const calculoAnterior = faseAnterior.calculos.find(c => c.credor === credorQuitado.credor);
+      const parcelaAnterior = calculoAnterior?.novaParcela || 0;
+      const saldoAnterior = calculoAnterior?.saldoRemanescente || 0;
+      
+      // Valor exato para quitação (saldo remanescente da fase anterior)
+      const valorQuitacao = credorQuitado.novaParcela;
+      
+      // Sobra = diferença entre o que pagava e o que precisa pagar para quitar
+      const sobraTotal = parcelaAnterior - valorQuitacao;
       const sobraPorCredor = creditoresRestantes.length > 0 ? sobraTotal / creditoresRestantes.length : 0;
 
       return (
@@ -72,57 +78,71 @@ export default function PlanosPagamento() {
           <CardHeader>
             <CardTitle className="text-yellow-600 dark:text-yellow-400 flex items-center">
               <AlertCircle className="h-5 w-5 mr-2" />
-              Explicação da Redistribuição - Fase {fase.numeroFase}
+              Explicação da Fase de Ajuste - Fase {fase.numeroFase}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="text-sm">
-              <h4 className="font-semibold mb-2">Por que esta fase de ajuste é necessária?</h4>
+              <h4 className="font-semibold mb-2">🎯 Por que esta fase de ajuste é necessária?</h4>
               <p className="mb-3">
-                O credor <strong>{credorQuitado?.credor}</strong> possui saldo remanescente de 
-                <strong> R$ {credorQuitado?.novaParcela.toFixed(2)}</strong>, que é menor que sua parcela 
-                proporcional calculada anteriormente.
+                Na fase anterior, o credor <strong>{credorQuitado.credor}</strong> tinha saldo remanescente 
+                de <strong>R$ {saldoAnterior.toFixed(2)}</strong>, que é menor que sua parcela mensal 
+                de <strong>R$ {parcelaAnterior.toFixed(2)}</strong>. Portanto, não podemos cobrar a parcela completa 
+                (seria pagar a mais), então fazemos uma <strong>fase de ajuste de 1 mês</strong> para quitar com valor exato.
               </p>
               
-              <h4 className="font-semibold mb-2">Como é feita a redistribuição?</h4>
+              <h4 className="font-semibold mb-2">💰 Cálculo da Quitação Exata</h4>
               <div className="bg-card p-4 rounded border">
                 <div className="space-y-2">
                   <div className="flex justify-between">
-                    <span>Parcela na fase anterior:</span>
-                    <span>R$ {parcelaAnterior.toFixed(2)}</span>
+                    <span>Saldo remanescente na fase anterior:</span>
+                    <span className="font-semibold">R$ {saldoAnterior.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Valor exato para quitação:</span>
-                    <span>R$ {credorQuitado?.novaParcela.toFixed(2)}</span>
+                    <span>Parcela que estava pagando:</span>
+                    <span>R$ {parcelaAnterior.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between border-t pt-2 font-semibold">
-                    <span>Sobra a ser redistribuída:</span>
-                    <span>R$ {sobraTotal.toFixed(2)}</span>
+                  <div className="flex justify-between border-t pt-2 font-bold text-green-600 dark:text-green-400">
+                    <span>Valor EXATO para quitação nesta fase:</span>
+                    <span>R$ {valorQuitacao.toFixed(2)}</span>
                   </div>
                 </div>
               </div>
               
-              <h4 className="font-semibold mb-2 mt-4">Divisão igualitária da sobra:</h4>
+              <h4 className="font-semibold mb-2 mt-4">↔️ Redistribuição Igualitária da Sobra</h4>
+              <p className="mb-2">
+                Como o credor <strong>{credorQuitado.credor}</strong> não usará toda sua parcela mensal, 
+                a diferença (sobra) é redistribuída <strong>igualmente</strong> entre os credores restantes:
+              </p>
               <div className="bg-card p-4 rounded border">
                 <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span>Sobra total:</span>
+                  <div className="flex justify-between text-sm">
+                    <span>Parcela anterior do credor:</span>
+                    <span>R$ {parcelaAnterior.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span>(-) Valor para quitação:</span>
+                    <span>R$ {valorQuitacao.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between border-t pt-2 font-semibold text-primary">
+                    <span>(=) Sobra total a redistribuir:</span>
                     <span>R$ {sobraTotal.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Credores restantes:</span>
+                  <div className="flex justify-between text-sm mt-2 pt-2 border-t">
+                    <span>Número de credores restantes:</span>
                     <span>{creditoresRestantes.length}</span>
                   </div>
-                  <div className="flex justify-between border-t pt-2 font-semibold">
+                  <div className="flex justify-between font-bold text-lg text-primary">
                     <span>Sobra por credor:</span>
                     <span>R$ {sobraPorCredor.toFixed(2)}</span>
                   </div>
                 </div>
               </div>
               
-              <div className="mt-4 p-3 bg-primary/10 rounded">
-                <strong>Resultado:</strong> Cada credor restante recebe sua parcela proporcional 
-                + R$ {sobraPorCredor.toFixed(2)} da redistribuição igualitária.
+              <div className="mt-4 p-3 bg-primary/10 rounded border border-primary/20">
+                <strong>✅ Resultado:</strong> Nesta fase de ajuste, <strong>{credorQuitado.credor}</strong> recebe 
+                exatamente R$ {valorQuitacao.toFixed(2)} e é quitado. Cada um dos {creditoresRestantes.length} credores 
+                restantes paga sua parcela proporcional <strong>+ R$ {sobraPorCredor.toFixed(2)}</strong> da redistribuição.
               </div>
             </div>
           </CardContent>
@@ -130,62 +150,56 @@ export default function PlanosPagamento() {
       );
     }
     
-    // Fase normal após quitações - explicar redistribuição igualitária
-    if (fase.tipoFase === 'normal' && faseAnterior && faseAnterior.creditoresQuitados.length > 0) {
-      const creditoresQuitados = faseAnterior.creditoresQuitados;
+    // Fase normal após quitações - explicar recálculo de proporções
+    if (fase.tipoFase === 'normal' && fase.numeroFase > 1 && resultado) {
+      // Verificar se houve quitações recentemente
+      let houveQuitacaoRecente = false;
+      if (faseAnterior && faseAnterior.creditoresQuitados && faseAnterior.creditoresQuitados.length > 0) {
+        houveQuitacaoRecente = true;
+      }
+      
+      if (!houveQuitacaoRecente) return null;
+      
+      const creditoresQuitados = faseAnterior?.creditoresQuitados || [];
       const creditoresAtuais = fase.calculos.filter(c => !c.quitado);
       
-      // Calcular quanto cada credor quitado pagava na fase anterior
-      const totalRedistribuido = creditoresQuitados.reduce((total, credor) => {
-        const calculoAnterior = faseAnterior.calculos.find(c => c.credor === credor);
-        return total + (calculoAnterior?.novaParcela || 0);
-      }, 0);
-      
-      const redistribuidoPorCredor = creditoresAtuais.length > 0 ? totalRedistribuido / creditoresAtuais.length : 0;
-      
       return (
-        <Card className="mt-4 bg-green-500/10 border-green-500/20">
+        <Card className="mt-4 bg-blue-500/10 border-blue-500/20">
           <CardHeader>
-            <CardTitle className="text-green-600 dark:text-green-400 flex items-center">
-              ♻️ Redistribuição Igualitária - Fase {fase.numeroFase}
+            <CardTitle className="text-blue-600 dark:text-blue-400 flex items-center">
+              🔄 Recálculo de Proporções - Fase {fase.numeroFase}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="text-sm">
               <p className="mb-3">
-                Com a quitação de <strong>{creditoresQuitados.join(', ')}</strong> na fase anterior, 
-                o valor que era destinado a {creditoresQuitados.length > 1 ? 'eles' : 'ele'} 
-                (R$ {totalRedistribuido.toFixed(2)}) é redistribuído <strong>igualitariamente</strong> entre 
-                os {creditoresAtuais.length} credores restantes.
+                Após a quitação de <strong>{creditoresQuitados.join(', ')}</strong>, 
+                o plano continua apenas com os <strong>{creditoresAtuais.length} credores restantes</strong>. 
+                O valor mensal disponível total (R$ {valorMensalDisponivel.toFixed(2)}) agora é redistribuído 
+                entre eles, <strong>recalculando as proporções</strong> baseadas nas parcelas mensais atuais 
+                de cada credor restante.
               </p>
               
               <div className="bg-card p-4 rounded border">
+                <h4 className="font-semibold mb-3">📊 Novas Parcelas (Fase Normal):</h4>
                 <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span>Valor total redistribuído:</span>
-                    <span>R$ {totalRedistribuido.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Credores restantes:</span>
-                    <span>{creditoresAtuais.length}</span>
-                  </div>
-                  <div className="flex justify-between border-t pt-2 font-semibold">
-                    <span>Valor por credor:</span>
-                    <span>R$ {redistribuidoPorCredor.toFixed(2)}</span>
+                  {creditoresAtuais.map(c => (
+                    <div key={c.credor} className="flex justify-between text-sm pb-2 border-b last:border-0">
+                      <span className="font-medium">{c.credor}</span>
+                      <span className="font-semibold text-primary">R$ {c.novaParcela.toFixed(2)}</span>
+                    </div>
+                  ))}
+                  <div className="flex justify-between pt-2 border-t-2 font-bold">
+                    <span>Total Mensal:</span>
+                    <span>R$ {valorMensalDisponivel.toFixed(2)}</span>
                   </div>
                 </div>
               </div>
               
-              <div className="mt-4">
-                <h4 className="font-semibold mb-2">Novas parcelas mensais:</h4>
-                <div className="bg-card p-4 rounded border space-y-1">
-                  {creditoresAtuais.map(c => (
-                    <div key={c.credor} className="flex justify-between text-sm">
-                      <span>{c.credor}:</span>
-                      <span className="font-medium">R$ {c.novaParcela.toFixed(2)}</span>
-                    </div>
-                  ))}
-                </div>
+              <div className="mt-4 p-3 bg-primary/10 rounded border border-primary/20">
+                <strong>📌 Metodologia:</strong> Após cada quitação, as proporções são recalculadas considerando 
+                apenas os credores ativos, mantendo o total mensal igual ao limite estabelecido 
+                ({percentualRenda}% da renda líquida).
               </div>
             </div>
           </CardContent>
