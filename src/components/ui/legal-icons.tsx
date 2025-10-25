@@ -35,7 +35,8 @@ import {
   Mail,
   MapPin,
   Calendar,
-  DollarSign
+  DollarSign,
+  LogOut
 } from "lucide-react";
 
 // Mapeamento de ícones jurídicos
@@ -81,6 +82,7 @@ export const LegalIcons = {
   close: X,                // Fechar
   confirm: Check,          // Confirmar
   filter: Filter,          // Filtrar
+  logout: LogOut,          // Sair
   
   // Navegação
   expand: ChevronDown,     // Expandir

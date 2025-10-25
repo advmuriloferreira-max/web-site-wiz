@@ -53,11 +53,24 @@ const adminItems = [
 
 export function AppSidebar() {
   const { state, toggleSidebar } = useSidebar();
-  const { profile, usuarioEscritorio } = useAuth();
+  const { profile, usuarioEscritorio, signOut } = useAuth();
   const location = useLocation();
   const currentPath = location.pathname;
   const isCollapsed = state === "collapsed";
   const isAdmin = usuarioEscritorio?.permissoes?.admin || profile?.role === 'admin';
+
+  const escritorio = usuarioEscritorio?.escritorio;
+  const getStatusBadge = () => {
+    if (!escritorio) return null;
+    const dataVencimento = new Date(escritorio.data_vencimento);
+    const hoje = new Date();
+    const isExpired = dataVencimento < hoje;
+    const isTrial = (dataVencimento.getTime() - hoje.getTime()) / (1000 * 60 * 60 * 24) <= 30;
+
+    if (isExpired) return { label: 'VENCIDO', color: 'bg-destructive' };
+    if (isTrial) return { label: 'TRIAL', color: 'bg-warning' };
+    return { label: 'ATIVO', color: 'bg-success' };
+  };
 
   const isActive = (path: string) => currentPath === path;
   
@@ -276,6 +289,27 @@ export function AppSidebar() {
           )}
           </div>
 
+          {/* Escritório Info */}
+          {escritorio && !isCollapsed && (
+            <div className="mb-3 p-3 rounded-lg bg-sidebar-primary/10 border border-sidebar-primary/20">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-sidebar-foreground/70">Escritório</span>
+                  <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0 font-bold", getStatusBadge()?.color)}>
+                    {getStatusBadge()?.label}
+                  </Badge>
+                </div>
+                <p className="text-sm font-black text-sidebar-foreground truncate">
+                  {escritorio.nome}
+                </p>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-sidebar-foreground/70 font-semibold">Plano</span>
+                  <span className="text-sidebar-foreground font-bold uppercase">{escritorio.plano}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* User Profile Compacto */}
           {profile && (
             <div className={cn(
@@ -293,14 +327,14 @@ export function AppSidebar() {
                     {profile.nome}
                   </p>
                   <p className="text-xs text-sidebar-foreground/70 truncate font-extrabold">
-                    Usuário Autorizado
+                    {usuarioEscritorio?.cargo || 'Usuário Autorizado'}
                   </p>
                 </div>
               )}
             </div>
           )}
 
-          {/* Configurações Compacto */}
+          {/* Ações - Configurações e Logout */}
           <div className="flex items-center gap-1 mt-2">
             <Tooltip>
               <TooltipTrigger asChild>
@@ -318,6 +352,23 @@ export function AppSidebar() {
               </TooltipTrigger>
               <TooltipContent side="right" className="text-xs">
                 Configurações
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={signOut}
+                  className="flex-1 text-sidebar-foreground/80 hover:text-destructive hover:bg-destructive/10 transition-colors duration-200 h-8 font-extrabold"
+                >
+                  <LegalIcons.logout className="h-4 w-4" />
+                  {!isCollapsed && <span className="ml-2 text-xs font-extrabold">Sair</span>}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="right" className="text-xs">
+                Sair do Sistema
               </TooltipContent>
             </Tooltip>
           </div>
