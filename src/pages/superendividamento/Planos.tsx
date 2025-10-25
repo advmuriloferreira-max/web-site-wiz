@@ -678,7 +678,41 @@ export default function PlanosPagamento() {
                             </div>
                             
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-...
+                              <div>
+                                <div className="text-muted-foreground">Parcela Mensal:</div>
+                                <div className="font-medium">
+                                  R$ {calculo.novaParcela.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                </div>
+                              </div>
+                              
+                              <div>
+                                <div className="text-muted-foreground">Valor Pago na Fase:</div>
+                                <div className="font-medium">
+                                  R$ {calculo.valorPago.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                </div>
+                              </div>
+                              
+                              <div>
+                                <div className="text-muted-foreground">Saldo Remanescente:</div>
+                                <div className="font-medium">
+                                  R$ {calculo.saldoRemanescente.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                </div>
+                              </div>
+                              
+                              <div>
+                                <div className="text-muted-foreground">Percentual:</div>
+                                <div className="font-medium">
+                                  {calculo.novoPercentual.toFixed(2)}%
+                                </div>
+                              </div>
+                              
+                              {calculo.sobraRecebida && (
+                                <div className="col-span-2 md:col-span-4 bg-yellow-500/10 p-2 rounded">
+                                  <div className="text-xs text-yellow-600 dark:text-yellow-400">
+                                    + R$ {calculo.sobraRecebida.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} (redistribuição)
+                                  </div>
+                                </div>
+                              )}
                             </div>
                           </div>
                         ))}
