@@ -333,10 +333,25 @@ export default function AdminDashboard() {
       {/* Ações Rápidas */}
       <div>
         <h2 className="text-xl font-semibold mb-4">Ações Rápidas</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card 
             className="cursor-pointer hover:shadow-lg hover:border-primary/50 transition-all"
-            onClick={() => navigate('/configuracoes/escritorio')}
+            onClick={() => navigate('/app/admin/system-check')}
+          >
+            <CardContent className="p-6 text-center">
+              <div className="p-4 bg-cyan-100 dark:bg-cyan-950/30 rounded-full w-fit mx-auto mb-4">
+                <FileText className="h-8 w-8 text-cyan-600" />
+              </div>
+              <h3 className="font-semibold mb-2 text-lg">Verificação do Sistema</h3>
+              <p className="text-sm text-muted-foreground">
+                Diagnóstico completo do isolamento multi-tenant e RLS
+              </p>
+            </CardContent>
+          </Card>
+          
+          <Card 
+            className="cursor-pointer hover:shadow-lg hover:border-primary/50 transition-all"
+            onClick={() => navigate('/app/configuracoes/escritorio')}
           >
             <CardContent className="p-6 text-center">
               <div className="p-4 bg-blue-100 dark:bg-blue-950/30 rounded-full w-fit mx-auto mb-4">
@@ -351,7 +366,7 @@ export default function AdminDashboard() {
 
           <Card 
             className="cursor-pointer hover:shadow-lg hover:border-primary/50 transition-all"
-            onClick={() => navigate('/configuracoes/escritorio')}
+            onClick={() => navigate('/app/configuracoes/escritorio')}
           >
             <CardContent className="p-6 text-center">
               <div className="p-4 bg-green-100 dark:bg-green-950/30 rounded-full w-fit mx-auto mb-4">
@@ -366,7 +381,7 @@ export default function AdminDashboard() {
 
           <Card 
             className="cursor-pointer hover:shadow-lg hover:border-primary/50 transition-all"
-            onClick={() => navigate('/configuracoes')}
+            onClick={() => navigate('/app/configuracoes')}
           >
             <CardContent className="p-6 text-center">
               <div className="p-4 bg-purple-100 dark:bg-purple-950/30 rounded-full w-fit mx-auto mb-4">

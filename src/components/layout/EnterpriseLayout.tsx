@@ -52,6 +52,7 @@ import SuperendividamentoPlanos from "@/pages/superendividamento/Planos";
 import GerenciarEscritorio from "@/pages/configuracoes/GerenciarEscritorio";
 import AdminDashboard from "@/pages/admin/Dashboard";
 import SuperendividamentoCalculadora from "@/pages/superendividamento/Calculadora";
+import SystemCheckPage from "@/pages/admin/SystemCheck";
 
 export function EnterpriseLayout() {
   const [searchOpen, setSearchOpen] = useState(false);
@@ -172,7 +173,16 @@ export function EnterpriseLayout() {
                         <AdminDashboard />
                       </ProtectedRoute>
                     } />
-                    <Route path="/admin/importar-series-bacen" element={<ImportarSeriesBacen />} />
+                    <Route path="/admin/importar-series-bacen" element={
+                      <ProtectedRoute requireAdmin>
+                        <ImportarSeriesBacen />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/admin/system-check" element={
+                      <ProtectedRoute requireAdmin>
+                        <SystemCheckPage />
+                      </ProtectedRoute>
+                    } />
                     <Route path="/superendividamento" element={<SuperendividamentoDashboard />} />
                     <Route path="/superendividamento/clientes" element={<SuperendividamentoClientes />} />
                     <Route path="/superendividamento/analise" element={<SuperendividamentoAnalise />} />
