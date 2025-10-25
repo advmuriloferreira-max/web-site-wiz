@@ -9,20 +9,20 @@ export function calcularPlanoCompleto(
   // 1. Calcular encargo mensal total ATUAL
   const encargoMensalAtual = contratos.reduce((total, c) => total + c.parcelaMensalAtual, 0);
   
-  // 2. Calcular novo valor mensal limitado
-  const novoEncargoMensal = rendaLiquida * (percentualRenda / 100);
+  // 2. Calcular novo valor mensal limitado (2 casas decimais)
+  const novoEncargoMensal = Math.round(rendaLiquida * (percentualRenda / 100) * 100) / 100;
   
   // 3. Calcular percentual de cada parcela atual
   const contratosComPercentual = contratos.map(contrato => ({
     ...contrato,
-    percentualAtual: (contrato.parcelaMensalAtual / encargoMensalAtual) * 100,
-    saldoAtual: contrato.valorTotalDivida
+    percentualAtual: Math.round((contrato.parcelaMensalAtual / encargoMensalAtual) * 100 * 100) / 100,
+    saldoAtual: Math.round(contrato.valorTotalDivida * 100) / 100
   }));
   
-  // 4. Calcular novas parcelas proporcionais
+  // 4. Calcular novas parcelas proporcionais (2 casas decimais)
   let contratosAtivos = contratosComPercentual.map(c => ({
     ...c,
-    novaParcela: (c.percentualAtual / 100) * novoEncargoMensal
+    novaParcela: Math.round((c.percentualAtual / 100) * novoEncargoMensal * 100) / 100
   }));
   
   const fases: FasePagamento[] = [];
@@ -52,17 +52,17 @@ export function calcularPlanoCompleto(
       break;
     }
     
-    // 7. Calcular o que cada um paga nesta fase
+    // 7. Calcular o que cada um paga nesta fase (2 casas decimais)
     const calculosFase: CalculoFase[] = prazosQuitacao.map(c => {
-      const valorPago = c.novaParcela * duracaoFase;
-      const novoSaldo = Math.max(0, c.saldoAtual - valorPago);
+      const valorPago = Math.round(c.novaParcela * duracaoFase * 100) / 100;
+      const novoSaldo = Math.round(Math.max(0, c.saldoAtual - valorPago) * 100) / 100;
       
       return {
         credor: c.credor,
-        parcelaMensalAtual: c.parcelaMensalAtual,
-        percentualAtual: c.percentualAtual,
-        novaParcela: c.novaParcela,
-        novoPercentual: (c.novaParcela / novoEncargoMensal) * 100,
+        parcelaMensalAtual: Math.round(c.parcelaMensalAtual * 100) / 100,
+        percentualAtual: Math.round(c.percentualAtual * 100) / 100,
+        novaParcela: Math.round(c.novaParcela * 100) / 100,
+        novoPercentual: Math.round((c.novaParcela / novoEncargoMensal) * 100 * 100) / 100,
         valorPago: valorPago,
         saldoRemanescente: novoSaldo,
         quitado: novoSaldo === 0
@@ -88,13 +88,15 @@ export function calcularPlanoCompleto(
     );
     
     if (contratoComSaldoMenor) {
-      // Precisa de uma fase de ajuste
-      const valorExato = contratoComSaldoMenor.saldoRemanescente;
-      const sobra = contratoComSaldoMenor.novaParcela - valorExato;
+      // Precisa de uma fase de ajuste (2 casas decimais)
+      const valorExato = Math.round(contratoComSaldoMenor.saldoRemanescente * 100) / 100;
+      const sobra = Math.round((contratoComSaldoMenor.novaParcela - valorExato) * 100) / 100;
       const contratosRestantes = calculosFase.filter(c => 
         !c.quitado && c.credor !== contratoComSaldoMenor.credor
       );
-      const sobraPorContrato = contratosRestantes.length > 0 ? sobra / contratosRestantes.length : 0;
+      const sobraPorContrato = contratosRestantes.length > 0 
+        ? Math.round((sobra / contratosRestantes.length) * 100) / 100 
+        : 0;
       
       const calculosAjuste: CalculoFase[] = calculosFase.map(c => {
         if (c.credor === contratoComSaldoMenor.credor) {
@@ -106,13 +108,14 @@ export function calcularPlanoCompleto(
             quitado: true
           };
         } else if (!c.quitado) {
-          const novaParcelaComSobra = c.novaParcela + sobraPorContrato;
+          const novaParcelaComSobra = Math.round((c.novaParcela + sobraPorContrato) * 100) / 100;
+          const novoSaldoAjuste = Math.round(Math.max(0, c.saldoRemanescente - novaParcelaComSobra) * 100) / 100;
           return {
             ...c,
             novaParcela: novaParcelaComSobra,
             sobraRecebida: sobraPorContrato,
             valorPago: novaParcelaComSobra,
-            saldoRemanescente: Math.max(0, c.saldoRemanescente - novaParcelaComSobra)
+            saldoRemanescente: novoSaldoAjuste
           };
         }
         return c;
@@ -154,26 +157,30 @@ export function calcularPlanoCompleto(
         });
     }
     
-    // 10. Recalcular percentuais para próxima fase se ainda há contratos
+    // 10. Recalcular percentuais para próxima fase se ainda há contratos (2 casas decimais)
     if (contratosAtivos.length > 0) {
       const totalParcelasRestantes = contratosAtivos.reduce((total, c) => total + c.novaParcela, 0);
       contratosAtivos = contratosAtivos.map(c => ({
         ...c,
-        percentualAtual: totalParcelasRestantes > 0 ? (c.novaParcela / totalParcelasRestantes) * 100 : 0,
-        novaParcela: totalParcelasRestantes > 0 ? (c.novaParcela / totalParcelasRestantes) * novoEncargoMensal : 0
+        percentualAtual: totalParcelasRestantes > 0 
+          ? Math.round((c.novaParcela / totalParcelasRestantes) * 100 * 100) / 100 
+          : 0,
+        novaParcela: totalParcelasRestantes > 0 
+          ? Math.round((c.novaParcela / totalParcelasRestantes) * novoEncargoMensal * 100) / 100 
+          : 0
       }));
     }
   }
   
   const totalMeses = fases.reduce((total, fase) => total + fase.duracaoMeses, 0);
-  const reducaoPercentual = ((encargoMensalAtual - novoEncargoMensal) / encargoMensalAtual) * 100;
+  const reducaoPercentual = Math.round(((encargoMensalAtual - novoEncargoMensal) / encargoMensalAtual) * 100 * 100) / 100;
   
-  // Calcular dívidas impagáveis
+  // Calcular dívidas impagáveis (2 casas decimais)
   const dividasImpagaveis = contratosAtivos.length > 0 ? contratosAtivos.map(c => ({
     credor: c.credor,
-    saldoImpagavel: c.saldoAtual,
-    valorTotalOriginal: c.valorTotalDivida,
-    percentualQuitado: ((c.valorTotalDivida - c.saldoAtual) / c.valorTotalDivida) * 100
+    saldoImpagavel: Math.round(c.saldoAtual * 100) / 100,
+    valorTotalOriginal: Math.round(c.valorTotalDivida * 100) / 100,
+    percentualQuitado: Math.round(((c.valorTotalDivida - c.saldoAtual) / c.valorTotalDivida) * 100 * 100) / 100
   })) : [];
   
   return {
