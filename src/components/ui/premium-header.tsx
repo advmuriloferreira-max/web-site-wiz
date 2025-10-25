@@ -62,7 +62,7 @@ export function PremiumHeader({ onSearchClick }: PremiumHeaderProps) {
               SISTEMA DE GESTÃO DE DÍVIDAS BANCÁRIAS
             </h1>
             <p className="text-xs text-slate-300 font-light drop-shadow-sm">
-              Plataforma Completa de Provisionamento
+              GESTÃO DE PASSIVO BANCÁRIO
             </p>
           </div>
         </div>

@@ -29,7 +29,7 @@ export function HeroSection() {
               INTELLBANK
             </h1>
             <span className="block text-lg md:text-xl lg:text-2xl text-accent/90 font-medium mt-2">
-              Provisionamento Bancário Inteligente
+              GESTÃO DE PASSIVO BANCÁRIO
             </span>
           </div>
         </div>
