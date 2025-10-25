@@ -1,23 +1,40 @@
-export interface Divida {
+export interface Contrato {
   id: string;
   credor: string;
-  valor: number;
+  valorTotalDivida: number;
+  parcelaMensalAtual: number;  // Campo obrigatório para cálculo de percentuais
+  parcelasRestantes?: number;  // Opcional, apenas informativo
 }
 
-export interface DistribuicaoParcela {
+export interface CalculoFase {
   credor: string;
-  valorOriginal: number;
-  parcelaBase: number;
-  sobraRecebida: number;
-  parcelaTotal: number;
-  saldoRestante: number;
+  parcelaMensalAtual: number;
+  percentualAtual: number;
+  novaParcela: number;
+  novoPercentual: number;
+  valorPago: number;
+  saldoRemanescente: number;
   quitado: boolean;
+  sobraRecebida?: number;
 }
 
 export interface FasePagamento {
   numeroFase: number;
-  quantidadeParcelas: number;
-  tipoFase: string; // "normal" ou "ajuste"
-  distribuicoes: DistribuicaoParcela[];
+  duracaoMeses: number;
+  tipoFase: 'normal' | 'ajuste';
+  calculos: CalculoFase[];
   creditoresQuitados: string[];
+  valorMensalTotal: number;
+  encargoAnterior: number;
+}
+
+export interface ResultadoPlano {
+  fases: FasePagamento[];
+  resumo: {
+    totalFases: number;
+    totalMeses: number;
+    encargoAtual: number;
+    novoEncargo: number;
+    reducaoPercentual: number;
+  };
 }
