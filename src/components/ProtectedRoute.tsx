@@ -5,10 +5,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 interface ProtectedRouteProps {
   children: ReactNode;
+  requireAdmin?: boolean;
 }
 
-export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { user, loading } = useAuth();
+export function ProtectedRoute({ children, requireAdmin = false }: ProtectedRouteProps) {
+  const { user, usuarioEscritorio, loading, isEscritorioAtivo, hasPermission } = useAuth();
 
   if (loading) {
     return (
@@ -27,6 +28,30 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   if (!user) {
     return <Navigate to="/auth" replace />;
+  }
+
+  // Verificar se usuário tem escritório vinculado
+  if (!usuarioEscritorio) {
+    // Se não tem escritório, permitir apenas acesso à página de cadastro
+    if (window.location.pathname.startsWith('/cadastro')) {
+      return <>{children}</>;
+    }
+    return <Navigate to="/sem-escritorio" replace />;
+  }
+
+  // Verificar se escritório está ativo
+  if (!isEscritorioAtivo()) {
+    return <Navigate to="/escritorio-suspenso" replace />;
+  }
+
+  // Verificar se usuário está ativo
+  if (usuarioEscritorio.status !== 'ativo') {
+    return <Navigate to="/usuario-inativo" replace />;
+  }
+
+  // Verificar se requer permissão de admin
+  if (requireAdmin && !hasPermission('admin')) {
+    return <Navigate to="/sem-permissao" replace />;
   }
 
   return <>{children}</>;

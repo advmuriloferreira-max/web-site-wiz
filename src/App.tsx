@@ -9,6 +9,10 @@ import { EnterpriseLayout } from "@/components/layout/EnterpriseLayout";
 import Auth from "./pages/Auth";
 import Convite from "./pages/Convite";
 import NovoEscritorio from "./pages/cadastro/NovoEscritorio";
+import EscritorioSuspenso from "./pages/EscritorioSuspenso";
+import SemPermissao from "./pages/SemPermissao";
+import SemEscritorio from "./pages/SemEscritorio";
+import UsuarioInativo from "./pages/UsuarioInativo";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +28,10 @@ const App = () => {
             <Route path="/auth" element={<Auth />} />
             <Route path="/convite" element={<Convite />} />
             <Route path="/cadastro/escritorio" element={<NovoEscritorio />} />
+            <Route path="/escritorio-suspenso" element={<EscritorioSuspenso />} />
+            <Route path="/sem-permissao" element={<SemPermissao />} />
+            <Route path="/sem-escritorio" element={<SemEscritorio />} />
+            <Route path="/usuario-inativo" element={<UsuarioInativo />} />
             <Route path="/*" element={
               <ProtectedRoute>
                 <EnterpriseLayout />
