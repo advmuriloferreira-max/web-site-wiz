@@ -15,7 +15,7 @@ import EscritorioSuspenso from "./pages/EscritorioSuspenso";
 import SemPermissao from "./pages/SemPermissao";
 import SemEscritorio from "./pages/SemEscritorio";
 import UsuarioInativo from "./pages/UsuarioInativo";
-import LandingPage from "./pages/LandingPage";
+import HomeRedirect from "./pages/HomeRedirect";
 
 const queryClient = new QueryClient();
 
@@ -28,7 +28,7 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<LandingPage />} />
+            <Route path="/" element={<HomeRedirect />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/login" element={<Auth />} />
             <Route path="/convite" element={<Convite />} />
