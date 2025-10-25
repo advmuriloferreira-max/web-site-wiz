@@ -5,9 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Trash2, Plus, Calculator } from "lucide-react";
+import { Trash2, Plus, Calculator, AlertCircle } from "lucide-react";
 import { calcularPlanoCompleto } from "@/utils/calculoPlanosPagamento";
-import type { Contrato, ResultadoPlano } from "@/types/superendividamento";
+import type { Contrato, ResultadoPlano, FasePagamento } from "@/types/superendividamento";
 
 export default function PlanosPagamento() {
   const [rendaLiquida, setRendaLiquida] = useState<number>(0);
@@ -48,6 +48,79 @@ export default function PlanosPagamento() {
   const totalDividas = contratos.reduce((soma, c) => soma + c.valorTotalDivida, 0);
   const encargoMensalAtual = contratos.reduce((soma, c) => soma + c.parcelaMensalAtual, 0);
   const percentualAtual = rendaLiquida > 0 ? (encargoMensalAtual / rendaLiquida) * 100 : 0;
+
+  function gerarExplicacaoRedistribuicao(fase: FasePagamento, faseAnterior?: FasePagamento): JSX.Element {
+    if (fase.tipoFase === 'ajuste') {
+      const credorQuitado = fase.calculos.find(c => c.quitado);
+      const creditoresRestantes = fase.calculos.filter(c => !c.quitado);
+      const sobraTotal = credorQuitado ? credorQuitado.parcelaMensalAtual - credorQuitado.novaParcela : 0;
+      const sobraPorCredor = creditoresRestantes.length > 0 ? sobraTotal / creditoresRestantes.length : 0;
+
+      return (
+        <Card className="mt-4 bg-yellow-500/10 border-yellow-500/20">
+          <CardHeader>
+            <CardTitle className="text-yellow-600 dark:text-yellow-400 flex items-center">
+              <AlertCircle className="h-5 w-5 mr-2" />
+              Explicação da Redistribuição - Fase {fase.numeroFase}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="text-sm">
+              <h4 className="font-semibold mb-2">Por que esta fase de ajuste é necessária?</h4>
+              <p className="mb-3">
+                O credor <strong>{credorQuitado?.credor}</strong> possui saldo remanescente de 
+                <strong> R$ {credorQuitado?.novaParcela.toFixed(2)}</strong>, que é menor que sua parcela 
+                proporcional calculada anteriormente.
+              </p>
+              
+              <h4 className="font-semibold mb-2">Como é feita a redistribuição?</h4>
+              <div className="bg-card p-4 rounded border">
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span>Parcela proporcional anterior:</span>
+                    <span>R$ {credorQuitado?.parcelaMensalAtual.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Valor exato para quitação:</span>
+                    <span>R$ {credorQuitado?.novaParcela.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between border-t pt-2 font-semibold">
+                    <span>Sobra a ser redistribuída:</span>
+                    <span>R$ {sobraTotal.toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <h4 className="font-semibold mb-2 mt-4">Divisão igualitária da sobra:</h4>
+              <div className="bg-card p-4 rounded border">
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span>Sobra total:</span>
+                    <span>R$ {sobraTotal.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Credores restantes:</span>
+                    <span>{creditoresRestantes.length}</span>
+                  </div>
+                  <div className="flex justify-between border-t pt-2 font-semibold">
+                    <span>Sobra por credor:</span>
+                    <span>R$ {sobraPorCredor.toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-4 p-3 bg-primary/10 rounded">
+                <strong>Resultado:</strong> Cada credor restante recebe sua parcela proporcional 
+                + R$ {sobraPorCredor.toFixed(2)} da redistribuição igualitária.
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
+    
+    return <></>;
+  }
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -362,7 +435,8 @@ export default function PlanosPagamento() {
 
             <div className="space-y-4">
               {resultado.fases.map((fase) => (
-                  <Card key={fase.numeroFase}>
+                <div key={fase.numeroFase}>
+                  <Card>
                     <CardHeader>
                       <CardTitle className="flex items-center justify-between">
                         <span>Fase {fase.numeroFase}</span>
@@ -390,41 +464,7 @@ export default function PlanosPagamento() {
                             </div>
                             
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                              <div>
-                                <div className="text-muted-foreground">Parcela Anterior:</div>
-                                <div className="font-medium">
-                                  R$ {calculo.parcelaMensalAtual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                                </div>
-                                <div className="text-xs text-muted-foreground">
-                                  ({calculo.percentualAtual.toFixed(2)}%)
-                                </div>
-                              </div>
-                              
-                              <div>
-                                <div className="text-muted-foreground">Nova Parcela:</div>
-                                <div className="font-medium text-primary">
-                                  R$ {calculo.novaParcela.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                                </div>
-                                {calculo.sobraRecebida && (
-                                  <div className="text-xs text-green-600 dark:text-green-400">
-                                    +R$ {calculo.sobraRecebida.toFixed(2)} (sobra)
-                                  </div>
-                                )}
-                              </div>
-                              
-                              <div>
-                                <div className="text-muted-foreground">Valor Pago:</div>
-                                <div className="font-medium">
-                                  R$ {calculo.valorPago.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                                </div>
-                              </div>
-                              
-                              <div>
-                                <div className="text-muted-foreground">Saldo Restante:</div>
-                                <div className="font-medium">
-                                  R$ {calculo.saldoRemanescente.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                                </div>
-                              </div>
+...
                             </div>
                           </div>
                         ))}
@@ -439,8 +479,10 @@ export default function PlanosPagamento() {
                       </div>
                     </CardContent>
                   </Card>
-                ))}
-              </div>
+                  {gerarExplicacaoRedistribuicao(fase, resultado.fases[fase.numeroFase - 2])}
+                </div>
+              ))}
+            </div>
             </div>
           )}
         </div>
