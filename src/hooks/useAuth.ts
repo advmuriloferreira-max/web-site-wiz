@@ -60,77 +60,6 @@ export function useAuthProvider(): AuthContextType {
 
   const isAdmin = profile?.role === 'admin' || usuarioEscritorio?.permissoes?.admin === true;
 
-  useEffect(() => {
-    let mounted = true;
-    
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        // Ignore TOKEN_REFRESHED events to prevent unnecessary updates
-        if (event === 'TOKEN_REFRESHED') {
-          return;
-        }
-        
-        if (!mounted) return;
-        
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        // Fetch user profile when logged in
-        if (session?.user) {
-          setLoading(true); // Keep loading true while fetching data
-          try {
-            await Promise.all([
-              fetchUserProfile(session.user.id),
-              loadUsuarioEscritorio(session.user.id)
-            ]);
-          } catch (error) {
-            console.error('Error loading user data:', error);
-          } finally {
-            setLoading(false);
-          }
-        } else {
-          setProfile(null);
-          setUsuarioEscritorio(null);
-          setLoading(false);
-        }
-      }
-    );
-
-    // THEN check for existing session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!mounted) return;
-      
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        setLoading(true);
-        try {
-          await Promise.all([
-            fetchUserProfile(session.user.id),
-            loadUsuarioEscritorio(session.user.id)
-          ]);
-        } catch (error) {
-          console.error('Error loading user data:', error);
-        } finally {
-          setLoading(false);
-        }
-      } else {
-        setLoading(false);
-      }
-    }).catch((error) => {
-      // Silently handle refresh token errors during initialization
-      console.debug('Session initialization:', error);
-      setLoading(false);
-    });
-
-    return () => {
-      mounted = false;
-      subscription.unsubscribe();
-    };
-  }, []);
-
   const fetchUserProfile = async (userId: string) => {
     try {
       const { data, error } = await supabase
@@ -187,6 +116,72 @@ export function useAuthProvider(): AuthContextType {
       setUsuarioEscritorio(null);
     }
   };
+
+  useEffect(() => {
+    let mounted = true;
+    
+    const loadUserData = async (userId: string) => {
+      try {
+        await Promise.all([
+          fetchUserProfile(userId),
+          loadUsuarioEscritorio(userId)
+        ]);
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
+      }
+    };
+    
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        // Ignore TOKEN_REFRESHED events to prevent unnecessary updates
+        if (event === 'TOKEN_REFRESHED') {
+          return;
+        }
+        
+        if (!mounted) return;
+        
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        // Fetch user profile when logged in
+        if (session?.user) {
+          loadUserData(session.user.id);
+        } else {
+          setProfile(null);
+          setUsuarioEscritorio(null);
+          setLoading(false);
+        }
+      }
+    );
+
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!mounted) return;
+      
+      setSession(session);
+      setUser(session?.user ?? null);
+      
+      if (session?.user) {
+        loadUserData(session.user.id);
+      } else {
+        setLoading(false);
+      }
+    }).catch((error) => {
+      // Silently handle refresh token errors during initialization
+      console.debug('Session initialization:', error);
+      if (mounted) {
+        setLoading(false);
+      }
+    });
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, []);
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({
