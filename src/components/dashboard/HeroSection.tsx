@@ -28,9 +28,6 @@ export function HeroSection() {
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white">
               INTELLBANK
             </h1>
-            <span className="block text-lg md:text-xl lg:text-2xl text-accent/90 font-medium mt-2">
-              GESTÃO DE PASSIVO BANCÁRIO
-            </span>
           </div>
         </div>
         
