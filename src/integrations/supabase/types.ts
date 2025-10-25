@@ -24,6 +24,7 @@ export type Database = {
           data_analise: string
           diferenca_mercado: number | null
           documentos: Json | null
+          escritorio_id: string | null
           id: string
           parecer: string | null
           percentual_acima_mercado: number | null
@@ -43,6 +44,7 @@ export type Database = {
           data_analise?: string
           diferenca_mercado?: number | null
           documentos?: Json | null
+          escritorio_id?: string | null
           id?: string
           parecer?: string | null
           percentual_acima_mercado?: number | null
@@ -62,6 +64,7 @@ export type Database = {
           data_analise?: string
           diferenca_mercado?: number | null
           documentos?: Json | null
+          escritorio_id?: string | null
           id?: string
           parecer?: string | null
           percentual_acima_mercado?: number | null
@@ -80,6 +83,13 @@ export type Database = {
             referencedRelation: "contratos_juros"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "analises_juros_escritorio_id_fkey"
+            columns: ["escritorio_id"]
+            isOneToOne: false
+            referencedRelation: "escritorios"
+            referencedColumns: ["id"]
+          },
         ]
       }
       analises_socioeconomicas: {
@@ -89,6 +99,7 @@ export type Database = {
           created_at: string | null
           despesas_essenciais: number
           detalhes_despesas: Json | null
+          escritorio_id: string | null
           id: string
           minimo_existencial: number
           percentual_comprometimento: number
@@ -101,6 +112,7 @@ export type Database = {
           created_at?: string | null
           despesas_essenciais: number
           detalhes_despesas?: Json | null
+          escritorio_id?: string | null
           id?: string
           minimo_existencial: number
           percentual_comprometimento: number
@@ -113,6 +125,7 @@ export type Database = {
           created_at?: string | null
           despesas_essenciais?: number
           detalhes_despesas?: Json | null
+          escritorio_id?: string | null
           id?: string
           minimo_existencial?: number
           percentual_comprometimento?: number
@@ -125,6 +138,13 @@ export type Database = {
             columns: ["cliente_id"]
             isOneToOne: false
             referencedRelation: "clientes_superendividamento"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "analises_socioeconomicas_escritorio_id_fkey"
+            columns: ["escritorio_id"]
+            isOneToOne: false
+            referencedRelation: "escritorios"
             referencedColumns: ["id"]
           },
         ]
@@ -237,6 +257,7 @@ export type Database = {
           data_cadastro: string
           email: string | null
           endereco: string | null
+          escritorio_id: string | null
           id: string
           nome: string
           observacoes: string | null
@@ -250,6 +271,7 @@ export type Database = {
           data_cadastro?: string
           email?: string | null
           endereco?: string | null
+          escritorio_id?: string | null
           id?: string
           nome: string
           observacoes?: string | null
@@ -263,6 +285,7 @@ export type Database = {
           data_cadastro?: string
           email?: string | null
           endereco?: string | null
+          escritorio_id?: string | null
           id?: string
           nome?: string
           observacoes?: string | null
@@ -270,7 +293,15 @@ export type Database = {
           telefone?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "clientes_juros_escritorio_id_fkey"
+            columns: ["escritorio_id"]
+            isOneToOne: false
+            referencedRelation: "escritorios"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       clientes_provisao: {
         Row: {
@@ -279,6 +310,7 @@ export type Database = {
           data_cadastro: string
           email: string | null
           endereco: string | null
+          escritorio_id: string | null
           id: string
           nome: string
           observacoes: string | null
@@ -292,6 +324,7 @@ export type Database = {
           data_cadastro?: string
           email?: string | null
           endereco?: string | null
+          escritorio_id?: string | null
           id?: string
           nome: string
           observacoes?: string | null
@@ -305,6 +338,7 @@ export type Database = {
           data_cadastro?: string
           email?: string | null
           endereco?: string | null
+          escritorio_id?: string | null
           id?: string
           nome?: string
           observacoes?: string | null
@@ -312,7 +346,15 @@ export type Database = {
           telefone?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "clientes_provisao_escritorio_id_fkey"
+            columns: ["escritorio_id"]
+            isOneToOne: false
+            referencedRelation: "escritorios"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       clientes_superendividamento: {
         Row: {
@@ -321,6 +363,7 @@ export type Database = {
           created_at: string | null
           desconto_inss: number | null
           desconto_ir: number | null
+          escritorio_id: string | null
           id: string
           nome: string
           observacoes: string | null
@@ -334,6 +377,7 @@ export type Database = {
           created_at?: string | null
           desconto_inss?: number | null
           desconto_ir?: number | null
+          escritorio_id?: string | null
           id?: string
           nome: string
           observacoes?: string | null
@@ -347,6 +391,7 @@ export type Database = {
           created_at?: string | null
           desconto_inss?: number | null
           desconto_ir?: number | null
+          escritorio_id?: string | null
           id?: string
           nome?: string
           observacoes?: string | null
@@ -354,7 +399,15 @@ export type Database = {
           renda_liquida?: number | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "clientes_superendividamento_escritorio_id_fkey"
+            columns: ["escritorio_id"]
+            isOneToOne: false
+            referencedRelation: "escritorios"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       contratos_juros: {
         Row: {
@@ -363,6 +416,7 @@ export type Database = {
           data_contratacao: string
           diferenca_taxa: number | null
           diferenca_vs_bacen: number | null
+          escritorio_id: string | null
           grau_abusividade: string | null
           id: string
           instituicao_id: string
@@ -388,6 +442,7 @@ export type Database = {
           data_contratacao?: string
           diferenca_taxa?: number | null
           diferenca_vs_bacen?: number | null
+          escritorio_id?: string | null
           grau_abusividade?: string | null
           id?: string
           instituicao_id: string
@@ -413,6 +468,7 @@ export type Database = {
           data_contratacao?: string
           diferenca_taxa?: number | null
           diferenca_vs_bacen?: number | null
+          escritorio_id?: string | null
           grau_abusividade?: string | null
           id?: string
           instituicao_id?: string
@@ -438,6 +494,13 @@ export type Database = {
             columns: ["cliente_id"]
             isOneToOne: false
             referencedRelation: "clientes_juros"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contratos_juros_escritorio_id_fkey"
+            columns: ["escritorio_id"]
+            isOneToOne: false
+            referencedRelation: "escritorios"
             referencedColumns: ["id"]
           },
           {
@@ -473,6 +536,7 @@ export type Database = {
           data_vencimento: string | null
           dias_atraso: number | null
           escritorio_banco_acordo: string | null
+          escritorio_id: string | null
           estagio_risco: number | null
           forma_pagamento: string | null
           id: string
@@ -515,6 +579,7 @@ export type Database = {
           data_vencimento?: string | null
           dias_atraso?: number | null
           escritorio_banco_acordo?: string | null
+          escritorio_id?: string | null
           estagio_risco?: number | null
           forma_pagamento?: string | null
           id?: string
@@ -557,6 +622,7 @@ export type Database = {
           data_vencimento?: string | null
           dias_atraso?: number | null
           escritorio_banco_acordo?: string | null
+          escritorio_id?: string | null
           estagio_risco?: number | null
           forma_pagamento?: string | null
           id?: string
@@ -596,6 +662,13 @@ export type Database = {
             columns: ["cliente_id"]
             isOneToOne: false
             referencedRelation: "clientes_provisao"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contratos_provisao_escritorio_id_fkey"
+            columns: ["escritorio_id"]
+            isOneToOne: false
+            referencedRelation: "escritorios"
             referencedColumns: ["id"]
           },
         ]
@@ -691,6 +764,7 @@ export type Database = {
           cliente_id: string | null
           created_at: string | null
           credor: string
+          escritorio_id: string | null
           id: string
           observacoes: string | null
           parcela_mensal_atual: number | null
@@ -702,6 +776,7 @@ export type Database = {
           cliente_id?: string | null
           created_at?: string | null
           credor: string
+          escritorio_id?: string | null
           id?: string
           observacoes?: string | null
           parcela_mensal_atual?: number | null
@@ -713,6 +788,7 @@ export type Database = {
           cliente_id?: string | null
           created_at?: string | null
           credor?: string
+          escritorio_id?: string | null
           id?: string
           observacoes?: string | null
           parcela_mensal_atual?: number | null
@@ -728,7 +804,71 @@ export type Database = {
             referencedRelation: "clientes_superendividamento"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "dividas_superendividamento_escritorio_id_fkey"
+            columns: ["escritorio_id"]
+            isOneToOne: false
+            referencedRelation: "escritorios"
+            referencedColumns: ["id"]
+          },
         ]
+      }
+      escritorios: {
+        Row: {
+          cnpj: string | null
+          configuracoes: Json | null
+          created_at: string | null
+          data_cadastro: string | null
+          data_vencimento: string | null
+          email: string
+          endereco: string | null
+          id: string
+          limite_clientes: number | null
+          limite_contratos: number | null
+          limite_usuarios: number | null
+          nome: string
+          plano: string | null
+          status: string | null
+          telefone: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          cnpj?: string | null
+          configuracoes?: Json | null
+          created_at?: string | null
+          data_cadastro?: string | null
+          data_vencimento?: string | null
+          email: string
+          endereco?: string | null
+          id?: string
+          limite_clientes?: number | null
+          limite_contratos?: number | null
+          limite_usuarios?: number | null
+          nome: string
+          plano?: string | null
+          status?: string | null
+          telefone?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          cnpj?: string | null
+          configuracoes?: Json | null
+          created_at?: string | null
+          data_cadastro?: string | null
+          data_vencimento?: string | null
+          email?: string
+          endereco?: string | null
+          id?: string
+          limite_clientes?: number | null
+          limite_contratos?: number | null
+          limite_usuarios?: number | null
+          nome?: string
+          plano?: string | null
+          status?: string | null
+          telefone?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       fases_plano: {
         Row: {
@@ -776,6 +916,7 @@ export type Database = {
           contrato_id: string
           created_at: string
           descricao: string | null
+          escritorio_id: string | null
           id: string
           percentual_cobertura: number | null
           tipo_garantia: string
@@ -786,6 +927,7 @@ export type Database = {
           contrato_id: string
           created_at?: string
           descricao?: string | null
+          escritorio_id?: string | null
           id?: string
           percentual_cobertura?: number | null
           tipo_garantia: string
@@ -796,6 +938,7 @@ export type Database = {
           contrato_id?: string
           created_at?: string
           descricao?: string | null
+          escritorio_id?: string | null
           id?: string
           percentual_cobertura?: number | null
           tipo_garantia?: string
@@ -808,6 +951,13 @@ export type Database = {
             columns: ["contrato_id"]
             isOneToOne: false
             referencedRelation: "contratos_provisao"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "garantias_provisao_escritorio_id_fkey"
+            columns: ["escritorio_id"]
+            isOneToOne: false
+            referencedRelation: "escritorios"
             referencedColumns: ["id"]
           },
         ]
@@ -896,6 +1046,7 @@ export type Database = {
           created_at: string
           data_pagamento: string | null
           data_vencimento: string
+          escritorio_id: string | null
           id: string
           numero_parcela: number
           valor_juros: number
@@ -908,6 +1059,7 @@ export type Database = {
           created_at?: string
           data_pagamento?: string | null
           data_vencimento: string
+          escritorio_id?: string | null
           id?: string
           numero_parcela: number
           valor_juros: number
@@ -920,6 +1072,7 @@ export type Database = {
           created_at?: string
           data_pagamento?: string | null
           data_vencimento?: string
+          escritorio_id?: string | null
           id?: string
           numero_parcela?: number
           valor_juros?: number
@@ -935,12 +1088,20 @@ export type Database = {
             referencedRelation: "contratos_juros"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "parcelas_contrato_escritorio_id_fkey"
+            columns: ["escritorio_id"]
+            isOneToOne: false
+            referencedRelation: "escritorios"
+            referencedColumns: ["id"]
+          },
         ]
       }
       planos_pagamento: {
         Row: {
           cliente_id: string | null
           created_at: string | null
+          escritorio_id: string | null
           id: string
           percentual_renda: number | null
           status: string | null
@@ -952,6 +1113,7 @@ export type Database = {
         Insert: {
           cliente_id?: string | null
           created_at?: string | null
+          escritorio_id?: string | null
           id?: string
           percentual_renda?: number | null
           status?: string | null
@@ -963,6 +1125,7 @@ export type Database = {
         Update: {
           cliente_id?: string | null
           created_at?: string | null
+          escritorio_id?: string | null
           id?: string
           percentual_renda?: number | null
           status?: string | null
@@ -979,6 +1142,13 @@ export type Database = {
             referencedRelation: "clientes_superendividamento"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "planos_pagamento_escritorio_id_fkey"
+            columns: ["escritorio_id"]
+            isOneToOne: false
+            referencedRelation: "escritorios"
+            referencedColumns: ["id"]
+          },
         ]
       }
       processos_provisao: {
@@ -987,6 +1157,7 @@ export type Database = {
           contrato_id: string
           created_at: string
           diligencias: string | null
+          escritorio_id: string | null
           id: string
           justica_gratuita: boolean | null
           liminar: boolean | null
@@ -1001,6 +1172,7 @@ export type Database = {
           contrato_id: string
           created_at?: string
           diligencias?: string | null
+          escritorio_id?: string | null
           id?: string
           justica_gratuita?: boolean | null
           liminar?: boolean | null
@@ -1015,6 +1187,7 @@ export type Database = {
           contrato_id?: string
           created_at?: string
           diligencias?: string | null
+          escritorio_id?: string | null
           id?: string
           justica_gratuita?: boolean | null
           liminar?: boolean | null
@@ -1030,6 +1203,13 @@ export type Database = {
             columns: ["contrato_id"]
             isOneToOne: false
             referencedRelation: "contratos_provisao"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "processos_provisao_escritorio_id_fkey"
+            columns: ["escritorio_id"]
+            isOneToOne: false
+            referencedRelation: "escritorios"
             referencedColumns: ["id"]
           },
         ]
@@ -1072,6 +1252,7 @@ export type Database = {
           contrato_id: string
           created_at: string
           data_proposta: string
+          escritorio_id: string | null
           id: string
           observacoes: string | null
           status: Database["public"]["Enums"]["status_proposta"]
@@ -1083,6 +1264,7 @@ export type Database = {
           contrato_id: string
           created_at?: string
           data_proposta?: string
+          escritorio_id?: string | null
           id?: string
           observacoes?: string | null
           status?: Database["public"]["Enums"]["status_proposta"]
@@ -1094,6 +1276,7 @@ export type Database = {
           contrato_id?: string
           created_at?: string
           data_proposta?: string
+          escritorio_id?: string | null
           id?: string
           observacoes?: string | null
           status?: Database["public"]["Enums"]["status_proposta"]
@@ -1107,6 +1290,13 @@ export type Database = {
             columns: ["contrato_id"]
             isOneToOne: false
             referencedRelation: "contratos_provisao"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "propostas_acordo_provisao_escritorio_id_fkey"
+            columns: ["escritorio_id"]
+            isOneToOne: false
+            referencedRelation: "escritorios"
             referencedColumns: ["id"]
           },
         ]
@@ -1326,6 +1516,59 @@ export type Database = {
         }
         Relationships: []
       }
+      usuarios_escritorio: {
+        Row: {
+          cargo: string | null
+          created_at: string | null
+          data_cadastro: string | null
+          email: string
+          escritorio_id: string
+          id: string
+          nome: string
+          permissoes: Json | null
+          status: string | null
+          ultimo_acesso: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          cargo?: string | null
+          created_at?: string | null
+          data_cadastro?: string | null
+          email: string
+          escritorio_id: string
+          id?: string
+          nome: string
+          permissoes?: Json | null
+          status?: string | null
+          ultimo_acesso?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          cargo?: string | null
+          created_at?: string | null
+          data_cadastro?: string | null
+          email?: string
+          escritorio_id?: string
+          id?: string
+          nome?: string
+          permissoes?: Json | null
+          status?: string | null
+          ultimo_acesso?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "usuarios_escritorio_escritorio_id_fkey"
+            columns: ["escritorio_id"]
+            isOneToOne: false
+            referencedRelation: "escritorios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       workspace_configs: {
         Row: {
           config: Json
@@ -1428,6 +1671,7 @@ export type Database = {
           role: Database["public"]["Enums"]["app_role"]
         }[]
       }
+      get_user_escritorio_id: { Args: never; Returns: string }
       get_user_role: {
         Args: { user_uuid: string }
         Returns: Database["public"]["Enums"]["app_role"]
