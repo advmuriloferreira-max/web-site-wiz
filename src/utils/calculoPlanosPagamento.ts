@@ -41,12 +41,14 @@ export function calcularPlanoCompleto(
     // 6. Encontrar o menor prazo e arredondar PARA BAIXO
     const menorPrazo = Math.floor(Math.min(...prazosQuitacao.map(p => p.mesesParaQuitar)));
     
-    // Verificar se a próxima fase excederia 60 meses
+    // Verificar quantos meses restam até o limite de 60
     const mesesRestantes = LIMITE_MESES - mesesAcumulados;
-    const duracaoFase = Math.min(menorPrazo, mesesRestantes);
+    
+    // A duração da fase é o menor entre: prazo necessário OU meses restantes até 60
+    const duracaoFase = menorPrazo > 0 ? Math.min(menorPrazo, mesesRestantes) : mesesRestantes;
     
     // Se não houver meses restantes, parar
-    if (duracaoFase <= 0) {
+    if (duracaoFase <= 0 || mesesRestantes <= 0) {
       break;
     }
     
@@ -79,11 +81,6 @@ export function calcularPlanoCompleto(
     });
     
     mesesAcumulados += duracaoFase;
-    
-    // Se atingiu 60 meses, parar o loop
-    if (mesesAcumulados >= LIMITE_MESES) {
-      break;
-    }
     
     // 9. Verificar se precisa de fase de ajuste
     const contratoComSaldoMenor = calculosFase.find(c => 
@@ -132,22 +129,6 @@ export function calcularPlanoCompleto(
       });
       
       mesesAcumulados += 1; // Fase de ajuste dura apenas 1 mês
-      
-      // Se atingiu 60 meses após ajuste, parar o loop
-      if (mesesAcumulados >= LIMITE_MESES) {
-        // Atualizar contratos ativos com os saldos remanescentes para calcular dívidas impagáveis
-        contratosAtivos = calculosAjuste
-          .filter(c => !c.quitado)
-          .map(c => {
-            const contratoOriginal = contratosAtivos.find(orig => orig.credor === c.credor)!;
-            return {
-              ...contratoOriginal,
-              saldoAtual: c.saldoRemanescente,
-              novaParcela: c.novaParcela
-            };
-          });
-        break;
-      }
       
       // Atualizar contratos ativos após ajuste
       contratosAtivos = calculosAjuste

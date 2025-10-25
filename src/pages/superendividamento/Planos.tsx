@@ -53,7 +53,8 @@ export default function PlanosPagamento() {
   const encargoMensalAtual = contratos.reduce((soma, c) => soma + c.parcelaMensalAtual, 0);
   const percentualAtual = rendaLiquida > 0 ? (encargoMensalAtual / rendaLiquida) * 100 : 0;
 
-  function gerarExplicacaoRedistribuicao(fase: FasePagamento, faseAnterior?: FasePagamento): JSX.Element {
+  function gerarExplicacaoRedistribuicao(fase: FasePagamento, faseAnterior?: FasePagamento): JSX.Element | null {
+    // Fase de ajuste - explicar redistribuição do credor sendo quitado
     if (fase.tipoFase === 'ajuste') {
       const credorQuitado = fase.calculos.find(c => c.quitado);
       const creditoresRestantes = fase.calculos.filter(c => !c.quitado);
@@ -123,7 +124,70 @@ export default function PlanosPagamento() {
       );
     }
     
-    return <></>;
+    // Fase normal após quitações - explicar redistribuição igualitária
+    if (fase.tipoFase === 'normal' && faseAnterior && faseAnterior.creditoresQuitados.length > 0) {
+      const creditoresQuitados = faseAnterior.creditoresQuitados;
+      const creditoresAtuais = fase.calculos.filter(c => !c.quitado);
+      
+      // Calcular quanto cada credor quitado pagava na fase anterior
+      const totalRedistribuido = creditoresQuitados.reduce((total, credor) => {
+        const calculoAnterior = faseAnterior.calculos.find(c => c.credor === credor);
+        return total + (calculoAnterior?.novaParcela || 0);
+      }, 0);
+      
+      const redistribuidoPorCredor = creditoresAtuais.length > 0 ? totalRedistribuido / creditoresAtuais.length : 0;
+      
+      return (
+        <Card className="mt-4 bg-green-500/10 border-green-500/20">
+          <CardHeader>
+            <CardTitle className="text-green-600 dark:text-green-400 flex items-center">
+              ♻️ Redistribuição Igualitária - Fase {fase.numeroFase}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="text-sm">
+              <p className="mb-3">
+                Com a quitação de <strong>{creditoresQuitados.join(', ')}</strong> na fase anterior, 
+                o valor que era destinado a {creditoresQuitados.length > 1 ? 'eles' : 'ele'} 
+                (R$ {totalRedistribuido.toFixed(2)}) é redistribuído <strong>igualitariamente</strong> entre 
+                os {creditoresAtuais.length} credores restantes.
+              </p>
+              
+              <div className="bg-card p-4 rounded border">
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span>Valor total redistribuído:</span>
+                    <span>R$ {totalRedistribuido.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Credores restantes:</span>
+                    <span>{creditoresAtuais.length}</span>
+                  </div>
+                  <div className="flex justify-between border-t pt-2 font-semibold">
+                    <span>Valor por credor:</span>
+                    <span>R$ {redistribuidoPorCredor.toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-4">
+                <h4 className="font-semibold mb-2">Novas parcelas mensais:</h4>
+                <div className="bg-card p-4 rounded border space-y-1">
+                  {creditoresAtuais.map(c => (
+                    <div key={c.credor} className="flex justify-between text-sm">
+                      <span>{c.credor}:</span>
+                      <span className="font-medium">R$ {c.novaParcela.toFixed(2)}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
+    
+    return null;
   }
 
   const gerarDocumentoWord = async () => {
@@ -221,12 +285,14 @@ export default function PlanosPagamento() {
           ...resultado.fases.flatMap((fase) => [
             new Paragraph({ text: "" }),
             new Paragraph({
-              text: `FASE ${fase.numeroFase} - ${fase.tipoFase.toUpperCase()} (${fase.duracaoMeses} ${fase.duracaoMeses > 1 ? 'meses' : 'mês'})`,
+              text: `FASE ${fase.numeroFase} - ${fase.tipoFase.toUpperCase()} (${fase.duracaoMeses} ${fase.duracaoMeses > 1 ? 'meses' : 'mes'})`,
               heading: HeadingLevel.HEADING_2,
             }),
             new Paragraph({
               text: fase.tipoFase === 'ajuste' 
                 ? "Esta fase de ajuste é necessária pois um dos credores possui saldo remanescente inferior à sua parcela proporcional, exigindo redistribuição igualitária da sobra entre os demais credores, conforme metodologia jurisprudencial consolidada."
+                : fase.numeroFase > 1 && resultado.fases[fase.numeroFase - 2]?.creditoresQuitados.length > 0
+                ? `Fase de pagamento normal. Com a quitação de ${resultado.fases[fase.numeroFase - 2].creditoresQuitados.join(', ')} na fase anterior, o valor que era destinado é redistribuído igualitariamente entre os credores restantes.`
                 : "Fase de pagamento normal com parcelas proporcionais mantidas conforme percentual original de cada credor.",
             }),
             new Paragraph({ text: "" }),
@@ -373,7 +439,7 @@ export default function PlanosPagamento() {
                     {percentualAtual.toFixed(1)}% da renda
                   </div>
                   <div className="text-sm text-muted-foreground mt-1">
-                    R$ {encargoMensalAtual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}/mês
+                    R$ {encargoMensalAtual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}/mes
                   </div>
                 </div>
               )}
@@ -659,7 +725,7 @@ export default function PlanosPagamento() {
                             {fase.tipoFase === 'normal' ? 'Normal' : 'Ajuste'}
                           </Badge>
                           <Badge variant="outline">
-                            {fase.duracaoMeses} mês{fase.duracaoMeses > 1 ? 'es' : ''}
+                            {fase.duracaoMeses} mes{fase.duracaoMeses > 1 ? 'es' : ''}
                           </Badge>
                         </div>
                       </CardTitle>
