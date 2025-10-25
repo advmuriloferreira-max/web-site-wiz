@@ -1348,3 +1348,42 @@ Golden Ratio-based spacing: 1, 1.618, 2.618, 4.236, 6.854
 .legal-focus {
   @apply focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2;
 }
+
+/* Custom INTELLBANK Gradients */
+.bg-gradient-intellbank {
+  background: linear-gradient(135deg, hsl(var(--blue-500)) 0%, hsl(var(--blue-600)) 100%);
+}
+
+/* Smooth fade-in animation */
+.animate-fade-in {
+  animation: fadeInSmooth 0.5s ease-in-out;
+}
+
+@keyframes fadeInSmooth {
+  from { 
+    opacity: 0; 
+    transform: translateY(20px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+/* Hover lift effect for cards and interactive elements */
+.hover-lift {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Responsive mobile padding utility */
+@media (max-width: 768px) {
+  .mobile-padding {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
