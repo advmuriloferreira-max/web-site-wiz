@@ -38,8 +38,8 @@ export function calcularPlanoCompleto(
       mesesParaQuitar: c.saldoAtual / c.novaParcela
     }));
     
-    // 6. Encontrar o menor prazo e arredondar PARA CIMA para garantir quitação
-    const menorPrazo = Math.ceil(Math.min(...prazosQuitacao.map(p => p.mesesParaQuitar)));
+    // 6. Encontrar o menor prazo e arredondar PARA BAIXO
+    const menorPrazo = Math.floor(Math.min(...prazosQuitacao.map(p => p.mesesParaQuitar)));
     
     // Verificar se a próxima fase excederia 60 meses
     const mesesRestantes = LIMITE_MESES - mesesAcumulados;
