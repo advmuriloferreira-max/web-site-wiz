@@ -70,6 +70,12 @@ export function calcularPlanoCompleto(
     });
     
     // 8. Adicionar a fase normal
+    const faseAtual = numeroFase;
+    console.log(`=== FASE ${faseAtual} (NORMAL) ===`);
+    calculosFase.forEach(c => {
+      console.log(`${c.credor}: novaParcela=${c.novaParcela.toFixed(2)}, saldoRemanescente=${c.saldoRemanescente.toFixed(2)}, quitado=${c.quitado}`);
+    });
+    
     fases.push({
       numeroFase: numeroFase++,
       duracaoMeses: duracaoFase,
@@ -96,6 +102,9 @@ export function calcularPlanoCompleto(
       }
       
       // Criar fase de ajuste
+      console.log(`=== FASE ${numeroFase} (AJUSTE) - Quitando ${contratoComSaldoMenor.credor} ===`);
+      console.log(`Contrato ${contratoComSaldoMenor.credor} antes do ajuste: saldo=${contratoComSaldoMenor.saldoRemanescente.toFixed(2)}, parcela=${contratoComSaldoMenor.novaParcela.toFixed(2)}, quitado=${contratoComSaldoMenor.quitado}`);
+      
       const valorExato = Math.round(contratoComSaldoMenor.saldoRemanescente * 100) / 100;
       const sobra = Math.round((contratoComSaldoMenor.novaParcela - valorExato) * 100) / 100;
       const contratosRestantes = calculosAtuais.filter(c => 
@@ -104,6 +113,8 @@ export function calcularPlanoCompleto(
       const sobraPorContrato = contratosRestantes.length > 0 
         ? Math.round((sobra / contratosRestantes.length) * 100) / 100 
         : 0;
+      
+      console.log(`Valor exato para quitação: ${valorExato.toFixed(2)}, sobra: ${sobra.toFixed(2)}, sobra por contrato: ${sobraPorContrato.toFixed(2)}`);
       
       const calculosAjuste: CalculoFase[] = calculosAtuais.map(c => {
         if (c.credor === contratoComSaldoMenor.credor) {
@@ -128,6 +139,10 @@ export function calcularPlanoCompleto(
         return c;
       });
       
+      calculosAjuste.forEach(c => {
+        console.log(`${c.credor} após ajuste: novaParcela=${c.novaParcela.toFixed(2)}, saldoRemanescente=${c.saldoRemanescente.toFixed(2)}, quitado=${c.quitado}`);
+      });
+      
       fases.push({
         numeroFase: numeroFase++,
         duracaoMeses: 1,
@@ -143,6 +158,9 @@ export function calcularPlanoCompleto(
     }
     
     // Atualizar contratos ativos após todas as fases de ajuste
+    console.log(`\n--- Atualizando contratos ativos ---`);
+    console.log(`Contratos ANTES do filtro:`, calculosAtuais.map(c => `${c.credor}(quitado=${c.quitado})`).join(', '));
+    
     contratosAtivos = calculosAtuais
       .filter(c => !c.quitado)
       .map(c => {
@@ -153,6 +171,9 @@ export function calcularPlanoCompleto(
           novaParcela: Math.round(c.novaParcela * 100) / 100
         };
       });
+    
+    console.log(`Contratos APÓS o filtro (ativos):`, contratosAtivos.map(c => `${c.credor}(saldo=${c.saldoAtual.toFixed(2)})`).join(', '));
+    console.log(`---\n`);
     
     // 10. Recalcular percentuais para próxima fase se ainda há contratos
     if (contratosAtivos.length > 0) {
