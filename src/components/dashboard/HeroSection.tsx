@@ -32,7 +32,7 @@ export function HeroSection() {
         </div>
         
         <p className="text-lg text-white/90 font-medium max-w-3xl mx-auto">
-          Plataforma de gestão de provisões bancárias em conformidade com as regulamentações do Banco Central do Brasil
+          Plataforma de otimização processual avançada para advogados bancários
         </p>
         
         <div className="flex flex-wrap items-center justify-center gap-4 text-white/90">
