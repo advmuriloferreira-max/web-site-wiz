@@ -24,7 +24,7 @@ export type Database = {
           data_analise: string
           diferenca_mercado: number | null
           documentos: Json | null
-          escritorio_id: string | null
+          escritorio_id: string
           id: string
           parecer: string | null
           percentual_acima_mercado: number | null
@@ -44,7 +44,7 @@ export type Database = {
           data_analise?: string
           diferenca_mercado?: number | null
           documentos?: Json | null
-          escritorio_id?: string | null
+          escritorio_id: string
           id?: string
           parecer?: string | null
           percentual_acima_mercado?: number | null
@@ -64,7 +64,7 @@ export type Database = {
           data_analise?: string
           diferenca_mercado?: number | null
           documentos?: Json | null
-          escritorio_id?: string | null
+          escritorio_id?: string
           id?: string
           parecer?: string | null
           percentual_acima_mercado?: number | null
@@ -99,7 +99,7 @@ export type Database = {
           created_at: string | null
           despesas_essenciais: number
           detalhes_despesas: Json | null
-          escritorio_id: string | null
+          escritorio_id: string
           id: string
           minimo_existencial: number
           percentual_comprometimento: number
@@ -112,7 +112,7 @@ export type Database = {
           created_at?: string | null
           despesas_essenciais: number
           detalhes_despesas?: Json | null
-          escritorio_id?: string | null
+          escritorio_id: string
           id?: string
           minimo_existencial: number
           percentual_comprometimento: number
@@ -125,7 +125,7 @@ export type Database = {
           created_at?: string | null
           despesas_essenciais?: number
           detalhes_despesas?: Json | null
-          escritorio_id?: string | null
+          escritorio_id?: string
           id?: string
           minimo_existencial?: number
           percentual_comprometimento?: number
@@ -257,7 +257,7 @@ export type Database = {
           data_cadastro: string
           email: string | null
           endereco: string | null
-          escritorio_id: string | null
+          escritorio_id: string
           id: string
           nome: string
           observacoes: string | null
@@ -271,7 +271,7 @@ export type Database = {
           data_cadastro?: string
           email?: string | null
           endereco?: string | null
-          escritorio_id?: string | null
+          escritorio_id: string
           id?: string
           nome: string
           observacoes?: string | null
@@ -285,7 +285,7 @@ export type Database = {
           data_cadastro?: string
           email?: string | null
           endereco?: string | null
-          escritorio_id?: string | null
+          escritorio_id?: string
           id?: string
           nome?: string
           observacoes?: string | null
@@ -310,7 +310,7 @@ export type Database = {
           data_cadastro: string
           email: string | null
           endereco: string | null
-          escritorio_id: string | null
+          escritorio_id: string
           id: string
           nome: string
           observacoes: string | null
@@ -324,7 +324,7 @@ export type Database = {
           data_cadastro?: string
           email?: string | null
           endereco?: string | null
-          escritorio_id?: string | null
+          escritorio_id: string
           id?: string
           nome: string
           observacoes?: string | null
@@ -338,7 +338,7 @@ export type Database = {
           data_cadastro?: string
           email?: string | null
           endereco?: string | null
-          escritorio_id?: string | null
+          escritorio_id?: string
           id?: string
           nome?: string
           observacoes?: string | null
@@ -363,7 +363,7 @@ export type Database = {
           created_at: string | null
           desconto_inss: number | null
           desconto_ir: number | null
-          escritorio_id: string | null
+          escritorio_id: string
           id: string
           nome: string
           observacoes: string | null
@@ -377,7 +377,7 @@ export type Database = {
           created_at?: string | null
           desconto_inss?: number | null
           desconto_ir?: number | null
-          escritorio_id?: string | null
+          escritorio_id: string
           id?: string
           nome: string
           observacoes?: string | null
@@ -391,7 +391,7 @@ export type Database = {
           created_at?: string | null
           desconto_inss?: number | null
           desconto_ir?: number | null
-          escritorio_id?: string | null
+          escritorio_id?: string
           id?: string
           nome?: string
           observacoes?: string | null
@@ -416,7 +416,7 @@ export type Database = {
           data_contratacao: string
           diferenca_taxa: number | null
           diferenca_vs_bacen: number | null
-          escritorio_id: string | null
+          escritorio_id: string
           grau_abusividade: string | null
           id: string
           instituicao_id: string
@@ -442,7 +442,7 @@ export type Database = {
           data_contratacao?: string
           diferenca_taxa?: number | null
           diferenca_vs_bacen?: number | null
-          escritorio_id?: string | null
+          escritorio_id: string
           grau_abusividade?: string | null
           id?: string
           instituicao_id: string
@@ -468,7 +468,7 @@ export type Database = {
           data_contratacao?: string
           diferenca_taxa?: number | null
           diferenca_vs_bacen?: number | null
-          escritorio_id?: string | null
+          escritorio_id?: string
           grau_abusividade?: string | null
           id?: string
           instituicao_id?: string
@@ -536,7 +536,7 @@ export type Database = {
           data_vencimento: string | null
           dias_atraso: number | null
           escritorio_banco_acordo: string | null
-          escritorio_id: string | null
+          escritorio_id: string
           estagio_risco: number | null
           forma_pagamento: string | null
           id: string
@@ -579,7 +579,7 @@ export type Database = {
           data_vencimento?: string | null
           dias_atraso?: number | null
           escritorio_banco_acordo?: string | null
-          escritorio_id?: string | null
+          escritorio_id: string
           estagio_risco?: number | null
           forma_pagamento?: string | null
           id?: string
@@ -622,7 +622,7 @@ export type Database = {
           data_vencimento?: string | null
           dias_atraso?: number | null
           escritorio_banco_acordo?: string | null
-          escritorio_id?: string | null
+          escritorio_id?: string
           estagio_risco?: number | null
           forma_pagamento?: string | null
           id?: string
@@ -764,7 +764,7 @@ export type Database = {
           cliente_id: string | null
           created_at: string | null
           credor: string
-          escritorio_id: string | null
+          escritorio_id: string
           id: string
           observacoes: string | null
           parcela_mensal_atual: number | null
@@ -776,7 +776,7 @@ export type Database = {
           cliente_id?: string | null
           created_at?: string | null
           credor: string
-          escritorio_id?: string | null
+          escritorio_id: string
           id?: string
           observacoes?: string | null
           parcela_mensal_atual?: number | null
@@ -788,7 +788,7 @@ export type Database = {
           cliente_id?: string | null
           created_at?: string | null
           credor?: string
-          escritorio_id?: string | null
+          escritorio_id?: string
           id?: string
           observacoes?: string | null
           parcela_mensal_atual?: number | null
@@ -916,7 +916,7 @@ export type Database = {
           contrato_id: string
           created_at: string
           descricao: string | null
-          escritorio_id: string | null
+          escritorio_id: string
           id: string
           percentual_cobertura: number | null
           tipo_garantia: string
@@ -927,7 +927,7 @@ export type Database = {
           contrato_id: string
           created_at?: string
           descricao?: string | null
-          escritorio_id?: string | null
+          escritorio_id: string
           id?: string
           percentual_cobertura?: number | null
           tipo_garantia: string
@@ -938,7 +938,7 @@ export type Database = {
           contrato_id?: string
           created_at?: string
           descricao?: string | null
-          escritorio_id?: string | null
+          escritorio_id?: string
           id?: string
           percentual_cobertura?: number | null
           tipo_garantia?: string
@@ -1046,7 +1046,7 @@ export type Database = {
           created_at: string
           data_pagamento: string | null
           data_vencimento: string
-          escritorio_id: string | null
+          escritorio_id: string
           id: string
           numero_parcela: number
           valor_juros: number
@@ -1059,7 +1059,7 @@ export type Database = {
           created_at?: string
           data_pagamento?: string | null
           data_vencimento: string
-          escritorio_id?: string | null
+          escritorio_id: string
           id?: string
           numero_parcela: number
           valor_juros: number
@@ -1072,7 +1072,7 @@ export type Database = {
           created_at?: string
           data_pagamento?: string | null
           data_vencimento?: string
-          escritorio_id?: string | null
+          escritorio_id?: string
           id?: string
           numero_parcela?: number
           valor_juros?: number
@@ -1101,7 +1101,7 @@ export type Database = {
         Row: {
           cliente_id: string | null
           created_at: string | null
-          escritorio_id: string | null
+          escritorio_id: string
           id: string
           percentual_renda: number | null
           status: string | null
@@ -1113,7 +1113,7 @@ export type Database = {
         Insert: {
           cliente_id?: string | null
           created_at?: string | null
-          escritorio_id?: string | null
+          escritorio_id: string
           id?: string
           percentual_renda?: number | null
           status?: string | null
@@ -1125,7 +1125,7 @@ export type Database = {
         Update: {
           cliente_id?: string | null
           created_at?: string | null
-          escritorio_id?: string | null
+          escritorio_id?: string
           id?: string
           percentual_renda?: number | null
           status?: string | null
@@ -1157,7 +1157,7 @@ export type Database = {
           contrato_id: string
           created_at: string
           diligencias: string | null
-          escritorio_id: string | null
+          escritorio_id: string
           id: string
           justica_gratuita: boolean | null
           liminar: boolean | null
@@ -1172,7 +1172,7 @@ export type Database = {
           contrato_id: string
           created_at?: string
           diligencias?: string | null
-          escritorio_id?: string | null
+          escritorio_id: string
           id?: string
           justica_gratuita?: boolean | null
           liminar?: boolean | null
@@ -1187,7 +1187,7 @@ export type Database = {
           contrato_id?: string
           created_at?: string
           diligencias?: string | null
-          escritorio_id?: string | null
+          escritorio_id?: string
           id?: string
           justica_gratuita?: boolean | null
           liminar?: boolean | null
@@ -1252,7 +1252,7 @@ export type Database = {
           contrato_id: string
           created_at: string
           data_proposta: string
-          escritorio_id: string | null
+          escritorio_id: string
           id: string
           observacoes: string | null
           status: Database["public"]["Enums"]["status_proposta"]
@@ -1264,7 +1264,7 @@ export type Database = {
           contrato_id: string
           created_at?: string
           data_proposta?: string
-          escritorio_id?: string | null
+          escritorio_id: string
           id?: string
           observacoes?: string | null
           status?: Database["public"]["Enums"]["status_proposta"]
@@ -1276,7 +1276,7 @@ export type Database = {
           contrato_id?: string
           created_at?: string
           data_proposta?: string
-          escritorio_id?: string | null
+          escritorio_id?: string
           id?: string
           observacoes?: string | null
           status?: Database["public"]["Enums"]["status_proposta"]
