@@ -57,7 +57,7 @@ export default function AnaliseJurosContrato() {
               </Button>
               <div className="flex-1">
                 <h1 className="text-3xl font-bold text-foreground">
-                  Análise de Juros Abusivos (BACEN)
+                  ABUSIVIDADE DE JUROS - REVISIONAIS (BACEN)
                 </h1>
                 <p className="text-muted-foreground text-lg">
                   Contrato {contrato.numero_contrato || "Sem número"} • Cliente: {contrato.clientes?.nome}

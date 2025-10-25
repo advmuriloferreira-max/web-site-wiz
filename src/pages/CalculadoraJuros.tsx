@@ -441,7 +441,7 @@ const CalculadoraJuros = () => {
           <div className="flex items-center gap-3">
             <Calculator className="h-8 w-8 text-primary" />
             <div>
-              <h1 className="text-3xl font-bold">Análise de Juros Abusivos - BACEN</h1>
+              <h1 className="text-3xl font-bold">ABUSIVIDADE DE JUROS - REVISIONAIS (BACEN)</h1>
               <p className="text-muted-foreground">
                 Sistema completo com 48 modalidades do Banco Central (Séries Temporais SGS)
               </p>

@@ -307,7 +307,7 @@ export default function ContratoDetalhes() {
                     <div className="p-2 rounded-lg bg-secondary/10 group-hover:bg-secondary/20 transition-colors">
                       <BarChart3 className="h-5 w-5 text-secondary" />
                     </div>
-                    <CardTitle className="text-base">Análise de Juros Abusivos</CardTitle>
+                    <CardTitle className="text-base">ABUSIVIDADE DE JUROS - REVISIONAIS</CardTitle>
                   </div>
                   <p className="text-xs text-muted-foreground">
                     Comparação com taxas de referência do BACEN

@@ -209,7 +209,7 @@ export function AppSidebar() {
           {!isCollapsed && (
             <>
               <SidebarGroupLabel className="text-sm uppercase tracking-wider text-sidebar-foreground/80 px-4 py-2 font-black">
-                Análise de Juros
+                ABUSIVIDADE DE JUROS - REVISIONAIS
               </SidebarGroupLabel>
               <div className="h-1 bg-accent mx-4 rounded-full"></div>
             </>

@@ -79,7 +79,7 @@ export default function ContratosJuros() {
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Contratos - Análise de Juros</h1>
+          <h1 className="text-3xl font-bold text-foreground">Contratos - ABUSIVIDADE DE JUROS - REVISIONAIS</h1>
           <p className="text-muted-foreground">Contratos para análise de abusividade de taxa de juros</p>
         </div>
         <Button onClick={() => setIsDialogOpen(true)}>
