@@ -135,10 +135,20 @@ export default function PlanosPagamento() {
       const creditoresQuitados = faseAnterior.creditoresQuitados;
       const creditoresAtuais = fase.calculos.filter(c => !c.quitado);
       
-      // Calcular quanto cada credor quitado pagava na fase anterior
+      // Encontrar a última fase NORMAL antes da fase de ajuste
+      const indexFaseAtual = resultado?.fases.findIndex(f => f.numeroFase === fase.numeroFase) || 0;
+      let ultimaFaseNormal: FasePagamento | undefined;
+      for (let i = indexFaseAtual - 1; i >= 0; i--) {
+        if (resultado?.fases[i].tipoFase === 'normal') {
+          ultimaFaseNormal = resultado.fases[i];
+          break;
+        }
+      }
+      
+      // Calcular quanto cada credor quitado pagava na última fase NORMAL (não na fase de ajuste)
       const totalRedistribuido = creditoresQuitados.reduce((total, credor) => {
-        const calculoAnterior = faseAnterior.calculos.find(c => c.credor === credor);
-        return total + (calculoAnterior?.novaParcela || 0);
+        const calculoNormal = ultimaFaseNormal?.calculos.find(c => c.credor === credor);
+        return total + (calculoNormal?.novaParcela || 0);
       }, 0);
       
       const redistribuidoPorCredor = creditoresAtuais.length > 0 ? totalRedistribuido / creditoresAtuais.length : 0;
