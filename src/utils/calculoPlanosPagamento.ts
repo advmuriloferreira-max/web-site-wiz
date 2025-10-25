@@ -82,37 +82,47 @@ export function calcularPlanoCompleto(
     
     mesesAcumulados += duracaoFase;
     
-    // 9. Verificar se precisa de fase de ajuste
-    const contratoComSaldoMenor = calculosFase.find(c => 
-      !c.quitado && c.saldoRemanescente < c.novaParcela
-    );
+    // 9. Processar todas as fases de ajuste necessárias
+    let calculosAtuais = calculosFase;
     
-    if (contratoComSaldoMenor) {
-      // Precisa de uma fase de ajuste
-      const valorExato = contratoComSaldoMenor.saldoRemanescente;
-      const sobra = contratoComSaldoMenor.novaParcela - valorExato;
-      const contratosRestantes = calculosFase.filter(c => 
+    while (true) {
+      // Verificar se algum contrato tem saldo menor que a parcela
+      const contratoComSaldoMenor = calculosAtuais.find(c => 
+        !c.quitado && c.saldoRemanescente < c.novaParcela && c.saldoRemanescente > 0
+      );
+      
+      if (!contratoComSaldoMenor || mesesAcumulados >= LIMITE_MESES) {
+        break; // Não há mais ajustes necessários ou atingiu o limite
+      }
+      
+      // Criar fase de ajuste
+      const valorExato = Math.round(contratoComSaldoMenor.saldoRemanescente * 100) / 100;
+      const sobra = Math.round((contratoComSaldoMenor.novaParcela - valorExato) * 100) / 100;
+      const contratosRestantes = calculosAtuais.filter(c => 
         !c.quitado && c.credor !== contratoComSaldoMenor.credor
       );
-      const sobraPorContrato = contratosRestantes.length > 0 ? sobra / contratosRestantes.length : 0;
+      const sobraPorContrato = contratosRestantes.length > 0 
+        ? Math.round((sobra / contratosRestantes.length) * 100) / 100 
+        : 0;
       
-      const calculosAjuste: CalculoFase[] = calculosFase.map(c => {
+      const calculosAjuste: CalculoFase[] = calculosAtuais.map(c => {
         if (c.credor === contratoComSaldoMenor.credor) {
           return {
             ...c,
-            novaParcela: valorExato,
-            valorPago: valorExato,
+            novaParcela: Math.round(valorExato * 100) / 100,
+            valorPago: Math.round(valorExato * 100) / 100,
             saldoRemanescente: 0,
             quitado: true
           };
         } else if (!c.quitado) {
-          const novaParcelaComSobra = c.novaParcela + sobraPorContrato;
+          const novaParcelaComSobra = Math.round((c.novaParcela + sobraPorContrato) * 100) / 100;
+          const novoSaldoAjuste = Math.round((c.saldoRemanescente - novaParcelaComSobra) * 100) / 100;
           return {
             ...c,
             novaParcela: novaParcelaComSobra,
             sobraRecebida: sobraPorContrato,
             valorPago: novaParcelaComSobra,
-            saldoRemanescente: Math.max(0, c.saldoRemanescente - novaParcelaComSobra)
+            saldoRemanescente: Math.max(0, novoSaldoAjuste)
           };
         }
         return c;
@@ -124,35 +134,25 @@ export function calcularPlanoCompleto(
         tipoFase: 'ajuste',
         calculos: calculosAjuste,
         creditoresQuitados: [contratoComSaldoMenor.credor],
-        valorMensalTotal: novoEncargoMensal,
-        encargoAnterior: encargoMensalAtual
+        valorMensalTotal: Math.round(novoEncargoMensal * 100) / 100,
+        encargoAnterior: Math.round(encargoMensalAtual * 100) / 100
       });
       
-      mesesAcumulados += 1; // Fase de ajuste dura apenas 1 mês
-      
-      // Atualizar contratos ativos após ajuste
-      contratosAtivos = calculosAjuste
-        .filter(c => !c.quitado)
-        .map(c => {
-          const contratoOriginal = contratosAtivos.find(orig => orig.credor === c.credor)!;
-          return {
-            ...contratoOriginal,
-            saldoAtual: c.saldoRemanescente,
-            novaParcela: c.novaParcela
-          };
-        });
-    } else {
-      // Atualizar contratos ativos normalmente
-      contratosAtivos = calculosFase
-        .filter(c => !c.quitado)
-        .map(c => {
-          const contratoOriginal = contratosAtivos.find(orig => orig.credor === c.credor)!;
-          return {
-            ...contratoOriginal,
-            saldoAtual: c.saldoRemanescente
-          };
-        });
+      mesesAcumulados += 1;
+      calculosAtuais = calculosAjuste; // Atualizar para próxima iteração
     }
+    
+    // Atualizar contratos ativos após todas as fases de ajuste
+    contratosAtivos = calculosAtuais
+      .filter(c => !c.quitado)
+      .map(c => {
+        const contratoOriginal = contratosAtivos.find(orig => orig.credor === c.credor)!;
+        return {
+          ...contratoOriginal,
+          saldoAtual: Math.round(c.saldoRemanescente * 100) / 100,
+          novaParcela: Math.round(c.novaParcela * 100) / 100
+        };
+      });
     
     // 10. Recalcular percentuais para próxima fase se ainda há contratos
     if (contratosAtivos.length > 0) {
