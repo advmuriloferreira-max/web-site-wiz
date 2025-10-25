@@ -13,6 +13,7 @@ import EscritorioSuspenso from "./pages/EscritorioSuspenso";
 import SemPermissao from "./pages/SemPermissao";
 import SemEscritorio from "./pages/SemEscritorio";
 import UsuarioInativo from "./pages/UsuarioInativo";
+import LandingPage from "./pages/LandingPage";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +26,7 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <Routes>
+            <Route path="/" element={<LandingPage />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/convite" element={<Convite />} />
             <Route path="/cadastro/escritorio" element={<NovoEscritorio />} />
@@ -32,7 +34,7 @@ const App = () => {
             <Route path="/sem-permissao" element={<SemPermissao />} />
             <Route path="/sem-escritorio" element={<SemEscritorio />} />
             <Route path="/usuario-inativo" element={<UsuarioInativo />} />
-            <Route path="/*" element={
+            <Route path="/app/*" element={
               <ProtectedRoute>
                 <EnterpriseLayout />
               </ProtectedRoute>

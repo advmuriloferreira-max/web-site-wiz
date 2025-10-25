@@ -21,34 +21,34 @@ import {
 } from "@/components/ui/sidebar";
 
 const provisionamentoItems = [
-  { title: "Painel de Controle", url: "/", icon: LegalIcons.dashboard },
-  { title: "Painel do Cliente", url: "/painel-cliente", icon: LegalIcons.clients, badge: "NOVO", highlight: true },
-  { title: "Clientes", url: "/clientes", icon: LegalIcons.clients, dataTour: "sidebar-clientes" },
-  { title: "Contratos", url: "/contratos", icon: LegalIcons.contract, dataTour: "sidebar-contratos" },
-  { title: "Processos Judiciais", url: "/processos", icon: LegalIcons.process },
-  { title: "Acordos", url: "/acordos", icon: LegalIcons.agreement, dataTour: "sidebar-acordos" },
-  { title: "Provisões", url: "/calculos", icon: LegalIcons.calculations, dataTour: "sidebar-calculos" },
-  { title: "Indicadores", url: "/relatorios", icon: LegalIcons.reports, dataTour: "sidebar-relatorios" },
-  { title: "Análises Avançadas", url: "/relatorios-avancados", icon: LegalIcons.reports },
+  { title: "Painel de Controle", url: "/app", icon: LegalIcons.dashboard },
+  { title: "Painel do Cliente", url: "/app/painel-cliente", icon: LegalIcons.clients, badge: "NOVO", highlight: true },
+  { title: "Clientes", url: "/app/clientes", icon: LegalIcons.clients, dataTour: "sidebar-clientes" },
+  { title: "Contratos", url: "/app/contratos", icon: LegalIcons.contract, dataTour: "sidebar-contratos" },
+  { title: "Processos Judiciais", url: "/app/processos", icon: LegalIcons.process },
+  { title: "Acordos", url: "/app/acordos", icon: LegalIcons.agreement, dataTour: "sidebar-acordos" },
+  { title: "Provisões", url: "/app/calculos", icon: LegalIcons.calculations, dataTour: "sidebar-calculos" },
+  { title: "Indicadores", url: "/app/relatorios", icon: LegalIcons.reports, dataTour: "sidebar-relatorios" },
+  { title: "Análises Avançadas", url: "/app/relatorios-avancados", icon: LegalIcons.reports },
 ];
 
 const jurosItems = [
-  { title: "Clientes", url: "/juros/clientes", icon: LegalIcons.clients },
-  { title: "Contratos", url: "/juros/contratos", icon: LegalIcons.contract },
-  { title: "Calculadora de Juros", url: "/calculadora-juros", icon: LegalIcons.calculations },
+  { title: "Clientes", url: "/app/juros/clientes", icon: LegalIcons.clients },
+  { title: "Contratos", url: "/app/juros/contratos", icon: LegalIcons.contract },
+  { title: "Calculadora de Juros", url: "/app/calculadora-juros", icon: LegalIcons.calculations },
 ];
 
 const superendividamentoItems = [
-  { title: "Dashboard", url: "/superendividamento", icon: LegalIcons.dashboard },
-  { title: "Clientes", url: "/superendividamento/clientes", icon: LegalIcons.clients },
-  { title: "Análise Socioeconômica", url: "/superendividamento/analise", icon: LegalIcons.calculations },
-  { title: "Planos de Pagamento", url: "/superendividamento/planos", icon: LegalIcons.agreement },
-  { title: "Calculadora Rápida", url: "/superendividamento/calculadora", icon: LegalIcons.calculations },
+  { title: "Dashboard", url: "/app/superendividamento", icon: LegalIcons.dashboard },
+  { title: "Clientes", url: "/app/superendividamento/clientes", icon: LegalIcons.clients },
+  { title: "Análise Socioeconômica", url: "/app/superendividamento/analise", icon: LegalIcons.calculations },
+  { title: "Planos de Pagamento", url: "/app/superendividamento/planos", icon: LegalIcons.agreement },
+  { title: "Calculadora Rápida", url: "/app/superendividamento/calculadora", icon: LegalIcons.calculations },
 ];
 
 const adminItems = [
-  { title: "Dashboard Admin", url: "/admin", icon: LegalIcons.settings },
-  { title: "Gerenciar Escritório", url: "/configuracoes/escritorio", icon: LegalIcons.settings },
+  { title: "Dashboard Admin", url: "/app/admin", icon: LegalIcons.settings },
+  { title: "Gerenciar Escritório", url: "/app/configuracoes/escritorio", icon: LegalIcons.settings },
 ];
 
 export function AppSidebar() {
@@ -310,7 +310,7 @@ export function AppSidebar() {
                   asChild
                   className="flex-1 text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors duration-200 h-8 font-extrabold"
                 >
-                  <NavLink to="/configuracoes">
+                  <NavLink to="/app/configuracoes">
                     <LegalIcons.settings className="h-4 w-4" />
                     {!isCollapsed && <span className="ml-2 text-xs font-extrabold">Configurações</span>}
                   </NavLink>
