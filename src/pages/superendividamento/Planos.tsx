@@ -5,7 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Trash2, Plus, Calculator, AlertCircle, AlertTriangle } from "lucide-react";
+import { Trash2, Plus, Calculator, AlertCircle, AlertTriangle, FileText, Download } from "lucide-react";
+import { Document, Packer, Paragraph, Table, TableCell, TableRow, TextRun, HeadingLevel, WidthType, AlignmentType, BorderStyle } from 'docx';
+import { saveAs } from 'file-saver';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 import { calcularPlanoCompleto } from "@/utils/calculoPlanosPagamento";
 import type { Contrato, ResultadoPlano, FasePagamento, DividaImpagavel } from "@/types/superendividamento";
 
@@ -121,6 +125,198 @@ export default function PlanosPagamento() {
     
     return <></>;
   }
+
+  const gerarDocumentoWord = async () => {
+    if (!resultado) return;
+
+    const doc = new Document({
+      sections: [{
+        properties: {},
+        children: [
+          new Paragraph({
+            text: "PLANO DE PAGAMENTO - SUPERENDIVIDAMENTO",
+            heading: HeadingLevel.TITLE,
+            alignment: AlignmentType.CENTER,
+          }),
+          new Paragraph({
+            text: "Lei 14.181/2021 - Art. 104-A do Código de Defesa do Consumidor",
+            heading: HeadingLevel.HEADING_2,
+            alignment: AlignmentType.CENTER,
+          }),
+          new Paragraph({ text: "" }),
+          
+          // Dados do devedor
+          new Paragraph({
+            text: "1. DADOS DO DEVEDOR",
+            heading: HeadingLevel.HEADING_1,
+          }),
+          new Paragraph({
+            children: [
+              new TextRun({ text: "Renda Líquida Mensal: ", bold: true }),
+              new TextRun(`R$ ${rendaLiquida.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`),
+            ],
+          }),
+          new Paragraph({
+            children: [
+              new TextRun({ text: "Encargo Mensal Atual: ", bold: true }),
+              new TextRun(`R$ ${encargoMensalAtual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} (${percentualAtual.toFixed(1)}% da renda)`),
+            ],
+          }),
+          new Paragraph({
+            children: [
+              new TextRun({ text: "Limitação Pretendida (", bold: true }),
+              new TextRun({ text: `${percentualRenda}%`, bold: true }),
+              new TextRun({ text: "): ", bold: true }),
+              new TextRun(`R$ ${valorMensalDisponivel.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`),
+            ],
+          }),
+          new Paragraph({
+            children: [
+              new TextRun({ text: "Redução no Encargo: ", bold: true }),
+              new TextRun(`${resultado.resumo.reducaoPercentual.toFixed(1)}%`),
+            ],
+          }),
+          new Paragraph({ text: "" }),
+          
+          // Análise de percentuais
+          new Paragraph({
+            text: "2. ANÁLISE DOS PERCENTUAIS ATUAIS",
+            heading: HeadingLevel.HEADING_1,
+          }),
+          new Paragraph({
+            text: "Conforme metodologia estabelecida pela jurisprudência, cada parcela mensal atual representa um percentual do encargo total, percentual este que será mantido na redistribuição com limitação:",
+          }),
+          new Paragraph({ text: "" }),
+          
+          new Table({
+            width: { size: 100, type: WidthType.PERCENTAGE },
+            rows: [
+              new TableRow({
+                children: [
+                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Credor", bold: true })] })] }),
+                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Parcela Atual", bold: true })] })] }),
+                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Percentual", bold: true })] })] }),
+                ],
+              }),
+              ...contratos.map(contrato => {
+                const percentual = (contrato.parcelaMensalAtual / encargoMensalAtual) * 100;
+                return new TableRow({
+                  children: [
+                    new TableCell({ children: [new Paragraph(contrato.credor)] }),
+                    new TableCell({ children: [new Paragraph(`R$ ${contrato.parcelaMensalAtual.toFixed(2)}`)] }),
+                    new TableCell({ children: [new Paragraph(`${percentual.toFixed(2)}%`)] }),
+                  ],
+                });
+              }),
+            ],
+          }),
+          new Paragraph({ text: "" }),
+          
+          // Fases do plano
+          new Paragraph({
+            text: "3. FASES DO PLANO DE PAGAMENTO",
+            heading: HeadingLevel.HEADING_1,
+          }),
+          
+          ...resultado.fases.flatMap((fase) => [
+            new Paragraph({ text: "" }),
+            new Paragraph({
+              text: `FASE ${fase.numeroFase} - ${fase.tipoFase.toUpperCase()} (${fase.duracaoMeses} ${fase.duracaoMeses > 1 ? 'meses' : 'mês'})`,
+              heading: HeadingLevel.HEADING_2,
+            }),
+            new Paragraph({
+              text: fase.tipoFase === 'ajuste' 
+                ? "Esta fase de ajuste é necessária pois um dos credores possui saldo remanescente inferior à sua parcela proporcional, exigindo redistribuição igualitária da sobra entre os demais credores, conforme metodologia jurisprudencial consolidada."
+                : "Fase de pagamento normal com parcelas proporcionais mantidas conforme percentual original de cada credor.",
+            }),
+            new Paragraph({ text: "" }),
+            
+            new Table({
+              width: { size: 100, type: WidthType.PERCENTAGE },
+              rows: [
+                new TableRow({
+                  children: [
+                    new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Credor", bold: true })] })] }),
+                    new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Nova Parcela", bold: true })] })] }),
+                    new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Valor Pago", bold: true })] })] }),
+                    new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Saldo", bold: true })] })] }),
+                  ],
+                }),
+                ...fase.calculos.map(calc => 
+                  new TableRow({
+                    children: [
+                      new TableCell({ children: [new Paragraph(calc.credor)] }),
+                      new TableCell({ children: [new Paragraph(`R$ ${calc.novaParcela.toFixed(2)}`)] }),
+                      new TableCell({ children: [new Paragraph(`R$ ${calc.valorPago.toFixed(2)}`)] }),
+                      new TableCell({ children: [new Paragraph(`R$ ${calc.saldoRemanescente.toFixed(2)}`)] }),
+                    ],
+                  })
+                ),
+              ],
+            }),
+          ]),
+          
+          new Paragraph({ text: "" }),
+          
+          // Dívidas impagáveis
+          ...(resultado.dividasImpagaveis && resultado.dividasImpagaveis.length > 0 ? [
+            new Paragraph({
+              text: "4. DÍVIDAS IMPAGÁVEIS",
+              heading: HeadingLevel.HEADING_1,
+            }),
+            new Paragraph({
+              text: "O Art. 104-A do CDC estabelece limite máximo de 60 meses para planos de superendividamento. O principal das dívidas foi substancialmente quitado, e o saldo remanescente deve ser assumido pelo credor como risco da operação:",
+            }),
+            new Paragraph({ text: "" }),
+          ] : []),
+          
+          // Fundamentação legal
+          new Paragraph({
+            text: resultado.dividasImpagaveis && resultado.dividasImpagaveis.length > 0 ? "5. FUNDAMENTAÇÃO LEGAL" : "4. FUNDAMENTAÇÃO LEGAL",
+            heading: HeadingLevel.HEADING_1,
+          }),
+          new Paragraph({
+            text: "O presente plano de pagamento foi elaborado em estrita observância ao Art. 104-A do Código de Defesa do Consumidor, incluído pela Lei 14.181/2021, que estabelece o tratamento do superendividamento do consumidor. A metodologia de cálculo segue orientação jurisprudencial consolidada, mantendo proporcionalidade entre credores e respeitando o limite temporal de 60 meses.",
+          }),
+        ],
+      }],
+    });
+    
+    const buffer = await Packer.toBuffer(doc);
+    const arrayBuffer = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength) as ArrayBuffer;
+    const blob = new Blob([arrayBuffer], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+    saveAs(blob, `plano-pagamento-${new Date().toISOString().split('T')[0]}.docx`);
+  };
+
+  const gerarPDF = async () => {
+    const elemento = document.getElementById('plano-completo');
+    if (!elemento) return;
+    
+    const canvas = await html2canvas(elemento, {
+      scale: 2,
+      useCORS: true,
+    });
+    
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const imgWidth = 210;
+    const pageHeight = 295;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    let heightLeft = imgHeight;
+    let position = 0;
+    
+    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+    
+    while (heightLeft >= 0) {
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+    }
+    
+    pdf.save(`plano-pagamento-${new Date().toISOString().split('T')[0]}.pdf`);
+  };
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -269,7 +465,25 @@ export default function PlanosPagamento() {
         {/* Coluna Direita - Resultados */}
         <div className="space-y-6">
           {resultado && (
-            <div className="space-y-6">
+            <div id="plano-completo" className="space-y-6">
+              {/* Botões de Exportação */}
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex gap-4">
+                    <Button onClick={gerarDocumentoWord} className="flex items-center gap-2">
+                      <FileText className="h-4 w-4" />
+                      Exportar para Word
+                    </Button>
+                    
+                    <Button onClick={gerarPDF} variant="outline" className="flex items-center gap-2">
+                      <Download className="h-4 w-4" />
+                      Exportar para PDF
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Resumo do Plano */}
               <Card>
                 <CardHeader>
                   <CardTitle>Resumo do Plano</CardTitle>
