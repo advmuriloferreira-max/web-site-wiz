@@ -43,7 +43,7 @@ export default function LandingPage() {
                 Entrar
               </Button>
               <Button 
-                onClick={() => navigate("/cadastro/escritorio")}
+                onClick={() => navigate("/cadastro")}
                 className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
               >
                 Teste Grátis
@@ -102,7 +102,7 @@ export default function LandingPage() {
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button 
                   size="lg" 
-                  onClick={() => navigate("/cadastro/escritorio")}
+                  onClick={() => navigate("/cadastro")}
                   className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-lg px-8 py-4"
                 >
                   Começar Teste Grátis
@@ -366,7 +366,7 @@ export default function LandingPage() {
                   
                   <Button 
                     className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
-                    onClick={() => navigate("/cadastro/escritorio")}
+                    onClick={() => navigate("/cadastro")}
                   >
                     Começar Teste Grátis
                   </Button>
@@ -423,7 +423,7 @@ export default function LandingPage() {
                   
                   <Button 
                     className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
-                    onClick={() => navigate("/cadastro/escritorio")}
+                    onClick={() => navigate("/cadastro")}
                   >
                     Começar Teste Grátis
                   </Button>
@@ -455,7 +455,7 @@ export default function LandingPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
                 size="lg"
-                onClick={() => navigate("/cadastro/escritorio")}
+                onClick={() => navigate("/cadastro")}
                 className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-8 py-4"
               >
                 Começar Teste Grátis Agora

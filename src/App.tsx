@@ -9,6 +9,8 @@ import { EnterpriseLayout } from "@/components/layout/EnterpriseLayout";
 import Auth from "./pages/Auth";
 import Convite from "./pages/Convite";
 import NovoEscritorio from "./pages/cadastro/NovoEscritorio";
+import CadastroEscritorio from "./pages/cadastro/CadastroEscritorio";
+import CadastroSucesso from "./pages/cadastro/CadastroSucesso";
 import EscritorioSuspenso from "./pages/EscritorioSuspenso";
 import SemPermissao from "./pages/SemPermissao";
 import SemEscritorio from "./pages/SemEscritorio";
@@ -29,7 +31,9 @@ const App = () => {
             <Route path="/" element={<LandingPage />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/convite" element={<Convite />} />
+            <Route path="/cadastro" element={<CadastroEscritorio />} />
             <Route path="/cadastro/escritorio" element={<NovoEscritorio />} />
+            <Route path="/cadastro/sucesso" element={<CadastroSucesso />} />
             <Route path="/escritorio-suspenso" element={<EscritorioSuspenso />} />
             <Route path="/sem-permissao" element={<SemPermissao />} />
             <Route path="/sem-escritorio" element={<SemEscritorio />} />
