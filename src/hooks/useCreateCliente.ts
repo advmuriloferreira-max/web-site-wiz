@@ -27,7 +27,7 @@ export const useCreateCliente = () => {
           endereco: clienteData.endereco,
           responsavel: clienteData.responsavel,
           observacoes: clienteData.observacoes,
-        }])
+        } as any])
         .select()
         .single();
 

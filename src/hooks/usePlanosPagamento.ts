@@ -42,7 +42,7 @@ export const usePlanosPagamento = (clienteId?: string) => {
     mutationFn: async (newPlano: CreatePlanoPagamento) => {
       const { data, error } = await supabase
         .from("planos_pagamento")
-        .insert([newPlano])
+        .insert([newPlano as any])
         .select()
         .single();
 

@@ -60,7 +60,7 @@ export const useCreateGarantia = () => {
     mutationFn: async (garantiaInput: CreateGarantiaInput) => {
       const { data, error } = await supabase
         .from("garantias_provisao")
-        .insert(garantiaInput)
+        .insert(garantiaInput as any)
         .select()
         .single();
 

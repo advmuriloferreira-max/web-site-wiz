@@ -56,7 +56,7 @@ export const useCreateProposta = () => {
     mutationFn: async (data: CreatePropostaData) => {
       const { data: result, error } = await supabase
         .from("propostas_acordo_provisao")
-        .insert(data)
+        .insert(data as any)
         .select()
         .single();
 

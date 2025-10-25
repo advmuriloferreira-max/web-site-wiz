@@ -96,7 +96,7 @@ export const useCreateContrato = () => {
 
       const { data, error } = await supabase
         .from("contratos_provisao")
-        .insert(contratoData)
+        .insert(contratoData as any)
         .select()
         .single();
 

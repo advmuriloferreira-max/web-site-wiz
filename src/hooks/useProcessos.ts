@@ -59,10 +59,10 @@ export const useCreateProcesso = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async (processo: Partial<Omit<Processo, 'id' | 'created_at' | 'updated_at' | 'contratos_provisao'>> & { contrato_id: string }) => {
+    mutationFn: async (processo: Partial<Omit<Processo, 'id' | 'created_at' | 'updated_at' | 'contratos_provisao' | 'escritorio_id'>> & { contrato_id: string }) => {
       const { data, error } = await supabase
         .from("processos_provisao")
-        .insert([processo])
+        .insert([processo as any])
         .select()
         .single();
 

@@ -43,7 +43,7 @@ export const useDividasSuperendividamento = (clienteId?: string) => {
     mutationFn: async (newDivida: CreateDividaSuperendividamento) => {
       const { data, error } = await supabase
         .from("dividas_superendividamento")
-        .insert([newDivida])
+        .insert([newDivida as any])
         .select()
         .single();
 

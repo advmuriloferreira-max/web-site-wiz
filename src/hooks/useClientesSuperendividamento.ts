@@ -39,7 +39,7 @@ export const useClientesSuperendividamento = () => {
     mutationFn: async (newCliente: CreateClienteSuperendividamento) => {
       const { data, error } = await supabase
         .from("clientes_superendividamento")
-        .insert([newCliente])
+        .insert([newCliente as any])
         .select()
         .single();
 
