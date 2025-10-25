@@ -5,9 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Trash2, Plus, Calculator, AlertCircle } from "lucide-react";
+import { Trash2, Plus, Calculator, AlertCircle, AlertTriangle } from "lucide-react";
 import { calcularPlanoCompleto } from "@/utils/calculoPlanosPagamento";
-import type { Contrato, ResultadoPlano, FasePagamento } from "@/types/superendividamento";
+import type { Contrato, ResultadoPlano, FasePagamento, DividaImpagavel } from "@/types/superendividamento";
 
 export default function PlanosPagamento() {
   const [rendaLiquida, setRendaLiquida] = useState<number>(0);
@@ -483,6 +483,67 @@ export default function PlanosPagamento() {
                 </div>
               ))}
             </div>
+
+            {/* Dívidas Impagáveis */}
+            {resultado.dividasImpagaveis && resultado.dividasImpagaveis.length > 0 && (
+              <Card className="border-destructive/50 bg-destructive/10">
+                <CardHeader>
+                  <CardTitle className="text-destructive flex items-center">
+                    <AlertTriangle className="h-5 w-5 mr-2" />
+                    Dívidas Impagáveis (Limite Legal de 60 Meses Atingido)
+                  </CardTitle>
+                  <p className="text-sm text-destructive/80 mt-2">
+                    Conforme Art. 104-A do CDC (Lei 14.181/2021), o plano de pagamento não pode exceder 60 meses. 
+                    Os valores abaixo representam o principal já quitado e o saldo impagável deve ser assumido 
+                    pelo credor como risco da operação.
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  <div className="overflow-x-auto">
+                    <table className="w-full border-collapse border">
+                      <thead>
+                        <tr className="bg-destructive/20">
+                          <th className="border p-3 text-left">Credor</th>
+                          <th className="border p-3 text-right">Valor Original</th>
+                          <th className="border p-3 text-right">Valor Quitado</th>
+                          <th className="border p-3 text-right">% Quitado</th>
+                          <th className="border p-3 text-right">Saldo Impagável</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {resultado.dividasImpagaveis.map((divida, index) => (
+                          <tr key={index}>
+                            <td className="border p-3 font-medium">{divida.credor}</td>
+                            <td className="border p-3 text-right">
+                              R$ {divida.valorTotalOriginal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                            </td>
+                            <td className="border p-3 text-right">
+                              R$ {(divida.valorTotalOriginal - divida.saldoImpagavel).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                            </td>
+                            <td className="border p-3 text-right font-semibold">
+                              {divida.percentualQuitado.toFixed(1)}%
+                            </td>
+                            <td className="border p-3 text-right font-bold text-destructive">
+                              R$ {divida.saldoImpagavel.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  
+                  <div className="mt-4 p-4 bg-card rounded border">
+                    <h4 className="font-semibold text-destructive mb-2">Fundamentação Legal:</h4>
+                    <p className="text-sm text-muted-foreground">
+                      O Art. 104-A do Código de Defesa do Consumidor, incluído pela Lei 14.181/2021, 
+                      estabelece que o plano de pagamento para superendividamento não pode exceder 60 meses. 
+                      O principal das dívidas foi substancialmente quitado, e o saldo remanescente deve ser 
+                      considerado como risco inerente à operação de crédito, conforme jurisprudência do STJ.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
             </div>
           )}
         </div>

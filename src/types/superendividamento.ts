@@ -28,13 +28,23 @@ export interface FasePagamento {
   encargoAnterior: number;
 }
 
+export interface DividaImpagavel {
+  credor: string;
+  saldoImpagavel: number;
+  valorTotalOriginal: number;
+  percentualQuitado: number;
+}
+
 export interface ResultadoPlano {
   fases: FasePagamento[];
+  dividasImpagaveis?: DividaImpagavel[];
   resumo: {
     totalFases: number;
     totalMeses: number;
     encargoAtual: number;
     novoEncargo: number;
     reducaoPercentual: number;
+    limiteLegalRespeitado: boolean;
+    mesesUtilizados: number;
   };
 }

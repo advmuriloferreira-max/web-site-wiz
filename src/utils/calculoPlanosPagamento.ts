@@ -1,4 +1,4 @@
-import type { Contrato, FasePagamento, CalculoFase, ResultadoPlano } from "@/types/superendividamento";
+import type { Contrato, FasePagamento, CalculoFase, ResultadoPlano, DividaImpagavel } from "@/types/superendividamento";
 
 export function calcularPlanoCompleto(
   contratos: Contrato[],
@@ -27,8 +27,10 @@ export function calcularPlanoCompleto(
   
   const fases: FasePagamento[] = [];
   let numeroFase = 1;
+  let mesesAcumulados = 0;
+  const LIMITE_MESES = 60;
   
-  while (contratosAtivos.length > 0) {
+  while (contratosAtivos.length > 0 && mesesAcumulados < LIMITE_MESES) {
     
     // 5. Calcular quantos meses cada contrato levaria para quitar
     const prazosQuitacao = contratosAtivos.map(c => ({
@@ -39,9 +41,13 @@ export function calcularPlanoCompleto(
     // 6. Encontrar o menor prazo e arredondar PARA BAIXO
     const menorPrazo = Math.floor(Math.min(...prazosQuitacao.map(p => p.mesesParaQuitar)));
     
+    // Verificar se a próxima fase excederia 60 meses
+    const mesesRestantes = LIMITE_MESES - mesesAcumulados;
+    const duracaoFase = Math.min(menorPrazo, mesesRestantes);
+    
     // 7. Calcular o que cada um paga nesta fase
     const calculosFase: CalculoFase[] = prazosQuitacao.map(c => {
-      const valorPago = c.novaParcela * menorPrazo;
+      const valorPago = c.novaParcela * duracaoFase;
       const novoSaldo = Math.max(0, c.saldoAtual - valorPago);
       
       return {
@@ -59,13 +65,20 @@ export function calcularPlanoCompleto(
     // 8. Adicionar a fase normal
     fases.push({
       numeroFase: numeroFase++,
-      duracaoMeses: menorPrazo,
+      duracaoMeses: duracaoFase,
       tipoFase: 'normal',
       calculos: calculosFase,
       creditoresQuitados: calculosFase.filter(c => c.quitado).map(c => c.credor),
       valorMensalTotal: novoEncargoMensal,
       encargoAnterior: encargoMensalAtual
     });
+    
+    mesesAcumulados += duracaoFase;
+    
+    // Se atingiu 60 meses, parar o loop
+    if (mesesAcumulados >= LIMITE_MESES) {
+      break;
+    }
     
     // 9. Verificar se precisa de fase de ajuste
     const contratoComSaldoMenor = calculosFase.find(c => 
@@ -151,14 +164,25 @@ export function calcularPlanoCompleto(
   const totalMeses = fases.reduce((total, fase) => total + fase.duracaoMeses, 0);
   const reducaoPercentual = ((encargoMensalAtual - novoEncargoMensal) / encargoMensalAtual) * 100;
   
+  // Calcular dívidas impagáveis
+  const dividasImpagaveis = contratosAtivos.length > 0 ? contratosAtivos.map(c => ({
+    credor: c.credor,
+    saldoImpagavel: c.saldoAtual,
+    valorTotalOriginal: c.valorTotalDivida,
+    percentualQuitado: ((c.valorTotalDivida - c.saldoAtual) / c.valorTotalDivida) * 100
+  })) : [];
+  
   return {
     fases,
+    dividasImpagaveis: dividasImpagaveis.length > 0 ? dividasImpagaveis : undefined,
     resumo: {
       totalFases: fases.length,
       totalMeses,
       encargoAtual: encargoMensalAtual,
       novoEncargo: novoEncargoMensal,
-      reducaoPercentual
+      reducaoPercentual,
+      limiteLegalRespeitado: mesesAcumulados <= LIMITE_MESES,
+      mesesUtilizados: mesesAcumulados
     }
   };
 }
