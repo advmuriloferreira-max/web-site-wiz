@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { SmartBreadcrumbs } from "@/components/ui/smart-breadcrumbs";
 import { EnhancedSearch } from "@/components/ui/enhanced-search";
 import { EnterpriseMobileNav } from "@/components/ui/enterprise-mobile-nav";
@@ -49,6 +50,7 @@ import SuperendividamentoClientes from "@/pages/superendividamento/Clientes";
 import SuperendividamentoAnalise from "@/pages/superendividamento/Analise";
 import SuperendividamentoPlanos from "@/pages/superendividamento/Planos";
 import GerenciarEscritorio from "@/pages/configuracoes/GerenciarEscritorio";
+import AdminDashboard from "@/pages/admin/Dashboard";
 import SuperendividamentoCalculadora from "@/pages/superendividamento/Calculadora";
 
 export function EnterpriseLayout() {
@@ -165,6 +167,11 @@ export function EnterpriseLayout() {
                     <Route path="/juros/clientes" element={<ClientesJuros />} />
                     <Route path="/juros/contratos" element={<ContratosJuros />} />
                     <Route path="/juros/contratos/:id/analise" element={<AnaliseContratoJurosPage />} />
+                    <Route path="/admin" element={
+                      <ProtectedRoute requireAdmin>
+                        <AdminDashboard />
+                      </ProtectedRoute>
+                    } />
                     <Route path="/admin/importar-series-bacen" element={<ImportarSeriesBacen />} />
                     <Route path="/superendividamento" element={<SuperendividamentoDashboard />} />
                     <Route path="/superendividamento/clientes" element={<SuperendividamentoClientes />} />

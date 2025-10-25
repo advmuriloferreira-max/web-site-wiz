@@ -46,12 +46,18 @@ const superendividamentoItems = [
   { title: "Calculadora Rápida", url: "/superendividamento/calculadora", icon: LegalIcons.calculations },
 ];
 
+const adminItems = [
+  { title: "Dashboard Admin", url: "/admin", icon: LegalIcons.settings },
+  { title: "Gerenciar Escritório", url: "/configuracoes/escritorio", icon: LegalIcons.settings },
+];
+
 export function AppSidebar() {
   const { state, toggleSidebar } = useSidebar();
-  const { profile } = useAuth();
+  const { profile, usuarioEscritorio } = useAuth();
   const location = useLocation();
   const currentPath = location.pathname;
   const isCollapsed = state === "collapsed";
+  const isAdmin = usuarioEscritorio?.permissoes?.admin || profile?.role === 'admin';
 
   const isActive = (path: string) => currentPath === path;
   
@@ -225,6 +231,32 @@ export function AppSidebar() {
             </div>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {/* Administração - Apenas para Admins */}
+        {isAdmin && (
+          <>
+            {/* Separador */}
+            <div className="mx-4 my-2 border-t border-sidebar-border/50" />
+            
+            <SidebarGroup className="py-3">
+              {!isCollapsed && (
+                <>
+                  <SidebarGroupLabel className="text-sm uppercase tracking-wider text-sidebar-foreground/80 px-4 py-2 font-black">
+                    Administração
+                  </SidebarGroupLabel>
+                  <div className="h-1 bg-destructive mx-4 rounded-full"></div>
+                </>
+              )}
+              <SidebarGroupContent>
+                <div className="space-y-1 px-2">
+                  {adminItems.map((item) => (
+                    <MenuItem key={item.title} item={item} tooltip />
+                  ))}
+                </div>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          </>
+        )}
 
         {/* Footer com Informações de Confiança */}
         <div className="mt-auto border-t border-sidebar-border p-3">
