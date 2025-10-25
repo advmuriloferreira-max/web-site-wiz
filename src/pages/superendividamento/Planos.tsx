@@ -196,46 +196,42 @@ export default function PlanosPagamento() {
         {/* Coluna Direita - Resultados */}
         <div className="space-y-6">
           {resultado && (
-            <>
+            <div className="space-y-6">
               <Card>
                 <CardHeader>
                   <CardTitle>Resumo do Plano</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div className="text-center p-4 bg-primary/10 rounded-lg">
                       <div className="text-2xl font-bold text-primary">{resultado.resumo.totalFases}</div>
                       <div className="text-sm text-muted-foreground">Total de Fases</div>
                     </div>
                     
-                    <div className="text-center p-4 bg-primary/10 rounded-lg">
-                      <div className="text-2xl font-bold text-primary">{resultado.resumo.totalMeses}</div>
+                    <div className="text-center p-4 bg-green-500/10 rounded-lg">
+                      <div className="text-2xl font-bold text-green-600 dark:text-green-400">{resultado.resumo.totalMeses}</div>
                       <div className="text-sm text-muted-foreground">Total de Meses</div>
                     </div>
-
+                    
                     <div className="text-center p-4 bg-destructive/10 rounded-lg">
-                      <div className="text-2xl font-bold text-destructive">{resultado.resumo.encargoAtual.toFixed(1)}%</div>
+                      <div className="text-2xl font-bold text-destructive">
+                        R$ {resultado.resumo.encargoAtual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                      </div>
                       <div className="text-sm text-muted-foreground">Encargo Atual</div>
                     </div>
-
-                    <div className="text-center p-4 bg-green-500/10 rounded-lg">
-                      <div className="text-2xl font-bold text-green-600 dark:text-green-400">{resultado.resumo.novoEncargo.toFixed(1)}%</div>
-                      <div className="text-sm text-muted-foreground">Novo Encargo</div>
+                    
+                    <div className="text-center p-4 bg-purple-500/10 rounded-lg">
+                      <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                        {resultado.resumo.reducaoPercentual.toFixed(1)}%
+                      </div>
+                      <div className="text-sm text-muted-foreground">Redução</div>
                     </div>
                   </div>
                   
                   {resultado.resumo.totalMeses > 60 && (
-                    <div className="mt-4 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
-                      <div className="text-destructive text-sm font-medium">
-                        ⚠️ Plano excede 60 meses (limite legal)
-                      </div>
-                    </div>
-                  )}
-
-                  {resultado.resumo.reducaoPercentual > 0 && (
-                    <div className="mt-4 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
-                      <div className="text-green-600 dark:text-green-400 text-sm font-medium">
-                        ✅ Redução de {resultado.resumo.reducaoPercentual.toFixed(1)}% do encargo mensal
+                    <div className="mt-4 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+                      <div className="text-yellow-600 dark:text-yellow-400 text-sm font-medium">
+                        ⚠️ Atenção: O plano excede 60 meses (limite legal da Lei 14.181/2021)
                       </div>
                     </div>
                   )}
@@ -250,10 +246,10 @@ export default function PlanosPagamento() {
                         <span>Fase {fase.numeroFase}</span>
                         <div className="flex items-center gap-2">
                           <Badge variant={fase.tipoFase === 'normal' ? 'default' : 'secondary'}>
-                            {fase.tipoFase}
+                            {fase.tipoFase === 'normal' ? 'Normal' : 'Ajuste'}
                           </Badge>
                           <Badge variant="outline">
-                            {fase.duracaoMeses} {fase.duracaoMeses > 1 ? 'meses' : 'mês'}
+                            {fase.duracaoMeses} mês{fase.duracaoMeses > 1 ? 'es' : ''}
                           </Badge>
                         </div>
                       </CardTitle>
@@ -261,50 +257,52 @@ export default function PlanosPagamento() {
                     <CardContent>
                       <div className="space-y-3">
                         {fase.calculos.map((calculo, index) => (
-                          <div key={index} className="p-3 border rounded-lg space-y-2">
-                            <div className="flex items-center justify-between">
+                          <div key={index} className="border rounded-lg p-4">
+                            <div className="flex items-center justify-between mb-2">
                               <div className="font-medium">{calculo.credor}</div>
                               {calculo.quitado && (
-                                <Badge variant="default" className="bg-green-500">QUITADO</Badge>
+                                <Badge variant="outline" className="bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20">
+                                  QUITADO
+                                </Badge>
                               )}
                             </div>
                             
-                            <div className="grid grid-cols-2 gap-2 text-sm">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                               <div>
-                                <div className="text-muted-foreground">Parcela atual:</div>
+                                <div className="text-muted-foreground">Parcela Anterior:</div>
                                 <div className="font-medium">
                                   R$ {calculo.parcelaMensalAtual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                                  <span className="text-muted-foreground ml-1">
-                                    ({calculo.percentualAtual.toFixed(1)}%)
-                                  </span>
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  ({calculo.percentualAtual.toFixed(2)}%)
                                 </div>
                               </div>
                               
                               <div>
-                                <div className="text-muted-foreground">Nova parcela:</div>
+                                <div className="text-muted-foreground">Nova Parcela:</div>
                                 <div className="font-medium text-primary">
                                   R$ {calculo.novaParcela.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                                  <span className="text-muted-foreground ml-1">
-                                    ({calculo.novoPercentual.toFixed(1)}%)
-                                  </span>
+                                </div>
+                                {calculo.sobraRecebida && (
+                                  <div className="text-xs text-green-600 dark:text-green-400">
+                                    +R$ {calculo.sobraRecebida.toFixed(2)} (sobra)
+                                  </div>
+                                )}
+                              </div>
+                              
+                              <div>
+                                <div className="text-muted-foreground">Valor Pago:</div>
+                                <div className="font-medium">
+                                  R$ {calculo.valorPago.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                                 </div>
                               </div>
-                            </div>
-
-                            {calculo.sobraRecebida && calculo.sobraRecebida > 0 && (
-                              <div className="text-sm bg-primary/10 p-2 rounded">
-                                <span className="text-muted-foreground">Sobra recebida: </span>
-                                <span className="font-medium text-primary">
-                                  R$ {calculo.sobraRecebida.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                                </span>
+                              
+                              <div>
+                                <div className="text-muted-foreground">Saldo Restante:</div>
+                                <div className="font-medium">
+                                  R$ {calculo.saldoRemanescente.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                </div>
                               </div>
-                            )}
-
-                            <div className="text-sm">
-                              <span className="text-muted-foreground">Saldo remanescente: </span>
-                              <span className="font-medium">
-                                R$ {calculo.saldoRemanescente.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                              </span>
                             </div>
                           </div>
                         ))}
@@ -321,7 +319,7 @@ export default function PlanosPagamento() {
                   </Card>
                 ))}
               </div>
-            </>
+            </div>
           )}
         </div>
       </div>
