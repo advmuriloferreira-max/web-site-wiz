@@ -1,144 +1,177 @@
-import type { Divida, FasePagamento, DistribuicaoParcela } from "@/types/superendividamento";
+import type { Contrato, FasePagamento, CalculoFase, ResultadoPlano } from "@/types/superendividamento";
 
 export function calcularPlanoCompleto(
-  dividas: Divida[],
+  contratos: Contrato[],
   rendaLiquida: number,
   percentualRenda: number
-): FasePagamento[] {
+): ResultadoPlano {
   const valorMensalDisponivel = rendaLiquida * (percentualRenda / 100);
-  let dividasAtivas = [...dividas];
-  let fases: FasePagamento[] = [];
-  let parcelasJaCalculadas = 0;
   
-  while (dividasAtivas.length > 0 && parcelasJaCalculadas < 60) {
-    const totalDividas = dividasAtivas.reduce((soma, d) => soma + d.valor, 0);
+  // Calcular encargo atual (soma das parcelas mensais atuais)
+  const encargoAtual = contratos.reduce((soma, c) => soma + c.parcelaMensalAtual, 0);
+  const percentualEncargoAtual = (encargoAtual / rendaLiquida) * 100;
+  
+  let contratosAtivos = [...contratos];
+  let fases: FasePagamento[] = [];
+  let mesesCalculados = 0;
+  
+  while (contratosAtivos.length > 0 && mesesCalculados < 60) {
+    const totalDividas = contratosAtivos.reduce((soma, c) => soma + c.valorTotalDivida, 0);
     
-    // Calcular parcela proporcional para cada credor
-    const parcelasProporcionais = dividasAtivas.map(divida => {
-      const proporcao = divida.valor / totalDividas;
-      const parcelaBase = valorMensalDisponivel * proporcao;
+    // Calcular parcela proporcional para cada contrato
+    const calculosProporcionais = contratosAtivos.map(contrato => {
+      const proporcao = contrato.valorTotalDivida / totalDividas;
+      const novaParcela = valorMensalDisponivel * proporcao;
+      const novoPercentual = (novaParcela / rendaLiquida) * 100;
+      const percentualAtual = (contrato.parcelaMensalAtual / rendaLiquida) * 100;
+      
       return {
-        credor: divida.credor,
-        valorDivida: divida.valor,
-        parcelaBase: parcelaBase,
-        parcelasNecessarias: divida.valor / parcelaBase
+        contrato,
+        novaParcela,
+        novoPercentual,
+        percentualAtual,
+        mesesNecessarios: contrato.valorTotalDivida / novaParcela
       };
     });
     
-    // Descobrir quantas parcelas completas conseguimos fazer
-    const menorQuantidadeParcelas = Math.min(...parcelasProporcionais.map(p => p.parcelasNecessarias));
-    const parcelasCompletas = Math.floor(menorQuantidadeParcelas);
+    // Descobrir quantos meses completos conseguimos fazer
+    const menorQuantidadeMeses = Math.min(...calculosProporcionais.map(c => c.mesesNecessarios));
+    const mesesCompletos = Math.floor(menorQuantidadeMeses);
     
-    // Se conseguimos fazer parcelas completas
-    if (parcelasCompletas > 0) {
-      const parcelasRestantes = 60 - parcelasJaCalculadas;
-      const parcelasParaEstaFase = Math.min(parcelasCompletas, parcelasRestantes);
+    // Se conseguimos fazer meses completos (fase normal)
+    if (mesesCompletos > 0) {
+      const mesesRestantes = 60 - mesesCalculados;
+      const mesesParaEstaFase = Math.min(mesesCompletos, mesesRestantes);
       
-      const distribuicoesFaseNormal: DistribuicaoParcela[] = parcelasProporcionais.map(p => ({
-        credor: p.credor,
-        valorOriginal: p.valorDivida,
-        parcelaBase: p.parcelaBase,
-        sobraRecebida: 0,
-        parcelaTotal: p.parcelaBase,
-        saldoRestante: p.valorDivida - (p.parcelaBase * parcelasParaEstaFase),
+      const calculosFaseNormal: CalculoFase[] = calculosProporcionais.map(c => ({
+        credor: c.contrato.credor,
+        parcelaMensalAtual: c.contrato.parcelaMensalAtual,
+        percentualAtual: c.percentualAtual,
+        novaParcela: c.novaParcela,
+        novoPercentual: c.novoPercentual,
+        valorPago: c.novaParcela * mesesParaEstaFase,
+        saldoRemanescente: c.contrato.valorTotalDivida - (c.novaParcela * mesesParaEstaFase),
         quitado: false
       }));
       
       fases.push({
         numeroFase: fases.length + 1,
-        quantidadeParcelas: parcelasParaEstaFase,
+        duracaoMeses: mesesParaEstaFase,
         tipoFase: "normal",
-        distribuicoes: distribuicoesFaseNormal,
-        creditoresQuitados: []
+        calculos: calculosFaseNormal,
+        creditoresQuitados: [],
+        valorMensalTotal: valorMensalDisponivel,
+        encargoAnterior: percentualEncargoAtual
       });
       
-      parcelasJaCalculadas += parcelasParaEstaFase;
+      mesesCalculados += mesesParaEstaFase;
       
-      // Atualizar dívidas ativas com os saldos restantes
-      dividasAtivas = dividasAtivas.map((d, index) => ({
-        ...d,
-        valor: distribuicoesFaseNormal[index].saldoRestante
-      })).filter(d => d.valor > 0);
+      // Atualizar contratos ativos
+      contratosAtivos = contratosAtivos.map((c, index) => ({
+        ...c,
+        valorTotalDivida: calculosFaseNormal[index].saldoRemanescente
+      })).filter(c => c.valorTotalDivida > 0);
     }
     
     // Verificar se precisa de fase de ajuste (quando alguém vai quitar com sobra)
-    if (dividasAtivas.length > 0 && parcelasJaCalculadas < 60) {
-      const totalAtual = dividasAtivas.reduce((soma, d) => soma + d.valor, 0);
+    if (contratosAtivos.length > 0 && mesesCalculados < 60) {
+      const totalAtual = contratosAtivos.reduce((soma, c) => soma + c.valorTotalDivida, 0);
       
-      const proporcoesAtuais = dividasAtivas.map(divida => {
-        const proporcao = divida.valor / totalAtual;
+      const proporcoesAtuais = contratosAtivos.map(contrato => {
+        const proporcao = contrato.valorTotalDivida / totalAtual;
+        const novaParcela = valorMensalDisponivel * proporcao;
+        const novoPercentual = (novaParcela / rendaLiquida) * 100;
+        const percentualAtual = (contrato.parcelaMensalAtual / rendaLiquida) * 100;
+        
         return {
-          credor: divida.credor,
-          valorDivida: divida.valor,
-          parcelaBase: valorMensalDisponivel * proporcao
+          contrato,
+          novaParcela,
+          novoPercentual,
+          percentualAtual
         };
       });
       
       // Encontrar quem precisa de menos dinheiro que sua parcela base (vai quitar)
-      const quemVaiQuitar = proporcoesAtuais.filter(p => p.valorDivida < p.parcelaBase);
+      const quemVaiQuitar = proporcoesAtuais.filter(p => p.contrato.valorTotalDivida < p.novaParcela);
       
       if (quemVaiQuitar.length > 0) {
-        const quemContinua = proporcoesAtuais.filter(p => !quemVaiQuitar.some(q => q.credor === p.credor));
+        const quemContinua = proporcoesAtuais.filter(p => !quemVaiQuitar.some(q => q.contrato.id === p.contrato.id));
         
         // Calcular sobra total
         let sobraTotal = 0;
         quemVaiQuitar.forEach(q => {
-          sobraTotal += (q.parcelaBase - q.valorDivida);
+          sobraTotal += (q.novaParcela - q.contrato.valorTotalDivida);
         });
         
         // Dividir sobra igualmente entre quem continua
-        const sobraPorPessoa = quemContinua.length > 0 ? sobraTotal / quemContinua.length : 0;
+        const sobraPorContrato = quemContinua.length > 0 ? sobraTotal / quemContinua.length : 0;
         
-        const distribuicoesFaseAjuste: DistribuicaoParcela[] = [];
+        const calculosFaseAjuste: CalculoFase[] = [];
         
         // Adicionar quem vai quitar
         quemVaiQuitar.forEach(q => {
-          distribuicoesFaseAjuste.push({
-            credor: q.credor,
-            valorOriginal: q.valorDivida,
-            parcelaBase: q.parcelaBase,
-            sobraRecebida: 0,
-            parcelaTotal: q.valorDivida,
-            saldoRestante: 0,
+          calculosFaseAjuste.push({
+            credor: q.contrato.credor,
+            parcelaMensalAtual: q.contrato.parcelaMensalAtual,
+            percentualAtual: q.percentualAtual,
+            novaParcela: q.novaParcela,
+            novoPercentual: q.novoPercentual,
+            valorPago: q.contrato.valorTotalDivida,
+            saldoRemanescente: 0,
             quitado: true
           });
         });
         
         // Adicionar quem continua (recebe sobra)
         quemContinua.forEach(q => {
-          const parcelaTotal = q.parcelaBase + sobraPorPessoa;
-          distribuicoesFaseAjuste.push({
-            credor: q.credor,
-            valorOriginal: q.valorDivida,
-            parcelaBase: q.parcelaBase,
-            sobraRecebida: sobraPorPessoa,
-            parcelaTotal: parcelaTotal,
-            saldoRestante: Math.max(0, q.valorDivida - parcelaTotal),
-            quitado: false
+          const novaParcelaComSobra = q.novaParcela + sobraPorContrato;
+          const novoPercentualComSobra = (novaParcelaComSobra / rendaLiquida) * 100;
+          
+          calculosFaseAjuste.push({
+            credor: q.contrato.credor,
+            parcelaMensalAtual: q.contrato.parcelaMensalAtual,
+            percentualAtual: q.percentualAtual,
+            novaParcela: q.novaParcela,
+            novoPercentual: novoPercentualComSobra,
+            valorPago: novaParcelaComSobra,
+            saldoRemanescente: Math.max(0, q.contrato.valorTotalDivida - novaParcelaComSobra),
+            quitado: false,
+            sobraRecebida: sobraPorContrato
           });
         });
         
         fases.push({
           numeroFase: fases.length + 1,
-          quantidadeParcelas: 1,
+          duracaoMeses: 1,
           tipoFase: "ajuste",
-          distribuicoes: distribuicoesFaseAjuste,
-          creditoresQuitados: quemVaiQuitar.map(q => q.credor)
+          calculos: calculosFaseAjuste,
+          creditoresQuitados: quemVaiQuitar.map(q => q.contrato.credor),
+          valorMensalTotal: valorMensalDisponivel,
+          encargoAnterior: percentualEncargoAtual
         });
         
-        parcelasJaCalculadas += 1;
+        mesesCalculados += 1;
         
-        // Atualizar dívidas ativas
-        dividasAtivas = dividasAtivas.map(d => {
-          const distribuicao = distribuicoesFaseAjuste.find(dist => dist.credor === d.credor);
+        // Atualizar contratos ativos
+        contratosAtivos = contratosAtivos.map(c => {
+          const calculo = calculosFaseAjuste.find(calc => calc.credor === c.credor);
           return {
-            ...d,
-            valor: distribuicao?.saldoRestante || 0
+            ...c,
+            valorTotalDivida: calculo?.saldoRemanescente || 0
           };
-        }).filter(d => d.valor > 0);
+        }).filter(c => c.valorTotalDivida > 0);
       }
     }
   }
   
-  return fases;
+  return {
+    fases,
+    resumo: {
+      totalFases: fases.length,
+      totalMeses: mesesCalculados,
+      encargoAtual: percentualEncargoAtual,
+      novoEncargo: (valorMensalDisponivel / rendaLiquida) * 100,
+      reducaoPercentual: percentualEncargoAtual - ((valorMensalDisponivel / rendaLiquida) * 100)
+    }
+  };
 }

@@ -7,43 +7,47 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Trash2, Plus, Calculator } from "lucide-react";
 import { calcularPlanoCompleto } from "@/utils/calculoPlanosPagamento";
-import type { Divida, FasePagamento } from "@/types/superendividamento";
+import type { Contrato, ResultadoPlano } from "@/types/superendividamento";
 
 export default function PlanosPagamento() {
   const [rendaLiquida, setRendaLiquida] = useState<number>(0);
   const [percentualRenda, setPercentualRenda] = useState<number>(30);
-  const [dividas, setDividas] = useState<Divida[]>([]);
+  const [contratos, setContratos] = useState<Contrato[]>([]);
   const [novoCredor, setNovoCredor] = useState<string>("");
   const [novoValor, setNovoValor] = useState<number>(0);
-  const [resultadoFases, setResultadoFases] = useState<FasePagamento[]>([]);
+  const [novaParcela, setNovaParcela] = useState<number>(0);
+  const [resultado, setResultado] = useState<ResultadoPlano | null>(null);
 
-  const adicionarDivida = () => {
-    if (novoCredor.trim() && novoValor > 0) {
-      const novaDivida: Divida = {
+  const adicionarContrato = () => {
+    if (novoCredor.trim() && novoValor > 0 && novaParcela > 0) {
+      const novoContrato: Contrato = {
         id: Date.now().toString(),
         credor: novoCredor.trim(),
-        valor: novoValor
+        valorTotalDivida: novoValor,
+        parcelaMensalAtual: novaParcela
       };
-      setDividas([...dividas, novaDivida]);
+      setContratos([...contratos, novoContrato]);
       setNovoCredor("");
       setNovoValor(0);
+      setNovaParcela(0);
     }
   };
 
-  const removerDivida = (id: string) => {
-    setDividas(dividas.filter(d => d.id !== id));
+  const removerContrato = (id: string) => {
+    setContratos(contratos.filter(c => c.id !== id));
   };
 
   const calcularPlano = () => {
-    if (rendaLiquida > 0 && dividas.length > 0) {
-      const fases = calcularPlanoCompleto(dividas, rendaLiquida, percentualRenda);
-      setResultadoFases(fases);
+    if (rendaLiquida > 0 && contratos.length > 0) {
+      const plano = calcularPlanoCompleto(contratos, rendaLiquida, percentualRenda);
+      setResultado(plano);
     }
   };
 
   const valorMensalDisponivel = rendaLiquida * (percentualRenda / 100);
-  const totalDividas = dividas.reduce((soma, d) => soma + d.valor, 0);
-  const totalParcelas = resultadoFases.reduce((soma, fase) => soma + fase.quantidadeParcelas, 0);
+  const totalDividas = contratos.reduce((soma, c) => soma + c.valorTotalDivida, 0);
+  const totalParcelasAtuais = contratos.reduce((soma, c) => soma + c.parcelaMensalAtual, 0);
+  const percentualAtual = rendaLiquida > 0 ? (totalParcelasAtuais / rendaLiquida) * 100 : 0;
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -75,7 +79,7 @@ export default function PlanosPagamento() {
               
               <div>
                 <Label htmlFor="percentual">Percentual da Renda para Pagamento</Label>
-                <Select value={percentualRenda.toString()} onValueChange={(value) => setPercentualRenda(Number(value) as 30 | 35)}>
+                <Select value={percentualRenda.toString()} onValueChange={(value) => setPercentualRenda(Number(value))}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -86,21 +90,33 @@ export default function PlanosPagamento() {
                 </Select>
               </div>
               
-              <div className="bg-blue-50 dark:bg-blue-950/20 p-4 rounded-lg">
+              <div className="bg-primary/10 p-4 rounded-lg">
                 <div className="text-sm text-muted-foreground">Valor mensal disponível:</div>
-                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                <div className="text-2xl font-bold text-primary">
                   R$ {valorMensalDisponivel.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </div>
               </div>
+
+              {totalParcelasAtuais > 0 && (
+                <div className="bg-destructive/10 p-4 rounded-lg">
+                  <div className="text-sm text-muted-foreground">Encargo atual:</div>
+                  <div className="text-2xl font-bold text-destructive">
+                    {percentualAtual.toFixed(1)}% da renda
+                  </div>
+                  <div className="text-sm text-muted-foreground mt-1">
+                    R$ {totalParcelasAtuais.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}/mês
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>Dívidas do Cliente</CardTitle>
+              <CardTitle>Contratos do Cliente</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex gap-2">
+              <div className="space-y-2">
                 <Input
                   placeholder="Nome do credor"
                   value={novoCredor}
@@ -108,25 +124,35 @@ export default function PlanosPagamento() {
                 />
                 <Input
                   type="number"
-                  placeholder="Valor da dívida"
+                  placeholder="Valor total da dívida"
                   value={novoValor || ""}
                   onChange={(e) => setNovoValor(Number(e.target.value))}
                 />
-                <Button onClick={adicionarDivida} size="sm">
-                  <Plus className="h-4 w-4" />
+                <Input
+                  type="number"
+                  placeholder="Parcela mensal atual"
+                  value={novaParcela || ""}
+                  onChange={(e) => setNovaParcela(Number(e.target.value))}
+                />
+                <Button onClick={adicionarContrato} className="w-full">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Adicionar Contrato
                 </Button>
               </div>
               
               <div className="space-y-2">
-                {dividas.map((divida) => (
-                  <div key={divida.id} className="flex items-center justify-between p-3 border rounded-lg">
+                {contratos.map((contrato) => (
+                  <div key={contrato.id} className="flex items-center justify-between p-3 border rounded-lg">
                     <div>
-                      <div className="font-medium">{divida.credor}</div>
+                      <div className="font-medium">{contrato.credor}</div>
                       <div className="text-sm text-muted-foreground">
-                        R$ {divida.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        Dívida: R$ {contrato.valorTotalDivida.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        Parcela atual: R$ {contrato.parcelaMensalAtual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                       </div>
                     </div>
-                    <Button variant="ghost" size="sm" onClick={() => removerDivida(divida.id)}>
+                    <Button variant="ghost" size="sm" onClick={() => removerContrato(contrato.id)}>
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
@@ -145,7 +171,7 @@ export default function PlanosPagamento() {
               <Button 
                 onClick={calcularPlano} 
                 className="w-full" 
-                disabled={!rendaLiquida || dividas.length === 0}
+                disabled={!rendaLiquida || contratos.length === 0}
               >
                 <Calculator className="h-4 w-4 mr-2" />
                 Calcular Plano de Pagamento
@@ -156,7 +182,7 @@ export default function PlanosPagamento() {
 
         {/* Coluna Direita - Resultados */}
         <div className="space-y-6">
-          {resultadoFases.length > 0 && (
+          {resultado && (
             <>
               <Card>
                 <CardHeader>
@@ -164,21 +190,39 @@ export default function PlanosPagamento() {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="text-center p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
-                      <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{resultadoFases.length}</div>
+                    <div className="text-center p-4 bg-primary/10 rounded-lg">
+                      <div className="text-2xl font-bold text-primary">{resultado.resumo.totalFases}</div>
                       <div className="text-sm text-muted-foreground">Total de Fases</div>
                     </div>
                     
-                    <div className="text-center p-4 bg-green-50 dark:bg-green-950/20 rounded-lg">
-                      <div className="text-2xl font-bold text-green-600 dark:text-green-400">{totalParcelas}</div>
-                      <div className="text-sm text-muted-foreground">Total de Parcelas</div>
+                    <div className="text-center p-4 bg-primary/10 rounded-lg">
+                      <div className="text-2xl font-bold text-primary">{resultado.resumo.totalMeses}</div>
+                      <div className="text-sm text-muted-foreground">Total de Meses</div>
+                    </div>
+
+                    <div className="text-center p-4 bg-destructive/10 rounded-lg">
+                      <div className="text-2xl font-bold text-destructive">{resultado.resumo.encargoAtual.toFixed(1)}%</div>
+                      <div className="text-sm text-muted-foreground">Encargo Atual</div>
+                    </div>
+
+                    <div className="text-center p-4 bg-green-500/10 rounded-lg">
+                      <div className="text-2xl font-bold text-green-600 dark:text-green-400">{resultado.resumo.novoEncargo.toFixed(1)}%</div>
+                      <div className="text-sm text-muted-foreground">Novo Encargo</div>
                     </div>
                   </div>
                   
-                  {totalParcelas > 60 && (
+                  {resultado.resumo.totalMeses > 60 && (
                     <div className="mt-4 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
                       <div className="text-destructive text-sm font-medium">
-                        ⚠️ Plano excede 60 parcelas (limite legal)
+                        ⚠️ Plano excede 60 meses (limite legal)
+                      </div>
+                    </div>
+                  )}
+
+                  {resultado.resumo.reducaoPercentual > 0 && (
+                    <div className="mt-4 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+                      <div className="text-green-600 dark:text-green-400 text-sm font-medium">
+                        ✅ Redução de {resultado.resumo.reducaoPercentual.toFixed(1)}% do encargo mensal
                       </div>
                     </div>
                   )}
@@ -186,7 +230,7 @@ export default function PlanosPagamento() {
               </Card>
 
               <div className="space-y-4">
-                {resultadoFases.map((fase) => (
+                {resultado.fases.map((fase) => (
                   <Card key={fase.numeroFase}>
                     <CardHeader>
                       <CardTitle className="flex items-center justify-between">
@@ -196,40 +240,65 @@ export default function PlanosPagamento() {
                             {fase.tipoFase}
                           </Badge>
                           <Badge variant="outline">
-                            {fase.quantidadeParcelas} parcela{fase.quantidadeParcelas > 1 ? 's' : ''}
+                            {fase.duracaoMeses} {fase.duracaoMeses > 1 ? 'meses' : 'mês'}
                           </Badge>
                         </div>
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-3">
-                        {fase.distribuicoes.map((dist, index) => (
-                          <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                            <div>
-                              <div className="font-medium">{dist.credor}</div>
-                              {fase.tipoFase === 'ajuste' && dist.sobraRecebida > 0 && (
-                                <div className="text-sm text-muted-foreground">
-                                  R$ {dist.parcelaBase.toFixed(2)} + R$ {dist.sobraRecebida.toFixed(2)} (sobra)
-                                </div>
-                              )}
-                              {fase.tipoFase === 'ajuste' && dist.quitado && (
-                                <div className="text-sm text-green-600 dark:text-green-400">Quitação final</div>
+                        {fase.calculos.map((calculo, index) => (
+                          <div key={index} className="p-3 border rounded-lg space-y-2">
+                            <div className="flex items-center justify-between">
+                              <div className="font-medium">{calculo.credor}</div>
+                              {calculo.quitado && (
+                                <Badge variant="default" className="bg-green-500">QUITADO</Badge>
                               )}
                             </div>
-                            <div className="text-right">
-                              <div className="font-bold">
-                                R$ {dist.parcelaTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                            
+                            <div className="grid grid-cols-2 gap-2 text-sm">
+                              <div>
+                                <div className="text-muted-foreground">Parcela atual:</div>
+                                <div className="font-medium">
+                                  R$ {calculo.parcelaMensalAtual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                  <span className="text-muted-foreground ml-1">
+                                    ({calculo.percentualAtual.toFixed(1)}%)
+                                  </span>
+                                </div>
                               </div>
-                              <div className="text-sm text-muted-foreground">
-                                {dist.quitado ? 'QUITADO' : `Saldo: R$ ${dist.saldoRestante.toFixed(2)}`}
+                              
+                              <div>
+                                <div className="text-muted-foreground">Nova parcela:</div>
+                                <div className="font-medium text-primary">
+                                  R$ {calculo.novaParcela.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                  <span className="text-muted-foreground ml-1">
+                                    ({calculo.novoPercentual.toFixed(1)}%)
+                                  </span>
+                                </div>
                               </div>
+                            </div>
+
+                            {calculo.sobraRecebida && calculo.sobraRecebida > 0 && (
+                              <div className="text-sm bg-primary/10 p-2 rounded">
+                                <span className="text-muted-foreground">Sobra recebida: </span>
+                                <span className="font-medium text-primary">
+                                  R$ {calculo.sobraRecebida.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                </span>
+                              </div>
+                            )}
+
+                            <div className="text-sm">
+                              <span className="text-muted-foreground">Saldo remanescente: </span>
+                              <span className="font-medium">
+                                R$ {calculo.saldoRemanescente.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                              </span>
                             </div>
                           </div>
                         ))}
                         
                         {fase.creditoresQuitados.length > 0 && (
-                          <div className="bg-green-50 dark:bg-green-950/20 p-3 rounded-lg">
-                            <div className="text-sm font-medium text-green-800 dark:text-green-400">
+                          <div className="bg-green-500/10 p-3 rounded-lg">
+                            <div className="text-sm font-medium text-green-600 dark:text-green-400">
                               ✅ Credores quitados nesta fase: {fase.creditoresQuitados.join(', ')}
                             </div>
                           </div>
@@ -241,7 +310,6 @@ export default function PlanosPagamento() {
               </div>
             </>
           )}
-          
         </div>
       </div>
     </div>
