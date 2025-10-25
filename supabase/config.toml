@@ -1,5 +1,8 @@
 project_id = "uemxacekhtyvmmcuzhef"
 
+[functions.cadastrar-escritorio]
+verify_jwt = false
+
 [functions.send-invite]
 verify_jwt = false
 
