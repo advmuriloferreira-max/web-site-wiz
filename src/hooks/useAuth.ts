@@ -64,6 +64,11 @@ export function useAuthProvider(): AuthContextType {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        // Ignore TOKEN_REFRESHED events to prevent unnecessary updates
+        if (event === 'TOKEN_REFRESHED') {
+          return;
+        }
+        
         setSession(session);
         setUser(session?.user ?? null);
         
@@ -92,6 +97,10 @@ export function useAuthProvider(): AuthContextType {
         loadUsuarioEscritorio(session.user.id);
       }
       
+      setLoading(false);
+    }).catch((error) => {
+      // Silently handle refresh token errors during initialization
+      console.debug('Session initialization:', error);
       setLoading(false);
     });
 

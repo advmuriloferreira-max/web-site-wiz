@@ -93,10 +93,17 @@ export default function NovoEscritorio() {
       });
 
       if (authError) {
-        if (authError.message.includes("already registered")) {
+        // Tratamento específico para rate limiting
+        if (authError.status === 429 || authError.message.includes("rate limit")) {
+          throw new Error("Muitas tentativas de cadastro. Por favor, aguarde 1 minuto e tente novamente.");
+        }
+        
+        // Tratamento para email já registrado
+        if (authError.message.includes("already registered") || authError.message.includes("User already registered")) {
           throw new Error("Este email já está cadastrado. Tente fazer login.");
         }
-        throw authError;
+        
+        throw new Error(authError.message || "Erro ao criar usuário. Tente novamente.");
       }
 
       if (!authData.user) {
@@ -149,11 +156,24 @@ export default function NovoEscritorio() {
 
     } catch (error: any) {
       console.error("Erro no cadastro:", error);
-      toast({
-        title: "Erro no cadastro",
-        description: error.message || "Ocorreu um erro ao cadastrar o escritório. Tente novamente.",
-        variant: "destructive",
-      });
+      
+      // Mensagem específica para rate limiting
+      let errorDescription = error.message || "Ocorreu um erro ao cadastrar o escritório. Tente novamente.";
+      
+      if (error.message?.includes("rate limit") || error.message?.includes("aguarde")) {
+        toast({
+          title: "⏳ Aguarde um momento",
+          description: errorDescription,
+          variant: "destructive",
+          duration: 6000,
+        });
+      } else {
+        toast({
+          title: "Erro no cadastro",
+          description: errorDescription,
+          variant: "destructive",
+        });
+      }
     } finally {
       setLoading(false);
     }
