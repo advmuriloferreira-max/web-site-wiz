@@ -36,7 +36,7 @@ import { BCBComplianceBadge } from "@/components/ui/legal-compliance-badge";
 import { Calculator, TrendingUp, AlertCircle, AlertTriangle, Calendar, Users as UsersIcon } from "lucide-react";
 
 function DashboardContent() {
-  const { usuarioEscritorio } = useAuth();
+  const { usuarioEscritorio, loading: authLoading } = useAuth();
   const { data: stats, isLoading, error } = useContratosStats();
   const { data: clientes = [] } = useClientes();
   const [selectedClienteId, setSelectedClienteId] = useState<string | null>(null);
@@ -84,10 +84,38 @@ function DashboardContent() {
 
   const planoStatus = getPlanoStatus();
 
-  const { ProgressBarComponent } = useProgressBar(isLoading, {
+  const { ProgressBarComponent } = useProgressBar(isLoading || authLoading, {
     label: "Carregando dados do dashboard...",
     minDuration: 1500
   });
+
+  // Loading do Auth
+  if (authLoading) {
+    return (
+      <GradientBackground variant="subtle" className="min-h-screen">
+        <div className="p-3 sm:p-4 lg:p-6 space-y-4 sm:space-y-6">
+          <EntranceAnimation animation="fade" className="space-y-6">
+            <LoadingIllustration size="lg" className="mx-auto" />
+            <p className="text-center text-muted-foreground">Carregando informações do escritório...</p>
+          </EntranceAnimation>
+        </div>
+      </GradientBackground>
+    );
+  }
+
+  // Verificar se escritório existe
+  if (!escritorio) {
+    return (
+      <div className="p-6">
+        <div className="bg-warning/10 border border-warning/20 rounded-lg p-4">
+          <h3 className="font-medium text-warning">Escritório não encontrado</h3>
+          <p className="text-sm text-warning/80 mt-1">
+            Não foi possível carregar as informações do escritório.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (error) {
     return (

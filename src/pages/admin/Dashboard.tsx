@@ -12,7 +12,8 @@ import {
   TrendingUp,
   AlertTriangle,
   Building2,
-  FileText
+  FileText,
+  Loader2
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -30,7 +31,7 @@ interface EstatisticasEscritorio {
 }
 
 export default function AdminDashboard() {
-  const { usuarioEscritorio } = useAuth();
+  const { usuarioEscritorio, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [stats, setStats] = useState<EstatisticasEscritorio | null>(null);
   const [loading, setLoading] = useState(true);
@@ -38,8 +39,11 @@ export default function AdminDashboard() {
   useEffect(() => {
     if (usuarioEscritorio?.escritorio_id) {
       loadEstatisticas();
+    } else if (!authLoading) {
+      // Se auth terminou de carregar e não tem escritório, parar loading
+      setLoading(false);
     }
-  }, [usuarioEscritorio]);
+  }, [usuarioEscritorio, authLoading]);
 
   const loadEstatisticas = async () => {
     try {
@@ -70,9 +74,33 @@ export default function AdminDashboard() {
     }
   };
 
+  // Loading do Auth ou dados
+  if (authLoading || loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="space-y-4 text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
+          <p className="text-muted-foreground">Carregando dashboard administrativo...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Verificar se escritório existe
+  if (!usuarioEscritorio?.escritorio) {
+    return (
+      <div className="p-6">
+        <div className="bg-warning/10 border border-warning/20 rounded-lg p-4">
+          <h3 className="font-medium text-warning">Escritório não encontrado</h3>
+          <p className="text-sm text-warning/80 mt-1">
+            Não foi possível carregar as informações do escritório.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   const getStatusPlano = () => {
-    if (!usuarioEscritorio?.escritorio) return { color: 'destructive' as const, text: 'Inativo' };
-    
     const { status, data_vencimento } = usuarioEscritorio.escritorio;
     
     if (status !== 'ativo') return { color: 'destructive' as const, text: 'Suspenso' };
@@ -93,20 +121,6 @@ export default function AdminDashboard() {
   };
 
   const statusPlano = getStatusPlano();
-
-  if (loading) {
-    return (
-      <div className="p-6 space-y-6">
-        <Skeleton className="h-12 w-64" />
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Skeleton className="h-32" />
-          <Skeleton className="h-32" />
-          <Skeleton className="h-32" />
-          <Skeleton className="h-32" />
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="p-6 space-y-6">
