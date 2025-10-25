@@ -1,8 +1,9 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Settings, Database, Calculator, Shield, ArrowLeft, Users, RefreshCw } from "lucide-react";
+import { Settings, Database, Calculator, Shield, ArrowLeft, Users, RefreshCw, Building2 } from "lucide-react";
 import { ConfiguracoesGerais } from "@/components/configuracoes/ConfiguracoesGerais";
 import { TabelasReferencia } from "@/components/configuracoes/TabelasReferencia";
 import { ParametrosCalculo } from "@/components/configuracoes/ParametrosCalculo";
@@ -22,6 +23,7 @@ type ConfiguracaoTipo = "usuarios" | "gerais" | "tabelas" | "calculos" | "acesso
 export default function Configuracoes() {
   const [configuracaoAtiva, setConfiguracaoAtiva] = useState<ConfiguracaoTipo>(null);
   const { isAdmin } = useAuth();
+  const navigate = useNavigate();
 
   const configuracoes = [
     ...(isAdmin ? [{
@@ -167,7 +169,67 @@ export default function Configuracoes() {
         </GlassCard>
       </div>
 
+      {/* Acesso Rápido - Escritório */}
+      <div className="mb-8 animate-slide-up">
+        <h3 className="text-lg font-semibold mb-4 text-foreground flex items-center gap-2">
+          <Building2 className="h-5 w-5 text-primary" />
+          Meu Escritório
+        </h3>
+        <div className="cursor-pointer group animate-scale-in" onClick={() => navigate('/configuracoes/escritorio')}>
+          <GlassCard 
+            variant="subtle" 
+            className="h-full interactive-card group-hover:shadow-xl transition-all duration-300 border-2 border-primary/20 hover:border-primary/40"
+          >
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="glass-element p-3 rounded-full bg-primary/10">
+                    <Building2 className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg text-foreground">Gerenciar Escritório</CardTitle>
+                    <p className="text-sm text-muted-foreground">
+                      Administração
+                    </p>
+                  </div>
+                </div>
+                <ModernBadge 
+                  variant="success"
+                  size="sm"
+                >
+                  Configurar
+                </ModernBadge>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <p className="text-muted-foreground mb-4">
+                Configure dados do escritório, gerencie usuários, plano de assinatura e limites
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="outline" className="text-xs">
+                  <Building2 className="h-3 w-3 mr-1" />
+                  Dados do Escritório
+                </Badge>
+                <Badge variant="outline" className="text-xs">
+                  <Users className="h-3 w-3 mr-1" />
+                  Usuários
+                </Badge>
+                <Badge variant="outline" className="text-xs">
+                  <Shield className="h-3 w-3 mr-1" />
+                  Plano & Limites
+                </Badge>
+              </div>
+            </CardContent>
+          </GlassCard>
+        </div>
+      </div>
+
       {/* Cards de Configuração */}
+      <div>
+        <h3 className="text-lg font-semibold mb-4 text-foreground">
+          Configurações do Sistema
+        </h3>
+      </div>
       <div className="grid gap-6 md:grid-cols-2 mb-8 animate-slide-up animate-stagger-1">
         {configuracoes.map((config, index) => (
           <div 

@@ -48,6 +48,7 @@ import SuperendividamentoDashboard from "@/pages/superendividamento/Dashboard";
 import SuperendividamentoClientes from "@/pages/superendividamento/Clientes";
 import SuperendividamentoAnalise from "@/pages/superendividamento/Analise";
 import SuperendividamentoPlanos from "@/pages/superendividamento/Planos";
+import GerenciarEscritorio from "@/pages/configuracoes/GerenciarEscritorio";
 import SuperendividamentoCalculadora from "@/pages/superendividamento/Calculadora";
 
 export function EnterpriseLayout() {
@@ -177,6 +178,7 @@ export function EnterpriseLayout() {
                     <Route path="relatorios" element={<Relatorios />} />
                     <Route path="relatorios-avancados" element={<RelatoriosAvancados />} />
                     <Route path="configuracoes" element={<Configuracoes />} />
+                    <Route path="configuracoes/escritorio" element={<GerenciarEscritorio />} />
                     <Route path="workspace" element={<WorkspacePage />} />
                     <Route path="visual-effects" element={
                       <div className="container mx-auto">

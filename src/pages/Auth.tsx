@@ -187,6 +187,24 @@ export default function Auth() {
           </CardContent>
         </Card>
 
+        {/* Link para Cadastro de Escritório */}
+        <Card className="shadow-lg bg-gradient-to-r from-primary/10 to-accent/10">
+          <CardContent className="pt-6 text-center space-y-3">
+            <p className="text-sm font-medium">Ainda não tem uma conta?</p>
+            <p className="text-xs text-muted-foreground">
+              Cadastre seu escritório e comece a usar o INTELLBANK gratuitamente por 30 dias
+            </p>
+            <Button 
+              variant="outline" 
+              className="w-full"
+              onClick={() => navigate('/cadastro/escritorio')}
+            >
+              <Building className="mr-2 h-4 w-4" />
+              Cadastrar Escritório
+            </Button>
+          </CardContent>
+        </Card>
+
         {/* Footer */}
         <p className="text-center text-xs text-muted-foreground">
           INTELLBANK • Sistema interno

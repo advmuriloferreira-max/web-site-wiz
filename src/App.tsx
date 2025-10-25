@@ -8,6 +8,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { EnterpriseLayout } from "@/components/layout/EnterpriseLayout";
 import Auth from "./pages/Auth";
 import Convite from "./pages/Convite";
+import NovoEscritorio from "./pages/cadastro/NovoEscritorio";
 
 const queryClient = new QueryClient();
 
@@ -22,6 +23,7 @@ const App = () => {
           <Routes>
             <Route path="/auth" element={<Auth />} />
             <Route path="/convite" element={<Convite />} />
+            <Route path="/cadastro/escritorio" element={<NovoEscritorio />} />
             <Route path="/*" element={
               <ProtectedRoute>
                 <EnterpriseLayout />
