@@ -124,6 +124,8 @@ export function useAuthProvider(): AuthContextType {
 
   const loadUsuarioEscritorio = async (userId: string) => {
     try {
+      console.log('🔍 Carregando usuário escritório para:', userId);
+      
       const { data, error } = await supabase
         .from('usuarios_escritorio')
         .select(`
@@ -142,17 +144,22 @@ export function useAuthProvider(): AuthContextType {
         .eq('user_id', userId)
         .maybeSingle();
 
+      console.log('📊 Resultado da query:', { data, error });
+
       if (error && error.code !== 'PGRST116') {
+        console.error('❌ Erro na query:', error);
         throw error;
       }
       
       if (data) {
+        console.log('✅ Escritório carregado:', data);
         setUsuarioEscritorio(data as unknown as UsuarioEscritorio);
       } else {
+        console.log('⚠️ Nenhum escritório encontrado para o usuário');
         setUsuarioEscritorio(null);
       }
     } catch (error) {
-      console.error('Erro ao carregar dados do usuário:', error);
+      console.error('💥 Erro ao carregar dados do usuário:', error);
       setUsuarioEscritorio(null);
     }
   };
