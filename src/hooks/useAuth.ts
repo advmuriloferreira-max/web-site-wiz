@@ -61,50 +61,74 @@ export function useAuthProvider(): AuthContextType {
   const isAdmin = profile?.role === 'admin' || usuarioEscritorio?.permissoes?.admin === true;
 
   useEffect(() => {
+    let mounted = true;
+    
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         // Ignore TOKEN_REFRESHED events to prevent unnecessary updates
         if (event === 'TOKEN_REFRESHED') {
           return;
         }
+        
+        if (!mounted) return;
         
         setSession(session);
         setUser(session?.user ?? null);
         
         // Fetch user profile when logged in
         if (session?.user) {
-          setTimeout(() => {
-            fetchUserProfile(session.user.id);
-            loadUsuarioEscritorio(session.user.id);
-          }, 0);
+          setLoading(true); // Keep loading true while fetching data
+          try {
+            await Promise.all([
+              fetchUserProfile(session.user.id),
+              loadUsuarioEscritorio(session.user.id)
+            ]);
+          } catch (error) {
+            console.error('Error loading user data:', error);
+          } finally {
+            setLoading(false);
+          }
         } else {
           setProfile(null);
           setUsuarioEscritorio(null);
+          setLoading(false);
         }
-        
-        setLoading(false);
       }
     );
 
     // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!mounted) return;
+      
       setSession(session);
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        fetchUserProfile(session.user.id);
-        loadUsuarioEscritorio(session.user.id);
+        setLoading(true);
+        try {
+          await Promise.all([
+            fetchUserProfile(session.user.id),
+            loadUsuarioEscritorio(session.user.id)
+          ]);
+        } catch (error) {
+          console.error('Error loading user data:', error);
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        setLoading(false);
       }
-      
-      setLoading(false);
     }).catch((error) => {
       // Silently handle refresh token errors during initialization
       console.debug('Session initialization:', error);
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const fetchUserProfile = async (userId: string) => {
