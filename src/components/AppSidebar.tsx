@@ -22,7 +22,7 @@ import {
 
 const provisionamentoItems = [
   { title: "Painel de Controle", url: "/app", icon: LegalIcons.dashboard },
-  { title: "Painel do Cliente", url: "/app/painel-cliente", icon: LegalIcons.clients, badge: "NOVO", highlight: true },
+  { title: "Painel do Cliente", url: "/app/painel-cliente", icon: LegalIcons.clients, highlight: true },
   { title: "Clientes", url: "/app/clientes", icon: LegalIcons.clients, dataTour: "sidebar-clientes" },
   { title: "Contratos", url: "/app/contratos", icon: LegalIcons.contract, dataTour: "sidebar-contratos" },
   { title: "Processos Judiciais", url: "/app/processos", icon: LegalIcons.process },
