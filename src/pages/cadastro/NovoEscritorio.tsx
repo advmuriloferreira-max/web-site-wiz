@@ -77,76 +77,27 @@ export default function NovoEscritorio() {
     setLoading(true);
 
     try {
-      // 1. Criar usuário no Supabase Auth
-      const redirectUrl = `${window.location.origin}/`;
-      
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: formData.emailResponsavel,
-        password: formData.senha,
-        options: {
-          emailRedirectTo: redirectUrl,
-          data: {
-            nome: formData.nomeResponsavel,
-            escritorio: formData.nome
-          }
+      // Chamar edge function para cadastrar escritório
+      const { data, error } = await supabase.functions.invoke('cadastrar-escritorio', {
+        body: {
+          nome: formData.nome,
+          cnpj: formData.cnpj,
+          email: formData.email,
+          telefone: formData.telefone,
+          endereco: formData.endereco,
+          plano: formData.plano,
+          nomeResponsavel: formData.nomeResponsavel,
+          emailResponsavel: formData.emailResponsavel,
+          senha: formData.senha
         }
       });
 
-      if (authError) {
-        // Tratamento específico para rate limiting
-        if (authError.status === 429 || authError.message.includes("rate limit")) {
-          throw new Error("Muitas tentativas de cadastro. Por favor, aguarde 1 minuto e tente novamente.");
-        }
-        
-        // Tratamento para email já registrado
-        if (authError.message.includes("already registered") || authError.message.includes("User already registered")) {
-          throw new Error("Este email já está cadastrado. Tente fazer login.");
-        }
-        
-        throw new Error(authError.message || "Erro ao criar usuário. Tente novamente.");
-      }
-
-      if (!authData.user) {
-        throw new Error("Erro ao criar usuário. Tente novamente.");
-      }
-
-      // 2. Criar escritório
-      const dataVencimento = new Date();
-      dataVencimento.setDate(dataVencimento.getDate() + 30); // 30 dias trial
-
-      const { data: escritorio, error: escritorioError } = await supabase
-        .from('escritorios')
-        .insert({
-          nome: formData.nome,
-          cnpj: formData.cnpj || null,
-          email: formData.email,
-          telefone: formData.telefone || null,
-          endereco: formData.endereco || null,
-          plano: formData.plano,
-          data_vencimento: dataVencimento.toISOString().split('T')[0]
-        })
-        .select()
-        .single();
-
-      if (escritorioError) throw escritorioError;
-
-      // 3. Criar usuário administrador do escritório
-      const { error: userError } = await supabase
-        .from('usuarios_escritorio')
-        .insert({
-          escritorio_id: escritorio.id,
-          user_id: authData.user.id,
-          nome: formData.nomeResponsavel,
-          email: formData.emailResponsavel,
-          cargo: "Administrador",
-          permissoes: { read: true, write: true, admin: true }
-        });
-
-      if (userError) throw userError;
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
 
       toast({
         title: "✅ Escritório cadastrado com sucesso!",
-        description: "Verifique seu email para confirmar o cadastro e fazer login.",
+        description: "Agora você pode fazer login com suas credenciais.",
       });
 
       // Aguardar 2 segundos antes de redirecionar
