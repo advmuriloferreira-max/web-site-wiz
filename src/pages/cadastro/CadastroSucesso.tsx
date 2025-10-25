@@ -1,143 +1,212 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { CheckCircle, Mail, ArrowRight, BarChart3 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { 
+  CheckCircle, 
+  Mail, 
+  Clock, 
+  ArrowRight, 
+  Users, 
+  BookOpen, 
+  Headphones,
+  Sparkles
+} from "lucide-react";
 
 export default function CadastroSucesso() {
+  const [countdown, setCountdown] = useState(5);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          navigate("/auth");
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [navigate]);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4">
-      <div className="max-w-2xl w-full">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center space-x-2 mb-4">
-            <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-              <BarChart3 className="h-6 w-6 text-white" />
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-background to-blue-50 flex items-center justify-center p-4">
+      <div className="max-w-4xl mx-auto">
+        <div className="text-center space-y-8">
+          
+          {/* Success Icon */}
+          <div className="relative">
+            <div className="w-24 h-24 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto">
+              <CheckCircle className="h-12 w-12 text-white" />
             </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              INTELLBANK
-            </span>
+            <div className="absolute -top-2 -right-2">
+              <Sparkles className="h-8 w-8 text-yellow-500" />
+            </div>
           </div>
-        </div>
 
-        {/* Success Card */}
-        <Card className="shadow-xl border-0">
-          <CardContent className="p-8 md:p-12 text-center space-y-6">
-            {/* Success Icon */}
-            <div className="flex justify-center">
-              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
-                <CheckCircle className="h-12 w-12 text-green-600" />
-              </div>
-            </div>
+          {/* Success Message */}
+          <div className="space-y-4">
+            <h1 className="text-4xl lg:text-5xl font-bold text-foreground">
+              Bem-vindo ao INTELLBANK! 🎉
+            </h1>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Sua conta foi criada com sucesso. Você já pode começar a revolucionar 
+              sua advocacia bancária com nossa plataforma.
+            </p>
+          </div>
 
-            {/* Title */}
-            <div className="space-y-2">
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
-                Conta Criada com Sucesso! 🎉
-              </h1>
-              <p className="text-lg text-gray-600">
-                Bem-vindo ao INTELLBANK
-              </p>
-            </div>
-
-            {/* Instructions */}
-            <div className="bg-blue-50 p-6 rounded-lg border border-blue-200 space-y-4">
-              <div className="flex items-start space-x-3">
-                <Mail className="h-6 w-6 text-blue-600 flex-shrink-0 mt-1" />
-                <div className="text-left">
-                  <h3 className="font-semibold text-gray-900 mb-1">
-                    Verifique seu email
-                  </h3>
-                  <p className="text-gray-600 text-sm">
-                    Enviamos um link de confirmação para o email cadastrado. 
-                    Clique no link para ativar sua conta e fazer login.
-                  </p>
+          {/* Status Cards */}
+          <div className="grid md:grid-cols-3 gap-6 max-w-3xl mx-auto">
+            <Card className="border-green-200 bg-green-50">
+              <CardContent className="p-6 text-center">
+                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="h-6 w-6 text-green-600" />
                 </div>
-              </div>
-            </div>
+                <h3 className="font-semibold text-green-900 mb-2">Conta Criada</h3>
+                <p className="text-sm text-green-700">
+                  Seu escritório foi cadastrado com sucesso
+                </p>
+              </CardContent>
+            </Card>
 
-            {/* Next Steps */}
-            <div className="space-y-3 text-left">
-              <h3 className="font-semibold text-gray-900 text-center mb-4">
+            <Card className="border-blue-200 bg-blue-50">
+              <CardContent className="p-6 text-center">
+                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <Mail className="h-6 w-6 text-blue-600" />
+                </div>
+                <h3 className="font-semibold text-blue-900 mb-2">Email Enviado</h3>
+                <p className="text-sm text-blue-700">
+                  Verifique sua caixa de entrada para confirmar
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-purple-200 bg-purple-50">
+              <CardContent className="p-6 text-center">
+                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <Clock className="h-6 w-6 text-purple-600" />
+                </div>
+                <h3 className="font-semibold text-purple-900 mb-2">Trial Ativo</h3>
+                <p className="text-sm text-purple-700">
+                  7 dias grátis para testar tudo
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Next Steps */}
+          <Card className="max-w-2xl mx-auto text-left">
+            <CardContent className="p-8">
+              <h2 className="text-2xl font-bold text-foreground mb-6 text-center">
                 Próximos Passos
-              </h3>
+              </h2>
               
-              <div className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
-                <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0">
-                  1
+              <div className="space-y-4">
+                <div className="flex items-start space-x-4">
+                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-sm font-semibold text-blue-600">1</span>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-foreground">Confirme seu email</h3>
+                    <p className="text-muted-foreground text-sm">
+                      Clique no link que enviamos para ativar sua conta
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-gray-700">
-                    <strong>Confirme seu email</strong> - Clique no link que enviamos
-                  </p>
+                
+                <div className="flex items-start space-x-4">
+                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-sm font-semibold text-blue-600">2</span>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-foreground">Faça seu primeiro login</h3>
+                    <p className="text-muted-foreground text-sm">
+                      Acesse a plataforma e conheça todas as funcionalidades
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start space-x-4">
+                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-sm font-semibold text-blue-600">3</span>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-foreground">Cadastre seu primeiro cliente</h3>
+                    <p className="text-muted-foreground text-sm">
+                      Comece a usar o sistema com um caso real
+                    </p>
+                  </div>
                 </div>
               </div>
+            </CardContent>
+          </Card>
 
-              <div className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
-                <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0">
-                  2
+          {/* Resources */}
+          <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+              <CardContent className="p-6 text-center">
+                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <BookOpen className="h-6 w-6 text-blue-600" />
                 </div>
-                <div>
-                  <p className="text-gray-700">
-                    <strong>Faça login</strong> - Use suas credenciais para acessar
-                  </p>
+                <h3 className="font-semibold text-foreground mb-2">Guia de Início</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Tutorial completo para começar a usar a plataforma
+                </p>
+                <Button variant="outline" size="sm">
+                  Acessar Guia
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+              <CardContent className="p-6 text-center">
+                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <Users className="h-6 w-6 text-green-600" />
                 </div>
-              </div>
+                <h3 className="font-semibold text-foreground mb-2">Comunidade</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Conecte-se com outros advogados bancários
+                </p>
+                <Button variant="outline" size="sm">
+                  Participar
+                </Button>
+              </CardContent>
+            </Card>
 
-              <div className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
-                <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0">
-                  3
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+              <CardContent className="p-6 text-center">
+                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <Headphones className="h-6 w-6 text-purple-600" />
                 </div>
-                <div>
-                  <p className="text-gray-700">
-                    <strong>Comece a usar</strong> - Cadastre seu primeiro cliente
-                  </p>
-                </div>
-              </div>
-            </div>
+                <h3 className="font-semibold text-foreground mb-2">Suporte</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Nossa equipe está pronta para ajudar
+                </p>
+                <Button variant="outline" size="sm">
+                  Falar Conosco
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
 
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 pt-4">
-              <Button
-                onClick={() => navigate("/auth")}
-                size="lg"
-                className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
-              >
-                Fazer Login
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-
-              <Button
-                onClick={() => navigate("/")}
-                size="lg"
-                variant="outline"
-                className="flex-1"
-              >
-                Voltar ao Início
-              </Button>
-            </div>
-
-            {/* Help Text */}
-            <div className="pt-4 border-t border-gray-200">
-              <p className="text-sm text-gray-600">
-                Não recebeu o email?{" "}
-                <button className="text-blue-600 hover:underline font-semibold">
-                  Reenviar email de confirmação
-                </button>
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Support */}
-        <div className="text-center mt-6">
-          <p className="text-gray-600 text-sm">
-            Precisa de ajuda?{" "}
-            <a href="#" className="text-blue-600 hover:underline font-semibold">
-              Entre em contato com o suporte
-            </a>
-          </p>
+          {/* CTA */}
+          <div className="space-y-4">
+            <Button 
+              size="lg"
+              onClick={() => navigate("/auth")}
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-lg px-8 py-4"
+            >
+              Acessar Plataforma Agora
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+            
+            <p className="text-sm text-muted-foreground">
+              Redirecionando automaticamente em {countdown} segundos...
+            </p>
+          </div>
         </div>
       </div>
     </div>
