@@ -30,7 +30,7 @@ const menuItems = [
   {
     title: "Dashboard",
     icon: Home,
-    path: "/app",
+    path: "/app/home",
   },
   {
     title: "Gestão de Clientes",
@@ -46,25 +46,20 @@ const menuItems = [
     items: [
       {
         title: "Provisionamento Bancário",
-        path: "/app/calculos",
+        path: "/app/analises/provisionamento",
         description: "Res. 4966 BACEN",
       },
       {
         title: "Juros Abusivos",
-        path: "/app/juros/clientes",
+        path: "/app/analises/juros-abusivos",
         description: "Séries Temporais BACEN",
       },
       {
         title: "Superendividamento",
-        path: "/app/superendividamento",
+        path: "/app/analises/superendividamento",
         description: "Lei 14.181/2021",
       },
     ],
-  },
-  {
-    title: "Relatórios",
-    icon: FileText,
-    path: "/app/relatorios",
   },
   {
     title: "Configurações",
