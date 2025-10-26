@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { FileText, Eye, Download, Loader2 } from "lucide-react";
@@ -35,7 +35,7 @@ export default function ListaProvisionamento() {
   const [busca, setBusca] = useState("");
   const [classificacao, setClassificacao] = useState<string>("");
 
-  const { data: analises, isLoading } = useQuery({
+  const { data: analises, isLoading, error } = useQuery({
     queryKey: ["analises-provisionamento", dataInicio, dataFim, busca, classificacao],
     queryFn: async () => {
       try {
@@ -83,6 +83,13 @@ export default function ListaProvisionamento() {
       }
     },
   });
+
+  // Mostrar erro se houver
+  useEffect(() => {
+    if (error) {
+      toast.error("Erro ao carregar análises de provisionamento");
+    }
+  }, [error]);
 
   const getClassificacaoBadge = (classificacao: string) => {
     const classes: Record<string, string> = {
