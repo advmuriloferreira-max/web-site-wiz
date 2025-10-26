@@ -24,8 +24,7 @@ export interface ClienteWizardData {
   email: string;
   endereco: string;
   
-  // Etapa 3 - Observações e Responsável
-  responsavel: string;
+  // Etapa 3 - Observações
   observacoes: string;
 }
 
@@ -43,7 +42,6 @@ export function ClienteWizard({ onSuccess, clienteParaEditar }: ClienteWizardPro
     telefone: clienteParaEditar?.telefone || "",
     email: clienteParaEditar?.email || "",
     endereco: clienteParaEditar?.endereco || "",
-    responsavel: clienteParaEditar?.responsavel || "",
     observacoes: clienteParaEditar?.observacoes || "",
   });
   const [etapasCompletas, setEtapasCompletas] = useState<number[]>([]);
@@ -102,7 +100,10 @@ export function ClienteWizard({ onSuccess, clienteParaEditar }: ClienteWizardPro
         telefone: dados.telefone.trim() || null,
         email: dados.email.trim() || null,
         endereco: dados.endereco.trim() || null,
-        responsavel: dados.responsavel.trim() || null,
+        cidade: null,
+        estado: null,
+        cep: null,
+        data_nascimento: null,
         observacoes: dados.observacoes.trim() || null,
       };
 

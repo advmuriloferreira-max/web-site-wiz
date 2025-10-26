@@ -187,12 +187,9 @@ export default function Clientes() {
                                     {cliente.nome.charAt(0).toUpperCase()}
                                   </span>
                                 </div>
-                                <div>
-                                  <span className="font-semibold">{cliente.nome}</span>
-                                  {cliente.responsavel && (
-                                    <p className="text-xs text-muted-foreground">Resp: {cliente.responsavel}</p>
-                                  )}
-                                </div>
+                              <div>
+                                <span className="font-semibold">{cliente.nome}</span>
+                              </div>
                               </div>
                             </TableCell>
                             <TableCell>
@@ -214,7 +211,7 @@ export default function Clientes() {
                             <TableCell>
                               <LegalTimestamp
                                 label=""
-                                timestamp={cliente.data_cadastro}
+                                timestamp={cliente.created_at}
                                 format="date"
                                 className="border-0 bg-transparent p-0"
                               />

@@ -10,19 +10,21 @@ export interface Cliente {
   email: string | null;
   telefone: string | null;
   endereco: string | null;
-  responsavel: string | null;
+  cidade: string | null;
+  estado: string | null;
+  cep: string | null;
+  data_nascimento: string | null;
   observacoes: string | null;
-  data_cadastro: string;
   created_at: string;
   updated_at: string;
 }
 
 export const useClientes = () => {
   return useRealtimeQuery({
-    queryKey: ["clientes-provisao"],
+    queryKey: ["clientes"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("clientes_provisao")
+        .from("clientes")
         .select("*")
         .order("nome", { ascending: true });
 
@@ -32,7 +34,7 @@ export const useClientes = () => {
 
       return data as Cliente[];
     },
-    tableName: "clientes_provisao",
+    tableName: "clientes",
   });
 };
 
@@ -42,7 +44,7 @@ export const useCreateCliente = () => {
   return useMutation({
     mutationFn: async (cliente: Omit<Cliente, 'id' | 'created_at' | 'updated_at' | 'data_cadastro' | 'escritorio_id'>) => {
       const { data, error } = await supabase
-        .from("clientes_provisao")
+        .from("clientes")
         .insert([cliente as any])
         .select()
         .single();
@@ -54,7 +56,7 @@ export const useCreateCliente = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["clientes-provisao"] });
+      queryClient.invalidateQueries({ queryKey: ["clientes"] });
       toast.success("Cliente criado com sucesso!");
     },
     onError: (error) => {
@@ -69,7 +71,7 @@ export const useUpdateCliente = () => {
   return useMutation({
     mutationFn: async ({ id, ...cliente }: Partial<Cliente> & { id: string }) => {
       const { data, error } = await supabase
-        .from("clientes_provisao")
+        .from("clientes")
         .update(cliente)
         .eq("id", id)
         .select()
@@ -82,7 +84,7 @@ export const useUpdateCliente = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["clientes-provisao"] });
+      queryClient.invalidateQueries({ queryKey: ["clientes"] });
       toast.success("Cliente atualizado com sucesso!");
     },
     onError: (error) => {
@@ -97,7 +99,7 @@ export const useDeleteCliente = () => {
   return useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
-        .from("clientes_provisao")
+        .from("clientes")
         .delete()
         .eq("id", id);
 
@@ -106,7 +108,7 @@ export const useDeleteCliente = () => {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["clientes-provisao"] });
+      queryClient.invalidateQueries({ queryKey: ["clientes"] });
       toast.success("Cliente excluído com sucesso!");
     },
     onError: (error) => {

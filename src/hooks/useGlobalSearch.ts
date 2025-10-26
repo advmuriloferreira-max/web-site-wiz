@@ -66,8 +66,7 @@ export const useGlobalSearch = () => {
         const matchFields = [
           cliente.nome,
           cliente.cpf_cnpj,
-          cliente.email,
-          cliente.responsavel
+          cliente.email
         ].filter(Boolean).join(' ').toLowerCase();
 
         if (matchFields.includes(debouncedQuery)) {

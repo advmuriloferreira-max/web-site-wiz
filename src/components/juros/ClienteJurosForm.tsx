@@ -13,7 +13,6 @@ const formSchema = z.object({
   telefone: z.string().optional(),
   email: z.string().email("Email inválido").optional().or(z.literal("")),
   endereco: z.string().optional(),
-  responsavel: z.string().optional(),
   observacoes: z.string().optional(),
 });
 
@@ -34,7 +33,6 @@ export function ClienteJurosForm({ cliente, onSuccess }: ClienteJurosFormProps) 
       telefone: cliente?.telefone || "",
       email: cliente?.email || "",
       endereco: cliente?.endereco || "",
-      responsavel: cliente?.responsavel || "",
       observacoes: cliente?.observacoes || "",
     },
   });
@@ -47,9 +45,11 @@ export function ClienteJurosForm({ cliente, onSuccess }: ClienteJurosFormProps) 
         telefone: values.telefone || null,
         email: values.email || null,
         endereco: values.endereco || null,
-        responsavel: values.responsavel || null,
+        cidade: null,
+        estado: null,
+        cep: null,
+        data_nascimento: null,
         observacoes: values.observacoes || null,
-        data_cadastro: new Date().toISOString().split('T')[0],
       };
       
       if (cliente) {
@@ -132,20 +132,6 @@ export function ClienteJurosForm({ cliente, onSuccess }: ClienteJurosFormProps) 
           render={({ field }) => (
             <FormItem>
               <FormLabel>Endereço</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="responsavel"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Responsável</FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>

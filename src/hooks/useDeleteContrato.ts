@@ -17,8 +17,8 @@ export const useDeleteContrato = () => {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["contratos-provisao"] });
-      queryClient.invalidateQueries({ queryKey: ["contratos-provisao-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["contratos"] });
+      queryClient.invalidateQueries({ queryKey: ["contratos-stats"] });
       toast.success("Contrato excluído com sucesso!");
     },
     onError: (error) => {

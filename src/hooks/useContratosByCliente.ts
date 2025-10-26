@@ -12,7 +12,7 @@ export const useContratosByCliente = (clienteId: string | null) => {
         .from("contratos_provisao")
         .select(`
           *,
-          clientes:clientes_provisao (nome, cpf_cnpj, responsavel),
+          clientes:clientes (nome, cpf_cnpj),
           bancos:bancos_provisao (nome)
         `)
         .eq("cliente_id", clienteId)

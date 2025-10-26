@@ -33,11 +33,11 @@ export const useContratosJuros = () => {
     queryKey: ["contratos-juros"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("contratos_juros")
+        .from("contratos")
         .select(`
           *,
-          clientes_juros(nome, cpf_cnpj),
-          instituicoes_financeiras(nome),
+          clientes(nome, cpf_cnpj),
+          bancos:bancos_provisao(nome),
           modalidades_bacen_juros(nome)
         `)
         .order("created_at", { ascending: false });
@@ -50,16 +50,16 @@ export const useContratosJuros = () => {
 
 export const useContratoJurosById = (id: string | null) => {
   return useQuery({
-    queryKey: ["contrato-juros", id],
+    queryKey: ["contrato", id],
     queryFn: async () => {
       if (!id) return null;
 
       const { data, error } = await supabase
-        .from("contratos_juros")
+        .from("contratos")
         .select(`
           *,
-          clientes_juros(*),
-          instituicoes_financeiras(*),
+          clientes(*),
+          bancos:bancos_provisao(*),
           modalidades_bacen_juros(*)
         `)
         .eq("id", id)
@@ -78,7 +78,7 @@ export const useCreateContratoJuros = () => {
   return useMutation({
     mutationFn: async (contrato: Omit<ContratoJuros, "id" | "created_at" | "updated_at" | "escritorio_id">) => {
       const { data, error } = await supabase
-        .from("contratos_juros")
+        .from("contratos")
         .insert([contrato as any])
         .select()
         .single();
@@ -109,7 +109,7 @@ export const useUpdateContratoJuros = () => {
   return useMutation({
     mutationFn: async ({ id, ...updates }: Partial<ContratoJuros> & { id: string }) => {
       const { data, error } = await supabase
-        .from("contratos_juros")
+        .from("contratos")
         .update(updates)
         .eq("id", id)
         .select()
@@ -141,7 +141,7 @@ export const useDeleteContratoJuros = () => {
   return useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
-        .from("contratos_juros")
+        .from("contratos")
         .delete()
         .eq("id", id);
 

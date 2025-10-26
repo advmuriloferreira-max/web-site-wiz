@@ -9,19 +9,21 @@ export interface ClienteJuros {
   telefone: string | null;
   email: string | null;
   endereco: string | null;
-  responsavel: string | null;
+  cidade: string | null;
+  estado: string | null;
+  cep: string | null;
+  data_nascimento: string | null;
   observacoes: string | null;
-  data_cadastro: string;
   created_at: string;
   updated_at: string;
 }
 
 export const useClientesJuros = () => {
   return useQuery({
-    queryKey: ["clientes-juros"],
+    queryKey: ["clientes"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("clientes_juros")
+        .from("clientes")
         .select("*")
         .order("nome", { ascending: true });
 
@@ -33,12 +35,12 @@ export const useClientesJuros = () => {
 
 export const useClienteJurosById = (id: string | null) => {
   return useQuery({
-    queryKey: ["cliente-juros", id],
+    queryKey: ["cliente", id],
     queryFn: async () => {
       if (!id) return null;
 
       const { data, error } = await supabase
-        .from("clientes_juros")
+        .from("clientes")
         .select("*")
         .eq("id", id)
         .single();
@@ -56,7 +58,7 @@ export const useCreateClienteJuros = () => {
   return useMutation({
     mutationFn: async (cliente: Omit<ClienteJuros, "id" | "created_at" | "updated_at" | "escritorio_id">) => {
       const { data, error } = await supabase
-        .from("clientes_juros")
+        .from("clientes")
         .insert([cliente as any])
         .select()
         .single();
@@ -65,7 +67,7 @@ export const useCreateClienteJuros = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["clientes-juros"] });
+      queryClient.invalidateQueries({ queryKey: ["clientes"] });
       toast({
         title: "Cliente cadastrado",
         description: "Cliente cadastrado com sucesso no sistema de análise de juros.",
@@ -87,7 +89,7 @@ export const useUpdateClienteJuros = () => {
   return useMutation({
     mutationFn: async ({ id, ...updates }: Partial<ClienteJuros> & { id: string }) => {
       const { data, error } = await supabase
-        .from("clientes_juros")
+        .from("clientes")
         .update(updates)
         .eq("id", id)
         .select()
@@ -97,7 +99,7 @@ export const useUpdateClienteJuros = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["clientes-juros"] });
+      queryClient.invalidateQueries({ queryKey: ["clientes"] });
       toast({
         title: "Cliente atualizado",
         description: "Dados do cliente atualizados com sucesso.",
@@ -119,14 +121,14 @@ export const useDeleteClienteJuros = () => {
   return useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
-        .from("clientes_juros")
+        .from("clientes")
         .delete()
         .eq("id", id);
 
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["clientes-juros"] });
+      queryClient.invalidateQueries({ queryKey: ["clientes"] });
       toast({
         title: "Cliente excluído",
         description: "Cliente removido do sistema com sucesso.",

@@ -58,7 +58,6 @@ export function ClienteForm({ cliente, onSuccess }: ClienteFormProps) {
       email: cliente?.email || "",
       telefone: cliente?.telefone || "",
       endereco: cliente?.endereco || "",
-      responsavel: cliente?.responsavel || "",
       observacoes: cliente?.observacoes || "",
     },
   });
@@ -108,7 +107,10 @@ export function ClienteForm({ cliente, onSuccess }: ClienteFormProps) {
         email: data.email || null,
         telefone: data.telefone || null,
         endereco: data.endereco || null,
-        responsavel: data.responsavel || null,
+        cidade: null,
+        estado: null,
+        cep: null,
+        data_nascimento: null,
         observacoes: data.observacoes || null,
       };
 

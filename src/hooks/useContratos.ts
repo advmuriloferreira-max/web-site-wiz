@@ -38,12 +38,10 @@ export interface Contrato {
   clientes_provisao?: {
     nome: string;
     cpf_cnpj: string | null;
-    responsavel: string | null;
   };
   clientes?: {
     nome: string;
     cpf_cnpj: string | null;
-    responsavel: string | null;
   };
   bancos_provisao?: {
     nome: string;
@@ -55,13 +53,13 @@ export interface Contrato {
 
 export const useContratos = () => {
   return useRealtimeQuery({
-    queryKey: ["contratos-provisao"],
+    queryKey: ["contratos"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("contratos_provisao")
+        .from("contratos")
         .select(`
           *,
-          clientes:clientes_provisao (nome, cpf_cnpj, responsavel),
+          clientes:clientes (nome, cpf_cnpj),
           bancos:bancos_provisao (nome)
         `)
         .order("created_at", { ascending: false });
@@ -72,13 +70,13 @@ export const useContratos = () => {
 
       return data as Contrato[];
     },
-    tableName: "contratos_provisao",
+    tableName: "contratos",
   });
 };
 
 export const useContratosStats = () => {
   return useRealtimeQuery({
-    queryKey: ["contratos-provisao-stats"],
+    queryKey: ["contratos-stats"],
     queryFn: async () => {
       const { data: contratos, error } = await supabase
         .from("contratos_provisao")

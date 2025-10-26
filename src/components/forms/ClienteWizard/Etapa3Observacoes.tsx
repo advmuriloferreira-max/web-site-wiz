@@ -18,29 +18,11 @@ export function Etapa3Observacoes({ dados, onChange }: Etapa3Props) {
       <Alert>
         <CheckCircle className="h-4 w-4" />
         <AlertDescription>
-          Última etapa! Adicione informações complementares sobre o cliente e defina o responsável pelo atendimento.
+          Última etapa! Adicione informações complementares sobre o cliente.
         </AlertDescription>
       </Alert>
 
       <div className="grid gap-4">
-        {/* Responsável */}
-        <div className="space-y-2">
-          <Label htmlFor="responsavel" className="flex items-center gap-2">
-            <UserCheck className="w-4 h-4" />
-            Advogado Responsável
-          </Label>
-          <Input
-            id="responsavel"
-            value={dados.responsavel}
-            onChange={(e) => onChange({ responsavel: e.target.value })}
-            placeholder="Nome do advogado responsável pelo caso"
-            className="text-base"
-          />
-          <p className="text-xs text-muted-foreground">
-            Identifica quem será o responsável principal pelo atendimento deste cliente
-          </p>
-        </div>
-
         {/* Observações */}
         <div className="space-y-2">
           <Label htmlFor="observacoes" className="flex items-center gap-2">
@@ -87,13 +69,6 @@ export function Etapa3Observacoes({ dados, onChange }: Etapa3Props) {
             <div>
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Endereço</p>
               <p className="text-sm">{dados.endereco}</p>
-            </div>
-          )}
-
-          {dados.responsavel && (
-            <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Responsável</p>
-              <p className="text-sm font-medium">{dados.responsavel}</p>
             </div>
           )}
 
