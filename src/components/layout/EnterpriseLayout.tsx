@@ -27,6 +27,7 @@ import Home from "@/pages/Home";
 import Clientes from "@/pages/Clientes";
 import NovoCliente from "@/pages/NovoCliente";
 import ClienteDetalhes from "@/pages/clientes/ClienteDetalhes";
+import AnaliseProvisionamento from "@/pages/contratos/AnaliseProvisionamento";
 import Contratos from "@/pages/Contratos";
 import NovoContrato from "@/pages/NovoContrato";
 import ContratoDetalhes from "@/pages/ContratoDetalhes";
@@ -161,7 +162,8 @@ export function EnterpriseLayout() {
                     <Route path="/home" element={<Home />} />
                     <Route path="/clientes" element={<Clientes />} />
                     <Route path="/clientes/novo" element={<NovoCliente />} />
-                    <Route path="/clientes/:id" element={<ClienteDetalhes />} />
+              <Route path="/clientes/:id" element={<ClienteDetalhes />} />
+              <Route path="/contratos/:contratoId/analise-provisionamento" element={<AnaliseProvisionamento />} />
                     <Route path="/contratos" element={<Contratos />} />
                     <Route path="/contratos/novo" element={<NovoContrato />} />
                     <Route path="/contratos/:contratoId" element={<ContratoDetalhes />} />
