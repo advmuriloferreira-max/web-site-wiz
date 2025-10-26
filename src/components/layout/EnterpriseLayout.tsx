@@ -223,9 +223,14 @@ export function EnterpriseLayout() {
                     <Route path="/admin/system-check" element={<ProtectedRoute requireAdmin><SystemCheckPage /></ProtectedRoute>} />
 
                     {/* ===================================================================== */}
-                    {/* FALLBACK */}
+                    {/* ROTA INDEX (quando acessa /app sem nada) */}
                     {/* ===================================================================== */}
-                    <Route path="*" element={<Navigate to="/home" replace />} />
+                    <Route index element={<Navigate to="home" replace />} />
+
+                    {/* ===================================================================== */}
+                    {/* FALLBACK (para rotas que não existem) */}
+                    {/* ===================================================================== */}
+                    <Route path="*" element={<Navigate to="home" replace />} />
                   </Routes>
                 </PageTransition>
               </div>
