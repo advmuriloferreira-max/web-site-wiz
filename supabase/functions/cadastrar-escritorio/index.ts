@@ -68,7 +68,7 @@ serve(async (req) => {
 
     // 3. Criar escritório
     const dataVencimento = new Date();
-    dataVencimento.setDate(dataVencimento.getDate() + 30); // 30 dias trial
+    dataVencimento.setDate(dataVencimento.getDate() + 7); // 7 dias trial
 
     const { data: escritorio, error: escritorioError } = await supabaseClient
       .from('escritorios')
