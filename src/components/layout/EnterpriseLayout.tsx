@@ -54,6 +54,7 @@ import AdminDashboard from "@/pages/admin/Dashboard";
 import SystemCheckPage from "@/pages/admin/SystemCheck";
 import ProvisionamentoRapido from "@/pages/quick/ProvisionamentoRapido";
 import JurosAbusivosRapido from "@/pages/quick/JurosAbusivosRapido";
+import SuperendividamentoRapido from "@/pages/quick/SuperendividamentoRapido";
 
 export function EnterpriseLayout() {
   const [searchOpen, setSearchOpen] = useState(false);
@@ -197,6 +198,7 @@ export function EnterpriseLayout() {
                     {/* ===================================================================== */}
                     <Route path="/quick/provisionamento" element={<ProvisionamentoRapido />} />
                     <Route path="/quick/juros-abusivos" element={<JurosAbusivosRapido />} />
+                    <Route path="/quick/superendividamento" element={<SuperendividamentoRapido />} />
 
                     {/* ===================================================================== */}
                     {/* CALCULADORA (manter para compatibilidade) */}
