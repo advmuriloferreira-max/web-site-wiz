@@ -12,7 +12,7 @@ import { useGetTipoOperacaoById } from "@/hooks/useTiposOperacao";
 import { ContratoWizardData } from "./types";
 import { Calculator, TrendingUp, AlertTriangle, CheckCircle, Info } from "lucide-react";
 import { calcularProvisao, ClassificacaoRisco } from "@/lib/calculoProvisao";
-import { enhancedToast } from "@/components/ui/enhanced-toast";
+import { toast } from "sonner";
 
 interface Etapa3Props {
   form: UseFormReturn<ContratoWizardData>;
@@ -39,22 +39,18 @@ export function Etapa3({ form }: Etapa3Props) {
     if (tipoOperacaoSelecionado && !classificacao) {
       const novaClassificacao = tipoOperacaoSelecionado.carteira as ClassificacaoRisco;
       form.setValue("classificacao", novaClassificacao);
-      enhancedToast.info(`Classificação definida automaticamente: ${novaClassificacao}`, {
-        description: "Baseada no tipo de operação BCB selecionado"
-      });
+      toast.info("Classificação " + novaClassificacao + " definida automaticamente baseada no tipo de operação BCB");
     }
   }, [tipoOperacaoSelecionado, classificacao, form]);
 
   const calcularProvisaoAutomatica = () => {
     if (!saldoContabil || !classificacao) {
-      enhancedToast.warning("Dados insuficientes", {
-        description: "Informe pelo menos a dívida contábil e a classificação"
-      });
+      toast.error("Dados insuficientes - Informe pelo menos a dívida contábil e a classificação");
       return;
     }
 
     if (!tabelaPerda || !tabelaIncorrida) {
-      enhancedToast.error("Tabelas de referência não carregadas");
+      toast.error("Tabelas de referência não carregadas");
       return;
     }
 
@@ -81,11 +77,9 @@ export function Etapa3({ form }: Etapa3Props) {
       form.setValue("proposta_acordo", Math.max(0, proposta).toFixed(2));
 
       setCalculoRealizado(true);
-      enhancedToast.success("Provisão calculada com sucesso!", {
-        description: `${resultado.percentualProvisao.toFixed(2)}% - R$ ${resultado.valorProvisao.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
-      });
+      toast.success("Provisão calculada: " + resultado.percentualProvisao.toFixed(2) + "% - R$ " + resultado.valorProvisao.toLocaleString('pt-BR', { minimumFractionDigits: 2 }));
     } catch (error) {
-      enhancedToast.error("Erro ao calcular provisão");
+      toast.error("Erro ao calcular provisão");
       console.error(error);
     }
   };

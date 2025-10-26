@@ -26,7 +26,7 @@ import { useUpdateContrato } from "@/hooks/useUpdateContrato";
 import { useContratoById } from "@/hooks/useContratoById";
 import { useAsyncOperation } from "@/hooks/useAsyncOperation";
 import { useValidacaoLimites } from "@/hooks/useValidacaoLimites";
-import { enhancedToast } from "@/components/ui/enhanced-toast";
+import { toast } from "sonner";
 import { ChevronLeft, ChevronRight, Save, Send, AlertCircle } from "lucide-react";
 
 interface ContratoWizardProps {
@@ -168,9 +168,7 @@ export function ContratoWizard({
         tempo_escritorio: ((contratoExistente as any).tempo_escritorio || 0).toString(),
       });
       
-      enhancedToast.info("Contrato carregado para edição", {
-        description: `${contratoExistente.numero_contrato || 'Contrato'} pronto para edição`
-      });
+      toast.info("Contrato carregado para edição - " + (contratoExistente.numero_contrato || 'Contrato') + " pronto para edição");
     } else if (!contratoParaEditar || !isValidUUID(contratoParaEditar)) {
       // Carregar rascunho apenas se não estiver editando
       const draft = localStorage.getItem(DRAFT_KEY);
@@ -179,9 +177,7 @@ export function ContratoWizard({
           const draftData = JSON.parse(draft);
           form.reset(draftData);
           setIsDraftSaved(true);
-          enhancedToast.info("Rascunho carregado", {
-            description: "Seus dados foram restaurados automaticamente"
-          });
+          toast.info("Rascunho carregado - Seus dados foram restaurados automaticamente");
         } catch (error) {
           console.error("Erro ao carregar rascunho:", error);
         }
@@ -228,9 +224,7 @@ export function ContratoWizard({
     const isValid = await validateCurrentStep();
     
     if (!isValid) {
-      enhancedToast.warning("Campos obrigatórios", {
-        description: "Complete os campos obrigatórios antes de prosseguir"
-      });
+      toast.error("Campos obrigatórios - Complete os campos obrigatórios antes de prosseguir");
       return;
     }
 
@@ -266,9 +260,7 @@ export function ContratoWizard({
       const podeAdicionar = await validarNovoContrato();
       
       if (!podeAdicionar) {
-        enhancedToast.error("Limite atingido", {
-          description: "Você atingiu o limite de contratos do seu plano. Faça upgrade para adicionar mais.",
-        });
+        toast.error("Limite atingido - Você atingiu o limite de contratos do seu plano. Faça upgrade para adicionar mais.");
         return;
       }
     }

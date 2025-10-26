@@ -3,6 +3,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useUpdateUserStatus, useUpdateUserRole, useDeleteUser } from "@/hooks/useUserManagement";
 import { useValidacaoLimites } from "@/hooks/useValidacaoLimites";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,7 +29,6 @@ interface UserProfile {
 
 export function GerenciarUsuarios() {
   const { createUser, isAdmin, user } = useAuth();
-  const { toast } = useToast();
   const updateStatusMutation = useUpdateUserStatus();
   const updateRoleMutation = useUpdateUserRole();
   const deleteUserMutation = useDeleteUser();
@@ -56,11 +56,7 @@ export function GerenciarUsuarios() {
       setUsers(data || []);
     } catch (error) {
       console.error('Error fetching users:', error);
-      toast({
-        title: "Erro",
-        description: "Erro ao carregar usuários",
-        variant: "destructive"
-      });
+      toast.error("Erro ao carregar usuários");
     } finally {
       setLoading(false);
     }
@@ -84,11 +80,7 @@ export function GerenciarUsuarios() {
       const podeAdicionar = await validarNovoUsuario();
       
       if (!podeAdicionar) {
-        toast({
-          title: "Limite atingido",
-          description: "Você atingiu o limite de usuários do seu plano. Faça upgrade para adicionar mais.",
-          variant: "destructive",
-        });
+        toast.error("Limite atingido - Você atingiu o limite de usuários do seu plano. Faça upgrade para adicionar mais.");
         setIsCreating(false);
         return;
       }
@@ -110,10 +102,7 @@ export function GerenciarUsuarios() {
       if (error) {
         setError(error.message || 'Erro ao criar usuário');
       } else {
-        toast({
-          title: "Usuário criado!",
-          description: `Usuário ${validation.nome} foi criado com sucesso`,
-        });
+        toast.success("Usuário " + validation.nome + " criado com sucesso!");
         
         setIsDialogOpen(false);
         fetchUsers();
@@ -181,11 +170,7 @@ export function GerenciarUsuarios() {
 
   const handleDeleteUser = async (userId: string) => {
     if (userId === user?.id) {
-      toast({
-        title: "Erro",
-        description: "Você não pode excluir sua própria conta",
-        variant: "destructive"
-      });
+      toast.error("Você não pode excluir sua própria conta");
       return;
     }
     deleteUserMutation.mutate(userId);

@@ -13,7 +13,7 @@ import { DollarSign, Calendar as CalendarIcon, TrendingUp, Building2, Info } fro
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { calcularDiasAtraso, diasParaMeses } from "@/lib/calculoProvisao";
-import { enhancedToast } from "@/components/ui/enhanced-toast";
+import { toast } from "sonner";
 
 interface Etapa2Props {
   form: UseFormReturn<ContratoWizardData>;
