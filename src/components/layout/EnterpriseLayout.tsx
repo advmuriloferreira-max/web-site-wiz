@@ -163,27 +163,38 @@ export function EnterpriseLayout() {
               <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
                 <PageTransition>
                   <Routes>
-                    <Route index element={<Index />} />
+                    {/* ===================================================================== */}
+                    {/* ROTAS PADRONIZADAS - Parâmetro :id unificado */}
+                    {/* ===================================================================== */}
+
+                    {/* --- ROTAS PRINCIPAIS --- */}
+                    <Route index element={<Home />} />
                     <Route path="/home" element={<Home />} />
+                    <Route path="/workspace" element={<WorkspacePage />} />
+
+                    {/* --- ROTAS DE CLIENTES E CONTRATOS (HUB CENTRAL) --- */}
                     <Route path="/clientes" element={<Clientes />} />
                     <Route path="/clientes/novo" element={<NovoCliente />} />
-              <Route path="/clientes/:id" element={<ClienteDetalhes />} />
-              <Route path="/clientes/:id/superendividamento" element={<PlanoSuperendividamento />} />
-              <Route path="/contratos/:id/provisionamento" element={<AnaliseProvisionamento />} />
-              <Route path="/contratos/:id/juros-abusivos" element={<AnaliseJurosAbusivos />} />
-              
-              {/* Páginas de listagem de análises */}
-              <Route path="/analises/provisionamento" element={<ListaProvisionamento />} />
-              <Route path="/analises/juros-abusivos" element={<ListaJurosAbusivos />} />
-              <Route path="/analises/superendividamento" element={<ListaSuperendividamento />} />
+                    <Route path="/clientes/:id" element={<ClienteDetalhes />} />
                     <Route path="/contratos" element={<Contratos />} />
                     <Route path="/contratos/novo" element={<NovoContrato />} />
-                    <Route path="/contratos/:contratoId" element={<ContratoDetalhes />} />
-                    <Route path="/contratos/:contratoId/analise-juros" element={<AnaliseJurosContrato />} />
-                    <Route path="/calculadora-juros" element={<CalculadoraJuros />} />
-                    <Route path="/juros/clientes" element={<ClientesJuros />} />
-                    <Route path="/juros/contratos" element={<ContratosJuros />} />
-                    <Route path="/juros/contratos/:id/analise" element={<AnaliseContratoJurosPage />} />
+                    <Route path="/contratos/:id" element={<ContratoDetalhes />} />
+
+                    {/* --- ROTAS DE ANÁLISE (NOVAS) --- */}
+                    <Route path="/contratos/:id/provisionamento" element={<AnaliseProvisionamento />} />
+                    <Route path="/contratos/:id/juros-abusivos" element={<AnaliseJurosAbusivos />} />
+                    <Route path="/clientes/:id/superendividamento" element={<PlanoSuperendividamento />} />
+
+                    {/* --- ROTAS DE LISTAGEM DE ANÁLISES --- */}
+                    <Route path="/analises/provisionamento" element={<ListaProvisionamento />} />
+                    <Route path="/analises/juros-abusivos" element={<ListaJurosAbusivos />} />
+                    <Route path="/analises/superendividamento" element={<ListaSuperendividamento />} />
+
+                    {/* --- ROTAS DE CONFIGURAÇÕES --- */}
+                    <Route path="/configuracoes" element={<Configuracoes />} />
+                    <Route path="/configuracoes/escritorio" element={<GerenciarEscritorio />} />
+
+                    {/* --- ROTAS DE ADMIN --- */}
                     <Route path="/admin" element={
                       <ProtectedRoute requireAdmin>
                         <AdminDashboard />
@@ -199,26 +210,15 @@ export function EnterpriseLayout() {
                         <SystemCheckPage />
                       </ProtectedRoute>
                     } />
+
+                    {/* --- ROTAS LEGADAS (Módulos Antigos - MANTER POR ENQUANTO) --- */}
+                    <Route path="/calculadora-juros" element={<CalculadoraJuros />} />
+                    <Route path="/juros/clientes" element={<ClientesJuros />} />
+                    <Route path="/juros/contratos" element={<ContratosJuros />} />
+                    <Route path="/juros/contratos/:id/analise" element={<AnaliseContratoJurosPage />} />
                     <Route path="/superendividamento" element={<SuperendividamentoDashboard />} />
-                    <Route path="/superendividamento/clientes" element={<SuperendividamentoClientes />} />
-                    <Route path="/superendividamento/analise" element={<SuperendividamentoAnalise />} />
-                    <Route path="/superendividamento/planos" element={<SuperendividamentoPlanos />} />
-                    <Route path="/superendividamento/calculadora" element={<SuperendividamentoCalculadora />} />
-                    <Route path="/calculos" element={<Calculos />} />
-                    <Route path="/processos" element={<Processos />} />
-                    <Route path="acordos" element={<Acordos />} />
-                    <Route path="painel-cliente" element={<PainelCliente />} />
-                    <Route path="relatorios" element={<Relatorios />} />
-                    <Route path="relatorios-avancados" element={<RelatoriosAvancados />} />
-                    <Route path="configuracoes" element={<Configuracoes />} />
-                    <Route path="configuracoes/escritorio" element={<GerenciarEscritorio />} />
-                    <Route path="workspace" element={<WorkspacePage />} />
-                    <Route path="visual-effects" element={
-                      <div className="container mx-auto">
-                        <VisualEffectsDemo />
-                      </div>
-                    } />
-                    <Route path="technical-fixes" element={<TechnicalFixesShowcase />} />
+
+                    {/* --- ROTAS DE UTILIDADE --- */}
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </PageTransition>
