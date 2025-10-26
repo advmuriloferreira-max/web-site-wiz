@@ -26,6 +26,7 @@ import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { PageBreadcrumbs } from "@/components/ui/page-breadcrumbs";
 
 export default function ListaProvisionamento() {
   const navigate = useNavigate();
@@ -99,6 +100,13 @@ export default function ListaProvisionamento() {
 
   return (
     <div className="container mx-auto py-8 space-y-6">
+      <PageBreadcrumbs 
+        segments={[
+          { label: "Análises", path: "/analises" },
+          { label: "Provisionamento" },
+        ]}
+      />
+      
       <div>
         <h1 className="text-3xl font-bold">Análises de Provisionamento</h1>
         <p className="text-muted-foreground">

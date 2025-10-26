@@ -20,6 +20,7 @@ import {
 import { format } from "date-fns";
 import { useState, useEffect } from "react";
 import AssistenteVirtual from "@/components/assistente/AssistenteVirtual";
+import { PageBreadcrumbs } from "@/components/ui/page-breadcrumbs";
 
 // Import visual effects components
 import { HeroParticleBackground, SuccessConfetti } from "@/components/ui/particle-effects";
@@ -167,6 +168,12 @@ export default function ContratoDetalhes() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/10 to-background">
       <div className="container mx-auto p-6 space-y-6">
+        <PageBreadcrumbs 
+          segments={[
+            { label: "Contratos", path: "/contratos" },
+            { label: contrato?.numero_contrato || "Detalhes" },
+          ]}
+        />
         
         {/* Success Confetti - disabled */}
 

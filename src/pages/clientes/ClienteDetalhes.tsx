@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { PageBreadcrumbs } from "@/components/ui/page-breadcrumbs";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -131,6 +132,13 @@ export default function ClienteDetalhes() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
+      <PageBreadcrumbs 
+        segments={[
+          { label: "Clientes", path: "/clientes" },
+          { label: cliente?.nome || "Detalhes" },
+        ]}
+      />
+      
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">

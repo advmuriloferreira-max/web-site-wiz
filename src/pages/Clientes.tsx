@@ -14,6 +14,7 @@ import { ContratosCliente } from "@/components/cliente/ContratosCliente";
 import { useClientes, useDeleteCliente, Cliente } from "@/hooks/useClientes";
 import { useContratosCountByCliente } from "@/hooks/useContratosByCliente";
 import { usePWANavigation } from "@/hooks/usePWANavigation";
+import { PageBreadcrumbs } from "@/components/ui/page-breadcrumbs";
 
 // Componentes jurídicos
 import { LegalIcons } from "@/components/ui/legal-icons";
@@ -87,6 +88,8 @@ export default function Clientes() {
 
   return (
     <div className="container mx-auto py-8 space-y-6">
+      <PageBreadcrumbs segments={[{ label: "Clientes" }]} />
+      
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-foreground">

@@ -16,6 +16,7 @@ import { LoadingState, TableLoading } from "@/components/ui/loading-states";
 import { ErrorState } from "@/components/ui/error-boundary";
 import { LegalIcons } from "@/components/ui/legal-icons";
 import { DeleteConfirmation } from "@/components/ui/delete-confirmation";
+import { PageBreadcrumbs } from "@/components/ui/page-breadcrumbs";
 
 const getClassificacaoColor = (classificacao: string | null) => {
   switch (classificacao) {
@@ -88,6 +89,8 @@ export default function Contratos() {
 
   return (
     <div className="container mx-auto py-8 space-y-6">
+      <PageBreadcrumbs segments={[{ label: "Contratos" }]} />
+      
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-foreground">

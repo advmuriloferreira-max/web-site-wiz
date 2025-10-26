@@ -19,6 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { PageBreadcrumbs } from "@/components/ui/page-breadcrumbs";
 
 export default function ListaSuperendividamento() {
   const navigate = useNavigate();
@@ -75,6 +76,13 @@ export default function ListaSuperendividamento() {
 
   return (
     <div className="container mx-auto py-8 space-y-6">
+      <PageBreadcrumbs 
+        segments={[
+          { label: "Análises", path: "/analises" },
+          { label: "Superendividamento" },
+        ]}
+      />
+      
       <div>
         <h1 className="text-3xl font-bold">Análises de Superendividamento</h1>
         <p className="text-muted-foreground">
