@@ -38,39 +38,49 @@ export default function ListaProvisionamento() {
   const { data: analises, isLoading } = useQuery({
     queryKey: ["analises-provisionamento", dataInicio, dataFim, busca, classificacao],
     queryFn: async () => {
-      let query = supabase
-        .from("analises_provisionamento")
-        .select(`
-          *,
-          contrato:contratos(
-            id,
-            numero_contrato,
-            cliente:clientes(id, nome)
-          )
-        `)
-        .order("created_at", { ascending: false });
+      try {
+        let query = supabase
+          .from("analises_provisionamento")
+          .select(`
+            *,
+            contrato:contratos(
+              id,
+              numero_contrato,
+              cliente:clientes(id, nome)
+            )
+          `)
+          .order("created_at", { ascending: false });
 
-      if (dataInicio) {
-        query = query.gte("data_calculo", dataInicio);
-      }
-      if (dataFim) {
-        query = query.lte("data_calculo", dataFim);
-      }
-      if (classificacao) {
-        query = query.eq("classificacao_risco", classificacao);
-      }
+        if (dataInicio) {
+          query = query.gte("data_calculo", dataInicio);
+        }
+        if (dataFim) {
+          query = query.lte("data_calculo", dataFim);
+        }
+        if (classificacao) {
+          query = query.eq("classificacao_risco", classificacao);
+        }
 
-      const { data, error } = await query;
-      if (error) throw error;
+        const { data, error } = await query;
+        
+        if (error) {
+          console.error("Erro ao buscar análises:", error);
+          toast.error(`Erro ao carregar análises: ${error.message}`);
+          throw error;
+        }
 
-      // Filtrar por busca no cliente
-      if (busca && data) {
-        return data.filter((analise: any) => 
-          analise.contrato?.cliente?.nome?.toLowerCase().includes(busca.toLowerCase())
-        );
+        // Filtrar por busca no cliente
+        if (busca && data) {
+          return data.filter((analise: any) => 
+            analise.contrato?.cliente?.nome?.toLowerCase().includes(busca.toLowerCase())
+          );
+        }
+
+        return data || [];
+      } catch (error) {
+        console.error("Erro na query:", error);
+        return [];
       }
-
-      return data;
     },
   });
 
