@@ -113,6 +113,27 @@ function calcularProbabilidadeDefault(
   diasAtraso: number,
   tipoOperacao?: TipoOperacaoInfo
 ): number {
+  const mesesAtraso = diasAtraso / 30;
+  
+  // REGRA BCB: Provisão de 100% para atrasos muito longos
+  // Conforme Res. 4966/2021 e critérios de baixa patrimonial
+  const limitesBaixa = {
+    'C1': 36, // 36 meses para garantias sólidas
+    'C2': 24, // 24 meses para garantias médias
+    'C3': 18, // 18 meses para sem garantia
+    'C4': 18, // 18 meses para alto risco
+    'C5': 18  // 18 meses para muito alto risco
+  };
+  
+  const limiteProvisaoTotal = tipoOperacao?.carteira 
+    ? limitesBaixa[tipoOperacao.carteira as keyof typeof limitesBaixa] || 18
+    : 18; // Default: 18 meses
+
+  // Se ultrapassou o limite para provisão total, PD = 100%
+  if (mesesAtraso >= limiteProvisaoTotal) {
+    return 100.0;
+  }
+
   // Tabela base de PD por estágio (valores de referência BCB)
   const basePD = {
     1: 2.0,   // Estágio 1: baixo risco (12 meses)
@@ -136,10 +157,12 @@ function calcularProbabilidadeDefault(
     pd *= fator;
   }
 
-  // Ajuste por tempo de atraso dentro do estágio
+  // Ajuste progressivo por tempo de atraso dentro do estágio 3
   if (estagio === 3 && diasAtraso > 90) {
-    const mesesAtraso = diasAtraso / 30;
-    if (mesesAtraso > 18) pd = Math.min(100, pd * 1.1); // Aumenta PD para atrasos muito longos
+    // Progressão linear de 90% até 100% entre 3 meses e o limite de baixa
+    const progressao = (mesesAtraso - 3) / (limiteProvisaoTotal - 3);
+    const incrementoPD = progressao * (100 - pd);
+    pd = Math.min(100, pd + incrementoPD);
   }
 
   return Math.min(100, Math.max(0.1, pd));
@@ -150,8 +173,29 @@ function calcularProbabilidadeDefault(
  */
 function calcularLossGivenDefault(
   tipoOperacao?: TipoOperacaoInfo,
-  garantias: GarantiaInfo[] = []
+  garantias: GarantiaInfo[] = [],
+  diasAtraso: number = 0
 ): number {
+  const mesesAtraso = diasAtraso / 30;
+  
+  // REGRA BCB: LGD de 100% para atrasos muito longos
+  const limitesBaixa = {
+    'C1': 36, // 36 meses para garantias sólidas
+    'C2': 24, // 24 meses para garantias médias
+    'C3': 18, // 18 meses para sem garantia
+    'C4': 18, // 18 meses para alto risco
+    'C5': 18  // 18 meses para muito alto risco
+  };
+  
+  const limiteProvisaoTotal = tipoOperacao?.carteira 
+    ? limitesBaixa[tipoOperacao.carteira as keyof typeof limitesBaixa] || 18
+    : 18; // Default: 18 meses
+
+  // Se ultrapassou o limite para provisão total, LGD = 100%
+  if (mesesAtraso >= limiteProvisaoTotal) {
+    return 100.0;
+  }
+
   // LGD base por tipo de carteira conforme regulamentação
   const baseLGD = {
     'C1': 25, // Garantias sólidas
@@ -178,7 +222,7 @@ function calcularLossGivenDefault(
     }
   }
 
-  return Math.min(95, Math.max(5, lgd));
+  return Math.min(100, Math.max(5, lgd));
 }
 
 /**
@@ -217,7 +261,7 @@ export async function calcularProvisaoConformeBCB(
 
   // 3. Calcular componentes da provisão
   const probabilidadeDefault = calcularProbabilidadeDefault(estagio, diasAtraso, tipoOperacao);
-  const perdaDadoDefault = calcularLossGivenDefault(tipoOperacao, garantiasCompletas);
+  const perdaDadoDefault = calcularLossGivenDefault(tipoOperacao, garantiasCompletas, diasAtraso);
   const exposicaoDefault = calcularExposureAtDefault(valorDivida);
 
   // 4. Calcular perda esperada: EL = PD × LGD × EAD
