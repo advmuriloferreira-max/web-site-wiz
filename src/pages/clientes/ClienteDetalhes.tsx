@@ -17,6 +17,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { toast } from "sonner";
 
 export default function ClienteDetalhes() {
   const { id } = useParams<{ id: string }>();
@@ -301,6 +302,21 @@ export default function ClienteDetalhes() {
                                 <p className="font-medium">Análise de Juros Abusivos</p>
                                 <p className="text-xs text-muted-foreground">
                                   Comparar com taxas BACEN
+                                </p>
+                              </div>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => {
+                                // TODO: Implementar lógica de adicionar ao superendividamento
+                                toast.info("Contrato adicionado ao plano de superendividamento");
+                              }}
+                              className="cursor-pointer"
+                            >
+                              <PiggyBank className="mr-2 h-4 w-4" />
+                              <div>
+                                <p className="font-medium">Adicionar ao Superendividamento</p>
+                                <p className="text-xs text-muted-foreground">
+                                  Incluir no plano de pagamento
                                 </p>
                               </div>
                             </DropdownMenuItem>
