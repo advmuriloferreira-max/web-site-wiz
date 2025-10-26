@@ -102,17 +102,18 @@ export function AppSidebar() {
   const location = useLocation();
 
   return (
-    <Sidebar>
-      <SidebarContent>
-        <div className="px-6 py-4 border-b">
-          <h1 className="text-xl font-bold text-primary">INTELLBANK</h1>
-          <p className="text-xs text-muted-foreground">Direito Bancário</p>
+    <Sidebar className="border-r bg-white dark:bg-gray-950">
+      <SidebarContent className="bg-white dark:bg-gray-950">
+        {/* Cabeçalho com melhor contraste */}
+        <div className="px-6 py-5 border-b bg-gradient-to-r from-blue-600 to-blue-700">
+          <h1 className="text-xl font-bold text-white">INTELLBANK</h1>
+          <p className="text-xs text-blue-100">Direito Bancário</p>
         </div>
 
         {menuItems.map((group, groupIndex) => (
-          <SidebarGroup key={groupIndex}>
+          <SidebarGroup key={groupIndex} className="px-3 py-2">
             {group.section && (
-              <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              <SidebarGroupLabel className="px-3 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
                 {group.section}
               </SidebarGroupLabel>
             )}
@@ -122,10 +123,20 @@ export function AppSidebar() {
                   const isActive = location.pathname === item.url;
                   return (
                     <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild isActive={isActive}>
-                        <Link to={item.url}>
-                          <item.icon className="h-4 w-4" />
-                          <span>{item.title}</span>
+                      <SidebarMenuButton 
+                        asChild 
+                        isActive={isActive}
+                        className={`
+                          ${isActive 
+                            ? 'bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 font-semibold border-l-4 border-blue-600' 
+                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100'
+                          }
+                          transition-all duration-200 rounded-r-lg
+                        `}
+                      >
+                        <Link to={item.url} className="flex items-center gap-3 px-3 py-2.5">
+                          <item.icon className={`h-5 w-5 ${isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'}`} />
+                          <span className="text-sm">{item.title}</span>
                         </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>

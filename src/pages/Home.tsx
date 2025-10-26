@@ -274,12 +274,12 @@ export default function Home() {
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Card 1: Provisionamento Rápido */}
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer border-orange-200 dark:border-orange-800"
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-orange-300 bg-gradient-to-br from-white to-orange-50 dark:border-orange-600 dark:from-orange-950/20 dark:to-orange-900/10"
                 onClick={() => navigate("/app/quick/provisionamento")}>
             <CardHeader>
               <div className="flex items-center gap-3">
-                <div className="p-3 bg-orange-100 dark:bg-orange-950 rounded-lg">
-                  <Calculator className="h-6 w-6 text-orange-600 dark:text-orange-400" />
+                <div className="p-3 bg-orange-500 rounded-lg shadow-md">
+                  <Calculator className="h-6 w-6 text-white" />
                 </div>
                 <div>
                   <CardTitle className="text-lg">Provisionamento</CardTitle>
@@ -288,7 +288,7 @@ export default function Home() {
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground mb-4">
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
                 Calcule a provisão bancária (C1-C5) de forma rápida e precisa
               </p>
               <Button className="w-full" variant="outline">
@@ -298,12 +298,12 @@ export default function Home() {
           </Card>
 
           {/* Card 2: Juros Abusivos Rápido */}
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer border-red-200 dark:border-red-800"
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-red-300 bg-gradient-to-br from-white to-red-50 dark:border-red-600 dark:from-red-950/20 dark:to-red-900/10"
                 onClick={() => navigate("/app/quick/juros-abusivos")}>
             <CardHeader>
               <div className="flex items-center gap-3">
-                <div className="p-3 bg-red-100 dark:bg-red-950 rounded-lg">
-                  <TrendingDown className="h-6 w-6 text-red-600 dark:text-red-400" />
+                <div className="p-3 bg-red-500 rounded-lg shadow-md">
+                  <TrendingDown className="h-6 w-6 text-white" />
                 </div>
                 <div>
                   <CardTitle className="text-lg">Juros Abusivos</CardTitle>
@@ -312,7 +312,7 @@ export default function Home() {
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground mb-4">
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
                 Identifique abusividade comparando com taxas médias BACEN
               </p>
               <Button className="w-full" variant="outline">
@@ -322,12 +322,12 @@ export default function Home() {
           </Card>
 
           {/* Card 3: Superendividamento Rápido */}
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer border-blue-200 dark:border-blue-800"
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-blue-300 bg-gradient-to-br from-white to-blue-50 dark:border-blue-600 dark:from-blue-950/20 dark:to-blue-900/10"
                 onClick={() => navigate("/app/quick/superendividamento")}>
             <CardHeader>
               <div className="flex items-center gap-3">
-                <div className="p-3 bg-blue-100 dark:bg-blue-950 rounded-lg">
-                  <PiggyBank className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                <div className="p-3 bg-blue-500 rounded-lg shadow-md">
+                  <PiggyBank className="h-6 w-6 text-white" />
                 </div>
                 <div>
                   <CardTitle className="text-lg">Superendividamento</CardTitle>
@@ -336,7 +336,7 @@ export default function Home() {
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground mb-4">
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
                 Crie plano de pagamento personalizado rapidamente
               </p>
               <Button className="w-full" variant="outline">
