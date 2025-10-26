@@ -30,6 +30,9 @@ import ClienteDetalhes from "@/pages/clientes/ClienteDetalhes";
 import AnaliseProvisionamento from "@/pages/contratos/AnaliseProvisionamento";
 import AnaliseJurosAbusivos from "@/pages/contratos/AnaliseJurosAbusivos";
 import PlanoSuperendividamento from "@/pages/clientes/PlanoSuperendividamento";
+import ListaProvisionamento from "@/pages/analises/ListaProvisionamento";
+import ListaJurosAbusivos from "@/pages/analises/ListaJurosAbusivos";
+import ListaSuperendividamento from "@/pages/analises/ListaSuperendividamento";
 import Contratos from "@/pages/Contratos";
 import NovoContrato from "@/pages/NovoContrato";
 import ContratoDetalhes from "@/pages/ContratoDetalhes";
@@ -168,6 +171,11 @@ export function EnterpriseLayout() {
               <Route path="/clientes/:id/superendividamento" element={<PlanoSuperendividamento />} />
               <Route path="/contratos/:id/provisionamento" element={<AnaliseProvisionamento />} />
               <Route path="/contratos/:id/juros-abusivos" element={<AnaliseJurosAbusivos />} />
+              
+              {/* Páginas de listagem de análises */}
+              <Route path="/analises/provisionamento" element={<ListaProvisionamento />} />
+              <Route path="/analises/juros-abusivos" element={<ListaJurosAbusivos />} />
+              <Route path="/analises/superendividamento" element={<ListaSuperendividamento />} />
                     <Route path="/contratos" element={<Contratos />} />
                     <Route path="/contratos/novo" element={<NovoContrato />} />
                     <Route path="/contratos/:contratoId" element={<ContratoDetalhes />} />
