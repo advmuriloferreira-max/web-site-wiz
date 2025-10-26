@@ -29,7 +29,7 @@ export default function Home() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Card 1: Gestão de Passivo Rápida */}
+            {/* Card 1: Gestão de Passivo Bancário Rápida */}
             <Card className="hover:shadow-lg transition-shadow cursor-pointer"
                   onClick={() => navigate("/app/quick/provisionamento")}>
               <CardHeader>
@@ -38,7 +38,7 @@ export default function Home() {
                     <Calculator className="h-6 w-6 text-orange-600" />
                   </div>
                   <div>
-                    <CardTitle className="text-lg">Gestão de Passivo</CardTitle>
+                    <CardTitle className="text-lg">Gestão de Passivo Bancário</CardTitle>
                     <CardDescription>Resolução BCB 4966/2021</CardDescription>
                   </div>
                 </div>
