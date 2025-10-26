@@ -25,6 +25,7 @@ import { useCreateContrato } from "@/hooks/useCreateContrato";
 import { useUpdateContrato } from "@/hooks/useUpdateContrato";
 import { useContratoById } from "@/hooks/useContratoById";
 import { useAsyncOperation } from "@/hooks/useAsyncOperation";
+import { useValidacaoLimites } from "@/hooks/useValidacaoLimites";
 import { enhancedToast } from "@/components/ui/enhanced-toast";
 import { ChevronLeft, ChevronRight, Save, Send, AlertCircle } from "lucide-react";
 
@@ -82,6 +83,7 @@ export function ContratoWizard({
   const updateContrato = useUpdateContrato();
   const { execute, isLoading } = useAsyncOperation();
   const { data: contratoExistente, isLoading: loadingContrato } = useContratoById(contratoParaEditar);
+  const { validarNovoContrato } = useValidacaoLimites();
 
   const form = useForm<ContratoWizardData>({
     resolver: zodResolver(contratoWizardSchema),
@@ -258,6 +260,18 @@ export function ContratoWizard({
     console.log("Submitting form with data:", data);
     console.log("ContratoParaEditar:", contratoParaEditar);
     console.log("ContratoExistente:", contratoExistente);
+    
+    // Validar limite antes de criar (apenas para novos contratos)
+    if (!contratoParaEditar || !contratoExistente) {
+      const podeAdicionar = await validarNovoContrato();
+      
+      if (!podeAdicionar) {
+        enhancedToast.error("Limite atingido", {
+          description: "Você atingiu o limite de contratos do seu plano. Faça upgrade para adicionar mais.",
+        });
+        return;
+      }
+    }
     
     const success = await execute(
       async () => {

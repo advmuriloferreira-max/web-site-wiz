@@ -7,6 +7,7 @@ import { Etapa1DadosBasicos } from "./Etapa1DadosBasicos";
 import { Etapa2Contato } from "./Etapa2Contato";
 import { Etapa3Observacoes } from "./Etapa3Observacoes";
 import { useCreateCliente, Cliente } from "@/hooks/useClientes";
+import { useValidacaoLimites } from "@/hooks/useValidacaoLimites";
 import { toast } from "sonner";
 
 interface ClienteWizardProps {
@@ -47,6 +48,7 @@ export function ClienteWizard({ onSuccess, clienteParaEditar }: ClienteWizardPro
   const [etapasCompletas, setEtapasCompletas] = useState<number[]>([]);
 
   const createClienteMutation = useCreateCliente();
+  const { validarNovoCliente } = useValidacaoLimites();
 
   const progress = (etapaAtual / etapas.length) * 100;
 
@@ -94,6 +96,18 @@ export function ClienteWizard({ onSuccess, clienteParaEditar }: ClienteWizardPro
 
   const finalizarCadastro = async () => {
     try {
+      // Validar limite antes de criar (apenas para novos clientes)
+      if (!clienteParaEditar) {
+        const podeAdicionar = await validarNovoCliente();
+        
+        if (!podeAdicionar) {
+          toast.error("Limite atingido", {
+            description: "Você atingiu o limite de clientes do seu plano. Faça upgrade para adicionar mais.",
+          });
+          return;
+        }
+      }
+
       const clienteData = {
         nome: dados.nome.trim(),
         cpf_cnpj: dados.cpf_cnpj.trim(),

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useUpdateUserStatus, useUpdateUserRole, useDeleteUser } from "@/hooks/useUserManagement";
+import { useValidacaoLimites } from "@/hooks/useValidacaoLimites";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,7 @@ export function GerenciarUsuarios() {
   const updateStatusMutation = useUpdateUserStatus();
   const updateRoleMutation = useUpdateUserRole();
   const deleteUserMutation = useDeleteUser();
+  const { validarNovoUsuario } = useValidacaoLimites();
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
@@ -78,6 +80,19 @@ export function GerenciarUsuarios() {
     };
 
     try {
+      // Validar limite de usuários
+      const podeAdicionar = await validarNovoUsuario();
+      
+      if (!podeAdicionar) {
+        toast({
+          title: "Limite atingido",
+          description: "Você atingiu o limite de usuários do seu plano. Faça upgrade para adicionar mais.",
+          variant: "destructive",
+        });
+        setIsCreating(false);
+        return;
+      }
+
       const validation = z.object({
         nome: z.string().trim().min(2, 'Nome deve ter pelo menos 2 caracteres'),
         email: z.string().email('Email inválido').trim(),
