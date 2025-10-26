@@ -53,6 +53,7 @@ import GerenciarEscritorio from "@/pages/configuracoes/GerenciarEscritorio";
 import AdminDashboard from "@/pages/admin/Dashboard";
 import SystemCheckPage from "@/pages/admin/SystemCheck";
 import ProvisionamentoRapido from "@/pages/quick/ProvisionamentoRapido";
+import JurosAbusivosRapido from "@/pages/quick/JurosAbusivosRapido";
 
 export function EnterpriseLayout() {
   const [searchOpen, setSearchOpen] = useState(false);
@@ -195,6 +196,7 @@ export function EnterpriseLayout() {
                     {/* ANÁLISE RÁPIDA */}
                     {/* ===================================================================== */}
                     <Route path="/quick/provisionamento" element={<ProvisionamentoRapido />} />
+                    <Route path="/quick/juros-abusivos" element={<JurosAbusivosRapido />} />
 
                     {/* ===================================================================== */}
                     {/* CALCULADORA (manter para compatibilidade) */}
