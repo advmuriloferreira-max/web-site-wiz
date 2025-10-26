@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Home, Users, Calculator, FileText, Settings, ChevronDown, ChevronRight, Archive } from "lucide-react";
+import { Home, Users, Calculator, FileText, Settings, ChevronDown, ChevronRight } from "lucide-react";
 import { LegalIcons } from "@/components/ui/legal-icons";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -39,12 +39,12 @@ const menuItems = [
       { 
         title: "Clientes", 
         path: "/app/clientes",
-        description: "Cadastro unificado de clientes"
+        description: "Cadastro unificado"
       },
       { 
         title: "Contratos", 
         path: "/app/contratos",
-        description: "Todos os contratos bancários"
+        description: "Contratos bancários"
       },
     ],
   },
@@ -53,37 +53,19 @@ const menuItems = [
     icon: Calculator,
     items: [
       {
-        title: "Provisionamento Bancário",
+        title: "Provisionamento",
         path: "/app/analises/provisionamento",
-        description: "Res. 4966 BACEN e 352 CMN",
+        description: "Res. 4966 BACEN",
       },
       {
         title: "Juros Abusivos",
         path: "/app/analises/juros-abusivos",
-        description: "Séries Temporais BACEN",
+        description: "Séries BACEN",
       },
       {
         title: "Superendividamento",
         path: "/app/analises/superendividamento",
         description: "Lei 14.181/2021",
-      },
-    ],
-  },
-  {
-    title: "Módulos Legados",
-    icon: Archive,
-    items: [
-      {
-        title: "Calculadora de Juros",
-        path: "/app/calculadora-juros",
-      },
-      {
-        title: "Módulo de Juros (Antigo)",
-        path: "/app/juros/contratos",
-      },
-      {
-        title: "Módulo Superendividamento (Antigo)",
-        path: "/app/superendividamento",
       },
     ],
   },

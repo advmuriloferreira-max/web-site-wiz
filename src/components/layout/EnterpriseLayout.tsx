@@ -46,19 +46,11 @@ import Configuracoes from "@/pages/Configuracoes";
 import WorkspacePage from "@/pages/WorkspacePage";
 import NotFound from "@/pages/NotFound";
 import Convite from "@/pages/Convite";
-import AnaliseJurosContrato from "@/pages/AnaliseJurosContrato";
 import CalculadoraJuros from "@/pages/CalculadoraJuros";
-import ClientesJuros from "@/pages/juros/ClientesJuros";
-import ContratosJuros from "@/pages/juros/ContratosJuros";
-import AnaliseContratoJurosPage from "@/pages/juros/AnaliseContratoJuros";
 import ImportarSeriesBacen from "@/pages/ImportarSeriesBacen";
-import SuperendividamentoDashboard from "@/pages/superendividamento/Dashboard";
-import ClientesSuperendividamento from "@/pages/superendividamento/Clientes";
-import SuperendividamentoAnalise from "@/pages/superendividamento/Analise";
 import Planos from "@/pages/superendividamento/Planos";
 import GerenciarEscritorio from "@/pages/configuracoes/GerenciarEscritorio";
 import AdminDashboard from "@/pages/admin/Dashboard";
-import SuperendividamentoCalculadora from "@/pages/superendividamento/Calculadora";
 import SystemCheckPage from "@/pages/admin/SystemCheck";
 
 export function EnterpriseLayout() {
@@ -199,14 +191,9 @@ export function EnterpriseLayout() {
                     <Route path="/analises/superendividamento" element={<ListaSuperendividamento />} />
 
                     {/* ===================================================================== */}
-                    {/* MÓDULOS LEGADOS (manter por compatibilidade) */}
+                    {/* CALCULADORA (manter para compatibilidade) */}
                     {/* ===================================================================== */}
                     <Route path="/calculadora-juros" element={<CalculadoraJuros />} />
-                    <Route path="/juros/clientes" element={<ClientesJuros />} />
-                    <Route path="/juros/contratos" element={<ContratosJuros />} />
-                    <Route path="/juros/contratos/:id/analise" element={<AnaliseContratoJurosPage />} />
-                    <Route path="/superendividamento" element={<SuperendividamentoDashboard />} />
-                    <Route path="/superendividamento/clientes" element={<ClientesSuperendividamento />} />
                     <Route path="/superendividamento/planos" element={<Planos />} />
 
                     {/* ===================================================================== */}
