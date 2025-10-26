@@ -170,12 +170,21 @@ export default function ListaProvisionamento() {
                   <SelectValue placeholder="Todas" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todas</SelectItem>
                   <SelectItem value="Estágio 1">Estágio 1</SelectItem>
                   <SelectItem value="Estágio 2">Estágio 2</SelectItem>
                   <SelectItem value="Estágio 3">Estágio 3</SelectItem>
                 </SelectContent>
               </Select>
+              {classificacao && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setClassificacao("")}
+                  className="w-full text-xs"
+                >
+                  Limpar filtro
+                </Button>
+              )}
             </div>
           </div>
         </CardContent>
