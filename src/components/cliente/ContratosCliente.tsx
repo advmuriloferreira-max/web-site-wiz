@@ -141,7 +141,7 @@ export function ContratosCliente({ cliente }: ContratosClienteProps) {
                     <TableCell>
                       <div className="flex items-center">
                         <DollarSign className="h-4 w-4 mr-1 text-muted-foreground" />
-                        {contrato.valor_divida.toLocaleString("pt-BR", {
+                        {(contrato.valor_divida || 0).toLocaleString("pt-BR", {
                           style: "currency",
                           currency: "BRL",
                         })}
