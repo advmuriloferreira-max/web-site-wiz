@@ -50,7 +50,7 @@ const menuItems = [
     section: "ANÁLISE RÁPIDA",
     items: [
       {
-        title: "Provisionamento",
+        title: "Gestão de Passivo Bancário",
         url: "/app/quick/provisionamento",
         icon: Calculator,
       },
@@ -70,7 +70,7 @@ const menuItems = [
     section: "ANÁLISES SALVAS",
     items: [
       {
-        title: "Provisionamento",
+        title: "Gestão de Passivo Bancário",
         url: "/app/analises/provisionamento",
         icon: BarChart3,
       },
