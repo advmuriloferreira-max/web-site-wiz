@@ -52,6 +52,7 @@ import Planos from "@/pages/superendividamento/Planos";
 import GerenciarEscritorio from "@/pages/configuracoes/GerenciarEscritorio";
 import AdminDashboard from "@/pages/admin/Dashboard";
 import SystemCheckPage from "@/pages/admin/SystemCheck";
+import ProvisionamentoRapido from "@/pages/quick/ProvisionamentoRapido";
 
 export function EnterpriseLayout() {
   const [searchOpen, setSearchOpen] = useState(false);
@@ -189,6 +190,11 @@ export function EnterpriseLayout() {
                     <Route path="/analises/provisionamento" element={<ListaProvisionamento />} />
                     <Route path="/analises/juros-abusivos" element={<ListaJurosAbusivos />} />
                     <Route path="/analises/superendividamento" element={<ListaSuperendividamento />} />
+
+                    {/* ===================================================================== */}
+                    {/* ANÁLISE RÁPIDA */}
+                    {/* ===================================================================== */}
+                    <Route path="/quick/provisionamento" element={<ProvisionamentoRapido />} />
 
                     {/* ===================================================================== */}
                     {/* CALCULADORA (manter para compatibilidade) */}
