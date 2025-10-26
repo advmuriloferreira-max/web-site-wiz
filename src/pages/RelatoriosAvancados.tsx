@@ -163,7 +163,7 @@ export default function RelatoriosAvancados() {
           Relatórios Avançados
         </GradientText>
         <p className="text-muted-foreground">
-          Análise da evolução do provisionamento por contrato ao longo do tempo
+          Análise da evolução da gestão de passivo bancário por contrato ao longo do tempo
         </p>
       </div>
 

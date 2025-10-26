@@ -87,7 +87,7 @@ export default function ListaProvisionamento() {
   // Mostrar erro se houver
   useEffect(() => {
     if (error) {
-      toast.error("Erro ao carregar análises de provisionamento");
+      toast.error("Erro ao carregar análises de gestão de passivo bancário");
     }
   }, [error]);
 
@@ -115,15 +115,15 @@ export default function ListaProvisionamento() {
 
   return (
     <div className="container mx-auto py-8 space-y-6">
-      <PageBreadcrumbs 
+      <PageBreadcrumbs
         segments={[
           { label: "Análises", path: "/analises" },
-          { label: "Provisionamento" },
+          { label: "Gestão de Passivo Bancário" },
         ]}
       />
       
       <div>
-        <h1 className="text-3xl font-bold">Análises de Provisionamento</h1>
+        <h1 className="text-3xl font-bold">Análises de Gestão de Passivo Bancário</h1>
         <p className="text-muted-foreground">
           Conforme Resolução 4966 BACEN e 352 CMN
         </p>
@@ -275,7 +275,7 @@ export default function ListaProvisionamento() {
                         <div className="space-y-2">
                           <p className="font-medium">Nenhuma análise encontrada</p>
                           <p className="text-sm text-muted-foreground">
-                            Realize análises de provisionamento através dos contratos
+                            Realize análises de gestão de passivo bancário através dos contratos
                           </p>
                         </div>
                       </div>

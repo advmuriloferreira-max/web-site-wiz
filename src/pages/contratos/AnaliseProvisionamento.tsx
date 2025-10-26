@@ -122,7 +122,7 @@ export default function AnaliseProvisionamento() {
 
       if (error) throw error;
 
-      toast.success("Análise de provisionamento salva com sucesso!");
+      toast.success("Análise de gestão de passivo bancário salva com sucesso!");
       navigate(-1);
     } catch (error) {
       console.error("Erro ao salvar:", error);
@@ -170,7 +170,7 @@ export default function AnaliseProvisionamento() {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold">Análise de Provisionamento</h1>
+            <h1 className="text-3xl font-bold">Análise de Gestão de Passivo Bancário</h1>
             <p className="text-muted-foreground">
               Conforme Resolução 4966 BACEN e 352 CMN
             </p>

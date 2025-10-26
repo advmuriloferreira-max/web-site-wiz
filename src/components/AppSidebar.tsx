@@ -53,7 +53,7 @@ const menuItems = [
     icon: Calculator,
     items: [
       {
-        title: "Provisionamento",
+        title: "Gestão de Passivo Bancário",
         path: "/app/analises/provisionamento",
         description: "Res. 4966 BACEN",
       },
