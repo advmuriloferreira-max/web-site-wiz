@@ -121,7 +121,7 @@ export default function ClienteDetalhes() {
       <div className="container mx-auto p-6">
         <div className="text-center py-12">
           <p className="text-muted-foreground">Cliente não encontrado</p>
-          <Button onClick={() => navigate("/clientes")} className="mt-4">
+          <Button onClick={() => navigate("/app/clientes")} className="mt-4">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Voltar para Clientes
           </Button>
@@ -145,7 +145,7 @@ export default function ClienteDetalhes() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => navigate("/clientes")}
+            onClick={() => navigate("/app/clientes")}
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Voltar
@@ -217,7 +217,7 @@ export default function ClienteDetalhes() {
               <FileText className="h-5 w-5" />
               Contratos ({contratos?.length || 0})
             </div>
-            <Button onClick={() => navigate(`/contratos/novo?cliente_id=${id}`)}>
+            <Button onClick={() => navigate(`/app/contratos/novo?cliente_id=${id}`)}>
               Novo Contrato
             </Button>
           </CardTitle>
@@ -281,7 +281,7 @@ export default function ClienteDetalhes() {
                             <DropdownMenuLabel>Escolha o tipo de análise</DropdownMenuLabel>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
-                              onClick={() => navigate(`/contratos/${contrato.id}`)}
+                              onClick={() => navigate(`/app/contratos/${contrato.id}/provisionamento`)}
                               className="cursor-pointer"
                             >
                               <Calculator className="mr-2 h-4 w-4" />
@@ -293,7 +293,7 @@ export default function ClienteDetalhes() {
                               </div>
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                              onClick={() => navigate(`/contratos/${contrato.id}/analise-juros`)}
+                              onClick={() => navigate(`/app/contratos/${contrato.id}/juros-abusivos`)}
                               className="cursor-pointer"
                             >
                               <TrendingDown className="mr-2 h-4 w-4" />
@@ -306,7 +306,7 @@ export default function ClienteDetalhes() {
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
-                              onClick={() => navigate(`/contratos/${contrato.id}/detalhes`)}
+                              onClick={() => navigate(`/app/contratos/${contrato.id}`)}
                               className="cursor-pointer"
                             >
                               <FileText className="mr-2 h-4 w-4" />
@@ -324,7 +324,7 @@ export default function ClienteDetalhes() {
             <div className="text-center py-8">
               <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <p className="text-muted-foreground mb-4">Nenhum contrato cadastrado</p>
-              <Button onClick={() => navigate(`/contratos/novo?cliente_id=${id}`)}>
+              <Button onClick={() => navigate(`/app/contratos/novo?cliente_id=${id}`)}>
                 Cadastrar Primeiro Contrato
               </Button>
             </div>
