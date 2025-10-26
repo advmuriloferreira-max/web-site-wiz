@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
@@ -53,9 +53,9 @@ import ContratosJuros from "@/pages/juros/ContratosJuros";
 import AnaliseContratoJurosPage from "@/pages/juros/AnaliseContratoJuros";
 import ImportarSeriesBacen from "@/pages/ImportarSeriesBacen";
 import SuperendividamentoDashboard from "@/pages/superendividamento/Dashboard";
-import SuperendividamentoClientes from "@/pages/superendividamento/Clientes";
+import ClientesSuperendividamento from "@/pages/superendividamento/Clientes";
 import SuperendividamentoAnalise from "@/pages/superendividamento/Analise";
-import SuperendividamentoPlanos from "@/pages/superendividamento/Planos";
+import Planos from "@/pages/superendividamento/Planos";
 import GerenciarEscritorio from "@/pages/configuracoes/GerenciarEscritorio";
 import AdminDashboard from "@/pages/admin/Dashboard";
 import SuperendividamentoCalculadora from "@/pages/superendividamento/Calculadora";
@@ -164,62 +164,68 @@ export function EnterpriseLayout() {
                 <PageTransition>
                   <Routes>
                     {/* ===================================================================== */}
-                    {/* ROTAS PADRONIZADAS - Parâmetro :id unificado */}
+                    {/* ROTAS PRINCIPAIS */}
                     {/* ===================================================================== */}
-
-                    {/* --- ROTAS PRINCIPAIS --- */}
-                    <Route index element={<Home />} />
                     <Route path="/home" element={<Home />} />
                     <Route path="/workspace" element={<WorkspacePage />} />
 
-                    {/* --- ROTAS DE CLIENTES E CONTRATOS (HUB CENTRAL) --- */}
+                    {/* ===================================================================== */}
+                    {/* CLIENTES E CONTRATOS (HUB CENTRAL) */}
+                    {/* ===================================================================== */}
                     <Route path="/clientes" element={<Clientes />} />
                     <Route path="/clientes/novo" element={<NovoCliente />} />
                     <Route path="/clientes/:id" element={<ClienteDetalhes />} />
+                    
                     <Route path="/contratos" element={<Contratos />} />
                     <Route path="/contratos/novo" element={<NovoContrato />} />
                     <Route path="/contratos/:id" element={<ContratoDetalhes />} />
 
-                    {/* --- ROTAS DE ANÁLISE (NOVAS) --- */}
+                    {/* ===================================================================== */}
+                    {/* ANÁLISES POR CONTRATO */}
+                    {/* ===================================================================== */}
                     <Route path="/contratos/:id/provisionamento" element={<AnaliseProvisionamento />} />
                     <Route path="/contratos/:id/juros-abusivos" element={<AnaliseJurosAbusivos />} />
+                    
+                    {/* ===================================================================== */}
+                    {/* ANÁLISES POR CLIENTE */}
+                    {/* ===================================================================== */}
                     <Route path="/clientes/:id/superendividamento" element={<PlanoSuperendividamento />} />
 
-                    {/* --- ROTAS DE LISTAGEM DE ANÁLISES --- */}
+                    {/* ===================================================================== */}
+                    {/* LISTAGENS DE ANÁLISES */}
+                    {/* ===================================================================== */}
                     <Route path="/analises/provisionamento" element={<ListaProvisionamento />} />
                     <Route path="/analises/juros-abusivos" element={<ListaJurosAbusivos />} />
                     <Route path="/analises/superendividamento" element={<ListaSuperendividamento />} />
 
-                    {/* --- ROTAS DE CONFIGURAÇÕES --- */}
-                    <Route path="/configuracoes" element={<Configuracoes />} />
-                    <Route path="/configuracoes/escritorio" element={<GerenciarEscritorio />} />
-
-                    {/* --- ROTAS DE ADMIN --- */}
-                    <Route path="/admin" element={
-                      <ProtectedRoute requireAdmin>
-                        <AdminDashboard />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/admin/importar-series-bacen" element={
-                      <ProtectedRoute requireAdmin>
-                        <ImportarSeriesBacen />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/admin/system-check" element={
-                      <ProtectedRoute requireAdmin>
-                        <SystemCheckPage />
-                      </ProtectedRoute>
-                    } />
-
-                    {/* --- ROTAS LEGADAS (Módulos Antigos - MANTER POR ENQUANTO) --- */}
+                    {/* ===================================================================== */}
+                    {/* MÓDULOS LEGADOS (manter por compatibilidade) */}
+                    {/* ===================================================================== */}
                     <Route path="/calculadora-juros" element={<CalculadoraJuros />} />
                     <Route path="/juros/clientes" element={<ClientesJuros />} />
                     <Route path="/juros/contratos" element={<ContratosJuros />} />
                     <Route path="/juros/contratos/:id/analise" element={<AnaliseContratoJurosPage />} />
                     <Route path="/superendividamento" element={<SuperendividamentoDashboard />} />
+                    <Route path="/superendividamento/clientes" element={<ClientesSuperendividamento />} />
+                    <Route path="/superendividamento/planos" element={<Planos />} />
 
-                    {/* --- ROTAS DE UTILIDADE --- */}
-                    <Route path="*" element={<NotFound />} />
+                    {/* ===================================================================== */}
+                    {/* CONFIGURAÇÕES */}
+                    {/* ===================================================================== */}
+                    <Route path="/configuracoes" element={<Configuracoes />} />
+                    <Route path="/configuracoes/escritorio" element={<GerenciarEscritorio />} />
+
+                    {/* ===================================================================== */}
+                    {/* ADMIN */}
+                    {/* ===================================================================== */}
+                    <Route path="/admin" element={<ProtectedRoute requireAdmin><AdminDashboard /></ProtectedRoute>} />
+                    <Route path="/admin/importar-series-bacen" element={<ProtectedRoute requireAdmin><ImportarSeriesBacen /></ProtectedRoute>} />
+                    <Route path="/admin/system-check" element={<ProtectedRoute requireAdmin><SystemCheckPage /></ProtectedRoute>} />
+
+                    {/* ===================================================================== */}
+                    {/* FALLBACK */}
+                    {/* ===================================================================== */}
+                    <Route path="*" element={<Navigate to="/home" replace />} />
                   </Routes>
                 </PageTransition>
               </div>
