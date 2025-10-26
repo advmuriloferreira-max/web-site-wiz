@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Edit, FileText, Calculator, AlertTriangle, Shield, BarChart3, TrendingUp } from "lucide-react";
+import { ArrowLeft, Edit, FileText, Calculator, AlertTriangle, Shield, BarChart3, TrendingUp, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -142,8 +142,8 @@ export default function ContratoDetalhes() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto p-6">
-        <div className="text-center">Carregando detalhes do contrato...</div>
+      <div className="flex items-center justify-center h-96">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }

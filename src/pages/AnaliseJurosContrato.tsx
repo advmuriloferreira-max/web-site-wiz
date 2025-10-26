@@ -4,7 +4,7 @@
  */
 
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useContratoById } from "@/hooks/useContratoById";
 import { AnalysisDashboard } from "@/modules/FinancialAnalysis";
@@ -16,8 +16,8 @@ export default function AnaliseJurosContrato() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto p-6">
-        <div className="text-center">Carregando dados do contrato...</div>
+      <div className="flex items-center justify-center h-96">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Handshake, DollarSign, TrendingDown, FileText, Eye, Edit, Search, AlertTriangle, Plus, Clock } from "lucide-react";
+import { Handshake, DollarSign, TrendingDown, FileText, Eye, Edit, Search, AlertTriangle, Plus, Clock, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -100,14 +100,8 @@ export default function Acordos() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background to-background/80">
-        <ResponsiveContainer className="py-8 animate-fade-in">
-          <div className="text-center">
-            <GradientText variant="primary" className="text-2xl font-bold mb-4">
-              Carregando acordos...
-            </GradientText>
-          </div>
-        </ResponsiveContainer>
+      <div className="flex items-center justify-center h-96">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
