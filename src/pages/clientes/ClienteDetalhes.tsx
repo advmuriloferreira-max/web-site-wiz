@@ -53,6 +53,11 @@ export default function ClienteDetalhes() {
             classificacao_risco,
             valor_provisao,
             percentual_provisao
+          ),
+          analises_juros_abusivos(
+            id,
+            abusividade_detectada,
+            diferenca_percentual
           )
         `)
         .eq("cliente_id", id)
@@ -228,6 +233,7 @@ export default function ClienteDetalhes() {
             <div className="space-y-4">
               {contratos.map((contrato) => {
                 const analiseProvisionamento = contrato.analises_provisionamento?.[0];
+                const analiseJuros = contrato.analises_juros_abusivos?.[0];
                 
                 return (
                   <Card key={contrato.id} className="border-2">
@@ -243,6 +249,25 @@ export default function ClienteDetalhes() {
                             }
                             <Badge variant="outline">{contrato.status}</Badge>
                           </div>
+                          
+                          {/* Badges de análises realizadas */}
+                          {(analiseProvisionamento || analiseJuros) && (
+                            <div className="flex flex-wrap gap-2 mb-3">
+                              {analiseProvisionamento && (
+                                <Badge variant="secondary" className="bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-100">
+                                  <Calculator className="mr-1 h-3 w-3" />
+                                  Provisionamento
+                                </Badge>
+                              )}
+                              {analiseJuros && (
+                                <Badge variant="secondary" className="bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-100">
+                                  <TrendingDown className="mr-1 h-3 w-3" />
+                                  Juros Analisados
+                                </Badge>
+                              )}
+                            </div>
+                          )}
+                          
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                             <div>
                               <span className="text-muted-foreground">Banco</span>
