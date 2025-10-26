@@ -92,6 +92,175 @@ export type Database = {
           },
         ]
       }
+      analises_juros_abusivos: {
+        Row: {
+          abusividade_detectada: boolean | null
+          contrato_id: string
+          created_at: string | null
+          data_analise: string | null
+          data_referencia: string | null
+          diferenca_absoluta: number | null
+          diferenca_percentual: number | null
+          escritorio_id: string
+          fonte_taxa_bacen: string | null
+          id: string
+          metodologia: string | null
+          modalidade_bacen_id: string | null
+          numero_parcelas: number | null
+          observacoes: string | null
+          taxa_contratual: number | null
+          taxa_media_bacen: number | null
+          taxa_real_aplicada: number | null
+          updated_at: string | null
+          usuario_id: string | null
+          valor_financiado: number | null
+          valor_parcela: number | null
+        }
+        Insert: {
+          abusividade_detectada?: boolean | null
+          contrato_id: string
+          created_at?: string | null
+          data_analise?: string | null
+          data_referencia?: string | null
+          diferenca_absoluta?: number | null
+          diferenca_percentual?: number | null
+          escritorio_id: string
+          fonte_taxa_bacen?: string | null
+          id?: string
+          metodologia?: string | null
+          modalidade_bacen_id?: string | null
+          numero_parcelas?: number | null
+          observacoes?: string | null
+          taxa_contratual?: number | null
+          taxa_media_bacen?: number | null
+          taxa_real_aplicada?: number | null
+          updated_at?: string | null
+          usuario_id?: string | null
+          valor_financiado?: number | null
+          valor_parcela?: number | null
+        }
+        Update: {
+          abusividade_detectada?: boolean | null
+          contrato_id?: string
+          created_at?: string | null
+          data_analise?: string | null
+          data_referencia?: string | null
+          diferenca_absoluta?: number | null
+          diferenca_percentual?: number | null
+          escritorio_id?: string
+          fonte_taxa_bacen?: string | null
+          id?: string
+          metodologia?: string | null
+          modalidade_bacen_id?: string | null
+          numero_parcelas?: number | null
+          observacoes?: string | null
+          taxa_contratual?: number | null
+          taxa_media_bacen?: number | null
+          taxa_real_aplicada?: number | null
+          updated_at?: string | null
+          usuario_id?: string | null
+          valor_financiado?: number | null
+          valor_parcela?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analises_juros_abusivos_contrato_id_fkey"
+            columns: ["contrato_id"]
+            isOneToOne: false
+            referencedRelation: "contratos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "analises_juros_abusivos_escritorio_id_fkey"
+            columns: ["escritorio_id"]
+            isOneToOne: false
+            referencedRelation: "escritorios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "analises_juros_abusivos_modalidade_bacen_id_fkey"
+            columns: ["modalidade_bacen_id"]
+            isOneToOne: false
+            referencedRelation: "modalidades_bacen_juros"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      analises_provisionamento: {
+        Row: {
+          base_calculo: string | null
+          classificacao_risco: string | null
+          contrato_id: string
+          created_at: string | null
+          data_calculo: string | null
+          data_ultimo_pagamento: string | null
+          dias_atraso: number | null
+          escritorio_id: string
+          id: string
+          meses_atraso: number | null
+          metodologia: string | null
+          observacoes: string | null
+          percentual_provisao: number | null
+          updated_at: string | null
+          usuario_id: string | null
+          valor_divida: number
+          valor_provisao: number | null
+        }
+        Insert: {
+          base_calculo?: string | null
+          classificacao_risco?: string | null
+          contrato_id: string
+          created_at?: string | null
+          data_calculo?: string | null
+          data_ultimo_pagamento?: string | null
+          dias_atraso?: number | null
+          escritorio_id: string
+          id?: string
+          meses_atraso?: number | null
+          metodologia?: string | null
+          observacoes?: string | null
+          percentual_provisao?: number | null
+          updated_at?: string | null
+          usuario_id?: string | null
+          valor_divida: number
+          valor_provisao?: number | null
+        }
+        Update: {
+          base_calculo?: string | null
+          classificacao_risco?: string | null
+          contrato_id?: string
+          created_at?: string | null
+          data_calculo?: string | null
+          data_ultimo_pagamento?: string | null
+          dias_atraso?: number | null
+          escritorio_id?: string
+          id?: string
+          meses_atraso?: number | null
+          metodologia?: string | null
+          observacoes?: string | null
+          percentual_provisao?: number | null
+          updated_at?: string | null
+          usuario_id?: string | null
+          valor_divida?: number
+          valor_provisao?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analises_provisionamento_contrato_id_fkey"
+            columns: ["contrato_id"]
+            isOneToOne: false
+            referencedRelation: "contratos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "analises_provisionamento_escritorio_id_fkey"
+            columns: ["escritorio_id"]
+            isOneToOne: false
+            referencedRelation: "escritorios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       analises_socioeconomicas: {
         Row: {
           capacidade_pagamento: number
@@ -142,6 +311,78 @@ export type Database = {
           },
           {
             foreignKeyName: "analises_socioeconomicas_escritorio_id_fkey"
+            columns: ["escritorio_id"]
+            isOneToOne: false
+            referencedRelation: "escritorios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      analises_superendividamento: {
+        Row: {
+          cliente_id: string
+          created_at: string | null
+          data_analise: string | null
+          encargo_mensal_atual: number | null
+          encargo_mensal_proposto: number | null
+          escritorio_id: string
+          id: string
+          metodologia: string | null
+          observacoes: string | null
+          percentual_comprometimento: number | null
+          reducao_mensal: number | null
+          reducao_percentual: number | null
+          renda_liquida: number
+          total_dividas: number | null
+          updated_at: string | null
+          usuario_id: string | null
+        }
+        Insert: {
+          cliente_id: string
+          created_at?: string | null
+          data_analise?: string | null
+          encargo_mensal_atual?: number | null
+          encargo_mensal_proposto?: number | null
+          escritorio_id: string
+          id?: string
+          metodologia?: string | null
+          observacoes?: string | null
+          percentual_comprometimento?: number | null
+          reducao_mensal?: number | null
+          reducao_percentual?: number | null
+          renda_liquida: number
+          total_dividas?: number | null
+          updated_at?: string | null
+          usuario_id?: string | null
+        }
+        Update: {
+          cliente_id?: string
+          created_at?: string | null
+          data_analise?: string | null
+          encargo_mensal_atual?: number | null
+          encargo_mensal_proposto?: number | null
+          escritorio_id?: string
+          id?: string
+          metodologia?: string | null
+          observacoes?: string | null
+          percentual_comprometimento?: number | null
+          reducao_mensal?: number | null
+          reducao_percentual?: number | null
+          renda_liquida?: number
+          total_dividas?: number | null
+          updated_at?: string | null
+          usuario_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analises_superendividamento_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "analises_superendividamento_escritorio_id_fkey"
             columns: ["escritorio_id"]
             isOneToOne: false
             referencedRelation: "escritorios"
@@ -249,6 +490,65 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      clientes: {
+        Row: {
+          cep: string | null
+          cidade: string | null
+          cpf_cnpj: string
+          created_at: string | null
+          data_nascimento: string | null
+          email: string | null
+          endereco: string | null
+          escritorio_id: string
+          estado: string | null
+          id: string
+          nome: string
+          observacoes: string | null
+          telefone: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          cep?: string | null
+          cidade?: string | null
+          cpf_cnpj: string
+          created_at?: string | null
+          data_nascimento?: string | null
+          email?: string | null
+          endereco?: string | null
+          escritorio_id: string
+          estado?: string | null
+          id?: string
+          nome: string
+          observacoes?: string | null
+          telefone?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          cep?: string | null
+          cidade?: string | null
+          cpf_cnpj?: string
+          created_at?: string | null
+          data_nascimento?: string | null
+          email?: string | null
+          endereco?: string | null
+          escritorio_id?: string
+          estado?: string | null
+          id?: string
+          nome?: string
+          observacoes?: string | null
+          telefone?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clientes_escritorio_id_fkey"
+            columns: ["escritorio_id"]
+            isOneToOne: false
+            referencedRelation: "escritorios"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       clientes_juros: {
         Row: {
@@ -405,6 +705,101 @@ export type Database = {
             columns: ["escritorio_id"]
             isOneToOne: false
             referencedRelation: "escritorios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contratos: {
+        Row: {
+          banco_id: string | null
+          cliente_id: string
+          created_at: string | null
+          data_assinatura: string | null
+          data_primeiro_vencimento: string | null
+          data_ultimo_pagamento: string | null
+          escritorio_id: string
+          id: string
+          modalidade_bacen_id: string | null
+          numero_contrato: string | null
+          numero_parcelas: number | null
+          observacoes: string | null
+          status: string | null
+          taxa_juros_contratual: number | null
+          tipo_operacao: string | null
+          updated_at: string | null
+          valor_contrato: number | null
+          valor_financiado: number | null
+          valor_parcela: number | null
+        }
+        Insert: {
+          banco_id?: string | null
+          cliente_id: string
+          created_at?: string | null
+          data_assinatura?: string | null
+          data_primeiro_vencimento?: string | null
+          data_ultimo_pagamento?: string | null
+          escritorio_id: string
+          id?: string
+          modalidade_bacen_id?: string | null
+          numero_contrato?: string | null
+          numero_parcelas?: number | null
+          observacoes?: string | null
+          status?: string | null
+          taxa_juros_contratual?: number | null
+          tipo_operacao?: string | null
+          updated_at?: string | null
+          valor_contrato?: number | null
+          valor_financiado?: number | null
+          valor_parcela?: number | null
+        }
+        Update: {
+          banco_id?: string | null
+          cliente_id?: string
+          created_at?: string | null
+          data_assinatura?: string | null
+          data_primeiro_vencimento?: string | null
+          data_ultimo_pagamento?: string | null
+          escritorio_id?: string
+          id?: string
+          modalidade_bacen_id?: string | null
+          numero_contrato?: string | null
+          numero_parcelas?: number | null
+          observacoes?: string | null
+          status?: string | null
+          taxa_juros_contratual?: number | null
+          tipo_operacao?: string | null
+          updated_at?: string | null
+          valor_contrato?: number | null
+          valor_financiado?: number | null
+          valor_parcela?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contratos_banco_id_fkey"
+            columns: ["banco_id"]
+            isOneToOne: false
+            referencedRelation: "bancos_provisao"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contratos_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contratos_escritorio_id_fkey"
+            columns: ["escritorio_id"]
+            isOneToOne: false
+            referencedRelation: "escritorios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contratos_modalidade_bacen_id_fkey"
+            columns: ["modalidade_bacen_id"]
+            isOneToOne: false
+            referencedRelation: "modalidades_bacen_juros"
             referencedColumns: ["id"]
           },
         ]
@@ -759,6 +1154,70 @@ export type Database = {
           },
         ]
       }
+      dividas_analise_super: {
+        Row: {
+          analise_superendividamento_id: string
+          contrato_id: string | null
+          created_at: string | null
+          credor: string
+          escritorio_id: string
+          id: string
+          numero_parcelas_restantes: number | null
+          parcela_mensal_atual: number
+          tipo_divida: string | null
+          updated_at: string | null
+          valor_total_divida: number
+        }
+        Insert: {
+          analise_superendividamento_id: string
+          contrato_id?: string | null
+          created_at?: string | null
+          credor: string
+          escritorio_id: string
+          id?: string
+          numero_parcelas_restantes?: number | null
+          parcela_mensal_atual: number
+          tipo_divida?: string | null
+          updated_at?: string | null
+          valor_total_divida: number
+        }
+        Update: {
+          analise_superendividamento_id?: string
+          contrato_id?: string | null
+          created_at?: string | null
+          credor?: string
+          escritorio_id?: string
+          id?: string
+          numero_parcelas_restantes?: number | null
+          parcela_mensal_atual?: number
+          tipo_divida?: string | null
+          updated_at?: string | null
+          valor_total_divida?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dividas_analise_super_analise_superendividamento_id_fkey"
+            columns: ["analise_superendividamento_id"]
+            isOneToOne: false
+            referencedRelation: "analises_superendividamento"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dividas_analise_super_contrato_id_fkey"
+            columns: ["contrato_id"]
+            isOneToOne: false
+            referencedRelation: "contratos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dividas_analise_super_escritorio_id_fkey"
+            columns: ["escritorio_id"]
+            isOneToOne: false
+            referencedRelation: "escritorios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dividas_superendividamento: {
         Row: {
           cliente_id: string | null
@@ -907,6 +1366,60 @@ export type Database = {
             columns: ["plano_id"]
             isOneToOne: false
             referencedRelation: "planos_pagamento"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fases_plano_super: {
+        Row: {
+          created_at: string | null
+          detalhes_json: Json | null
+          duracao_meses: number
+          escritorio_id: string
+          id: string
+          numero_fase: number
+          plano_pagamento_id: string
+          tipo_fase: string | null
+          updated_at: string | null
+          valor_mensal_total: number
+        }
+        Insert: {
+          created_at?: string | null
+          detalhes_json?: Json | null
+          duracao_meses: number
+          escritorio_id: string
+          id?: string
+          numero_fase: number
+          plano_pagamento_id: string
+          tipo_fase?: string | null
+          updated_at?: string | null
+          valor_mensal_total: number
+        }
+        Update: {
+          created_at?: string | null
+          detalhes_json?: Json | null
+          duracao_meses?: number
+          escritorio_id?: string
+          id?: string
+          numero_fase?: number
+          plano_pagamento_id?: string
+          tipo_fase?: string | null
+          updated_at?: string | null
+          valor_mensal_total?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fases_plano_super_escritorio_id_fkey"
+            columns: ["escritorio_id"]
+            isOneToOne: false
+            referencedRelation: "escritorios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fases_plano_super_plano_pagamento_id_fkey"
+            columns: ["plano_pagamento_id"]
+            isOneToOne: false
+            referencedRelation: "planos_pagamento_super"
             referencedColumns: ["id"]
           },
         ]
@@ -1144,6 +1657,57 @@ export type Database = {
           },
           {
             foreignKeyName: "planos_pagamento_escritorio_id_fkey"
+            columns: ["escritorio_id"]
+            isOneToOne: false
+            referencedRelation: "escritorios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      planos_pagamento_super: {
+        Row: {
+          analise_superendividamento_id: string
+          created_at: string | null
+          dividas_impagaveis: number | null
+          escritorio_id: string
+          id: string
+          total_fases: number | null
+          total_meses: number | null
+          updated_at: string | null
+          valor_total_pago: number | null
+        }
+        Insert: {
+          analise_superendividamento_id: string
+          created_at?: string | null
+          dividas_impagaveis?: number | null
+          escritorio_id: string
+          id?: string
+          total_fases?: number | null
+          total_meses?: number | null
+          updated_at?: string | null
+          valor_total_pago?: number | null
+        }
+        Update: {
+          analise_superendividamento_id?: string
+          created_at?: string | null
+          dividas_impagaveis?: number | null
+          escritorio_id?: string
+          id?: string
+          total_fases?: number | null
+          total_meses?: number | null
+          updated_at?: string | null
+          valor_total_pago?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "planos_pagamento_super_analise_superendividamento_id_fkey"
+            columns: ["analise_superendividamento_id"]
+            isOneToOne: false
+            referencedRelation: "analises_superendividamento"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "planos_pagamento_super_escritorio_id_fkey"
             columns: ["escritorio_id"]
             isOneToOne: false
             referencedRelation: "escritorios"
