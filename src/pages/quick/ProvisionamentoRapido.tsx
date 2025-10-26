@@ -13,6 +13,8 @@ import { toast } from "sonner";
 import { useBancos } from "@/hooks/useBancos";
 import { useTiposOperacao } from "@/hooks/useTiposOperacao";
 import { calcularProvisaoConformeBCB, determinarEstagioRisco } from "@/lib/calculoProvisaoConformeBCB";
+import { gerarRelatorioPDF } from "@/lib/gerarRelatorioPDF";
+import { useAuth } from "@/hooks/useAuth";
 
 // Função auxiliar para calcular dias de atraso
 const calcularDiasAtraso = (dataUltimoPagamento: string): number => {
@@ -32,6 +34,7 @@ export default function ProvisionamentoRapido() {
   const navigate = useNavigate();
   const { data: bancos } = useBancos();
   const { data: tiposOperacao } = useTiposOperacao();
+  const { usuarioEscritorio } = useAuth();
   
   // Campos do formulário (mesmos do ContratoForm)
   const [bancoId, setBancoId] = useState("");
@@ -107,7 +110,32 @@ export default function ProvisionamentoRapido() {
   };
 
   const exportarPDF = () => {
-    toast.info("Funcionalidade de exportação em desenvolvimento");
+    if (!resultado) return;
+
+    try {
+      gerarRelatorioPDF({
+        tipo: "provisionamento",
+        cliente: {
+          nome: "Cliente Não Cadastrado",
+          cpf_cnpj: undefined,
+        },
+        contrato: {
+          numero: resultado.numeroContrato,
+          banco: resultado.banco,
+        },
+        escritorio: {
+          nome: usuarioEscritorio?.escritorio?.nome || "Escritório",
+          oab: undefined,
+        },
+        resultado: resultado,
+        dataAnalise: new Date(),
+      });
+      
+      toast.success("Relatório PDF gerado com sucesso!");
+    } catch (error) {
+      console.error("Erro ao gerar PDF:", error);
+      toast.error("Erro ao gerar relatório PDF");
+    }
   };
 
   const salvarEmCliente = () => {

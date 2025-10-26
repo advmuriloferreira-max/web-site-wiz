@@ -18,6 +18,8 @@ import {
 import { ArrowLeft, PiggyBank, Download, Save, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { calcularPlanoCompleto } from "@/utils/calculoPlanosPagamento";
+import { gerarRelatorioPDF } from "@/lib/gerarRelatorioPDF";
+import { useAuth } from "@/hooks/useAuth";
 
 interface Divida {
   id: string;
@@ -29,6 +31,7 @@ interface Divida {
 
 export default function SuperendividamentoRapido() {
   const navigate = useNavigate();
+  const { usuarioEscritorio } = useAuth();
   
   const [rendaLiquida, setRendaLiquida] = useState("");
   const [percentualRenda, setPercentualRenda] = useState("30");
@@ -125,7 +128,27 @@ export default function SuperendividamentoRapido() {
   };
 
   const exportarPDF = () => {
-    toast.info("Funcionalidade de exportação em desenvolvimento");
+    if (!resultado) return;
+
+    try {
+      gerarRelatorioPDF({
+        tipo: "superendividamento",
+        cliente: {
+          nome: "Cliente Não Cadastrado",
+        },
+        escritorio: {
+          nome: usuarioEscritorio?.escritorio?.nome || "Escritório",
+          oab: undefined,
+        },
+        resultado: resultado,
+        dataAnalise: new Date(),
+      });
+      
+      toast.success("Relatório PDF gerado com sucesso!");
+    } catch (error) {
+      console.error("Erro ao gerar PDF:", error);
+      toast.error("Erro ao gerar relatório PDF");
+    }
   };
 
   const salvarEmCliente = () => {

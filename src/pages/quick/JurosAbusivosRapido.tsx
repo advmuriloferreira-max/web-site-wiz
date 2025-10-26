@@ -13,10 +13,13 @@ import { toast } from "sonner";
 import { useModalidadesBacenJuros } from "@/hooks/useModalidadesBacenJuros";
 import { calcularTaxaEfetiva, compararComTaxaBacen } from "@/lib/calculoTaxaEfetiva";
 import { consultarTaxaBacenCSV } from "@/lib/consultarTaxaBacenCSV";
+import { gerarRelatorioPDF } from "@/lib/gerarRelatorioPDF";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function JurosAbusivosRapido() {
   const navigate = useNavigate();
   const { data: modalidades } = useModalidadesBacenJuros();
+  const { usuarioEscritorio } = useAuth();
   
   // Campos do formulário
   const [modalidadeId, setModalidadeId] = useState("");
@@ -103,7 +106,31 @@ export default function JurosAbusivosRapido() {
   };
 
   const exportarPDF = () => {
-    toast.info("Funcionalidade de exportação em desenvolvimento");
+    if (!resultado) return;
+
+    try {
+      gerarRelatorioPDF({
+        tipo: "juros_abusivos",
+        cliente: {
+          nome: "Cliente Não Cadastrado",
+        },
+        contrato: {
+          numero: undefined,
+          banco: undefined,
+        },
+        escritorio: {
+          nome: usuarioEscritorio?.escritorio?.nome || "Escritório",
+          oab: undefined,
+        },
+        resultado: resultado,
+        dataAnalise: new Date(),
+      });
+      
+      toast.success("Relatório PDF gerado com sucesso!");
+    } catch (error) {
+      console.error("Erro ao gerar PDF:", error);
+      toast.error("Erro ao gerar relatório PDF");
+    }
   };
 
   const salvarEmCliente = () => {
