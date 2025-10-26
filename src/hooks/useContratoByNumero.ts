@@ -11,10 +11,10 @@ export const useContratoByNumero = (numeroContrato: string | null) => {
       }
 
       const { data, error } = await supabase
-        .from("contratos_provisao")
+        .from("contratos")
         .select(`
           *,
-          clientes:clientes_provisao (nome, cpf_cnpj, responsavel),
+          clientes:clientes (nome, cpf_cnpj),
           bancos:bancos_provisao (nome)
         `)
         .eq("numero_contrato", numeroContrato.trim())

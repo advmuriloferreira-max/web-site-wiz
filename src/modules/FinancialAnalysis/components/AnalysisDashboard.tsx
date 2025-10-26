@@ -32,7 +32,7 @@ export default function AnalysisDashboard({ contratoId }: AnalysisDashboardProps
     try {
       await consultarTaxaBacen.mutateAsync({
         contratoId,
-        tipoOperacao: contrato?.tipo_operacao_bcb || contrato?.tipo_operacao,
+        tipoOperacao: contrato?.tipo_operacao,
       });
       refetchAnalysis();
     } catch (error) {

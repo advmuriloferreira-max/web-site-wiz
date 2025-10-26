@@ -29,6 +29,27 @@ export interface Contrato {
   bancos?: {
     nome: string;
   };
+  // Campos de análise de provisionamento (buscar da tabela analises_provisionamento)
+  valor_divida?: number;
+  saldo_contabil?: number | null;
+  dias_atraso?: number;
+  meses_atraso?: number;
+  classificacao?: 'C1' | 'C2' | 'C3' | 'C4' | 'C5' | string | null;
+  estagio_risco?: number | null;
+  percentual_provisao?: number;
+  valor_provisao?: number;
+  situacao?: string;
+  data_entrada?: string;
+  data_conclusao?: string | null;
+  proposta_acordo?: number | null;
+  acordo_final?: number | null;
+  quantidade_planos?: number | null;
+  taxa_bacen?: number | null;
+  taxa_referencia?: string | null;
+  tempo_escritorio?: number | null;
+  valor_honorarios?: number | null;
+  percentual_honorarios?: number | null;
+  data_vencimento?: string | null;
 }
 
 export const useContratos = () => {
@@ -59,42 +80,27 @@ export const useContratosStats = () => {
     queryKey: ["contratos-stats"],
     queryFn: async () => {
       const { data: contratos, error } = await supabase
-        .from("contratos_provisao")
-        .select("valor_divida, saldo_contabil, valor_provisao, classificacao, situacao");
+        .from("contratos")
+        .select("valor_contrato, valor_financiado, status");
 
       if (error) {
         throw new Error(`Erro ao buscar estatísticas: ${error.message}`);
       }
 
       const totalContratos = contratos.length;
-      const valorTotalDividas = contratos.reduce((sum, c) => {
-        // Se tem dívida contábil, usar ele; senão usar valor da dívida
-        const valorBase = c.saldo_contabil ? c.saldo_contabil : (c.valor_divida || 0);
-        return sum + valorBase;
-      }, 0);
-      const valorTotalProvisao = contratos.reduce((sum, c) => sum + (c.valor_provisao || 0), 0);
+      const valorTotalContratos = contratos.reduce((sum, c) => sum + (c.valor_contrato || c.valor_financiado || 0), 0);
       
-      const porClassificacao = contratos.reduce((acc, c) => {
-        if (c.classificacao) {
-          acc[c.classificacao] = (acc[c.classificacao] || 0) + 1;
-        }
-        return acc;
-      }, {} as Record<string, number>);
-
-      const porSituacao = contratos.reduce((acc, c) => {
-        acc[c.situacao] = (acc[c.situacao] || 0) + 1;
+      const porStatus = contratos.reduce((acc, c) => {
+        acc[c.status] = (acc[c.status] || 0) + 1;
         return acc;
       }, {} as Record<string, number>);
 
       return {
         totalContratos,
-        valorTotalDividas,
-        valorTotalProvisao,
-        porClassificacao,
-        porSituacao,
-        percentualProvisao: valorTotalDividas > 0 ? (valorTotalProvisao / valorTotalDividas) * 100 : 0
+        valorTotalContratos,
+        porStatus,
       };
     },
-    tableName: "contratos_provisao",
+    tableName: "contratos",
   });
 };

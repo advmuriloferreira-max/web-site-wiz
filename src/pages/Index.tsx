@@ -314,9 +314,9 @@ function DashboardContent() {
                 </div>
                 <div className="flex-1 min-w-[200px]">
                   <PremiumStatsCard
-                    title="Provisão Total"
-                    value={`R$ ${((stats?.valorTotalProvisao || 0) / 1000000).toFixed(1)}M`}
-                    description="Valor provisionado"
+                    title="Valor Total"
+                    value={`R$ ${((stats?.valorTotalContratos || 0) / 1000000).toFixed(1)}M`}
+                    description="Valor de contratos"
                     icon={LegalIcons.warning}
                     trend={{ value: -5, isPositive: false }}
                     color="amber"
@@ -324,12 +324,12 @@ function DashboardContent() {
                 </div>
                 <div className="flex-1 min-w-[200px]">
                   <PremiumStatsCard
-                    title="Taxa Média"
-                    value={`${(stats?.percentualProvisao || 0).toFixed(1)}%`}
-                    description="Risco do portfolio"
+                    title="Contratos Ativos"
+                    value={`${stats?.porStatus?.['ativo'] || 0}`}
+                    description="Status ativo"
                     icon={LegalIcons.compliance}
                     trend={{ value: 3, isPositive: true }}
-                    color={(stats?.percentualProvisao ?? 0) > 50 ? "red" : "blue"}
+                    color="blue"
                   />
                 </div>
               </div>
@@ -363,7 +363,14 @@ function DashboardContent() {
 
                 <TabsContent value="visao-geral" className="space-y-6">
                   <div className="grid gap-6 lg:grid-cols-2">
-                    <ClassificacaoChart data={stats?.porClassificacao || {}} />
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Status dos Contratos</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-muted-foreground">Dados de contratos disponíveis</p>
+                      </CardContent>
+                    </Card>
                     <PerformanceCard />
                   </div>
                 </TabsContent>

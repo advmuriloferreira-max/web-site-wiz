@@ -22,7 +22,7 @@ export default function ContratosJuros() {
 
   const filteredContratos = contratos?.filter(contrato =>
     contrato.numero_contrato?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    contrato.clientes_juros?.nome.toLowerCase().includes(searchTerm.toLowerCase())
+    contrato.clientes?.nome.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const formatCurrency = (value: number) => {
@@ -123,14 +123,14 @@ export default function ContratosJuros() {
                     <TableCell className="font-medium">
                       {contrato.numero_contrato || "S/N"}
                     </TableCell>
-                    <TableCell>{contrato.clientes_juros?.nome || "N/A"}</TableCell>
-                    <TableCell>{contrato.instituicoes_financeiras?.nome || "N/A"}</TableCell>
-                    <TableCell>{formatCurrency(contrato.valor_financiado)}</TableCell>
+                    <TableCell>{contrato.clientes?.nome || "N/A"}</TableCell>
+                    <TableCell>{contrato.bancos?.nome || "N/A"}</TableCell>
+                    <TableCell>{formatCurrency(contrato.valor_financiado || 0)}</TableCell>
                     <TableCell>
-                      {format(new Date(contrato.data_contratacao), "dd/MM/yyyy")}
+                      {contrato.data_assinatura ? format(new Date(contrato.data_assinatura), "dd/MM/yyyy") : "N/A"}
                     </TableCell>
                     <TableCell>
-                      {getAbusividadeBadge(contrato.tem_abusividade, contrato.grau_abusividade)}
+                      <Badge variant="outline">{contrato.status}</Badge>
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">

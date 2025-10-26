@@ -41,9 +41,9 @@ export function HeroSection() {
               <LegalIcons.justice className="h-4 w-4 text-accent" />
             </div>
             <div>
-              <p className="text-xs text-white/70 font-medium">Valor total de dívidas monitoradas</p>
+              <p className="text-xs text-white/70 font-medium">Valor total de contratos</p>
               <p className="text-sm font-bold">
-                R$ {(stats?.valorTotalDividas || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                R$ {(stats?.valorTotalContratos || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
               </p>
             </div>
           </div>
@@ -53,9 +53,9 @@ export function HeroSection() {
               <LegalIcons.compliance className="h-4 w-4 text-success" />
             </div>
             <div>
-              <p className="text-xs text-white/70 font-medium">Taxa de Provisão</p>
+              <p className="text-xs text-white/70 font-medium">Status Ativos</p>
               <p className="text-sm font-bold">
-                {(stats?.percentualProvisao ?? 0).toFixed(2)}%
+                {stats?.porStatus?.['ativo'] || 0}
               </p>
             </div>
           </div>

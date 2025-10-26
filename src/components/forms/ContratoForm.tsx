@@ -248,7 +248,7 @@ export function ContratoForm({ onSuccess, contratoParaEditar, clienteIdPredefini
       data_ultimo_pagamento: contratoExistente.data_ultimo_pagamento || "",
       dias_atraso: contratoExistente.dias_atraso?.toString() || "0",
       meses_atraso: contratoExistente.meses_atraso?.toString() || "0",
-      classificacao: contratoExistente.classificacao || undefined,
+      classificacao: contratoExistente.classificacao as any || undefined,
       percentual_provisao: contratoExistente.percentual_provisao?.toString() || "0",
       valor_provisao: contratoExistente.valor_provisao?.toString() || "0",
       proposta_acordo: contratoExistente.proposta_acordo?.toString() || "0",

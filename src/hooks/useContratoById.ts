@@ -4,17 +4,17 @@ import { Contrato } from "./useContratos";
 
 export const useContratoById = (contratoId: string | null) => {
   return useQuery({
-    queryKey: ["contrato-provisao-by-id", contratoId],
+    queryKey: ["contrato-by-id", contratoId],
     queryFn: async () => {
       if (!contratoId?.trim()) {
         return null;
       }
 
       const { data, error } = await supabase
-        .from("contratos_provisao")
+        .from("contratos")
         .select(`
           *,
-          clientes:clientes_provisao (id, nome, cpf_cnpj, responsavel),
+          clientes:clientes (id, nome, cpf_cnpj),
           bancos:bancos_provisao (id, nome)
         `)
         .eq("id", contratoId.trim())

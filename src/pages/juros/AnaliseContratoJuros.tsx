@@ -71,25 +71,8 @@ export default function AnaliseContratoJuros() {
   };
 
   const getStatusBadge = () => {
-    if (contrato.tem_abusividade) {
-      const colors: Record<string, string> = {
-        "Baixa": "bg-yellow-500",
-        "Média": "bg-orange-500",
-        "Alta": "bg-red-500",
-        "Crítica": "bg-purple-500",
-      };
-      return (
-        <Badge className={colors[contrato.grau_abusividade || ""] || "bg-red-500"}>
-          <AlertTriangle className="h-3 w-3 mr-1" />
-          {contrato.grau_abusividade || "Abusivo"}
-        </Badge>
-      );
-    }
     return (
-      <Badge className="bg-green-500">
-        <CheckCircle className="h-3 w-3 mr-1" />
-        Conforme
-      </Badge>
+      <Badge variant="outline">{contrato.status}</Badge>
     );
   };
 
@@ -111,7 +94,7 @@ export default function AnaliseContratoJuros() {
               Análise de Contrato - Juros
             </h1>
             <p className="text-muted-foreground">
-              Contrato {contrato.numero_contrato || "S/N"} • Cliente: {contrato.clientes_juros?.nome}
+              Contrato {contrato.numero_contrato || "S/N"} • Cliente: {contrato.clientes?.nome}
             </p>
           </div>
         </div>
@@ -130,16 +113,16 @@ export default function AnaliseContratoJuros() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
               <span className="text-sm text-muted-foreground">Cliente</span>
-              <p className="font-medium">{contrato.clientes_juros?.nome}</p>
+              <p className="font-medium">{contrato.clientes?.nome}</p>
             </div>
             <div>
               <span className="text-sm text-muted-foreground">Instituição Financeira</span>
-              <p className="font-medium">{contrato.instituicoes_financeiras?.nome || "N/A"}</p>
+              <p className="font-medium">{contrato.bancos?.nome || "N/A"}</p>
             </div>
             <div>
               <span className="text-sm text-muted-foreground">Data Contratação</span>
               <p className="font-medium">
-                {format(new Date(contrato.data_contratacao), "dd/MM/yyyy")}
+                {contrato.data_assinatura ? format(new Date(contrato.data_assinatura), "dd/MM/yyyy") : "N/A"}
               </p>
             </div>
             <div>
@@ -166,7 +149,7 @@ export default function AnaliseContratoJuros() {
             </div>
             <div>
               <span className="text-sm text-muted-foreground">Status da Análise</span>
-              <p className="font-medium">{contrato.status_analise}</p>
+              <p className="font-medium">{contrato.status}</p>
             </div>
           </div>
         </CardContent>
@@ -227,51 +210,10 @@ export default function AnaliseContratoJuros() {
                         {formatCurrency(resultado.totalPago)}
                       </p>
                     </div>
-
-                    {contrato.taxa_bacen_referencia && (
-                      <div className="p-4 bg-muted rounded-lg">
-                        <span className="text-sm text-muted-foreground">
-                          Diferença vs. Taxa BACEN
-                        </span>
-                        <p className="text-2xl font-bold text-destructive">
-                          {contrato.diferenca_vs_bacen?.toFixed(2)}%
-                        </p>
-                      </div>
-                    )}
                   </div>
                 </div>
               </CardContent>
             </Card>
-
-            {/* Comparação com BACEN */}
-            {contrato.taxa_bacen_referencia && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5" />
-                    Comparação com Taxa BACEN
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="p-4 bg-muted rounded-lg">
-                      <span className="text-sm text-muted-foreground">Taxa BACEN Referência</span>
-                      <p className="text-xl font-bold">{contrato.taxa_bacen_referencia}%</p>
-                    </div>
-                    <div className="p-4 bg-muted rounded-lg">
-                      <span className="text-sm text-muted-foreground">Taxa Efetiva do Contrato</span>
-                      <p className="text-xl font-bold">{resultado.taxaEfetivaMensal.toFixed(4)}%</p>
-                    </div>
-                    <div className="p-4 bg-muted rounded-lg">
-                      <span className="text-sm text-muted-foreground">Diferença</span>
-                      <p className="text-xl font-bold text-destructive">
-                        +{contrato.diferenca_vs_bacen?.toFixed(2)}%
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
           </TabsContent>
 
           <TabsContent value="amortizacao">
