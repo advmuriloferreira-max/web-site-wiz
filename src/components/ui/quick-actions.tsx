@@ -45,7 +45,7 @@ export function QuickActions() {
       descricao: "Provisão perda",
       icone: Calculator,
       cor: "bg-orange-500/10 text-orange-600 hover:bg-orange-500/20",
-      acao: () => navigate("/calculos")
+      acao: () => navigate("/app/calculadora-juros")
     },
     {
       id: "relatorios",
@@ -53,7 +53,7 @@ export function QuickActions() {
       descricao: "Gerar relatórios",
       icone: TrendingUp,
       cor: "bg-purple-500/10 text-purple-600 hover:bg-purple-500/20",
-      acao: () => navigate("/relatorios")
+      acao: () => navigate("/app/relatorios")
     }
   ];
 
