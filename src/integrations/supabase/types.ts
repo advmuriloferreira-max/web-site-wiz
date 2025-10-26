@@ -1334,36 +1334,68 @@ export type Database = {
           created_at: string | null
           credor_quitado: string | null
           credores_ativos: Json | null
+          detalhes_json: Json | null
           distribuicao: Json | null
+          duracao_meses: number | null
+          escritorio_id: string | null
           id: string
           numero_fase: number
           parcelas_na_fase: number
           plano_id: string | null
+          plano_pagamento_id: string | null
+          tipo_fase: string | null
+          valor_mensal_total: number | null
         }
         Insert: {
           created_at?: string | null
           credor_quitado?: string | null
           credores_ativos?: Json | null
+          detalhes_json?: Json | null
           distribuicao?: Json | null
+          duracao_meses?: number | null
+          escritorio_id?: string | null
           id?: string
           numero_fase: number
           parcelas_na_fase: number
           plano_id?: string | null
+          plano_pagamento_id?: string | null
+          tipo_fase?: string | null
+          valor_mensal_total?: number | null
         }
         Update: {
           created_at?: string | null
           credor_quitado?: string | null
           credores_ativos?: Json | null
+          detalhes_json?: Json | null
           distribuicao?: Json | null
+          duracao_meses?: number | null
+          escritorio_id?: string | null
           id?: string
           numero_fase?: number
           parcelas_na_fase?: number
           plano_id?: string | null
+          plano_pagamento_id?: string | null
+          tipo_fase?: string | null
+          valor_mensal_total?: number | null
         }
         Relationships: [
           {
+            foreignKeyName: "fases_plano_escritorio_id_fkey"
+            columns: ["escritorio_id"]
+            isOneToOne: false
+            referencedRelation: "escritorios"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "fases_plano_plano_id_fkey"
             columns: ["plano_id"]
+            isOneToOne: false
+            referencedRelation: "planos_pagamento"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fases_plano_plano_pagamento_id_fkey"
+            columns: ["plano_pagamento_id"]
             isOneToOne: false
             referencedRelation: "planos_pagamento"
             referencedColumns: ["id"]
@@ -1612,6 +1644,7 @@ export type Database = {
       }
       planos_pagamento: {
         Row: {
+          analise_superendividamento_id: string | null
           cliente_id: string | null
           created_at: string | null
           escritorio_id: string
@@ -1624,6 +1657,7 @@ export type Database = {
           valor_mensal_total: number
         }
         Insert: {
+          analise_superendividamento_id?: string | null
           cliente_id?: string | null
           created_at?: string | null
           escritorio_id: string
@@ -1636,6 +1670,7 @@ export type Database = {
           valor_mensal_total: number
         }
         Update: {
+          analise_superendividamento_id?: string | null
           cliente_id?: string | null
           created_at?: string | null
           escritorio_id?: string
@@ -1648,6 +1683,13 @@ export type Database = {
           valor_mensal_total?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "planos_pagamento_analise_superendividamento_id_fkey"
+            columns: ["analise_superendividamento_id"]
+            isOneToOne: false
+            referencedRelation: "analises_superendividamento"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "planos_pagamento_cliente_id_fkey"
             columns: ["cliente_id"]
@@ -2222,7 +2264,23 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      v_dividas_superendividamento: {
+        Row: {
+          analise_superendividamento_id: string | null
+          contrato_id: string | null
+          created_at: string | null
+          credor: string | null
+          escritorio_id: string | null
+          escritorio_id_original: string | null
+          fonte: string | null
+          id: string | null
+          numero_parcelas_restantes: number | null
+          parcela_mensal_atual: number | null
+          tipo_divida: string | null
+          valor_total_divida: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       convite_valido: { Args: { invite_token: string }; Returns: boolean }
