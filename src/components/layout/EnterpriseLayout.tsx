@@ -97,44 +97,59 @@ export function EnterpriseLayout() {
 
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col min-w-0">
-          {/* Top Header - Otimizado e Limpo */}
-          <header className="sticky top-0 z-40 w-full h-16 bg-[hsl(220_15%_20%)] backdrop-blur-xl border-b border-border/20 shadow-lg animate-fade-in">
+          {/* Top Header - Otimizado sem duplicação */}
+          <header className="sticky top-0 z-40 w-full h-16 bg-gradient-to-r from-slate-800 to-slate-900 backdrop-blur-xl border-b border-slate-700 shadow-lg">
             <div className="h-full flex items-center justify-between px-4 sm:px-6 lg:px-8">
               
-              {/* Left Section - Logo Compacto */}
-              <div className="flex items-center gap-3">
+              {/* Left Section - Mobile Trigger + Breadcrumbs */}
+              <div className="flex items-center gap-4 flex-1 min-w-0">
                 {/* Mobile Sidebar Trigger */}
-                <div className="md:hidden">
-                  <SidebarTrigger className="text-white hover:text-accent transition-all duration-200 hover:scale-105 font-semibold" />
+                <div className="md:hidden flex-shrink-0">
+                  <SidebarTrigger className="text-white hover:text-blue-400 transition-all duration-200 hover:scale-105" />
                 </div>
 
-                {/* Logo Compacto */}
-                <div className="flex items-center gap-2 group">
-                  <LegalIcons.justice className="h-6 w-6 text-accent flex-shrink-0 transition-transform duration-200 group-hover:scale-110" />
-                  <div className="hidden sm:block">
-                    <h1 className="text-xl font-extrabold text-white tracking-wide leading-tight">
-                      INTELLBANK
-                    </h1>
-                  </div>
+                {/* Breadcrumbs (Desktop e Mobile) */}
+                <div className="flex-1 min-w-0">
+                  <SmartBreadcrumbs />
                 </div>
               </div>
 
-              {/* Center Section - Breadcrumbs */}
-              <div className="flex-1 hidden lg:flex justify-center max-w-lg mx-4">
-                <SmartBreadcrumbs />
-              </div>
+              {/* Right Section - Ações Úteis */}
+              <div className="flex items-center gap-2 flex-shrink-0">
+                {/* Botão: Nova Análise Rápida */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => window.location.href = '/app/quick/provisionamento'}
+                  className="text-white hover:text-white hover:bg-white/10 border border-white/20 transition-all duration-200 hover:scale-105 hidden sm:flex"
+                  title="Nova Análise Rápida"
+                >
+                  <LegalIcons.calculations className="h-4 w-4" />
+                  <span className="hidden lg:inline ml-2 text-sm font-medium">Análise Rápida</span>
+                </Button>
 
-              {/* Right Section - Ações Essenciais */}
-              <div className="flex items-center gap-1">
-                {/* Search Compacto */}
+                {/* Botão: Novo Cliente */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => window.location.href = '/app/clientes/novo'}
+                  className="text-white hover:text-white hover:bg-white/10 border border-white/20 transition-all duration-200 hover:scale-105 hidden sm:flex"
+                  title="Novo Cliente"
+                >
+                  <LegalIcons.clients className="h-4 w-4" />
+                  <span className="hidden xl:inline ml-2 text-sm font-medium">Novo Cliente</span>
+                </Button>
+
+                {/* Busca Global */}
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setSearchOpen(true)}
-                  className="text-white hover:text-white hover:bg-white/10 border border-white/20 transition-all duration-200 hover:scale-105 font-semibold"
+                  className="text-white hover:text-white hover:bg-white/10 border border-white/20 transition-all duration-200 hover:scale-105"
+                  title="Buscar (Ctrl+K)"
                 >
                   <LegalIcons.search className="h-4 w-4" />
-                  <span className="hidden xl:inline ml-2 text-sm font-semibold">Buscar</span>
+                  <span className="hidden xl:inline ml-2 text-sm font-medium">Buscar</span>
                 </Button>
 
                 {/* Theme Toggle */}
@@ -143,11 +158,6 @@ export function EnterpriseLayout() {
                 {/* User Menu */}
                 <UserMenu />
               </div>
-            </div>
-
-            {/* Mobile Breadcrumbs - Mais Compacto */}
-            <div className="lg:hidden px-4 py-2 border-t border-border/20 bg-[hsl(220_15%_20%)] animate-slide-in-right">
-              <SmartBreadcrumbs showKeyboardShortcuts={false} />
             </div>
           </header>
 
