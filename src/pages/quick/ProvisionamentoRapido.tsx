@@ -147,7 +147,7 @@ export default function ProvisionamentoRapido() {
       <div className="mb-6">
         <h1 className="text-3xl font-bold flex items-center gap-3">
           <Calculator className="h-8 w-8 text-orange-600" />
-          Provisionamento Rápido
+          Gestão de Passivo Rápida
         </h1>
         <p className="text-muted-foreground mt-2">
           Calcule a provisão bancária sem necessidade de cadastro prévio
