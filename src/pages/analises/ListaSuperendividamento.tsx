@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { FileText, Eye, Download, Loader2 } from "lucide-react";
@@ -27,37 +27,53 @@ export default function ListaSuperendividamento() {
   const [dataFim, setDataFim] = useState("");
   const [busca, setBusca] = useState("");
 
-  const { data: analises, isLoading } = useQuery({
+  const { data: analises, isLoading, error } = useQuery({
     queryKey: ["analises-superendividamento", dataInicio, dataFim, busca],
     queryFn: async () => {
-      let query = supabase
-        .from("analises_superendividamento")
-        .select(`
-          *,
-          cliente:clientes(id, nome, cpf_cnpj)
-        `)
-        .order("created_at", { ascending: false });
+      try {
+        let query = supabase
+          .from("analises_superendividamento")
+          .select(`
+            *,
+            cliente:clientes(id, nome, cpf_cnpj)
+          `)
+          .order("created_at", { ascending: false });
 
-      if (dataInicio) {
-        query = query.gte("data_analise", dataInicio);
+        if (dataInicio) {
+          query = query.gte("data_analise", dataInicio);
+        }
+        if (dataFim) {
+          query = query.lte("data_analise", dataFim);
+        }
+
+        const { data, error } = await query;
+        
+        if (error) {
+          console.error("Erro ao buscar análises:", error);
+          toast.error(`Erro ao carregar análises: ${error.message}`);
+          throw error;
+        }
+
+        // Filtrar por busca no cliente
+        if (busca && data) {
+          return data.filter((analise: any) => 
+            analise.cliente?.nome?.toLowerCase().includes(busca.toLowerCase())
+          );
+        }
+
+        return data || [];
+      } catch (error) {
+        console.error("Erro na query:", error);
+        return [];
       }
-      if (dataFim) {
-        query = query.lte("data_analise", dataFim);
-      }
-
-      const { data, error } = await query;
-      if (error) throw error;
-
-      // Filtrar por busca no cliente
-      if (busca && data) {
-        return data.filter((analise: any) => 
-          analise.cliente?.nome?.toLowerCase().includes(busca.toLowerCase())
-        );
-      }
-
-      return data;
     },
   });
+
+  useEffect(() => {
+    if (error) {
+      toast.error("Erro ao carregar análises de superendividamento");
+    }
+  }, [error]);
 
   const gerarPeticao = (analiseId: string, clienteId: string) => {
     toast.info("Gerando petição judicial...");

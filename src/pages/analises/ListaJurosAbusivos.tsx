@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { FileText, Eye, Download, AlertTriangle, Loader2 } from "lucide-react";
@@ -35,46 +35,62 @@ export default function ListaJurosAbusivos() {
   const [busca, setBusca] = useState("");
   const [apenasAbusivos, setApenasAbusivos] = useState<string>("todos");
 
-  const { data: analises, isLoading } = useQuery({
+  const { data: analises, isLoading, error } = useQuery({
     queryKey: ["analises-juros-abusivos", dataInicio, dataFim, busca, apenasAbusivos],
     queryFn: async () => {
-      let query = supabase
-        .from("analises_juros_abusivos")
-        .select(`
-          *,
-          contrato:contratos(
-            id,
-            numero_contrato,
-            cliente:clientes(id, nome)
-          )
-        `)
-        .order("created_at", { ascending: false });
+      try {
+        let query = supabase
+          .from("analises_juros_abusivos")
+          .select(`
+            *,
+            contrato:contratos(
+              id,
+              numero_contrato,
+              cliente:clientes(id, nome)
+            )
+          `)
+          .order("created_at", { ascending: false });
 
-      if (dataInicio) {
-        query = query.gte("data_analise", dataInicio);
-      }
-      if (dataFim) {
-        query = query.lte("data_analise", dataFim);
-      }
-      if (apenasAbusivos === "sim") {
-        query = query.eq("abusividade_detectada", true);
-      } else if (apenasAbusivos === "nao") {
-        query = query.eq("abusividade_detectada", false);
-      }
+        if (dataInicio) {
+          query = query.gte("data_analise", dataInicio);
+        }
+        if (dataFim) {
+          query = query.lte("data_analise", dataFim);
+        }
+        if (apenasAbusivos === "sim") {
+          query = query.eq("abusividade_detectada", true);
+        } else if (apenasAbusivos === "nao") {
+          query = query.eq("abusividade_detectada", false);
+        }
 
-      const { data, error } = await query;
-      if (error) throw error;
+        const { data, error } = await query;
+        
+        if (error) {
+          console.error("Erro ao buscar análises:", error);
+          toast.error(`Erro ao carregar análises: ${error.message}`);
+          throw error;
+        }
 
-      // Filtrar por busca no cliente
-      if (busca && data) {
-        return data.filter((analise: any) => 
-          analise.contrato?.cliente?.nome?.toLowerCase().includes(busca.toLowerCase())
-        );
+        // Filtrar por busca no cliente
+        if (busca && data) {
+          return data.filter((analise: any) => 
+            analise.contrato?.cliente?.nome?.toLowerCase().includes(busca.toLowerCase())
+          );
+        }
+
+        return data || [];
+      } catch (error) {
+        console.error("Erro na query:", error);
+        return [];
       }
-
-      return data;
     },
   });
+
+  useEffect(() => {
+    if (error) {
+      toast.error("Erro ao carregar análises de juros abusivos");
+    }
+  }, [error]);
 
   const gerarRelatorio = (analiseId: string) => {
     toast.info("Gerando relatório judicial...");
