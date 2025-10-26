@@ -188,7 +188,12 @@ export default function Clientes() {
                                   </span>
                                 </div>
                               <div>
-                                <span className="font-semibold">{cliente.nome}</span>
+                                <button 
+                                  onClick={() => navigate(`/app/clientes/${cliente.id}`)}
+                                  className="font-semibold hover:underline text-left"
+                                >
+                                  {cliente.nome}
+                                </button>
                               </div>
                               </div>
                             </TableCell>
@@ -221,11 +226,20 @@ export default function Clientes() {
                                 <Button
                                   variant="ghost"
                                   size="sm"
+                                  onClick={() => navigate(`/app/clientes/${cliente.id}`)}
+                                  className="h-8 w-8 p-0"
+                                  title="Ver hub do cliente"
+                                >
+                                  <LegalIcons.view className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
                                   onClick={() => toggleClienteExpanded(cliente.id)}
                                   className="h-8 w-8 p-0"
                                   title="Visualizar contratos"
                                 >
-                                  <LegalIcons.view className="h-4 w-4" />
+                                  <LegalIcons.contract className="h-4 w-4" />
                                 </Button>
                                 <Button
                                   variant="ghost"
