@@ -163,7 +163,7 @@ export function EnterpriseLayout() {
                     <Route path="/clientes" element={<Clientes />} />
                     <Route path="/clientes/novo" element={<NovoCliente />} />
               <Route path="/clientes/:id" element={<ClienteDetalhes />} />
-              <Route path="/contratos/:contratoId/analise-provisionamento" element={<AnaliseProvisionamento />} />
+              <Route path="/contratos/:id/provisionamento" element={<AnaliseProvisionamento />} />
                     <Route path="/contratos" element={<Contratos />} />
                     <Route path="/contratos/novo" element={<NovoContrato />} />
                     <Route path="/contratos/:contratoId" element={<ContratoDetalhes />} />

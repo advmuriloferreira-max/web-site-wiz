@@ -14,7 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { calcularProvisaoConformeBCB } from "@/lib/calculoProvisaoConformeBCB";
 
 export default function AnaliseProvisionamento() {
-  const { contratoId } = useParams<{ contratoId: string }>();
+  const { id: contratoId } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data: contrato, isLoading } = useContratoById(contratoId!);
 
