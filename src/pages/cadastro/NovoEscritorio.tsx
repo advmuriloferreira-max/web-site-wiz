@@ -266,7 +266,7 @@ export default function NovoEscritorio() {
               
               <div className="bg-blue-50 dark:bg-blue-950/30 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
                 <p className="text-sm text-blue-800 dark:text-blue-200">
-                  🎉 <strong>30 dias grátis!</strong> Teste todas as funcionalidades sem compromisso.
+                  🎉 <strong>7 dias grátis!</strong> Teste todas as funcionalidades sem compromisso.
                 </p>
               </div>
             </div>

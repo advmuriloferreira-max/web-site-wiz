@@ -183,9 +183,9 @@ export default function CadastroEscritorio() {
                     <Clock className="h-5 w-5 text-green-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900">30 Dias Grátis</h3>
+                    <h3 className="font-semibold text-gray-900">7 Dias Grátis</h3>
                     <p className="text-gray-600 text-sm">
-                      Teste todas as funcionalidades por 30 dias
+                      Teste todas as funcionalidades por 7 dias
                     </p>
                   </div>
                 </div>
@@ -427,10 +427,10 @@ export default function CadastroEscritorio() {
                         <div className="bg-green-50 p-4 rounded-lg border border-green-200">
                           <div className="flex items-center space-x-2">
                             <Award className="h-5 w-5 text-green-600" />
-                            <span className="font-semibold text-green-800">30 dias grátis!</span>
+                            <span className="font-semibold text-green-800">7 dias grátis!</span>
                           </div>
                           <p className="text-sm text-green-700 mt-1">
-                            Teste todas as funcionalidades por 30 dias. Cancele antes do vencimento se não gostar.
+                            Teste todas as funcionalidades por 7 dias. Cancele antes do vencimento se não gostar.
                           </p>
                         </div>
                         

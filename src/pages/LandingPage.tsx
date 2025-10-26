@@ -94,7 +94,7 @@ export default function LandingPage() {
                 </div>
                 <div className="flex items-center space-x-3">
                   <CheckCircle className="h-6 w-6 text-green-500 flex-shrink-0" />
-                  <span className="text-gray-700">30 dias grátis</span>
+                  <span className="text-gray-700">7 dias grátis</span>
                 </div>
               </div>
 
@@ -434,7 +434,7 @@ export default function LandingPage() {
 
           <div className="text-center mt-8">
             <p className="text-gray-600">
-              ✨ <strong>30 dias grátis</strong> em qualquer plano • Cancele quando quiser • Sem taxa de setup
+              ✨ <strong>7 dias grátis</strong> em qualquer plano • Cancele quando quiser • Sem taxa de setup
             </p>
           </div>
         </div>

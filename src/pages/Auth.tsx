@@ -192,7 +192,7 @@ export default function Auth() {
           <CardContent className="pt-6 text-center space-y-3">
             <p className="text-sm font-medium">Ainda não tem uma conta?</p>
             <p className="text-xs text-muted-foreground">
-              Cadastre seu escritório e comece a usar o INTELLBANK gratuitamente por 30 dias
+              Cadastre seu escritório e comece a usar o INTELLBANK gratuitamente por 7 dias
             </p>
             <Button 
               variant="outline" 
