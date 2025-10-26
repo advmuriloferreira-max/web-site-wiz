@@ -134,7 +134,7 @@ export default function ClienteDetalhes() {
     <div className="container mx-auto p-6 space-y-6">
       <PageBreadcrumbs 
         segments={[
-          { label: "Clientes", path: "/clientes" },
+          { label: "Clientes", path: "/app/clientes" },
           { label: cliente?.nome || "Detalhes" },
         ]}
       />
@@ -341,7 +341,7 @@ export default function ClienteDetalhes() {
               Análises de Superendividamento
             </div>
             <Button 
-              onClick={() => navigate(`/superendividamento/analise/nova?cliente_id=${id}`)}
+              onClick={() => navigate(`/app/clientes/${id}/superendividamento`)}
               variant="outline"
             >
               Nova Análise
@@ -355,7 +355,7 @@ export default function ClienteDetalhes() {
                 <div
                   key={analise.id}
                   className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 cursor-pointer"
-                  onClick={() => navigate(`/superendividamento/analise/${analise.id}`)}
+                  onClick={() => navigate(`/app/clientes/${id}/superendividamento`)}
                 >
                   <div>
                     <p className="font-medium">
@@ -379,7 +379,7 @@ export default function ClienteDetalhes() {
                 Nenhuma análise de superendividamento realizada
               </p>
               <Button 
-                onClick={() => navigate(`/superendividamento/analise/nova?cliente_id=${id}`)}
+                onClick={() => navigate(`/app/clientes/${id}/superendividamento`)}
                 variant="outline"
               >
                 Realizar Primeira Análise
