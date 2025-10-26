@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Home, Users, Calculator, FileText, Settings, ChevronDown, ChevronRight } from "lucide-react";
 import { LegalIcons } from "@/components/ui/legal-icons";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -7,6 +8,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import {
   Sidebar,
   SidebarContent,
@@ -20,30 +26,51 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-const provisionamentoItems = [
-  { title: "Painel de Controle", url: "/app", icon: LegalIcons.dashboard },
-  { title: "Painel do Cliente", url: "/app/painel-cliente", icon: LegalIcons.clients, highlight: true },
-  { title: "Clientes", url: "/app/clientes", icon: LegalIcons.clients, dataTour: "sidebar-clientes" },
-  { title: "Contratos", url: "/app/contratos", icon: LegalIcons.contract, dataTour: "sidebar-contratos" },
-  { title: "Processos Judiciais", url: "/app/processos", icon: LegalIcons.process },
-  { title: "Acordos", url: "/app/acordos", icon: LegalIcons.agreement, dataTour: "sidebar-acordos" },
-  { title: "Provisões", url: "/app/calculos", icon: LegalIcons.calculations, dataTour: "sidebar-calculos" },
-  { title: "Indicadores", url: "/app/relatorios", icon: LegalIcons.reports, dataTour: "sidebar-relatorios" },
-  { title: "Análises Avançadas", url: "/app/relatorios-avancados", icon: LegalIcons.reports },
-];
-
-const jurosItems = [
-  { title: "Clientes", url: "/app/juros/clientes", icon: LegalIcons.clients },
-  { title: "Contratos", url: "/app/juros/contratos", icon: LegalIcons.contract },
-  { title: "Calculadora de Juros", url: "/app/calculadora-juros", icon: LegalIcons.calculations },
-];
-
-const superendividamentoItems = [
-  { title: "Dashboard", url: "/app/superendividamento", icon: LegalIcons.dashboard },
-  { title: "Clientes", url: "/app/superendividamento/clientes", icon: LegalIcons.clients },
-  { title: "Análise Socioeconômica", url: "/app/superendividamento/analise", icon: LegalIcons.calculations },
-  { title: "Planos de Pagamento", url: "/app/superendividamento/planos", icon: LegalIcons.agreement },
-  { title: "Calculadora Rápida", url: "/app/superendividamento/calculadora", icon: LegalIcons.calculations },
+const menuItems = [
+  {
+    title: "Dashboard",
+    icon: Home,
+    path: "/app",
+  },
+  {
+    title: "Gestão de Clientes",
+    icon: Users,
+    items: [
+      { title: "Clientes", path: "/app/clientes" },
+      { title: "Contratos", path: "/app/contratos" },
+    ],
+  },
+  {
+    title: "Módulos de Análise",
+    icon: Calculator,
+    items: [
+      {
+        title: "Provisionamento Bancário",
+        path: "/app/calculos",
+        description: "Res. 4966 BACEN",
+      },
+      {
+        title: "Juros Abusivos",
+        path: "/app/juros/clientes",
+        description: "Séries Temporais BACEN",
+      },
+      {
+        title: "Superendividamento",
+        path: "/app/superendividamento",
+        description: "Lei 14.181/2021",
+      },
+    ],
+  },
+  {
+    title: "Relatórios",
+    icon: FileText,
+    path: "/app/relatorios",
+  },
+  {
+    title: "Configurações",
+    icon: Settings,
+    path: "/app/configuracoes",
+  },
 ];
 
 const adminItems = [
@@ -58,6 +85,20 @@ export function AppSidebar() {
   const currentPath = location.pathname;
   const isCollapsed = state === "collapsed";
   const isAdmin = usuarioEscritorio?.permissoes?.admin || profile?.role === 'admin';
+
+  // Estado para controlar grupos expandidos
+  const [expandedGroups, setExpandedGroups] = useState<string[]>([
+    "Gestão de Clientes",
+    "Módulos de Análise"
+  ]);
+
+  const toggleGroup = (groupTitle: string) => {
+    setExpandedGroups(prev =>
+      prev.includes(groupTitle)
+        ? prev.filter(t => t !== groupTitle)
+        : [...prev, groupTitle]
+    );
+  };
 
   const escritorio = usuarioEscritorio?.escritorio;
   const getStatusBadge = () => {
@@ -83,43 +124,134 @@ export function AppSidebar() {
       .slice(0, 2);
   };
 
-  const MenuItem = ({ item, tooltip }: { item: any; tooltip?: boolean }) => {
+  const isGroupActive = (items: any[]) => {
+    return items.some(item => isActive(item.path));
+  };
+
+  const SimpleMenuItem = ({ item }: { item: any }) => {
+    const active = isActive(item.path);
+    
+    const content = (
+      <NavLink 
+        to={item.path} 
+        end 
+        className={cn(
+          "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 font-medium",
+          active
+            ? 'bg-sidebar-accent text-white'
+            : 'text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-white'
+        )}
+      >
+        <item.icon className="h-5 w-5 flex-shrink-0" />
+        {!isCollapsed && (
+          <span className="flex-1 truncate">{item.title}</span>
+        )}
+      </NavLink>
+    );
+
+    if (isCollapsed) {
+      return (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            {content}
+          </TooltipTrigger>
+          <TooltipContent side="right">
+            {item.title}
+          </TooltipContent>
+        </Tooltip>
+      );
+    }
+
+    return content;
+  };
+
+  const GroupMenuItem = ({ group }: { group: any }) => {
+    const isExpanded = expandedGroups.includes(group.title);
+    const hasActiveItem = isGroupActive(group.items);
+
+    if (isCollapsed) {
+      return (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="px-3 py-2.5 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent/50 cursor-pointer">
+              <group.icon className="h-5 w-5" />
+            </div>
+          </TooltipTrigger>
+          <TooltipContent side="right">
+            <div>
+              <p className="font-medium">{group.title}</p>
+              {group.items.map((item: any) => (
+                <p key={item.path} className="text-xs text-muted-foreground mt-1">
+                  • {item.title}
+                </p>
+              ))}
+            </div>
+          </TooltipContent>
+        </Tooltip>
+      );
+    }
+
+    return (
+      <Collapsible open={isExpanded} onOpenChange={() => toggleGroup(group.title)}>
+        <CollapsibleTrigger className="w-full">
+          <div className={cn(
+            "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 font-medium",
+            hasActiveItem 
+              ? "bg-sidebar-accent/50 text-white" 
+              : "text-sidebar-foreground hover:bg-sidebar-accent/30"
+          )}>
+            <group.icon className="h-5 w-5 flex-shrink-0" />
+            <span className="flex-1 truncate text-left">{group.title}</span>
+            {isExpanded ? (
+              <ChevronDown className="h-4 w-4" />
+            ) : (
+              <ChevronRight className="h-4 w-4" />
+            )}
+          </div>
+        </CollapsibleTrigger>
+        <CollapsibleContent className="mt-1 space-y-1 ml-4">
+          {group.items.map((item: any) => {
+            const active = isActive(item.path);
+            return (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                className={cn(
+                  "flex flex-col px-3 py-2 rounded-lg transition-all duration-200",
+                  active
+                    ? 'bg-sidebar-accent text-white'
+                    : 'text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-white'
+                )}
+              >
+                <span className="text-sm font-medium">{item.title}</span>
+                {item.description && (
+                  <span className="text-xs opacity-70">{item.description}</span>
+                )}
+              </NavLink>
+            );
+          })}
+        </CollapsibleContent>
+      </Collapsible>
+    );
+  };
+
+  const OldMenuItem = ({ item, tooltip }: { item: any; tooltip?: boolean }) => {
     const active = isActive(item.url);
-    const isHighlight = item.highlight === true;
     
     const content = (
       <NavLink 
         to={item.url} 
         end 
-        data-tour={item.dataTour}
-        className={`
-          flex items-center gap-3 px-3 py-2.5 mx-2 rounded-lg transition-all duration-200 font-extrabold
-          ${active
-            ? 'bg-sidebar-accent text-white font-black'
-            : isHighlight 
-            ? 'text-white hover:text-white bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-400/30 hover:from-blue-600/30 hover:to-purple-600/30'
-            : 'text-white hover:text-white hover:bg-sidebar-accent/50'
-          }
-        `}
+        className={cn(
+          "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 font-medium",
+          active
+            ? 'bg-sidebar-accent text-white'
+            : 'text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-white'
+        )}
       >
         <item.icon className="h-5 w-5 flex-shrink-0" />
         {!isCollapsed && (
-          <>
-            <span className="flex-1 truncate">{item.title}</span>
-            {item.badge && (
-              <Badge 
-                variant="secondary" 
-                className={cn(
-                  "text-[10px] px-1.5 py-0 font-bold",
-                  isHighlight 
-                    ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white border-none animate-pulse" 
-                    : "bg-sidebar-primary/20 text-sidebar-primary border-sidebar-primary/30"
-                )}
-              >
-                {item.badge}
-              </Badge>
-            )}
-          </>
+          <span className="flex-1 truncate">{item.title}</span>
         )}
       </NavLink>
     );
@@ -130,7 +262,7 @@ export function AppSidebar() {
           <TooltipTrigger asChild>
             {content}
           </TooltipTrigger>
-          <TooltipContent side="right" className="bg-slate-800 text-white border-slate-700">
+          <TooltipContent side="right">
             {item.title}
           </TooltipContent>
         </Tooltip>
@@ -182,64 +314,21 @@ export function AppSidebar() {
       </div>
       
       <SidebarContent className="px-0 overflow-y-auto">
-        {/* Provisionamento Bancário */}
+        {/* Menu Principal */}
         <SidebarGroup className="py-3">
           {!isCollapsed && (
-            <>
-              <SidebarGroupLabel className="text-sm uppercase tracking-wider text-sidebar-foreground/80 px-4 py-2 font-black">
-                GESTÃO DE PASSIVO BANCÁRIO
-              </SidebarGroupLabel>
-              <div className="h-1 bg-accent mx-4 rounded-full"></div>
-            </>
+            <SidebarGroupLabel className="text-xs uppercase tracking-wider text-sidebar-foreground/60 px-4 py-2 font-semibold">
+              Menu Principal
+            </SidebarGroupLabel>
           )}
           <SidebarGroupContent>
             <div className="space-y-1 px-2">
-              {provisionamentoItems.map((item) => (
-                <MenuItem key={item.title} item={item} tooltip />
-              ))}
-            </div>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* Separador */}
-        <div className="mx-4 my-2 border-t border-sidebar-border/50" />
-
-        {/* Análise de Abusividade de Juros */}
-        <SidebarGroup className="py-3">
-          {!isCollapsed && (
-            <>
-              <SidebarGroupLabel className="text-sm uppercase tracking-wider text-sidebar-foreground/80 px-4 py-2 font-black">
-                ABUSIVIDADE DE JUROS - REVISIONAIS
-              </SidebarGroupLabel>
-              <div className="h-1 bg-accent mx-4 rounded-full"></div>
-            </>
-          )}
-          <SidebarGroupContent>
-            <div className="space-y-1 px-2">
-              {jurosItems.map((item) => (
-                <MenuItem key={item.title} item={item} tooltip />
-              ))}
-            </div>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* Separador */}
-        <div className="mx-4 my-2 border-t border-sidebar-border/50" />
-
-        {/* Superendividamento - Lei 14.181/2021 */}
-        <SidebarGroup className="py-3">
-          {!isCollapsed && (
-            <>
-              <SidebarGroupLabel className="text-sm uppercase tracking-wider text-sidebar-foreground/80 px-4 py-2 font-black">
-                Superendividamento
-              </SidebarGroupLabel>
-              <div className="h-1 bg-accent mx-4 rounded-full"></div>
-            </>
-          )}
-          <SidebarGroupContent>
-            <div className="space-y-1 px-2">
-              {superendividamentoItems.map((item) => (
-                <MenuItem key={item.title} item={item} tooltip />
+              {menuItems.map((item) => (
+                item.items ? (
+                  <GroupMenuItem key={item.title} group={item} />
+                ) : (
+                  <SimpleMenuItem key={item.title} item={item} />
+                )
               ))}
             </div>
           </SidebarGroupContent>
@@ -254,16 +343,16 @@ export function AppSidebar() {
             <SidebarGroup className="py-3">
               {!isCollapsed && (
                 <>
-                  <SidebarGroupLabel className="text-sm uppercase tracking-wider text-sidebar-foreground/80 px-4 py-2 font-black">
+                  <SidebarGroupLabel className="text-xs uppercase tracking-wider text-sidebar-foreground/60 px-4 py-2 font-semibold">
                     Administração
                   </SidebarGroupLabel>
-                  <div className="h-1 bg-destructive mx-4 rounded-full"></div>
+                  <div className="h-px bg-destructive/30 mx-4"></div>
                 </>
               )}
               <SidebarGroupContent>
                 <div className="space-y-1 px-2">
                   {adminItems.map((item) => (
-                    <MenuItem key={item.title} item={item} tooltip />
+                    <OldMenuItem key={item.title} item={item} tooltip />
                   ))}
                 </div>
               </SidebarGroupContent>
