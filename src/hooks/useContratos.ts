@@ -3,48 +3,28 @@ import { useRealtimeQuery } from "./useRealtimeQuery";
 
 export interface Contrato {
   id: string;
+  escritorio_id: string;
   cliente_id: string;
-  banco_id: string;
+  banco_id: string | null;
   numero_contrato: string | null;
-  tipo_operacao: string;
-  tipo_operacao_bcb: string | null;
-  valor_divida: number;
-  saldo_contabil: number | null;
-  data_ultimo_pagamento: string | null;
-  data_vencimento: string | null;
-  dias_atraso: number;
-  meses_atraso: number;
-  classificacao: 'C1' | 'C2' | 'C3' | 'C4' | 'C5' | null;
-  estagio_risco: number | null;
-  percentual_provisao: number;
-  valor_provisao: number;
-  situacao: string;
-  data_entrada: string;
-  data_conclusao: string | null;
-  proposta_acordo: number | null;
-  acordo_final: number | null;
-  quantidade_planos: number | null;
-  observacoes: string | null;
-  taxa_bacen: number | null;
-  taxa_referencia: string | null;
+  tipo_operacao: string | null;
+  modalidade_bacen_id: string | null;
+  valor_contrato: number | null;
+  valor_financiado: number | null;
   valor_parcela: number | null;
   numero_parcelas: number | null;
-  tempo_escritorio: number | null;
-  valor_honorarios: number | null;
-  percentual_honorarios: number | null;
+  taxa_juros_contratual: number | null;
+  data_assinatura: string | null;
+  data_primeiro_vencimento: string | null;
+  data_ultimo_pagamento: string | null;
+  status: string;
+  observacoes: string | null;
   created_at: string;
   updated_at: string;
-  // Relacionamentos - mantendo ambos os nomes para compatibilidade
-  clientes_provisao?: {
-    nome: string;
-    cpf_cnpj: string | null;
-  };
+  // Relacionamentos
   clientes?: {
     nome: string;
     cpf_cnpj: string | null;
-  };
-  bancos_provisao?: {
-    nome: string;
   };
   bancos?: {
     nome: string;

@@ -9,7 +9,7 @@ export const useContratosByCliente = (clienteId: string | null) => {
       if (!clienteId) return [];
 
       const { data, error } = await supabase
-        .from("contratos_provisao")
+        .from("contratos")
         .select(`
           *,
           clientes:clientes (nome, cpf_cnpj),
@@ -33,7 +33,7 @@ export const useContratosCountByCliente = () => {
     queryKey: ["contratos-count-by-cliente"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("contratos_provisao")
+        .from("contratos")
         .select("cliente_id, id")
         .order("cliente_id");
 
