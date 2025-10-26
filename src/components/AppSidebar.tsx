@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Home, Users, Calculator, FileText, Settings, ChevronDown, ChevronRight } from "lucide-react";
+import { Home, Users, Calculator, FileText, Settings, ChevronDown, ChevronRight, Archive } from "lucide-react";
 import { LegalIcons } from "@/components/ui/legal-icons";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -33,21 +33,29 @@ const menuItems = [
     path: "/app/home",
   },
   {
-    title: "Gestão de Clientes",
+    title: "Gestão",
     icon: Users,
     items: [
-      { title: "Clientes", path: "/app/clientes" },
-      { title: "Contratos", path: "/app/contratos" },
+      { 
+        title: "Clientes", 
+        path: "/app/clientes",
+        description: "Cadastro unificado de clientes"
+      },
+      { 
+        title: "Contratos", 
+        path: "/app/contratos",
+        description: "Todos os contratos bancários"
+      },
     ],
   },
   {
-    title: "Módulos de Análise",
+    title: "Análises",
     icon: Calculator,
     items: [
       {
         title: "Provisionamento Bancário",
         path: "/app/analises/provisionamento",
-        description: "Res. 4966 BACEN",
+        description: "Res. 4966 BACEN e 352 CMN",
       },
       {
         title: "Juros Abusivos",
@@ -58,6 +66,24 @@ const menuItems = [
         title: "Superendividamento",
         path: "/app/analises/superendividamento",
         description: "Lei 14.181/2021",
+      },
+    ],
+  },
+  {
+    title: "Módulos Legados",
+    icon: Archive,
+    items: [
+      {
+        title: "Calculadora de Juros",
+        path: "/app/calculadora-juros",
+      },
+      {
+        title: "Módulo de Juros (Antigo)",
+        path: "/app/juros/contratos",
+      },
+      {
+        title: "Módulo Superendividamento (Antigo)",
+        path: "/app/superendividamento",
       },
     ],
   },
@@ -83,8 +109,8 @@ export function AppSidebar() {
 
   // Estado para controlar grupos expandidos
   const [expandedGroups, setExpandedGroups] = useState<string[]>([
-    "Gestão de Clientes",
-    "Módulos de Análise"
+    "Gestão",
+    "Análises"
   ]);
 
   const toggleGroup = (groupTitle: string) => {
