@@ -142,13 +142,23 @@ export function useAuthProvider(): AuthContextType {
     let mounted = true;
     
     const loadUserData = async (userId: string) => {
+      if (!mounted) return;
+      
+      // Mantém loading=true enquanto carrega os dados
+      setLoading(true);
+      
       try {
+        console.log('🔄 [useAuth] Iniciando carregamento de dados para:', userId);
         await Promise.all([
           fetchUserProfile(userId),
           loadUsuarioEscritorio(userId)
         ]);
+        console.log('✅ [useAuth] Dados carregados com sucesso');
+      } catch (error) {
+        console.error('❌ [useAuth] Erro ao carregar dados:', error);
       } finally {
         if (mounted) {
+          console.log('🏁 [useAuth] Finalizando loading');
           setLoading(false);
         }
       }
@@ -157,18 +167,25 @@ export function useAuthProvider(): AuthContextType {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        console.log('🔔 [useAuth] Auth event:', event, 'has session:', !!session);
+        
         // Ignore TOKEN_REFRESHED events to prevent unnecessary updates
         if (event === 'TOKEN_REFRESHED') {
+          console.log('⏭️ [useAuth] Ignorando TOKEN_REFRESHED');
           return;
         }
         
-        if (!mounted) return;
+        if (!mounted) {
+          console.log('⚠️ [useAuth] Component unmounted, ignorando evento');
+          return;
+        }
         
         setSession(session);
         setUser(session?.user ?? null);
         
         // Fetch user profile when logged in
         if (session?.user) {
+          console.log('👤 [useAuth] Usuário logado, carregando dados');
           loadUserData(session.user.id);
         } else {
           setProfile(null);

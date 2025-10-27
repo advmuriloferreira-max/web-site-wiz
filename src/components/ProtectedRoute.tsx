@@ -13,12 +13,15 @@ export function ProtectedRoute({ children, requireAdmin = false }: ProtectedRout
 
   console.log('🔐 ProtectedRoute - Estado:', { 
     user: user?.email, 
-    usuarioEscritorio: usuarioEscritorio?.nome, 
+    hasUsuarioEscritorio: !!usuarioEscritorio,
+    usuarioEscritorioNome: usuarioEscritorio?.nome, 
     loading,
     path: window.location.pathname 
   });
 
+  // IMPORTANTE: Aguardar loading completar antes de fazer qualquer validação
   if (loading) {
+    console.log('⏳ [ProtectedRoute] Aguardando carregamento...');
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="space-y-4 w-full max-w-md">
@@ -67,6 +70,6 @@ export function ProtectedRoute({ children, requireAdmin = false }: ProtectedRout
     return <Navigate to="/sem-permissao" replace />;
   }
 
-  console.log('✅ Acesso permitido');
+  console.log('✅ Acesso permitido -', usuarioEscritorio.nome);
   return <>{children}</>;
 }
