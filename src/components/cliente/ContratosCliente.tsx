@@ -119,7 +119,7 @@ export function ContratosCliente({ cliente }: ContratosClienteProps) {
                   <TableHead>Banco</TableHead>
                   <TableHead>Valor Dívida</TableHead>
                   <TableHead>Classificação</TableHead>
-                  <TableHead>Situação</TableHead>
+                  <TableHead>Análises</TableHead>
                   <TableHead>Data Cadastro</TableHead>
                   <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
@@ -153,13 +153,31 @@ export function ContratosCliente({ cliente }: ContratosClienteProps) {
                           {contrato.classificacao}
                         </Badge>
                       ) : (
-                        <span className="text-muted-foreground">-</span>
+                        <span className="text-xs text-muted-foreground">Não analisado</span>
                       )}
                     </TableCell>
                     <TableCell>
-                      <Badge className={`text-white ${getSituacaoColor(contrato.situacao)}`}>
-                        {contrato.situacao || "Em análise"}
-                      </Badge>
+                      <div className="flex flex-wrap gap-1">
+                        {contrato.temAnalisePassivo && (
+                          <Badge 
+                            variant="outline" 
+                            className="text-xs bg-orange-50 text-orange-700 border-orange-300 dark:bg-orange-950 dark:text-orange-300"
+                          >
+                            Passivo
+                          </Badge>
+                        )}
+                        {contrato.temAnaliseJuros && (
+                          <Badge 
+                            variant="outline" 
+                            className="text-xs bg-blue-50 text-blue-700 border-blue-300 dark:bg-blue-950 dark:text-blue-300"
+                          >
+                            Juros
+                          </Badge>
+                        )}
+                        {!contrato.temAnalisePassivo && !contrato.temAnaliseJuros && (
+                          <span className="text-xs text-muted-foreground">—</span>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center">
@@ -169,6 +187,15 @@ export function ContratosCliente({ cliente }: ContratosClienteProps) {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center gap-1 justify-end">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => window.location.href = `/app/contratos/${contrato.id}`}
+                          className="h-8 w-8 p-0 touch-target hover:bg-accent/10"
+                          aria-label={`Ver detalhes do contrato ${contrato.numero_contrato}`}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
                         <Button
                           variant="ghost"
                           size="sm"

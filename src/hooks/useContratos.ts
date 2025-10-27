@@ -61,6 +61,9 @@ export interface Contrato {
   valor_honorarios?: number | null;
   percentual_honorarios?: number | null;
   data_vencimento?: string | null;
+  // Indicadores de análises realizadas
+  temAnalisePassivo?: boolean;
+  temAnaliseJuros?: boolean;
 }
 
 export const useContratos = () => {
