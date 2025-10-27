@@ -22,10 +22,10 @@ import {
 
 const menuItems = [
   {
-    section: null,
+    section: "PAINEL DO ADVOGADO",
     items: [
       {
-        title: "Dashboard",
+        title: "Visão Geral",
         url: "/app",
         icon: Home,
       },
@@ -111,9 +111,9 @@ export function AppSidebar() {
         </div>
 
         {menuItems.map((group, groupIndex) => (
-          <SidebarGroup key={groupIndex} className="px-3 py-2">
+          <SidebarGroup key={groupIndex} className="px-3 py-3 mt-2">
             {group.section && (
-              <SidebarGroupLabel className="px-3 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+              <SidebarGroupLabel className="px-3 py-2 text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider mb-2 bg-gray-100 dark:bg-gray-800 rounded-md shadow-sm border-l-4 border-blue-500">
                 {group.section}
               </SidebarGroupLabel>
             )}
