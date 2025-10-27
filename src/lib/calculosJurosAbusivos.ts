@@ -50,7 +50,13 @@ export function calcularTaxaJuros(
     return NaN;
   }
 
-  console.log('🔢 Calculando taxa com Newton-Raphson:', { valorFinanciado: vf, parcela: pmt, prazo: n });
+  console.log('🔢 Calculando taxa com Newton-Raphson:', { 
+    valorFinanciado: vf, 
+    parcela: pmt, 
+    prazo: n,
+    totalPago: pmt * n,
+    totalJuros: (pmt * n) - vf
+  });
 
   // Validação mínima: parcela deve ser maior que amortização pura (sem juros)
   const parcelaMinima = vf / n;
@@ -62,7 +68,21 @@ export function calcularTaxaJuros(
     return NaN;
   }
 
-  let taxa = 0.05; // chute inicial de 5% a.m. (mais realista para juros altos)
+  // Chute inicial mais inteligente baseado nos dados
+  // Se parcela for muito maior que amortização, significa taxa alta
+  const razao = pmt / parcelaMinima;
+  let taxaInicial = 0.01; // 1% default
+  
+  if (razao > 3) taxaInicial = 0.10; // 10% para razões muito altas
+  else if (razao > 2) taxaInicial = 0.05; // 5% para razões altas
+  else if (razao > 1.5) taxaInicial = 0.03; // 3% para razões médias
+  
+  console.log('📊 Chute inicial:', {
+    razaoParcelaAmortizacao: razao.toFixed(2),
+    taxaInicial: (taxaInicial * 100).toFixed(2) + '%'
+  });
+
+  let taxa = taxaInicial;
   const epsilon = 0.00001;
   const maxIteracoes = 200;
 
@@ -71,7 +91,7 @@ export function calcularTaxaJuros(
     
     // Verificar overflow
     if (!isFinite(potencia)) {
-      console.error('❌ calcularTaxaJuros: Overflow na potência', { taxa, n });
+      console.error('❌ calcularTaxaJuros: Overflow na potência', { taxa, n, iteracao: i });
       return NaN;
     }
 
@@ -79,7 +99,7 @@ export function calcularTaxaJuros(
     
     // Verificar divisão por zero
     if (Math.abs(denominador) < 0.0000001) {
-      console.error('❌ calcularTaxaJuros: Denominador próximo de zero', { denominador });
+      console.error('❌ calcularTaxaJuros: Denominador próximo de zero', { denominador, iteracao: i });
       return NaN;
     }
 
@@ -88,16 +108,21 @@ export function calcularTaxaJuros(
 
     // Verificar se derivada é válida
     if (!isFinite(df) || Math.abs(df) < 0.0000001) {
-      console.error('❌ calcularTaxaJuros: Derivada inválida', { df });
+      console.error('❌ calcularTaxaJuros: Derivada inválida', { df, iteracao: i });
       return NaN;
     }
 
     const incremento = f / df;
     const novaTaxa = taxa - incremento;
 
+    // Log a cada 20 iterações para acompanhar progresso
+    if (i % 20 === 0) {
+      console.log(`🔄 Iteração ${i}: taxa=${(taxa * 100).toFixed(4)}%, incremento=${(incremento * 100).toFixed(6)}%`);
+    }
+
     // Verificar se nova taxa é válida
     if (!isFinite(novaTaxa)) {
-      console.error('❌ calcularTaxaJuros: Nova taxa inválida', { novaTaxa });
+      console.error('❌ calcularTaxaJuros: Nova taxa inválida', { novaTaxa, iteracao: i });
       return NaN;
     }
 
@@ -111,7 +136,11 @@ export function calcularTaxaJuros(
         return NaN;
       }
       
-      console.log('✅ Taxa calculada:', resultado.toFixed(4) + '% a.m. em', i + 1, 'iterações');
+      if (resultado > 100) {
+        console.warn('⚠️ calcularTaxaJuros: Taxa muito alta', { resultado: resultado.toFixed(2) + '%' });
+      }
+      
+      console.log('✅ Taxa calculada com sucesso:', resultado.toFixed(4) + '% a.m. em', i + 1, 'iterações');
       return resultado;
     }
 
@@ -120,7 +149,13 @@ export function calcularTaxaJuros(
 
   const resultado = taxa * 100;
   console.warn('⚠️ Não convergiu em', maxIteracoes, 'iterações. Taxa:', resultado.toFixed(4) + '% a.m.');
-  return resultado;
+  
+  // Se não convergiu mas a taxa é positiva e razoável, retornar mesmo assim
+  if (resultado > 0 && resultado < 100) {
+    return resultado;
+  }
+  
+  return NaN;
 }
 
 /**
