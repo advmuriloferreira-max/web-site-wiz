@@ -10,8 +10,18 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, Calculator, Download, Save } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useBancos } from "@/hooks/useBancos";
 import { useTiposOperacao } from "@/hooks/useTiposOperacao";
+import { useClientes } from "@/hooks/useClientes";
+import { useContratosByCliente } from "@/hooks/useContratosByCliente";
 import { calcularProvisaoConformeBCB, determinarEstagioRisco } from "@/lib/calculoProvisaoConformeBCB";
 import { gerarRelatorioPDF } from "@/lib/gerarRelatorioPDF";
 import { useAuth } from "@/hooks/useAuth";
@@ -47,6 +57,14 @@ export default function ProvisionamentoRapido() {
   const [observacoes, setObservacoes] = useState("");
   
   const [resultado, setResultado] = useState<any>(null);
+  
+  // States para o modal de salvamento
+  const [isModalSalvarOpen, setIsModalSalvarOpen] = useState(false);
+  const [clienteSelecionado, setClienteSelecionado] = useState("");
+  const [contratoSelecionado, setContratoSelecionado] = useState("");
+
+  const { data: clientes } = useClientes();
+  const { data: contratos } = useContratosByCliente(clienteSelecionado || null);
 
   const calcular = async () => {
     if (!saldoContabil || !dataUltimoPagamento || !tipoOperacaoBcb || !bancoId) {
@@ -139,7 +157,50 @@ export default function ProvisionamentoRapido() {
   };
 
   const salvarEmCliente = () => {
-    toast.info("Funcionalidade de salvar em cliente em desenvolvimento");
+    if (!resultado) {
+      toast.error("Realize o cálculo primeiro");
+      return;
+    }
+    setIsModalSalvarOpen(true);
+  };
+
+  const salvarAnalise = async () => {
+    if (!contratoSelecionado) {
+      toast.error("Selecione um contrato");
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from("analises_provisionamento")
+        .insert({
+          contrato_id: contratoSelecionado,
+          escritorio_id: usuarioEscritorio?.escritorio_id,
+          usuario_id: usuarioEscritorio?.id,
+          valor_divida: resultado.valorDivida,
+          dias_atraso: resultado.diasAtraso,
+          meses_atraso: resultado.mesesAtraso,
+          classificacao_risco: `Estágio ${resultado.estagio}`,
+          percentual_provisao: resultado.percentualProvisao,
+          valor_provisao: resultado.valorProvisao,
+          metodologia: "Conforme BCB",
+          base_calculo: "Saldo Contábil",
+          data_calculo: new Date().toISOString(),
+          data_ultimo_pagamento: dataUltimoPagamento,
+          observacoes: observacoes,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      toast.success("Análise salva com sucesso!");
+      setIsModalSalvarOpen(false);
+      navigate(`/app/contratos/${contratoSelecionado}`);
+    } catch (error: any) {
+      console.error("Erro ao salvar:", error);
+      toast.error(`Erro ao salvar análise: ${error.message}`);
+    }
   };
 
   const novaAnalise = () => {
@@ -430,6 +491,78 @@ export default function ProvisionamentoRapido() {
           ℹ️ Mesmos campos e cálculos do sistema completo • Sem necessidade de cadastro
         </p>
       </div>
+
+      <Dialog open={isModalSalvarOpen} onOpenChange={setIsModalSalvarOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Salvar Análise em Cliente</DialogTitle>
+            <DialogDescription>
+              Selecione o cliente e contrato para salvar esta análise
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 mt-4">
+            <div>
+              <Label>Cliente *</Label>
+              <Select value={clienteSelecionado} onValueChange={setClienteSelecionado}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o cliente..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {clientes?.map((cliente) => (
+                    <SelectItem key={cliente.id} value={cliente.id}>
+                      {cliente.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {clienteSelecionado && (
+              <div>
+                <Label>Contrato *</Label>
+                <Select value={contratoSelecionado} onValueChange={setContratoSelecionado}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o contrato..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {contratos?.map((contrato) => (
+                      <SelectItem key={contrato.id} value={contrato.id}>
+                        {contrato.numero_contrato || `Contrato ${contrato.id.slice(0, 8)}`}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                
+                <Button
+                  variant="link"
+                  className="mt-2 p-0 h-auto"
+                  onClick={() => navigate(`/app/clientes/${clienteSelecionado}/novo-contrato`)}
+                >
+                  + Criar novo contrato para este cliente
+                </Button>
+              </div>
+            )}
+
+            <div className="flex gap-2 mt-6">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => setIsModalSalvarOpen(false)}
+              >
+                Cancelar
+              </Button>
+              <Button
+                className="flex-1"
+                onClick={salvarAnalise}
+                disabled={!contratoSelecionado}
+              >
+                Salvar Análise
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
