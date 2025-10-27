@@ -133,25 +133,26 @@ export function ContratoWizard({
   useEffect(() => {
     if (isEditingValidContract) {
       // Carregar dados do contrato existente para edição
-      console.log("Loading contract for editing:", contratoExistente);
+      console.log('📝 Carregando dados do contrato para edição:', contratoExistente);
+      
       form.reset({
-        cliente_id: contratoExistente.cliente_id,
-        banco_id: contratoExistente.banco_id,
+        cliente_id: contratoExistente.cliente_id || clienteIdPredefinido || "",
+        banco_id: contratoExistente.banco_id || "",
         numero_contrato: contratoExistente.numero_contrato || "",
-        tipo_operacao_bcb: (contratoExistente as any).tipo_operacao_bcb || "",
-        valor_divida: contratoExistente.valor_divida.toString(),
-        saldo_contabil: contratoExistente.saldo_contabil?.toString() || "",
+        tipo_operacao_bcb: contratoExistente.tipo_operacao || "",
+        valor_divida: contratoExistente.valor_divida?.toString() || "",
+        saldo_contabil: contratoExistente.valor_contrato?.toString() || contratoExistente.valor_financiado?.toString() || "",
         data_ultimo_pagamento: contratoExistente.data_ultimo_pagamento || "",
-        data_entrada_escritorio: (contratoExistente as any).data_entrada_escritorio || "",
-        dias_atraso: (contratoExistente.dias_atraso || 0).toString(),
-        meses_atraso: (contratoExistente.meses_atraso || 0).toString(),
+        data_entrada_escritorio: contratoExistente.data_assinatura || "",
+        dias_atraso: contratoExistente.dias_atraso?.toString() || "0",
+        meses_atraso: contratoExistente.meses_atraso?.toString() || "0",
         classificacao: contratoExistente.classificacao as any,
-        percentual_provisao: (contratoExistente.percentual_provisao || 0).toString(),
-        valor_provisao: (contratoExistente.valor_provisao || 0).toString(),
-        proposta_acordo: (contratoExistente.proposta_acordo || 0).toString(),
+        percentual_provisao: contratoExistente.percentual_provisao?.toString() || "",
+        valor_provisao: contratoExistente.valor_provisao?.toString() || "",
+        proposta_acordo: (contratoExistente as any).proposta_acordo?.toString() || "0",
         forma_pagamento: (contratoExistente as any).forma_pagamento,
-        numero_parcelas: ((contratoExistente as any).numero_parcelas || "").toString(),
-        valor_parcela: ((contratoExistente as any).valor_parcela || 0).toString(),
+        numero_parcelas: contratoExistente.numero_parcelas?.toString() || "",
+        valor_parcela: contratoExistente.valor_parcela?.toString() || "0",
         escritorio_banco_acordo: (contratoExistente as any).escritorio_banco_acordo || "",
         contato_acordo_nome: (contratoExistente as any).contato_acordo_nome || "",
         contato_acordo_telefone: (contratoExistente as any).contato_acordo_telefone || "",
@@ -160,14 +161,15 @@ export function ContratoWizard({
         data_reestruturacao: (contratoExistente as any).data_reestruturacao 
           ? new Date((contratoExistente as any).data_reestruturacao) 
           : undefined,
-        acordo_final: (contratoExistente.acordo_final || 0).toString(),
+        acordo_final: ((contratoExistente as any).acordo_final || 0).toString(),
         reducao_divida: ((contratoExistente as any).reducao_divida || 0).toString(),
         percentual_honorarios: (contratoExistente as any).percentual_honorarios?.toString() as any,
         valor_honorarios: ((contratoExistente as any).valor_honorarios || 0).toString(),
-        situacao: (contratoExistente.situacao as any) || "Em análise",
+        situacao: (contratoExistente.status || "Em análise") as "Acordo Finalizado" | "Em análise" | "Em negociação" | "Em processo judicial",
         tempo_escritorio: ((contratoExistente as any).tempo_escritorio || 0).toString(),
       });
       
+      console.log('✅ Formulário preenchido com dados do contrato');
       toast.info("Contrato carregado para edição - " + (contratoExistente.numero_contrato || 'Contrato') + " pronto para edição");
     } else if (!contratoParaEditar || !isValidUUID(contratoParaEditar)) {
       // Carregar rascunho apenas se não estiver editando
@@ -183,7 +185,7 @@ export function ContratoWizard({
         }
       }
     }
-  }, [form, contratoParaEditar, contratoExistente, isEditingValidContract]);
+  }, [form, contratoParaEditar, contratoExistente, isEditingValidContract, clienteIdPredefinido]);
 
   // Salvar rascunho automaticamente
   const saveDraft = useCallback(() => {
