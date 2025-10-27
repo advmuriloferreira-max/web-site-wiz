@@ -368,7 +368,7 @@ export default function ClienteDetalhes() {
                               {analiseProvisionamento && (
                                 <Badge variant="secondary" className="bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-100">
                                   <Calculator className="mr-1 h-3 w-3" />
-                                  Provisionamento
+                                  Gestão de Passivo
                                 </Badge>
                               )}
                               {analiseJuros && (
