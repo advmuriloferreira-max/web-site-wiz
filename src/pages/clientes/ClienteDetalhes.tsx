@@ -558,7 +558,7 @@ export default function ClienteDetalhes() {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => navigate(`/app/contratos/${contrato.id}/juros`)}
+                                onClick={() => navigate(`/app/contratos/${contrato.id}/juros-abusivos`)}
                               >
                                 Ver Análise
                               </Button>
@@ -575,7 +575,7 @@ export default function ClienteDetalhes() {
                               <Button
                                 variant="default"
                                 size="sm"
-                                onClick={() => navigate(`/app/contratos/${contrato.id}/juros`)}
+                                onClick={() => navigate(`/app/contratos/${contrato.id}/juros-abusivos`)}
                               >
                                 Analisar Juros
                               </Button>
