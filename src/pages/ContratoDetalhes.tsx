@@ -298,7 +298,7 @@ export default function ContratoDetalhes() {
                     <Button 
                       className="w-full mt-3" 
                       size="sm"
-                      onClick={() => navigate(`/app/contratos/${contratoId}/juros`)}
+                      onClick={() => navigate(`/app/contratos/${contratoId}/juros-abusivos`)}
                     >
                       Ver Análise Completa
                     </Button>
@@ -314,7 +314,7 @@ export default function ContratoDetalhes() {
                     <Button 
                       className="w-full mt-3 bg-blue-600 hover:bg-blue-700" 
                       size="sm"
-                      onClick={() => navigate(`/app/contratos/${contratoId}/juros`)}
+                      onClick={() => navigate(`/app/contratos/${contratoId}/juros-abusivos`)}
                     >
                       Analisar Agora
                     </Button>
