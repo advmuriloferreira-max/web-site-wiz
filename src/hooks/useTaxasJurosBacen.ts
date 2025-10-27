@@ -54,7 +54,11 @@ export const useTaxaJurosBacenPorData = (
     queryFn: async () => {
       if (!modalidadeId || !dataReferencia) return null;
 
-      // Buscar taxa exata para a data
+      // Converter data para primeiro dia do mês (formato BACEN)
+      const [ano, mes] = dataReferencia.split('-');
+      const dataPrimeiroDia = `${ano}-${mes}-01`;
+
+      // Buscar taxa exata para a data (primeiro dia do mês)
       const { data, error } = await supabase
         .from("series_temporais_bacen")
         .select(`
@@ -62,7 +66,7 @@ export const useTaxaJurosBacenPorData = (
           modalidades_bacen_juros (*)
         `)
         .eq("modalidade_id", modalidadeId)
-        .eq("data_referencia", dataReferencia)
+        .eq("data_referencia", dataPrimeiroDia)
         .maybeSingle();
 
       if (error) throw error;
@@ -76,7 +80,7 @@ export const useTaxaJurosBacenPorData = (
             modalidades_bacen_juros (*)
           `)
           .eq("modalidade_id", modalidadeId)
-          .lte("data_referencia", dataReferencia)
+          .lte("data_referencia", dataPrimeiroDia)
           .order("data_referencia", { ascending: false })
           .limit(1)
           .maybeSingle();
