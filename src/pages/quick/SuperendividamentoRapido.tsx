@@ -97,16 +97,41 @@ export default function SuperendividamentoRapido() {
       const totalDividas = dividas.reduce((sum, d) => sum + d.valor_atual, 0);
       const valorDisponivelMensal = renda * (percentual / 100);
       
+      // Calcular plano detalhado RESPEITANDO O LIMITE DE 60 MESES
       const planoDetalhado = contratos.map(c => {
+        // Buscar dados do contrato no resultado do plano
+        let valorPagoTotal = 0;
+        let quitado = false;
+        
+        // Somar o que foi pago em todas as fases
+        plano.fases.forEach(fase => {
+          const calculoContrato = fase.calculos.find(calc => calc.credor === c.credor);
+          if (calculoContrato) {
+            valorPagoTotal += calculoContrato.valorPago;
+            if (calculoContrato.quitado) {
+              quitado = true;
+            }
+          }
+        });
+        
+        const saldoRestante = c.valorTotalDivida - valorPagoTotal;
         const primeiraFase = plano.fases[0];
         const calculoContrato = primeiraFase?.calculos.find(calc => calc.credor === c.credor);
-        const prazoMeses = Math.ceil(c.valorTotalDivida / (calculoContrato?.novaParcela || 1));
+        
+        // Se quitado, calcular prazo real
+        // Se não quitado, mostrar 60 meses (máximo)
+        const prazoMeses = quitado 
+          ? Math.ceil(valorPagoTotal / (calculoContrato?.novaParcela || 1))
+          : 60;
         
         return {
           credor: c.credor,
           valorAtual: c.valorTotalDivida,
           novaParcelaMensal: calculoContrato?.novaParcela || 0,
-          prazoMeses: prazoMeses
+          prazoMeses: Math.min(prazoMeses, 60), // NUNCA MAIS QUE 60
+          quitado,
+          valorPago: valorPagoTotal,
+          saldoRestante: saldoRestante > 0 ? saldoRestante : 0
         };
       });
 
@@ -114,10 +139,14 @@ export default function SuperendividamentoRapido() {
         rendaLiquida: renda,
         valorDisponivelMensal,
         totalDividas,
+        numeroFases: plano.fases.length, // ADICIONAR número de fases
+        totalMeses: plano.resumo.totalMeses, // ADICIONAR total de meses
         planoDetalhado,
         dividasImpagaveis: plano.dividasImpagaveis?.map(d => ({
           credor: d.credor,
-          valorAtual: d.saldoImpagavel
+          valorImpagavel: d.saldoImpagavel,
+          valorOriginal: d.valorTotalOriginal,
+          percentualQuitado: d.percentualQuitado
         }))
       });
       toast.success("Plano calculado com sucesso!");
@@ -390,7 +419,7 @@ export default function SuperendividamentoRapido() {
               <CardTitle>Resumo do Plano</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
                   <p className="text-sm text-muted-foreground mb-1">Renda Líquida</p>
                   <p className="text-xl font-bold text-blue-600 dark:text-blue-400">
@@ -399,18 +428,34 @@ export default function SuperendividamentoRapido() {
                 </div>
 
                 <div className="p-4 bg-green-50 dark:bg-green-950 rounded-lg">
-                  <p className="text-sm text-muted-foreground mb-1">Valor Disponível</p>
+                  <p className="text-sm text-muted-foreground mb-1">Valor Disponível/Mês</p>
                   <p className="text-xl font-bold text-green-600 dark:text-green-400">
                     {formatCurrency(resultado.valorDisponivelMensal)}
                   </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {percentualRenda}% da renda
+                </div>
+
+                <div className="p-4 bg-purple-50 dark:bg-purple-950 rounded-lg">
+                  <p className="text-sm text-muted-foreground mb-1">Número de Fases</p>
+                  <p className="text-xl font-bold text-purple-600 dark:text-purple-400">
+                    {resultado.numeroFases} {resultado.numeroFases === 1 ? 'fase' : 'fases'}
                   </p>
                 </div>
 
                 <div className="p-4 bg-orange-50 dark:bg-orange-950 rounded-lg">
-                  <p className="text-sm text-muted-foreground mb-1">Total de Dívidas</p>
+                  <p className="text-sm text-muted-foreground mb-1">Prazo Total</p>
                   <p className="text-xl font-bold text-orange-600 dark:text-orange-400">
+                    {resultado.totalMeses} meses
+                  </p>
+                  {resultado.totalMeses === 60 && (
+                    <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">
+                      (Limite legal)
+                    </p>
+                  )}
+                </div>
+
+                <div className="p-4 bg-slate-50 dark:bg-slate-950 rounded-lg col-span-2 md:col-span-4">
+                  <p className="text-sm text-muted-foreground mb-1">Total de Dívidas</p>
+                  <p className="text-xl font-bold">
                     {formatCurrency(resultado.totalDividas)}
                   </p>
                 </div>
@@ -424,9 +469,10 @@ export default function SuperendividamentoRapido() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Credor</TableHead>
-                      <TableHead>Valor Atual</TableHead>
+                      <TableHead>Valor Total</TableHead>
                       <TableHead>Nova Parcela</TableHead>
                       <TableHead>Prazo</TableHead>
+                      <TableHead>Status</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -437,7 +483,28 @@ export default function SuperendividamentoRapido() {
                         <TableCell className="font-semibold text-green-600 dark:text-green-400">
                           {formatCurrency(item.novaParcelaMensal)}
                         </TableCell>
-                        <TableCell>{item.prazoMeses} meses</TableCell>
+                        <TableCell>
+                          {item.quitado ? (
+                            <span className="text-sm">
+                              {item.prazoMeses} meses
+                            </span>
+                          ) : (
+                            <span className="text-sm text-orange-600 dark:text-orange-400">
+                              60 meses (máximo)
+                            </span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {item.quitado ? (
+                            <Badge variant="default" className="bg-green-600">
+                              Quitável
+                            </Badge>
+                          ) : (
+                            <Badge variant="destructive">
+                              Parcial
+                            </Badge>
+                          )}
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -445,17 +512,53 @@ export default function SuperendividamentoRapido() {
               </div>
 
               {resultado.dividasImpagaveis && resultado.dividasImpagaveis.length > 0 && (
-                <div className="p-4 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg">
-                  <p className="font-semibold text-red-700 dark:text-red-300 mb-2">
-                    ⚠️ Dívidas Impagáveis (acima de 60 meses)
-                  </p>
-                  <ul className="text-sm space-y-1">
+                <div className="p-6 bg-red-50 dark:bg-red-950 border-2 border-red-300 dark:border-red-700 rounded-lg">
+                  <div className="flex items-start gap-3 mb-4">
+                    <div className="flex-shrink-0 w-10 h-10 bg-red-600 rounded-full flex items-center justify-center">
+                      <span className="text-white text-xl font-bold">⚠</span>
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-bold text-red-700 dark:text-red-300 text-lg mb-1">
+                        Dívidas Impagáveis (Excedente após 60 meses)
+                      </h4>
+                      <p className="text-sm text-red-600 dark:text-red-400">
+                        Estas dívidas não podem ser quitadas dentro do prazo legal de 60 meses. 
+                        O saldo excedente deve ser negociado separadamente ou considerado para remissão.
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3">
                     {resultado.dividasImpagaveis.map((d: any, idx: number) => (
-                      <li key={idx}>
-                        {d.credor}: {formatCurrency(d.valorAtual)}
-                      </li>
+                      <div key={idx} className="p-4 bg-white dark:bg-slate-900 rounded-lg border border-red-200 dark:border-red-800">
+                        <div className="flex justify-between items-start mb-2">
+                          <p className="font-semibold text-red-700 dark:text-red-300">{d.credor}</p>
+                          <Badge variant="outline" className="border-red-300 text-red-700 dark:border-red-700 dark:text-red-300">
+                            {d.percentualQuitado.toFixed(1)}% quitado
+                          </Badge>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <p className="text-muted-foreground">Valor Original:</p>
+                            <p className="font-semibold">{formatCurrency(d.valorOriginal)}</p>
+                          </div>
+                          <div>
+                            <p className="text-muted-foreground">Saldo Impagável:</p>
+                            <p className="font-bold text-red-600 dark:text-red-400">
+                              {formatCurrency(d.valorImpagavel)}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
                     ))}
-                  </ul>
+                  </div>
+                  
+                  <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-950 border border-yellow-300 dark:border-yellow-700 rounded">
+                    <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                      💡 <strong>Recomendação:</strong> Solicitar remissão destes valores ou negociar condições especiais 
+                      com os credores, conforme art. 104-A, §3º da Lei 14.181/2021.
+                    </p>
+                  </div>
                 </div>
               )}
             </CardContent>
