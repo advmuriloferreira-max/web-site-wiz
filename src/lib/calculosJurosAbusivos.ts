@@ -101,8 +101,8 @@ export function calcularTaxaJuros(
       return NaN;
     }
 
-    // Limitar taxa para evitar divergência (entre -10% e 50% a.m.)
-    taxa = Math.max(-0.1, Math.min(0.5, novaTaxa));
+    // Limitar taxa para evitar divergência (entre 0.1% e 50% a.m.)
+    taxa = Math.max(0.001, Math.min(0.5, novaTaxa));
 
     // Verificar convergência
     if (Math.abs(incremento) < epsilon) {
