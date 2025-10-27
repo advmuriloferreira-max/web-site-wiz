@@ -259,7 +259,7 @@ export function analisarAbusividade(
   const percentualAbusividade = ((taxaContrato / taxaBacen - 1) * 100);
   const taxaLimiteAceitavel = taxaBacen * 1.5; // 150% da taxa BACEN
   const excedeLimite = taxaContrato > taxaLimiteAceitavel;
-  const abusividadeDetectada = percentualAbusividade > 20;
+  const abusividadeDetectada = excedeLimite; // Taxa > 1,5x BACEN (critério STJ)
 
   let grauAbusividade = "Dentro do Mercado";
   if (percentualAbusividade > 100) grauAbusividade = "Gravíssimo";
