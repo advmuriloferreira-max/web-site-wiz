@@ -8,65 +8,64 @@ const corsHeaders = {
 
 // Mapeamento completo das 48 séries oficiais do BACEN
 const SERIES_BACEN = [
-  // PESSOAS FÍSICAS (20 Séries)
-  { codigo: 25463, nome: "Cheque especial", categoria: "Pessoas Físicas", sub_categoria: "Cheque Especial e Dívidas" },
-  { codigo: 25464, nome: "Crédito pessoal não consignado", categoria: "Pessoas Físicas", sub_categoria: "Crédito Pessoal" },
-  { codigo: 25465, nome: "Crédito pessoal não consignado vinculado à composição de dívidas", categoria: "Pessoas Físicas", sub_categoria: "Crédito Pessoal" },
-  { codigo: 25466, nome: "Crédito pessoal consignado para trabalhadores do setor privado", categoria: "Pessoas Físicas", sub_categoria: "Crédito Consignado" },
-  { codigo: 25467, nome: "Crédito pessoal consignado para trabalhadores do setor público", categoria: "Pessoas Físicas", sub_categoria: "Crédito Consignado" },
-  { codigo: 25468, nome: "Crédito pessoal consignado para aposentados e pensionistas do INSS", categoria: "Pessoas Físicas", sub_categoria: "Crédito Consignado" },
-  { codigo: 25469, nome: "Crédito pessoal consignado total", categoria: "Pessoas Físicas", sub_categoria: "Crédito Consignado" },
-  { codigo: 25470, nome: "Crédito pessoal total", categoria: "Pessoas Físicas", sub_categoria: "Crédito Pessoal" },
-  { codigo: 25471, nome: "Aquisição de veículos", categoria: "Pessoas Físicas", sub_categoria: "Aquisição de Bens" },
-  { codigo: 25472, nome: "Aquisição de outros bens", categoria: "Pessoas Físicas", sub_categoria: "Aquisição de Bens" },
-  { codigo: 25473, nome: "Aquisição de bens total", categoria: "Pessoas Físicas", sub_categoria: "Aquisição de Bens" },
-  { codigo: 25474, nome: "Arrendamento mercantil de veículos", categoria: "Pessoas Físicas", sub_categoria: "Arrendamento Mercantil" },
-  { codigo: 25475, nome: "Arrendamento mercantil de outros bens", categoria: "Pessoas Físicas", sub_categoria: "Arrendamento Mercantil" },
-  { codigo: 25476, nome: "Arrendamento mercantil total", categoria: "Pessoas Físicas", sub_categoria: "Arrendamento Mercantil" },
-  { codigo: 25477, nome: "Cartão de crédito rotativo", categoria: "Pessoas Físicas", sub_categoria: "Cartão de Crédito" },
-  { codigo: 25478, nome: "Cartão de crédito parcelado", categoria: "Pessoas Físicas", sub_categoria: "Cartão de Crédito" },
-  { codigo: 25479, nome: "Cartão de crédito total", categoria: "Pessoas Físicas", sub_categoria: "Cartão de Crédito" },
-  { codigo: 25480, nome: "Desconto de cheques", categoria: "Pessoas Físicas", sub_categoria: "Cheque Especial e Dívidas" },
+  // PESSOAS FÍSICAS
+  { codigo: "25463", nome: "Cheque especial", categoria: "Pessoa Física", tipo_pessoa: "PF", tipo_recurso: "Livre" },
+  { codigo: "25464", nome: "Crédito pessoal não consignado", categoria: "Pessoa Física", tipo_pessoa: "PF", tipo_recurso: "Livre" },
+  { codigo: "25465", nome: "Crédito pessoal não consignado - composição de dívidas", categoria: "Pessoa Física", tipo_pessoa: "PF", tipo_recurso: "Livre" },
+  { codigo: "25466", nome: "Consignado privado", categoria: "Pessoa Física", tipo_pessoa: "PF", tipo_recurso: "Direcionado" },
+  { codigo: "25467", nome: "Consignado público", categoria: "Pessoa Física", tipo_pessoa: "PF", tipo_recurso: "Direcionado" },
+  { codigo: "25468", nome: "Consignado INSS", categoria: "Pessoa Física", tipo_pessoa: "PF", tipo_recurso: "Direcionado" },
+  { codigo: "25469", nome: "Consignado total", categoria: "Pessoa Física", tipo_pessoa: "PF", tipo_recurso: "Direcionado" },
+  { codigo: "25470", nome: "Crédito pessoal total", categoria: "Pessoa Física", tipo_pessoa: "PF", tipo_recurso: "Livre" },
+  { codigo: "25471", nome: "Aquisição de veículos", categoria: "Pessoa Física", tipo_pessoa: "PF", tipo_recurso: "Livre" },
+  { codigo: "25472", nome: "Aquisição de outros bens", categoria: "Pessoa Física", tipo_pessoa: "PF", tipo_recurso: "Livre" },
+  { codigo: "25473", nome: "Aquisição de bens total", categoria: "Pessoa Física", tipo_pessoa: "PF", tipo_recurso: "Livre" },
+  { codigo: "25474", nome: "Leasing de veículos", categoria: "Pessoa Física", tipo_pessoa: "PF", tipo_recurso: "Livre" },
+  { codigo: "25475", nome: "Leasing de outros bens", categoria: "Pessoa Física", tipo_pessoa: "PF", tipo_recurso: "Livre" },
+  { codigo: "25476", nome: "Leasing total", categoria: "Pessoa Física", tipo_pessoa: "PF", tipo_recurso: "Livre" },
+  { codigo: "25477", nome: "Cartão de crédito rotativo", categoria: "Pessoa Física", tipo_pessoa: "PF", tipo_recurso: "Livre" },
+  { codigo: "25478", nome: "Cartão de crédito parcelado", categoria: "Pessoa Física", tipo_pessoa: "PF", tipo_recurso: "Livre" },
+  { codigo: "25479", nome: "Cartão de crédito total", categoria: "Pessoa Física", tipo_pessoa: "PF", tipo_recurso: "Livre" },
+  { codigo: "25480", nome: "Desconto de cheques PF", categoria: "Pessoa Física", tipo_pessoa: "PF", tipo_recurso: "Livre" },
 
-  // PESSOAS JURÍDICAS (26 Séries)
-  { codigo: 25438, nome: "Desconto de duplicatas e recebíveis", categoria: "Pessoas Jurídicas", sub_categoria: "Descontos e Recebíveis" },
-  { codigo: 25439, nome: "Desconto de cheques", categoria: "Pessoas Jurídicas", sub_categoria: "Descontos e Recebíveis" },
-  { codigo: 25440, nome: "Antecipação de faturas de cartão de crédito", categoria: "Pessoas Jurídicas", sub_categoria: "Descontos e Recebíveis" },
-  { codigo: 25441, nome: "Capital de giro com prazo de até 365 dias", categoria: "Pessoas Jurídicas", sub_categoria: "Capital de Giro" },
-  { codigo: 25442, nome: "Capital de giro com prazo superior a 365 dias", categoria: "Pessoas Jurídicas", sub_categoria: "Capital de Giro" },
-  { codigo: 25443, nome: "Capital de giro rotativo", categoria: "Pessoas Jurídicas", sub_categoria: "Capital de Giro" },
-  { codigo: 25444, nome: "Capital de giro total", categoria: "Pessoas Jurídicas", sub_categoria: "Capital de Giro" },
-  { codigo: 25445, nome: "Conta garantida", categoria: "Pessoas Jurídicas", sub_categoria: "Contas e Cheques" },
-  { codigo: 25446, nome: "Cheque especial", categoria: "Pessoas Jurídicas", sub_categoria: "Contas e Cheques" },
-  { codigo: 25447, nome: "Aquisição de veículos", categoria: "Pessoas Jurídicas", sub_categoria: "Aquisição de Bens" },
-  { codigo: 25448, nome: "Aquisição de outros bens", categoria: "Pessoas Jurídicas", sub_categoria: "Aquisição de Bens" },
-  { codigo: 25449, nome: "Aquisição de bens total", categoria: "Pessoas Jurídicas", sub_categoria: "Aquisição de Bens" },
-  { codigo: 25450, nome: "Arrendamento mercantil de veículos", categoria: "Pessoas Jurídicas", sub_categoria: "Arrendamento Mercantil" },
-  { codigo: 25451, nome: "Arrendamento mercantil de outros bens", categoria: "Pessoas Jurídicas", sub_categoria: "Arrendamento Mercantil" },
-  { codigo: 25452, nome: "Arrendamento mercantil total", categoria: "Pessoas Jurídicas", sub_categoria: "Arrendamento Mercantil" },
-  { codigo: 25453, nome: "Vendor", categoria: "Pessoas Jurídicas", sub_categoria: "Financiamento à Produção" },
-  { codigo: 25454, nome: "Compror", categoria: "Pessoas Jurídicas", sub_categoria: "Financiamento à Produção" },
-  { codigo: 25455, nome: "Cartão de crédito rotativo", categoria: "Pessoas Jurídicas", sub_categoria: "Cartão de Crédito" },
-  { codigo: 25456, nome: "Cartão de crédito parcelado", categoria: "Pessoas Jurídicas", sub_categoria: "Cartão de Crédito" },
-  { codigo: 25457, nome: "Cartão de crédito total", categoria: "Pessoas Jurídicas", sub_categoria: "Cartão de Crédito" },
-  { codigo: 25458, nome: "Adiantamento sobre contratos de câmbio (ACC)", categoria: "Pessoas Jurídicas", sub_categoria: "Comércio Exterior" },
-  { codigo: 25459, nome: "Financiamento a importações", categoria: "Pessoas Jurídicas", sub_categoria: "Comércio Exterior" },
-  { codigo: 25460, nome: "Financiamento a exportações", categoria: "Pessoas Jurídicas", sub_categoria: "Comércio Exterior" },
-  { codigo: 25461, nome: "Repasse externo", categoria: "Pessoas Jurídicas", sub_categoria: "Comércio Exterior" },
+  // PESSOAS JURÍDICAS
+  { codigo: "25438", nome: "Desconto de duplicatas", categoria: "Pessoa Jurídica", tipo_pessoa: "PJ", tipo_recurso: "Livre" },
+  { codigo: "25439", nome: "Desconto de cheques PJ", categoria: "Pessoa Jurídica", tipo_pessoa: "PJ", tipo_recurso: "Livre" },
+  { codigo: "25440", nome: "Antecipação de faturas de cartão", categoria: "Pessoa Jurídica", tipo_pessoa: "PJ", tipo_recurso: "Livre" },
+  { codigo: "25441", nome: "Capital de giro até 365 dias", categoria: "Pessoa Jurídica", tipo_pessoa: "PJ", tipo_recurso: "Livre" },
+  { codigo: "25442", nome: "Capital de giro acima de 365 dias", categoria: "Pessoa Jurídica", tipo_pessoa: "PJ", tipo_recurso: "Livre" },
+  { codigo: "25443", nome: "Capital de giro rotativo", categoria: "Pessoa Jurídica", tipo_pessoa: "PJ", tipo_recurso: "Livre" },
+  { codigo: "25444", nome: "Capital de giro total", categoria: "Pessoa Jurídica", tipo_pessoa: "PJ", tipo_recurso: "Livre" },
+  { codigo: "25445", nome: "Conta garantida", categoria: "Pessoa Jurídica", tipo_pessoa: "PJ", tipo_recurso: "Livre" },
+  { codigo: "25446", nome: "Cheque especial PJ", categoria: "Pessoa Jurídica", tipo_pessoa: "PJ", tipo_recurso: "Livre" },
+  { codigo: "25447", nome: "Aquisição de veículos PJ", categoria: "Pessoa Jurídica", tipo_pessoa: "PJ", tipo_recurso: "Livre" },
+  { codigo: "25448", nome: "Aquisição de outros bens PJ", categoria: "Pessoa Jurídica", tipo_pessoa: "PJ", tipo_recurso: "Livre" },
+  { codigo: "25449", nome: "Aquisição de bens total PJ", categoria: "Pessoa Jurídica", tipo_pessoa: "PJ", tipo_recurso: "Livre" },
+  { codigo: "25450", nome: "Leasing de veículos PJ", categoria: "Pessoa Jurídica", tipo_pessoa: "PJ", tipo_recurso: "Livre" },
+  { codigo: "25451", nome: "Leasing de outros bens PJ", categoria: "Pessoa Jurídica", tipo_pessoa: "PJ", tipo_recurso: "Livre" },
+  { codigo: "25452", nome: "Leasing total PJ", categoria: "Pessoa Jurídica", tipo_pessoa: "PJ", tipo_recurso: "Livre" },
+  { codigo: "25453", nome: "Vendor", categoria: "Pessoa Jurídica", tipo_pessoa: "PJ", tipo_recurso: "Livre" },
+  { codigo: "25454", nome: "Compror", categoria: "Pessoa Jurídica", tipo_pessoa: "PJ", tipo_recurso: "Livre" },
+  { codigo: "25455", nome: "Cartão de crédito rotativo PJ", categoria: "Pessoa Jurídica", tipo_pessoa: "PJ", tipo_recurso: "Livre" },
+  { codigo: "25456", nome: "Cartão de crédito parcelado PJ", categoria: "Pessoa Jurídica", tipo_pessoa: "PJ", tipo_recurso: "Livre" },
+  { codigo: "25457", nome: "Cartão de crédito total PJ", categoria: "Pessoa Jurídica", tipo_pessoa: "PJ", tipo_recurso: "Livre" },
+  { codigo: "25458", nome: "ACC - Adiantamento sobre contratos de câmbio", categoria: "Pessoa Jurídica", tipo_pessoa: "PJ", tipo_recurso: "Livre" },
+  { codigo: "25459", nome: "Financiamento a importações", categoria: "Pessoa Jurídica", tipo_pessoa: "PJ", tipo_recurso: "Livre" },
+  { codigo: "25460", nome: "Financiamento a exportações", categoria: "Pessoa Jurídica", tipo_pessoa: "PJ", tipo_recurso: "Livre" },
+  { codigo: "25461", nome: "Repasse externo", categoria: "Pessoa Jurídica", tipo_pessoa: "PJ", tipo_recurso: "Livre" },
   
-  // SÉRIES TOTAIS (2 Séries)
-  { codigo: 25436, nome: "Taxa média mensal de juros - Total", categoria: "Total", sub_categoria: "Geral" },
-  { codigo: 27641, nome: "Taxa média mensal de juros não rotativo - Total", categoria: "Total", sub_categoria: "Geral" }
+  // TOTAIS
+  { codigo: "25436", nome: "Taxa média mensal - Total", categoria: "Total", tipo_pessoa: "Todos", tipo_recurso: "Todos" },
+  { codigo: "27641", nome: "Taxa média mensal não rotativo - Total", categoria: "Total", tipo_pessoa: "Todos", tipo_recurso: "Todos" }
 ];
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    console.log('🚀 Iniciando atualização das 48 séries do BACEN...');
+    console.log('🚀 Iniciando atualização das taxas BACEN - Nova Estrutura...');
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
@@ -77,15 +76,60 @@ serve(async (req) => {
     let erros = 0;
     let totalRegistros = 0;
 
+    // ETAPA 1: Cadastrar/Atualizar Modalidades
+    console.log('📋 ETAPA 1: Cadastrando modalidades...');
+    
     for (const serie of SERIES_BACEN) {
       try {
-        console.log(`📊 Processando série ${serie.codigo}: ${serie.nome}...`);
+        const { data: modalidadeExistente } = await supabase
+          .from("modalidades_bacen_juros")
+          .select("id")
+          .eq("codigo_sgs", serie.codigo)
+          .maybeSingle();
 
+        if (!modalidadeExistente) {
+          await supabase
+            .from("modalidades_bacen_juros")
+            .insert({
+              nome: serie.nome,
+              codigo_sgs: serie.codigo,
+              categoria: serie.categoria,
+              tipo_pessoa: serie.tipo_pessoa,
+              tipo_recurso: serie.tipo_recurso,
+              ativo: true
+            });
+          console.log(`  ✅ Modalidade cadastrada: ${serie.codigo} - ${serie.nome}`);
+        }
+      } catch (error) {
+        console.error(`  ❌ Erro ao cadastrar modalidade ${serie.codigo}:`, error);
+      }
+    }
+
+    // ETAPA 2: Importar Séries Temporais
+    console.log('📊 ETAPA 2: Importando séries temporais...');
+
+    for (const serie of SERIES_BACEN) {
+      try {
+        console.log(`  Processando série ${serie.codigo}: ${serie.nome}...`);
+
+        // Buscar ID da modalidade
+        const { data: modalidade } = await supabase
+          .from("modalidades_bacen_juros")
+          .select("id")
+          .eq("codigo_sgs", serie.codigo)
+          .single();
+
+        if (!modalidade) {
+          console.warn(`  ⚠️ Modalidade não encontrada: ${serie.codigo}`);
+          continue;
+        }
+
+        // Buscar dados da API do BACEN
         const url = `https://api.bcb.gov.br/dados/serie/bcdata.sgs.${serie.codigo}/dados?formato=json`;
         const response = await fetch(url);
         
         if (!response.ok) {
-          console.error(`❌ Erro ao buscar série ${serie.codigo}: HTTP ${response.status}`);
+          console.error(`  ❌ Erro HTTP ${response.status} ao buscar série ${serie.codigo}`);
           erros++;
           continue;
         }
@@ -93,21 +137,21 @@ serve(async (req) => {
         const dados = await response.json();
         
         if (!dados || dados.length === 0) {
-          console.warn(`⚠️ Série ${serie.codigo} sem dados`);
+          console.warn(`  ⚠️ Série ${serie.codigo} sem dados`);
           continue;
         }
 
-        // Processar dados em lotes para evitar timeout
+        // Processar e inserir em lotes
         const BATCH_SIZE = 500;
         const dadosProcessados = dados.map((item: any) => {
           const [dia, mes, ano] = item.data.split('/');
           return {
-            codigo_serie: serie.codigo,
-            nome_modalidade: serie.nome,
-            categoria: serie.categoria,
-            sub_categoria: serie.sub_categoria,
-            data_referencia: `${ano}-${mes}-${dia}`,
+            modalidade_id: modalidade.id,
+            data_referencia: `${ano}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}`,
+            ano: parseInt(ano),
+            mes: parseInt(mes),
             taxa_mensal: parseFloat(item.valor),
+            taxa_anual: parseFloat(item.valor) * 12 // Aproximação simples
           };
         });
 
@@ -116,25 +160,25 @@ serve(async (req) => {
           const lote = dadosProcessados.slice(i, i + BATCH_SIZE);
           
           const { error } = await supabase
-            .from("taxas_juros_bacen")
+            .from("series_temporais_bacen")
             .upsert(lote, {
-              onConflict: 'codigo_serie,data_referencia',
+              onConflict: 'modalidade_id,data_referencia',
               ignoreDuplicates: false
             });
 
           if (error) {
-            console.error(`❌ Erro ao inserir lote da série ${serie.codigo}:`, error);
+            console.error(`  ❌ Erro ao inserir lote:`, error);
             throw error;
           }
 
           totalRegistros += lote.length;
         }
 
-        console.log(`✅ Série ${serie.codigo} processada: ${dadosProcessados.length} registros`);
+        console.log(`  ✅ Série ${serie.codigo} processada: ${dadosProcessados.length} registros`);
         sucessos++;
 
       } catch (serieError) {
-        console.error(`❌ Erro ao processar série ${serie.codigo}:`, serieError);
+        console.error(`  ❌ Erro ao processar série ${serie.codigo}:`, serieError);
         erros++;
       }
     }
@@ -149,7 +193,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: "Atualização concluída com sucesso!",
+        message: "Atualização concluída!",
         stats: {
           total_series: SERIES_BACEN.length,
           sucessos,
@@ -163,7 +207,7 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('❌ Erro geral na atualização:', error);
+    console.error('❌ Erro geral:', error);
     
     return new Response(
       JSON.stringify({ 
