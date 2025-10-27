@@ -22,139 +22,115 @@ export interface ResultadoCalculo {
 }
 
 /**
- * Calcula a taxa de juros usando método de Newton-Raphson
+ * Calcula a taxa de juros usando método híbrido (Bisseção + Newton-Raphson)
+ * Mais robusto e confiável para qualquer combinação de valores
  */
 export function calcularTaxaJuros(
   valorFinanciado: number,
   parcela: number,
   prazo: number
 ): number {
-  // Validações básicas de entrada
+  // Validações básicas
   if (!valorFinanciado || !parcela || !prazo) {
-    console.error('❌ calcularTaxaJuros: Parâmetros inválidos', { valorFinanciado, parcela, prazo });
+    console.error('❌ Parâmetros inválidos', { valorFinanciado, parcela, prazo });
     return NaN;
   }
 
-  if (valorFinanciado <= 0 || parcela <= 0 || prazo <= 0) {
-    console.error('❌ calcularTaxaJuros: Valores devem ser positivos', { valorFinanciado, parcela, prazo });
-    return NaN;
-  }
-
-  // Converter para número explicitamente
   const vf = Number(valorFinanciado);
   const pmt = Number(parcela);
   const n = Number(prazo);
 
-  if (isNaN(vf) || isNaN(pmt) || isNaN(n)) {
-    console.error('❌ calcularTaxaJuros: Conversão para número falhou', { vf, pmt, n });
+  if (isNaN(vf) || isNaN(pmt) || isNaN(n) || vf <= 0 || pmt <= 0 || n <= 0) {
+    console.error('❌ Valores inválidos', { vf, pmt, n });
     return NaN;
   }
 
-  console.log('🔢 Calculando taxa com Newton-Raphson:', { 
-    valorFinanciado: vf, 
-    parcela: pmt, 
-    prazo: n,
-    totalPago: pmt * n,
-    totalJuros: (pmt * n) - vf
-  });
+  console.log('🔢 Calculando taxa:', { vf, pmt, n, totalPago: pmt * n, totalJuros: (pmt * n) - vf });
 
-  // Validação mínima: parcela deve ser maior que amortização pura (sem juros)
-  const parcelaMinima = vf / n;
-  if (pmt < parcelaMinima * 0.9) {
-    console.error('❌ calcularTaxaJuros: Parcela menor que amortização mínima', { 
-      parcela: pmt, 
-      amortizacaoMinima: parcelaMinima 
-    });
-    return NaN;
-  }
+  // Função para calcular o valor da parcela dado uma taxa
+  const calcPMT = (taxa: number): number => {
+    if (taxa === 0) return vf / n;
+    const pot = Math.pow(1 + taxa, n);
+    return (vf * taxa * pot) / (pot - 1);
+  };
 
-  // Chute inicial mais inteligente baseado nos dados
-  // Se parcela for muito maior que amortização, significa taxa alta
-  const razao = pmt / parcelaMinima;
-  let taxaInicial = 0.01; // 1% default
-  
-  if (razao > 3) taxaInicial = 0.10; // 10% para razões muito altas
-  else if (razao > 2) taxaInicial = 0.05; // 5% para razões altas
-  else if (razao > 1.5) taxaInicial = 0.03; // 3% para razões médias
-  
-  console.log('📊 Chute inicial:', {
-    razaoParcelaAmortizacao: razao.toFixed(2),
-    taxaInicial: (taxaInicial * 100).toFixed(2) + '%'
-  });
-
-  let taxa = taxaInicial;
+  // Método da Bisseção para encontrar intervalo inicial
+  let taxaMin = 0;
+  let taxaMax = 0.5; // 50% a.m. como máximo
   const epsilon = 0.00001;
-  const maxIteracoes = 200;
+  const maxIter = 100;
 
-  for (let i = 0; i < maxIteracoes; i++) {
-    const potencia = Math.pow(1 + taxa, n);
-    
-    // Verificar overflow
-    if (!isFinite(potencia)) {
-      console.error('❌ calcularTaxaJuros: Overflow na potência', { taxa, n, iteracao: i });
-      return NaN;
-    }
+  // Verificar se a taxa está no intervalo
+  const pmtMin = calcPMT(taxaMin);
+  const pmtMax = calcPMT(taxaMax);
 
-    const denominador = potencia - 1;
-    
-    // Verificar divisão por zero
-    if (Math.abs(denominador) < 0.0000001) {
-      console.error('❌ calcularTaxaJuros: Denominador próximo de zero', { denominador, iteracao: i });
-      return NaN;
-    }
+  if (pmt < pmtMin || pmt > pmtMax) {
+    console.error('❌ Parcela fora do intervalo possível', { pmt, pmtMin, pmtMax });
+    return NaN;
+  }
 
-    const f = pmt - (vf * taxa * potencia) / denominador;
-    const df = vf * ((denominador - taxa * n * potencia) / Math.pow(denominador, 2));
+  // Bisseção para encontrar uma aproximação
+  for (let i = 0; i < maxIter; i++) {
+    const taxaMid = (taxaMin + taxaMax) / 2;
+    const pmtMid = calcPMT(taxaMid);
+    const diff = pmtMid - pmt;
 
-    // Verificar se derivada é válida
-    if (!isFinite(df) || Math.abs(df) < 0.0000001) {
-      console.error('❌ calcularTaxaJuros: Derivada inválida', { df, iteracao: i });
-      return NaN;
-    }
-
-    const incremento = f / df;
-    const novaTaxa = taxa - incremento;
-
-    // Log a cada 20 iterações para acompanhar progresso
-    if (i % 20 === 0) {
-      console.log(`🔄 Iteração ${i}: taxa=${(taxa * 100).toFixed(4)}%, incremento=${(incremento * 100).toFixed(6)}%`);
-    }
-
-    // Verificar se nova taxa é válida
-    if (!isFinite(novaTaxa)) {
-      console.error('❌ calcularTaxaJuros: Nova taxa inválida', { novaTaxa, iteracao: i });
-      return NaN;
-    }
-
-    // Verificar convergência
-    if (Math.abs(incremento) < epsilon) {
-      const resultado = novaTaxa * 100;
-      
-      // Validar resultado final
-      if (resultado < 0) {
-        console.error('❌ calcularTaxaJuros: Taxa negativa não faz sentido', { resultado });
-        return NaN;
-      }
-      
-      if (resultado > 100) {
-        console.warn('⚠️ calcularTaxaJuros: Taxa muito alta', { resultado: resultado.toFixed(2) + '%' });
-      }
-      
-      console.log('✅ Taxa calculada com sucesso:', resultado.toFixed(4) + '% a.m. em', i + 1, 'iterações');
+    if (Math.abs(diff) < 0.01) {
+      // Encontrou uma aproximação boa o suficiente
+      const resultado = taxaMid * 100;
+      console.log('✅ Taxa calculada (bisseção):', resultado.toFixed(4) + '% a.m.');
       return resultado;
     }
 
+    if (pmtMid < pmt) {
+      taxaMin = taxaMid;
+    } else {
+      taxaMax = taxaMid;
+    }
+
+    // Se o intervalo ficou muito pequeno, retornar o meio
+    if (Math.abs(taxaMax - taxaMin) < epsilon) {
+      const resultado = ((taxaMin + taxaMax) / 2) * 100;
+      console.log('✅ Taxa calculada (convergência bisseção):', resultado.toFixed(4) + '% a.m.');
+      return resultado;
+    }
+  }
+
+  // Se bisseção não convergiu, usar Newton-Raphson com o melhor chute
+  let taxa = (taxaMin + taxaMax) / 2;
+  
+  for (let i = 0; i < 50; i++) {
+    const pot = Math.pow(1 + taxa, n);
+    const den = pot - 1;
+    
+    if (Math.abs(den) < 0.0000001) break;
+    
+    const f = pmt - (vf * taxa * pot) / den;
+    const df = vf * ((den - taxa * n * pot) / Math.pow(den, 2));
+    
+    if (!isFinite(df) || Math.abs(df) < 0.0000001) break;
+    
+    const novaTaxa = taxa - f / df;
+    
+    if (!isFinite(novaTaxa) || novaTaxa < 0 || novaTaxa > 0.5) break;
+    
+    if (Math.abs(novaTaxa - taxa) < epsilon) {
+      const resultado = novaTaxa * 100;
+      console.log('✅ Taxa calculada (Newton-Raphson):', resultado.toFixed(4) + '% a.m.');
+      return resultado;
+    }
+    
     taxa = novaTaxa;
   }
 
+  // Retornar a melhor aproximação encontrada
   const resultado = taxa * 100;
-  console.warn('⚠️ Não convergiu em', maxIteracoes, 'iterações. Taxa:', resultado.toFixed(4) + '% a.m.');
-  
-  // Se não convergiu mas a taxa é positiva e razoável, retornar mesmo assim
-  if (resultado > 0 && resultado < 100) {
+  if (resultado > 0 && resultado <= 50) {
+    console.log('✅ Taxa calculada (aproximação):', resultado.toFixed(4) + '% a.m.');
     return resultado;
   }
-  
+
+  console.error('❌ Não foi possível calcular a taxa');
   return NaN;
 }
 
