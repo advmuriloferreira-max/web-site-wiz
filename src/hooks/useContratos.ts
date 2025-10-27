@@ -61,7 +61,18 @@ export const useContratos = () => {
         .select(`
           *,
           clientes:clientes (nome, cpf_cnpj),
-          bancos:bancos_provisao (nome)
+          bancos:bancos_provisao (nome),
+          analises_provisionamento (
+            id,
+            valor_divida,
+            dias_atraso,
+            meses_atraso,
+            classificacao_risco,
+            percentual_provisao,
+            valor_provisao,
+            data_calculo,
+            created_at
+          )
         `)
         .order("created_at", { ascending: false });
 
@@ -69,7 +80,33 @@ export const useContratos = () => {
         throw new Error(`Erro ao buscar contratos: ${error.message}`);
       }
 
-      return data as Contrato[];
+      // Mapear dados da análise mais recente para o contrato
+      const contratosComAnalise = data.map((contrato: any) => {
+        // Pegar a análise mais recente (primeira do array, pois vem ordenada)
+        const analises = contrato.analises_provisionamento || [];
+        const analiseRecente = analises.length > 0 
+          ? analises.sort((a: any, b: any) => 
+              new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+            )[0]
+          : null;
+
+        return {
+          ...contrato,
+          // Adicionar campos da análise de passivo ao contrato
+          valor_divida: analiseRecente?.valor_divida,
+          dias_atraso: analiseRecente?.dias_atraso,
+          meses_atraso: analiseRecente?.meses_atraso,
+          classificacao: analiseRecente?.classificacao_risco,
+          estagio_risco: analiseRecente?.classificacao_risco === 'Estágio 1' ? 1 
+                       : analiseRecente?.classificacao_risco === 'Estágio 2' ? 2
+                       : analiseRecente?.classificacao_risco === 'Estágio 3' ? 3
+                       : null,
+          percentual_provisao: analiseRecente?.percentual_provisao,
+          valor_provisao: analiseRecente?.valor_provisao,
+        };
+      });
+
+      return contratosComAnalise as Contrato[];
     },
     tableName: "contratos",
   });
