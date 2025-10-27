@@ -108,17 +108,30 @@ export default function AnaliseJurosAbusivos() {
     try {
       // 1. Completar dados do contrato (calcular campo faltante)
       const dados: DadosContratoJuros = {
-        valorFinanciado: valorFinanciado ? parseFloat(valorFinanciado) : undefined,
-        taxaMensal: taxaMensal ? parseFloat(taxaMensal) : undefined,
-        valorParcela: valorParcela ? parseFloat(valorParcela) : undefined,
-        numeroParcelas: numeroParcelas ? parseFloat(numeroParcelas) : undefined,
+        valorFinanciado: valorFinanciado ? Number(valorFinanciado) : undefined,
+        taxaMensal: taxaMensal ? Number(taxaMensal) : undefined,
+        valorParcela: valorParcela ? Number(valorParcela) : undefined,
+        numeroParcelas: numeroParcelas ? Number(numeroParcelas) : undefined,
       };
 
+      console.log('📝 Dados para cálculo:', dados);
+
       const resultado = completarDadosContrato(dados);
+
+      console.log('📊 Resultado do cálculo:', resultado);
+
       if (!resultado) {
         toast.error("Erro ao calcular dados do contrato");
         return;
       }
+
+      // Verificar se taxa é válida
+      if (isNaN(resultado.taxaMensal) || !isFinite(resultado.taxaMensal)) {
+        console.error('❌ Taxa inválida no resultado:', resultado.taxaMensal);
+        toast.error("Erro: Taxa de juros inválida");
+        return;
+      }
+
       setDadosCompletos(resultado);
 
       // Atualizar campos calculados

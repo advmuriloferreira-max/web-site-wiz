@@ -29,27 +29,69 @@ export function calcularTaxaJuros(
   parcela: number,
   prazo: number
 ): number {
+  // Validações de entrada
+  if (!valorFinanciado || !parcela || !prazo) {
+    console.error('❌ calcularTaxaJuros: Parâmetros inválidos', { valorFinanciado, parcela, prazo });
+    return NaN;
+  }
+
+  if (valorFinanciado <= 0 || parcela <= 0 || prazo <= 0) {
+    console.error('❌ calcularTaxaJuros: Valores devem ser positivos', { valorFinanciado, parcela, prazo });
+    return NaN;
+  }
+
+  // Converter para número explicitamente
+  const vf = Number(valorFinanciado);
+  const pmt = Number(parcela);
+  const n = Number(prazo);
+
+  if (isNaN(vf) || isNaN(pmt) || isNaN(n)) {
+    console.error('❌ calcularTaxaJuros: Conversão para número falhou', { vf, pmt, n });
+    return NaN;
+  }
+
   let taxa = 0.01; // chute inicial de 1% a.m.
   const epsilon = 0.0000001;
   const maxIteracoes = 100;
 
   for (let i = 0; i < maxIteracoes; i++) {
-    const potencia = Math.pow(1 + taxa, prazo);
-    const f = parcela - (valorFinanciado * taxa * potencia) / (potencia - 1);
-    const df =
-      valorFinanciado *
-      ((potencia - 1 - taxa * prazo * potencia) / Math.pow(potencia - 1, 2));
+    const potencia = Math.pow(1 + taxa, n);
+    
+    // Verificar se potencia é válida
+    if (isNaN(potencia) || !isFinite(potencia)) {
+      console.error('❌ calcularTaxaJuros: Potência inválida', { taxa, n, potencia });
+      return NaN;
+    }
+
+    const f = pmt - (vf * taxa * potencia) / (potencia - 1);
+    const df = vf * ((potencia - 1 - taxa * n * potencia) / Math.pow(potencia - 1, 2));
+
+    // Verificar se derivada é válida
+    if (isNaN(df) || df === 0 || !isFinite(df)) {
+      console.error('❌ calcularTaxaJuros: Derivada inválida', { df });
+      return NaN;
+    }
 
     const novaTaxa = taxa - f / df;
 
+    // Verificar se nova taxa é válida
+    if (isNaN(novaTaxa) || !isFinite(novaTaxa)) {
+      console.error('❌ calcularTaxaJuros: Nova taxa inválida', { novaTaxa });
+      return NaN;
+    }
+
     if (Math.abs(novaTaxa - taxa) < epsilon) {
-      return novaTaxa * 100; // retorna em percentual
+      const resultado = novaTaxa * 100;
+      console.log('✅ Taxa calculada com sucesso:', resultado + '% a.m.');
+      return resultado; // retorna em percentual
     }
 
     taxa = novaTaxa;
   }
 
-  return taxa * 100;
+  const resultado = taxa * 100;
+  console.warn('⚠️ Método não convergiu, retornando última iteração:', resultado + '% a.m.');
+  return resultado;
 }
 
 /**
@@ -128,7 +170,22 @@ export function completarDadosContrato(dados: DadosContratoJuros): ResultadoCalc
   if (!valorFinanciado || valorFinanciado === 0) {
     valorFinanciado = calcularValorFinanciado(valorParcela, taxaMensal, numeroParcelas);
   } else if (!taxaMensal || taxaMensal === 0) {
-    taxaMensal = calcularTaxaJuros(valorFinanciado, valorParcela, numeroParcelas);
+    // Converter valores para número explicitamente
+    const vf = Number(valorFinanciado);
+    const pmt = Number(valorParcela);
+    const n = Number(numeroParcelas);
+    
+    console.log('🧮 Calculando taxa com:', { vf, pmt, n });
+    
+    taxaMensal = calcularTaxaJuros(vf, pmt, n);
+    
+    console.log('📊 Taxa calculada:', taxaMensal);
+    
+    // Verificar se é NaN
+    if (isNaN(taxaMensal) || !isFinite(taxaMensal)) {
+      console.error('❌ Taxa calculada é inválida!');
+      return null;
+    }
   } else if (!valorParcela || valorParcela === 0) {
     valorParcela = calcularValorParcela(valorFinanciado, taxaMensal, numeroParcelas);
   } else if (!numeroParcelas || numeroParcelas === 0) {
