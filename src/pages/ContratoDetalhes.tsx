@@ -371,6 +371,213 @@ export default function ContratoDetalhes() {
           </div>
         </div>
 
+        {/* Separador */}
+        <Separator className="my-6" />
+
+        {/* SEÇÃO: DADOS DO CONTRATO */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          
+          {/* Card: Informações Básicas */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Informações Básicas
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-muted-foreground">Cliente</p>
+                  <p className="font-medium">{contrato.clientes?.nome || "N/A"}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">CPF/CNPJ</p>
+                  <p className="font-medium">{contrato.clientes?.cpf_cnpj || "N/A"}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Banco</p>
+                  <p className="font-medium">{contrato.bancos?.nome || "N/A"}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Nº Contrato</p>
+                  <p className="font-medium">{contrato.numero_contrato || "Sem número"}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Status</p>
+                  <Badge className={getSituacaoColor(contrato.status)}>
+                    {contrato.status || "Em análise"}
+                  </Badge>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Tipo de Operação</p>
+                  <p className="font-medium">{contrato.tipo_operacao || "N/A"}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Card: Dados Financeiros */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calculator className="h-5 w-5" />
+                Dados Financeiros
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-muted-foreground">Valor do Contrato</p>
+                  <p className="font-medium text-lg">
+                    {formatCurrency(contrato.valor_contrato || 0)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Valor Financiado</p>
+                  <p className="font-medium text-lg">
+                    {formatCurrency(contrato.valor_financiado || 0)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Valor da Parcela</p>
+                  <p className="font-medium">
+                    {formatCurrency(contrato.valor_parcela || 0)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Nº de Parcelas</p>
+                  <p className="font-medium">{contrato.numero_parcelas || "N/A"}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Taxa de Juros</p>
+                  <p className="font-medium">
+                    {contrato.taxa_juros_contratual 
+                      ? `${contrato.taxa_juros_contratual}% a.m.` 
+                      : "N/A"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Data de Assinatura</p>
+                  <p className="font-medium">{formatDate(contrato.data_assinatura)}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+        </div>
+
+        {/* SEÇÃO: Dados das Análises Realizadas (se houver) */}
+        {(analisePassivo || analiseJuros) && (
+          <>
+            <Separator className="my-6" />
+            <h2 className="text-xl font-semibold mb-4">Resultados das Análises</h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              
+              {/* Card: Análise de Gestão de Passivo Bancário */}
+              {analisePassivo && (
+                <Card className="border-2 border-orange-200 dark:border-orange-800">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-orange-700 dark:text-orange-400">
+                      <BarChart3 className="h-5 w-5" />
+                      Gestão de Passivo Bancário
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Valor da Dívida</p>
+                        <p className="font-medium text-lg">
+                          {formatCurrency(analisePassivo.valor_divida || 0)}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Valor da Provisão</p>
+                        <p className="font-medium text-lg text-orange-600 dark:text-orange-400">
+                          {formatCurrency(analisePassivo.valor_provisao || 0)}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Classificação</p>
+                        <Badge className={getClassificacaoColor(analisePassivo.classificacao_risco)}>
+                          {analisePassivo.classificacao_risco}
+                        </Badge>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">% Provisão</p>
+                        <p className="font-medium">
+                          {analisePassivo.percentual_provisao?.toFixed(2)}%
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Dias de Atraso</p>
+                        <p className="font-medium">{analisePassivo.dias_atraso || 0} dias</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Meses de Atraso</p>
+                        <p className="font-medium">{analisePassivo.meses_atraso?.toFixed(1) || 0} meses</p>
+                      </div>
+                      <div className="col-span-2">
+                        <p className="text-sm text-muted-foreground">Data da Análise</p>
+                        <p className="font-medium">{formatDate(analisePassivo.created_at)}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Card: Análise de Juros Abusivos */}
+              {analiseJuros && (
+                <Card className="border-2 border-blue-200 dark:border-blue-800">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-blue-700 dark:text-blue-400">
+                      <TrendingUp className="h-5 w-5" />
+                      Análise de Abusividades (Juros)
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Taxa Contratual</p>
+                        <p className="font-medium text-lg">
+                          {analiseJuros.taxa_contratual?.toFixed(2)}% a.m.
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Taxa BACEN</p>
+                        <p className="font-medium text-lg">
+                          {analiseJuros.taxa_media_bacen?.toFixed(2)}% a.m.
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Diferença</p>
+                        <p className={`font-medium text-lg ${
+                          (analiseJuros.diferenca_percentual || 0) > 0 
+                            ? 'text-red-600 dark:text-red-400' 
+                            : 'text-green-600 dark:text-green-400'
+                        }`}>
+                          {analiseJuros.diferenca_percentual?.toFixed(2)}%
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Abusividade</p>
+                        <Badge variant={analiseJuros.abusividade_detectada ? "destructive" : "default"}>
+                          {analiseJuros.abusividade_detectada ? "Detectada" : "Não Detectada"}
+                        </Badge>
+                      </div>
+                      <div className="col-span-2">
+                        <p className="text-sm text-muted-foreground">Data da Análise</p>
+                        <p className="font-medium">{formatDate(analiseJuros.created_at)}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+            </div>
+          </>
+        )}
+
         <Separator className="my-6" />
         
         {/* Success Confetti - disabled */}
