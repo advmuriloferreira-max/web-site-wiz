@@ -50,11 +50,39 @@ export function calcularTaxaJuros(
     return NaN;
   }
 
+  // Validação de sanidade: parcela deve ser maior que valor financiado dividido por prazo
+  const parcelaMinima = vf / n;
+  if (pmt < parcelaMinima) {
+    console.error('❌ calcularTaxaJuros: Parcela muito baixa (menor que amortização mínima)', { 
+      parcela: pmt, 
+      parcelaMinima 
+    });
+    return NaN;
+  }
+
+  // Validação de sanidade: parcela não pode ser absurdamente alta
+  const parcelaMaxima = vf * 2 / n; // No máximo o dobro do valor financiado dividido pelo prazo
+  if (pmt > parcelaMaxima) {
+    console.error('❌ calcularTaxaJuros: Parcela muito alta (parece incorreta)', { 
+      parcela: pmt, 
+      parcelaMaxima 
+    });
+    return NaN;
+  }
+
   let taxa = 0.01; // chute inicial de 1% a.m.
   const epsilon = 0.0000001;
   const maxIteracoes = 100;
+  const taxaMinima = -0.5; // Taxa mínima: -50% (impossível financeiramente)
+  const taxaMaxima = 2.0; // Taxa máxima: 200% a.m. (impossível financeiramente)
 
   for (let i = 0; i < maxIteracoes; i++) {
+    // Limitar taxa dentro de valores razoáveis
+    if (taxa < taxaMinima || taxa > taxaMaxima) {
+      console.error('❌ calcularTaxaJuros: Taxa fora dos limites razoáveis', { taxa, taxaMinima, taxaMaxima });
+      return NaN;
+    }
+
     const potencia = Math.pow(1 + taxa, n);
     
     // Verificar se potencia é válida
@@ -63,26 +91,36 @@ export function calcularTaxaJuros(
       return NaN;
     }
 
-    const f = pmt - (vf * taxa * potencia) / (potencia - 1);
-    const df = vf * ((potencia - 1 - taxa * n * potencia) / Math.pow(potencia - 1, 2));
-
-    // Verificar se derivada é válida
-    if (isNaN(df) || df === 0 || !isFinite(df)) {
-      console.error('❌ calcularTaxaJuros: Derivada inválida', { df });
+    const denominador = potencia - 1;
+    
+    // Verificar divisão por zero
+    if (Math.abs(denominador) < 0.0000001) {
+      console.error('❌ calcularTaxaJuros: Denominador muito próximo de zero', { denominador });
       return NaN;
     }
 
-    const novaTaxa = taxa - f / df;
+    const f = pmt - (vf * taxa * potencia) / denominador;
+    const df = vf * ((denominador - taxa * n * potencia) / Math.pow(denominador, 2));
+
+    // Verificar se derivada é válida
+    if (isNaN(df) || Math.abs(df) < 0.0000001 || !isFinite(df)) {
+      console.error('❌ calcularTaxaJuros: Derivada inválida ou muito pequena', { df });
+      return NaN;
+    }
+
+    const incremento = f / df;
+    const novaTaxa = taxa - incremento;
 
     // Verificar se nova taxa é válida
     if (isNaN(novaTaxa) || !isFinite(novaTaxa)) {
-      console.error('❌ calcularTaxaJuros: Nova taxa inválida', { novaTaxa });
+      console.error('❌ calcularTaxaJuros: Nova taxa inválida', { novaTaxa, incremento });
       return NaN;
     }
 
-    if (Math.abs(novaTaxa - taxa) < epsilon) {
+    // Verificar convergência
+    if (Math.abs(incremento) < epsilon) {
       const resultado = novaTaxa * 100;
-      console.log('✅ Taxa calculada com sucesso:', resultado + '% a.m.');
+      console.log('✅ Taxa calculada com sucesso:', resultado.toFixed(4) + '% a.m. em', i + 1, 'iterações');
       return resultado; // retorna em percentual
     }
 
@@ -90,7 +128,7 @@ export function calcularTaxaJuros(
   }
 
   const resultado = taxa * 100;
-  console.warn('⚠️ Método não convergiu, retornando última iteração:', resultado + '% a.m.');
+  console.warn('⚠️ Método não convergiu em', maxIteracoes, 'iterações, retornando última iteração:', resultado.toFixed(4) + '% a.m.');
   return resultado;
 }
 
