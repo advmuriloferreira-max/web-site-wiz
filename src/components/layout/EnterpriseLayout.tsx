@@ -30,6 +30,7 @@ import ClienteDetalhes from "@/pages/clientes/ClienteDetalhes";
 import AnaliseProvisionamento from "@/pages/contratos/AnaliseProvisionamento";
 import AnaliseJurosAbusivos from "@/pages/contratos/AnaliseJurosAbusivos";
 import PlanoSuperendividamento from "@/pages/clientes/PlanoSuperendividamento";
+import AnaliseSocioeconomica from "@/pages/clientes/AnaliseSocioeconomica";
 import ListaProvisionamento from "@/pages/analises/ListaProvisionamento";
 import ListaJurosAbusivos from "@/pages/analises/ListaJurosAbusivos";
 import ListaSuperendividamento from "@/pages/analises/ListaSuperendividamento";
@@ -195,6 +196,7 @@ export function EnterpriseLayout() {
                     {/* ANÁLISES POR CLIENTE */}
                     {/* ===================================================================== */}
                     <Route path="/clientes/:id/superendividamento" element={<PlanoSuperendividamento />} />
+                    <Route path="/clientes/:id/analise-socioeconomica" element={<AnaliseSocioeconomica />} />
 
                     {/* ===================================================================== */}
                     {/* LISTAGENS DE ANÁLISES */}
