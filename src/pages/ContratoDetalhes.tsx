@@ -11,6 +11,8 @@ import { GarantiaImpactDisplay } from "@/components/garantias/GarantiaImpactDisp
 import { GarantiasSection } from "@/components/garantias/GarantiasSection";
 import { useContratoById } from "@/hooks/useContratoById";
 import { useProvisaoPerda, useProvisaoPerdaIncorrida } from "@/hooks/useProvisao";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { 
   verificarPeriodoObservacaoReestruturacao, 
   calcularProvisaoAvancada, 
@@ -94,6 +96,57 @@ export default function ContratoDetalhes() {
   const { data: tabelaPerda } = useProvisaoPerda();
   const { data: tabelaIncorrida } = useProvisaoPerdaIncorrida();
 
+  // Buscar análise de Gestão de Passivo Bancário
+  const { data: analisePassivo } = useQuery({
+    queryKey: ["analise-passivo", contratoId],
+    queryFn: async () => {
+      if (!contratoId) return null;
+      const { data } = await supabase
+        .from("analises_provisionamento")
+        .select("*")
+        .eq("contrato_id", contratoId)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!contratoId,
+  });
+
+  // Buscar análise de Juros Abusivos
+  const { data: analiseJuros } = useQuery({
+    queryKey: ["analise-juros", contratoId],
+    queryFn: async () => {
+      if (!contratoId) return null;
+      const { data } = await supabase
+        .from("analises_juros_abusivos")
+        .select("*")
+        .eq("contrato_id", contratoId)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!contratoId,
+  });
+
+  // Buscar análise de Superendividamento (vinculada ao cliente, não ao contrato)
+  const { data: analiseSuperendividamento } = useQuery({
+    queryKey: ["analise-superendividamento", contrato?.cliente_id],
+    queryFn: async () => {
+      if (!contrato?.cliente_id) return null;
+      const { data } = await supabase
+        .from("analises_socioeconomicas")
+        .select("*")
+        .eq("cliente_id", contrato.cliente_id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!contrato?.cliente_id,
+  });
+
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
       style: "currency",
@@ -174,6 +227,151 @@ export default function ContratoDetalhes() {
             { label: contrato?.numero_contrato || "Detalhes" },
           ]}
         />
+
+        {/* SEÇÃO: ANÁLISES DISPONÍVEIS */}
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold mb-4">Análises do Contrato</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            
+            {/* Card 1: Gestão de Passivo Bancário */}
+            <Card className="border-2 hover:border-orange-500 transition-colors">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <BarChart3 className="h-4 w-4 text-orange-600" />
+                  Gestão de Passivo Bancário
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {analisePassivo ? (
+                  <div className="space-y-2">
+                    <Badge variant="default" className="bg-green-600">
+                      ✓ Análise Realizada
+                    </Badge>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Última análise: {format(new Date(analisePassivo.created_at), "dd/MM/yyyy")}
+                    </p>
+                    <Button 
+                      className="w-full mt-3" 
+                      size="sm"
+                      onClick={() => navigate(`/app/contratos/${contratoId}/provisionamento`)}
+                    >
+                      Ver Análise Completa
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <Badge variant="outline" className="border-orange-300">
+                      Não Analisado
+                    </Badge>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Calcule a provisão bancária conforme BCB
+                    </p>
+                    <Button 
+                      className="w-full mt-3 bg-orange-600 hover:bg-orange-700" 
+                      size="sm"
+                      onClick={() => navigate(`/app/contratos/${contratoId}/provisionamento`)}
+                    >
+                      Analisar Agora
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Card 2: Análise de Abusividades (Juros) */}
+            <Card className="border-2 hover:border-blue-500 transition-colors">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <TrendingUp className="h-4 w-4 text-blue-600" />
+                  Análise de Abusividades
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {analiseJuros ? (
+                  <div className="space-y-2">
+                    <Badge variant="default" className="bg-green-600">
+                      ✓ Análise Realizada
+                    </Badge>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Última análise: {format(new Date(analiseJuros.created_at), "dd/MM/yyyy")}
+                    </p>
+                    <Button 
+                      className="w-full mt-3" 
+                      size="sm"
+                      onClick={() => navigate(`/app/contratos/${contratoId}/juros`)}
+                    >
+                      Ver Análise Completa
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <Badge variant="outline" className="border-blue-300">
+                      Não Analisado
+                    </Badge>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Verifique juros abusivos para ação revisional
+                    </p>
+                    <Button 
+                      className="w-full mt-3 bg-blue-600 hover:bg-blue-700" 
+                      size="sm"
+                      onClick={() => navigate(`/app/contratos/${contratoId}/juros`)}
+                    >
+                      Analisar Agora
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Card 3: Superendividamento */}
+            <Card className="border-2 hover:border-purple-500 transition-colors">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Shield className="h-4 w-4 text-purple-600" />
+                  Superendividamento
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {analiseSuperendividamento ? (
+                  <div className="space-y-2">
+                    <Badge variant="default" className="bg-green-600">
+                      ✓ Análise Realizada
+                    </Badge>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Última análise: {format(new Date(analiseSuperendividamento.created_at), "dd/MM/yyyy")}
+                    </p>
+                    <Button 
+                      className="w-full mt-3" 
+                      size="sm"
+                      onClick={() => navigate(`/app/clientes/${contrato?.cliente_id}/superendividamento`)}
+                    >
+                      Ver Análise Completa
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <Badge variant="outline" className="border-purple-300">
+                      Não Analisado
+                    </Badge>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Análise socioeconômica + plano de pagamento
+                    </p>
+                    <Button 
+                      className="w-full mt-3 bg-purple-600 hover:bg-purple-700" 
+                      size="sm"
+                      onClick={() => navigate(`/app/clientes/${contrato?.cliente_id}/superendividamento`)}
+                    >
+                      Analisar Agora
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+          </div>
+        </div>
+
+        <Separator className="my-6" />
         
         {/* Success Confetti - disabled */}
 
