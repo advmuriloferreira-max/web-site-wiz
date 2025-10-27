@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, User, Mail, Phone, MapPin, FileText, TrendingDown, Calculator, PiggyBank, MoreVertical } from "lucide-react";
+import { ArrowLeft, User, Mail, Phone, MapPin, FileText, TrendingDown, Calculator, PiggyBank, MoreVertical, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -80,6 +80,25 @@ export default function ClienteDetalhes() {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
+      return data;
+    },
+    enabled: !!id,
+  });
+
+  // Buscar planos de pagamento
+  const { data: planosPagamento } = useQuery({
+    queryKey: ["planos-pagamento-cliente", id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("planos_pagamento")
+        .select("*")
+        .eq("cliente_id", id)
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Erro ao buscar planos:", error);
+        return [];
+      }
       return data;
     },
     enabled: !!id,
@@ -214,6 +233,99 @@ export default function ClienteDetalhes() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Card de Superendividamento */}
+      <Card className="border-2 border-purple-200 dark:border-purple-800">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Shield className="h-5 w-5 text-purple-600" />
+            Superendividamento
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            
+            {/* Análise Socioeconômica */}
+            <div className="flex items-center justify-between p-4 bg-purple-50 dark:bg-purple-950 rounded-lg border border-purple-200 dark:border-purple-800">
+              <div className="flex-1">
+                <p className="font-medium text-purple-900 dark:text-purple-100">
+                  Análise Socioeconômica
+                </p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Renda, despesas e capacidade de pagamento
+                </p>
+                {analisesSuperendividamento && analisesSuperendividamento.length > 0 && (
+                  <p className="text-xs text-purple-600 dark:text-purple-400 mt-2">
+                    Última análise: {format(new Date(analisesSuperendividamento[0].created_at), "dd/MM/yyyy", { locale: ptBR })}
+                  </p>
+                )}
+              </div>
+              {analisesSuperendividamento && analisesSuperendividamento.length > 0 ? (
+                <div className="flex items-center gap-2">
+                  <Badge variant="default" className="bg-green-600">
+                    ✓ Realizada
+                  </Badge>
+                  <Button 
+                    size="sm" 
+                    onClick={() => navigate(`/app/clientes/${id}/superendividamento`)}
+                  >
+                    Ver Análise
+                  </Button>
+                </div>
+              ) : (
+                <Button 
+                  size="sm" 
+                  className="bg-purple-600 hover:bg-purple-700"
+                  onClick={() => navigate(`/app/clientes/${id}/superendividamento`)}
+                >
+                  Analisar Agora
+                </Button>
+              )}
+            </div>
+
+            {/* Plano de Pagamento */}
+            <div className="flex items-center justify-between p-4 bg-purple-50 dark:bg-purple-950 rounded-lg border border-purple-200 dark:border-purple-800">
+              <div className="flex-1">
+                <p className="font-medium text-purple-900 dark:text-purple-100">
+                  Plano de Pagamento
+                </p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Repactuação de dívidas e cronograma
+                </p>
+                {planosPagamento && planosPagamento.length > 0 && (
+                  <p className="text-xs text-purple-600 dark:text-purple-400 mt-2">
+                    {planosPagamento.length} plano(s) criado(s)
+                  </p>
+                )}
+              </div>
+              {planosPagamento && planosPagamento.length > 0 ? (
+                <div className="flex items-center gap-2">
+                  <Badge variant="default" className="bg-green-600">
+                    ✓ Criado
+                  </Badge>
+                  <Button 
+                    size="sm" 
+                    onClick={() => navigate(`/app/clientes/${id}/plano-pagamento`)}
+                  >
+                    Ver Plano
+                  </Button>
+                </div>
+              ) : (
+                <Button 
+                  size="sm" 
+                  className="bg-purple-600 hover:bg-purple-700"
+                  onClick={() => navigate(`/app/clientes/${id}/plano-pagamento`)}
+                >
+                  Criar Plano
+                </Button>
+              )}
+            </div>
+
+          </div>
+        </CardContent>
+      </Card>
+
+      <Separator className="my-6" />
 
       {/* Contratos */}
       <Card>
