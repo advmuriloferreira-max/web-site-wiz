@@ -11,7 +11,24 @@ export const useContratosByCliente = (clienteId: string | null) => {
       const { data, error } = await supabase
         .from("contratos")
         .select(`
-          *,
+          id,
+          numero_contrato,
+          banco_id,
+          cliente_id,
+          escritorio_id,
+          tipo_operacao,
+          valor_contrato,
+          valor_financiado,
+          valor_parcela,
+          numero_parcelas,
+          taxa_juros_contratual,
+          data_assinatura,
+          data_primeiro_vencimento,
+          data_ultimo_pagamento,
+          status,
+          observacoes,
+          created_at,
+          updated_at,
           clientes:clientes (nome, cpf_cnpj),
           bancos:bancos_provisao (nome),
           analises_provisionamento (
