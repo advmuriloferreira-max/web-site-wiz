@@ -8,14 +8,18 @@ export const useContratosByCliente = (clienteId: string | null) => {
     queryFn: async () => {
       if (!clienteId) return [];
 
+      console.log('🔍 Buscando contratos para cliente:', clienteId);
+
       const { data, error } = await supabase
         .from("contratos")
         .select(`
           id,
-          numero_contrato,
-          banco_id,
+          created_at,
+          updated_at,
           cliente_id,
-          escritorio_id,
+          banco_id,
+          modalidade_bacen_id,
+          numero_contrato,
           tipo_operacao,
           valor_contrato,
           valor_financiado,
@@ -27,8 +31,7 @@ export const useContratosByCliente = (clienteId: string | null) => {
           data_ultimo_pagamento,
           status,
           observacoes,
-          created_at,
-          updated_at,
+          escritorio_id,
           clientes:clientes (nome, cpf_cnpj),
           bancos:bancos_provisao (nome),
           analises_provisionamento (
@@ -56,11 +59,22 @@ export const useContratosByCliente = (clienteId: string | null) => {
         .order("created_at", { ascending: false });
 
       if (error) {
+        console.error('❌ Erro ao buscar contratos:', error);
         throw new Error(`Erro ao buscar contratos do cliente: ${error.message}`);
+      }
+
+      console.log('✅ Contratos retornados do Supabase:', data);
+      console.log('🔑 IDs dos contratos:', data?.map(c => c.id));
+
+      if (!data || data.length === 0) {
+        console.log('⚠️ Nenhum contrato encontrado para este cliente');
+        return [];
       }
 
       // Mapear dados das análises mais recentes para cada contrato
       const contratosComAnalises = data.map((contrato: any) => {
+        console.log('📝 Processando contrato:', contrato.id, contrato.numero_contrato);
+
         // Pegar análise de Passivo mais recente
         const analisesPassivo = contrato.analises_provisionamento || [];
         const analisePassivo = analisesPassivo.length > 0
@@ -77,8 +91,32 @@ export const useContratosByCliente = (clienteId: string | null) => {
             )[0]
           : null;
 
-        return {
-          ...contrato,
+        const contratoProcessado = {
+          // IMPORTANTE: Garantir que o ID seja sempre retornado
+          id: contrato.id,
+          created_at: contrato.created_at,
+          updated_at: contrato.updated_at,
+          cliente_id: contrato.cliente_id,
+          banco_id: contrato.banco_id,
+          modalidade_bacen_id: contrato.modalidade_bacen_id,
+          numero_contrato: contrato.numero_contrato,
+          tipo_operacao: contrato.tipo_operacao,
+          valor_contrato: contrato.valor_contrato,
+          valor_financiado: contrato.valor_financiado,
+          valor_parcela: contrato.valor_parcela,
+          numero_parcelas: contrato.numero_parcelas,
+          taxa_juros_contratual: contrato.taxa_juros_contratual,
+          data_assinatura: contrato.data_assinatura,
+          data_primeiro_vencimento: contrato.data_primeiro_vencimento,
+          data_ultimo_pagamento: contrato.data_ultimo_pagamento,
+          status: contrato.status,
+          observacoes: contrato.observacoes,
+          escritorio_id: contrato.escritorio_id,
+          
+          // Relacionamentos
+          clientes: contrato.clientes,
+          bancos: contrato.bancos,
+          
           // Dados de Gestão de Passivo Bancário
           valor_divida: analisePassivo?.valor_divida || contrato.valor_contrato || contrato.valor_financiado,
           dias_atraso: analisePassivo?.dias_atraso,
@@ -90,18 +128,28 @@ export const useContratosByCliente = (clienteId: string | null) => {
                        : analisePassivo?.classificacao_risco?.includes('Estágio 2') ? 2
                        : analisePassivo?.classificacao_risco?.includes('Estágio 3') ? 3
                        : null,
+          
           // Dados de Análise de Abusividades
           taxa_contratual: analiseJuros?.taxa_contratual,
           taxa_media_bacen: analiseJuros?.taxa_media_bacen,
           diferenca_percentual: analiseJuros?.diferenca_percentual,
           abusividade_detectada: analiseJuros?.abusividade_detectada,
+          
           // Indicadores de análises realizadas
           temAnalisePassivo: !!analisePassivo,
           temAnaliseJuros: !!analiseJuros,
-          // Situação do contrato (baseada no status ou análise)
+          
+          // Situação do contrato
           situacao: contrato.status || "Em análise",
         };
+
+        console.log('✅ Contrato processado com ID:', contratoProcessado.id);
+        
+        return contratoProcessado;
       });
+
+      console.log('🎯 Total de contratos processados:', contratosComAnalises.length);
+      console.log('🔑 IDs finais:', contratosComAnalises.map(c => c.id));
 
       return contratosComAnalises as Contrato[];
     },
