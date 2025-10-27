@@ -56,7 +56,13 @@ const SERIES_BACEN = [
   
   // TOTAIS
   { codigo: "25436", nome: "Taxa média mensal - Total", categoria: "Total", tipo_pessoa: "Todos", tipo_recurso: "Todos" },
-  { codigo: "27641", nome: "Taxa média mensal não rotativo - Total", categoria: "Total", tipo_pessoa: "Todos", tipo_recurso: "Todos" }
+  { codigo: "27641", nome: "Taxa média mensal não rotativo - Total", categoria: "Total", tipo_pessoa: "Todos", tipo_recurso: "Todos" },
+  
+  // TOTAIS POR TIPO DE PESSOA
+  { codigo: "25437", nome: "Taxa média mensal - Pessoas Jurídicas Total", categoria: "Pessoa Jurídica", tipo_pessoa: "PJ", tipo_recurso: "Livre" },
+  { codigo: "27642", nome: "Taxa média mensal não rotativo - Pessoas Jurídicas Total", categoria: "Pessoa Jurídica", tipo_pessoa: "PJ", tipo_recurso: "Livre" },
+  { codigo: "25462", nome: "Taxa média mensal - Pessoas Físicas Total", categoria: "Pessoa Física", tipo_pessoa: "PF", tipo_recurso: "Livre" },
+  { codigo: "27643", nome: "Taxa média mensal não rotativo - Pessoas Físicas Total", categoria: "Pessoa Física", tipo_pessoa: "PF", tipo_recurso: "Livre" }
 ];
 
 serve(async (req) => {
