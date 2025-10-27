@@ -34,7 +34,7 @@ export default function SuperendividamentoRapido() {
   const { usuarioEscritorio } = useAuth();
   
   const [rendaLiquida, setRendaLiquida] = useState("");
-  const [percentualRenda, setPercentualRenda] = useState("30");
+  const [percentualRenda, setPercentualRenda] = useState("35");
   const [dividas, setDividas] = useState<Divida[]>([]);
   
   // Formulário de nova dívida
@@ -186,7 +186,7 @@ export default function SuperendividamentoRapido() {
 
   const novaAnalise = () => {
     setRendaLiquida("");
-    setPercentualRenda("30");
+    setPercentualRenda("35");
     setDividas([]);
     setResultado(null);
   };
@@ -252,9 +252,8 @@ export default function SuperendividamentoRapido() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="25">25%</SelectItem>
-                      <SelectItem value="30">30% (Recomendado)</SelectItem>
-                      <SelectItem value="35">35%</SelectItem>
+                      <SelectItem value="35">35% (Recomendado)</SelectItem>
+                      <SelectItem value="30">30%</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
