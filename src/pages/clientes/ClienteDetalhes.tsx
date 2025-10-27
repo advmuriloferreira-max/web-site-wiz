@@ -491,62 +491,6 @@ export default function ClienteDetalhes() {
         </CardContent>
       </Card>
 
-      {/* Análises de Superendividamento */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <PiggyBank className="h-5 w-5" />
-              Análises de Superendividamento
-            </div>
-            <Button 
-              onClick={() => navigate(`/app/clientes/${id}/superendividamento`)}
-              variant="outline"
-            >
-              Nova Análise
-            </Button>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {analisesSuperendividamento && analisesSuperendividamento.length > 0 ? (
-            <div className="space-y-3">
-              {analisesSuperendividamento.map((analise) => (
-                <div
-                  key={analise.id}
-                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 cursor-pointer"
-                  onClick={() => navigate(`/app/clientes/${id}/superendividamento`)}
-                >
-                  <div>
-                    <p className="font-medium">
-                      Análise de {format(new Date(analise.created_at), "dd/MM/yyyy", { locale: ptBR })}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      Renda líquida: {formatCurrency(analise.renda_liquida)} • 
-                      Comprometimento: {analise.percentual_comprometimento}%
-                    </p>
-                  </div>
-                  <Button variant="ghost" size="sm">
-                    Ver Detalhes
-                  </Button>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <PiggyBank className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground mb-4">
-                Nenhuma análise de superendividamento realizada
-              </p>
-              <Button 
-                onClick={() => navigate(`/app/clientes/${id}/superendividamento`)}
-                variant="outline"
-              >
-                Realizar Primeira Análise
-              </Button>
-            </div>
-          )}
-        </CardContent>
-      </Card>
     </div>
   );
 }
