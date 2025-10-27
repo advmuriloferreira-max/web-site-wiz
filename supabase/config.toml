@@ -14,3 +14,6 @@ verify_jwt = false
 
 [functions.consultar-taxa-bacen-sgs]
 verify_jwt = false
+
+[functions.atualizar-taxas-juros-bacen]
+verify_jwt = false
