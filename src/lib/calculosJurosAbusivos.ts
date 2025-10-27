@@ -101,15 +101,21 @@ export function calcularTaxaJuros(
       return NaN;
     }
 
-    // Limitar taxa para evitar divergência (entre 0.1% e 50% a.m.)
-    taxa = Math.max(0.001, Math.min(0.5, novaTaxa));
-
     // Verificar convergência
     if (Math.abs(incremento) < epsilon) {
-      const resultado = taxa * 100;
+      const resultado = novaTaxa * 100;
+      
+      // Validar resultado final
+      if (resultado < 0) {
+        console.error('❌ calcularTaxaJuros: Taxa negativa não faz sentido', { resultado });
+        return NaN;
+      }
+      
       console.log('✅ Taxa calculada:', resultado.toFixed(4) + '% a.m. em', i + 1, 'iterações');
       return resultado;
     }
+
+    taxa = novaTaxa;
   }
 
   const resultado = taxa * 100;
