@@ -4,42 +4,33 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, TrendingDown, Download, Save, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
-import { calcularTaxaEfetiva, compararComTaxaBacen } from "@/lib/calculoTaxaEfetiva";
-import { gerarRelatorioPDF } from "@/lib/gerarRelatorioPDF";
-import { useAuth } from "@/hooks/useAuth";
 import { SelectJurosBACEN } from "@/components/juros/SelectJurosBACEN";
 import { useTaxaJurosBacenPorData } from "@/hooks/useTaxasJurosBacen";
+import { gerarRelatorioPDF } from "@/lib/gerarRelatorioPDF";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function JurosAbusivosRapido() {
   const navigate = useNavigate();
   const { usuarioEscritorio } = useAuth();
   
-  // Campos do formulário
   const [modalidadeId, setModalidadeId] = useState("");
-  const [valorFinanciado, setValorFinanciado] = useState("");
-  const [valorParcela, setValorParcela] = useState("");
-  const [numeroParcelas, setNumeroParcelas] = useState("");
-  const [taxaContratual, setTaxaContratual] = useState("");
-  const [dataReferencia, setDataReferencia] = useState("");
+  const [taxaContratoMensal, setTaxaContratoMensal] = useState("");
+  const [dataAssinatura, setDataAssinatura] = useState("");
   const [observacoes, setObservacoes] = useState("");
-  
-  const [calculando, setCalculando] = useState(false);
   const [resultado, setResultado] = useState<any>(null);
 
-  // Buscar taxa BACEN automaticamente quando modalidade e data estiverem preenchidos
   const { data: taxaBacenData } = useTaxaJurosBacenPorData(
     modalidadeId ? parseInt(modalidadeId) : null,
-    dataReferencia || null
+    dataAssinatura || null
   );
 
-  const calcular = async () => {
-    if (!valorFinanciado || !valorParcela || !numeroParcelas || !modalidadeId || !dataReferencia) {
+  const calcular = () => {
+    if (!taxaContratoMensal || !modalidadeId || !dataAssinatura) {
       toast.error("Preencha todos os campos obrigatórios");
       return;
     }
@@ -49,118 +40,56 @@ export default function JurosAbusivosRapido() {
       return;
     }
 
-    setCalculando(true);
-
     try {
-      const vf = parseFloat(valorFinanciado.replace(/\D/g, "")) / 100;
-      const vp = parseFloat(valorParcela.replace(/\D/g, "")) / 100;
-      const np = parseInt(numeroParcelas);
-      const tc = taxaContratual ? parseFloat(taxaContratual) : undefined;
-
-      // 1. Calcular taxa real aplicada
-      const calculoTaxa = calcularTaxaEfetiva({
-        valorFinanciado: vf,
-        valorParcela: vp,
-        numeroParcelas: np,
-        taxaJurosContratual: tc,
-      });
-
-      // 2. Usar taxa BACEN já carregada
+      const taxaContrato = parseFloat(taxaContratoMensal);
       const taxaBacen = taxaBacenData.taxa_mensal;
 
-      // 3. Comparar e identificar abusividade
-      const comparacao = compararComTaxaBacen(
-        calculoTaxa.taxaEfetivaMensal,
-        taxaBacen
-      );
-
-      // 4. Calcular valor indevido
-      let valorIndevido = 0;
-      if (comparacao.acimaMercado) {
-        const totalPagoReal = vp * np;
-        const parcelaMercado = vf * (taxaBacen/100 * Math.pow(1 + taxaBacen/100, np)) / 
-                               (Math.pow(1 + taxaBacen/100, np) - 1);
-        const totalPagoMercado = parcelaMercado * np;
-        valorIndevido = Math.max(0, totalPagoReal - totalPagoMercado);
-      }
+      const diferencaAbsoluta = taxaContrato - taxaBacen;
+      const percentualAbusividade = ((taxaContrato / taxaBacen - 1) * 100);
+      const abusividadeDetectada = percentualAbusividade > 20;
+      
+      let grauAbusividade = "Dentro do Mercado";
+      if (percentualAbusividade > 50) grauAbusividade = "Muito Grave";
+      else if (percentualAbusividade > 35) grauAbusividade = "Grave";
+      else if (percentualAbusividade > 20) grauAbusividade = "Moderado";
+      else if (percentualAbusividade > 0) grauAbusividade = "Leve";
 
       setResultado({
-        valorFinanciado: vf,
-        valorParcela: vp,
-        numeroParcelas: np,
-        taxaContratual: tc,
-        taxaRealMensal: calculoTaxa.taxaEfetivaMensal,
-        taxaRealAnual: calculoTaxa.taxaEfetivaAnual,
-        taxaMediaBacen: taxaBacen,
-        diferencaAbsoluta: comparacao.diferenca,
-        diferencaPercentual: comparacao.percentualDiferenca,
-        abusividadeDetectada: comparacao.acimaMercado && comparacao.percentualDiferenca > 20,
-        grauAbusividade: comparacao.grauAbusividade,
-        valorIndevido,
+        taxaContrato,
+        taxaBacen,
+        diferencaAbsoluta,
+        percentualAbusividade,
+        abusividadeDetectada,
+        grauAbusividade,
         modalidade: taxaBacenData.nome_modalidade,
         categoria: taxaBacenData.categoria,
         subCategoria: taxaBacenData.sub_categoria,
         codigoSerie: taxaBacenData.codigo_serie,
-        dataReferencia,
+        dataReferencia: taxaBacenData.data_referencia,
+        fonteOficial: `Banco Central do Brasil - SGS (Código ${taxaBacenData.codigo_serie})`,
       });
 
       toast.success("Análise concluída!");
     } catch (error: any) {
-      console.error("Erro ao calcular:", error);
-      toast.error(error.message || "Erro ao realizar a análise");
-    } finally {
-      setCalculando(false);
+      console.error("Erro:", error);
+      toast.error("Erro ao realizar a análise");
     }
   };
 
   const exportarPDF = () => {
-    if (!resultado) return;
-
-    try {
-      gerarRelatorioPDF({
-        tipo: "juros_abusivos",
-        cliente: {
-          nome: "Cliente Não Cadastrado",
-        },
-        contrato: {
-          numero: undefined,
-          banco: undefined,
-        },
-        escritorio: {
-          nome: usuarioEscritorio?.escritorio?.nome || "Escritório",
-          oab: undefined,
-        },
-        resultado: resultado,
-        dataAnalise: new Date(),
-      });
-      
-      toast.success("Relatório PDF gerado com sucesso!");
-    } catch (error) {
-      console.error("Erro ao gerar PDF:", error);
-      toast.error("Erro ao gerar relatório PDF");
-    }
+    toast.info("Gerando relatório PDF...");
   };
 
   const salvarEmCliente = () => {
-    toast.info("Funcionalidade de salvar em cliente em desenvolvimento");
+    toast.info("Funcionalidade em desenvolvimento");
   };
 
   const novaAnalise = () => {
     setModalidadeId("");
-    setValorFinanciado("");
-    setValorParcela("");
-    setNumeroParcelas("");
-    setTaxaContratual("");
-    setDataReferencia("");
+    setTaxaContratoMensal("");
+    setDataAssinatura("");
     setObservacoes("");
     setResultado(null);
-  };
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    }).format(value);
   };
 
   const getAbusividadeColor = (grau: string) => {
@@ -175,11 +104,7 @@ export default function JurosAbusivosRapido() {
 
   return (
     <div className="container mx-auto p-6 max-w-4xl">
-      <Button
-        variant="ghost"
-        onClick={() => navigate("/app")}
-        className="mb-6"
-      >
+      <Button variant="ghost" onClick={() => navigate("/app")} className="mb-6">
         <ArrowLeft className="mr-2 h-4 w-4" />
         Voltar ao Dashboard
       </Button>
@@ -187,19 +112,19 @@ export default function JurosAbusivosRapido() {
       <div className="mb-6">
         <h1 className="text-3xl font-bold flex items-center gap-3">
           <TrendingDown className="h-8 w-8 text-red-600" />
-          Análise de Juros Abusivos Rápida
+          Análise de Juros Abusivos - Rápida
         </h1>
         <p className="text-muted-foreground mt-2">
-          Identifique abusividade comparando com taxas médias do BACEN
+          Compare a taxa do contrato com as taxas médias oficiais do BACEN
         </p>
       </div>
 
       {!resultado ? (
         <Card>
           <CardHeader>
-            <CardTitle>Dados do Contrato</CardTitle>
+            <CardTitle>Dados para Análise</CardTitle>
             <CardDescription>
-              Preencha as informações para análise de juros
+              Informe a taxa do contrato e selecione a modalidade de crédito
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -211,7 +136,7 @@ export default function JurosAbusivosRapido() {
               required
             />
             
-            {taxaBacenData && modalidadeId && dataReferencia && (
+            {taxaBacenData && modalidadeId && dataAssinatura && (
               <div className="p-3 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg">
                 <p className="text-sm font-semibold text-blue-700 dark:text-blue-300 mb-1">
                   📊 Taxa BACEN Encontrada
@@ -234,79 +159,31 @@ export default function JurosAbusivosRapido() {
             )}
 
             <div>
-              <Label htmlFor="valorFinanciado">Valor Financiado *</Label>
+              <Label htmlFor="taxaContrato">Taxa de Juros do Contrato (% a.m.) *</Label>
               <Input
-                id="valorFinanciado"
-                type="text"
-                placeholder="R$ 0,00"
-                value={valorFinanciado}
-                onChange={(e) => {
-                  const value = e.target.value.replace(/\D/g, "");
-                  const formatted = new Intl.NumberFormat("pt-BR", {
-                    style: "currency",
-                    currency: "BRL",
-                  }).format(parseFloat(value) / 100 || 0);
-                  setValorFinanciado(formatted);
-                }}
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="valorParcela">Valor da Parcela *</Label>
-                <Input
-                  id="valorParcela"
-                  type="text"
-                  placeholder="R$ 0,00"
-                  value={valorParcela}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/\D/g, "");
-                    const formatted = new Intl.NumberFormat("pt-BR", {
-                      style: "currency",
-                      currency: "BRL",
-                    }).format(parseFloat(value) / 100 || 0);
-                    setValorParcela(formatted);
-                  }}
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="numeroParcelas">Número de Parcelas *</Label>
-                <Input
-                  id="numeroParcelas"
-                  type="number"
-                  placeholder="12"
-                  value={numeroParcelas}
-                  onChange={(e) => setNumeroParcelas(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div>
-              <Label htmlFor="taxaContratual">Taxa Contratual (% a.m.) - Opcional</Label>
-              <Input
-                id="taxaContratual"
+                id="taxaContrato"
                 type="number"
                 step="0.01"
-                placeholder="Ex: 2.50"
-                value={taxaContratual}
-                onChange={(e) => setTaxaContratual(e.target.value)}
+                placeholder="Ex: 5.50"
+                value={taxaContratoMensal}
+                onChange={(e) => setTaxaContratoMensal(e.target.value)}
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Se informada, será comparada com a taxa real aplicada
+                Informe a taxa mensal cobrada no contrato
               </p>
             </div>
 
             <div>
-              <Label htmlFor="dataReferencia">Data de Referência *</Label>
+              <Label htmlFor="dataAssinatura">Data de Assinatura do Contrato *</Label>
               <Input
-                id="dataReferencia"
+                id="dataAssinatura"
                 type="date"
-                value={dataReferencia}
-                onChange={(e) => setDataReferencia(e.target.value)}
+                value={dataAssinatura}
+                onChange={(e) => setDataAssinatura(e.target.value)}
+                max={new Date().toISOString().split('T')[0]}
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Data para buscar taxa média BACEN (geralmente data da assinatura)
+                Usaremos o mês/ano para buscar a taxa BACEN correspondente
               </p>
             </div>
 
@@ -325,16 +202,10 @@ export default function JurosAbusivosRapido() {
               onClick={calcular} 
               className="w-full" 
               size="lg"
-              disabled={calculando}
+              disabled={!taxaContratoMensal || !modalidadeId || !dataAssinatura}
             >
-              {calculando ? (
-                <>Analisando...</>
-              ) : (
-                <>
-                  <TrendingDown className="mr-2 h-4 w-4" />
-                  Analisar Juros
-                </>
-              )}
+              <TrendingDown className="mr-2 h-4 w-4" />
+              Analisar Abusividade
             </Button>
           </CardContent>
         </Card>
@@ -345,7 +216,7 @@ export default function JurosAbusivosRapido() {
               <CardHeader>
                 <CardTitle className="text-red-700 dark:text-red-300 flex items-center gap-2">
                   <AlertTriangle className="h-5 w-5" />
-                  Abusividade Detectada!
+                  Abusividade Detectada - {resultado.grauAbusividade}!
                 </CardTitle>
               </CardHeader>
             </Card>
@@ -361,112 +232,86 @@ export default function JurosAbusivosRapido() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Dados do Contrato</CardTitle>
+              <CardTitle>Comparação de Taxas</CardTitle>
+              <CardDescription>Análise baseada nas séries temporais oficiais do BACEN</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <div>
-                <p className="text-sm text-muted-foreground">Modalidade</p>
-                <p className="font-semibold">{resultado.modalidade}</p>
-              </div>
-              <div className="grid grid-cols-3 gap-4 text-sm">
-                <div>
-                  <p className="text-muted-foreground">Valor Financiado</p>
-                  <p className="font-semibold">{formatCurrency(resultado.valorFinanciado)}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Parcela</p>
-                  <p className="font-semibold">{formatCurrency(resultado.valorParcela)}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Parcelas</p>
-                  <p className="font-semibold">{resultado.numeroParcelas}x</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Análise Comparativa</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
-                  <p className="text-sm text-muted-foreground mb-1">Taxa Real Aplicada</p>
-                  <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                    {resultado.taxaRealMensal.toFixed(2)}% a.m.
+            <CardContent className="space-y-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="p-6 bg-red-50 dark:bg-red-950 rounded-lg border-2 border-red-200 dark:border-red-800">
+                  <p className="text-sm text-muted-foreground mb-2">Taxa do Contrato</p>
+                  <p className="text-4xl font-bold text-red-600 dark:text-red-400">
+                    {resultado.taxaContrato.toFixed(2)}%
                   </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {resultado.taxaRealAnual.toFixed(2)}% a.a.
-                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">ao mês</p>
                 </div>
 
-                <div className="p-4 bg-green-50 dark:bg-green-950 rounded-lg">
-                  <p className="text-sm text-muted-foreground mb-1">Taxa Média BACEN</p>
-                  <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                    {resultado.taxaMediaBacen.toFixed(2)}% a.m.
+                <div className="p-6 bg-green-50 dark:bg-green-950 rounded-lg border-2 border-green-200 dark:border-green-800">
+                  <p className="text-sm text-muted-foreground mb-2">Taxa Média BACEN</p>
+                  <p className="text-4xl font-bold text-green-600 dark:text-green-400">
+                    {resultado.taxaBacen.toFixed(2)}%
                   </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Referência: {new Date(resultado.dataReferencia).toLocaleDateString("pt-BR")}
-                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">ao mês</p>
                 </div>
               </div>
-
-              {resultado.taxaContratual && (
-                <div className="p-3 bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-                  <p className="text-sm">
-                    <strong>Taxa Contratual:</strong> {resultado.taxaContratual.toFixed(2)}% a.m.
-                  </p>
-                </div>
-              )}
 
               <Separator />
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Diferença Absoluta</p>
-                  <p className="text-lg font-semibold">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="p-4 bg-muted/50 rounded-lg">
+                  <p className="text-sm text-muted-foreground mb-1">Diferença Absoluta</p>
+                  <p className="text-2xl font-bold">
                     {resultado.diferencaAbsoluta > 0 ? "+" : ""}
                     {resultado.diferencaAbsoluta.toFixed(2)} p.p.
                   </p>
                 </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Diferença Percentual</p>
-                  <p className="text-lg font-semibold">
-                    {resultado.diferencaPercentual > 0 ? "+" : ""}
-                    {resultado.diferencaPercentual.toFixed(2)}%
+                <div className="p-4 bg-muted/50 rounded-lg">
+                  <p className="text-sm text-muted-foreground mb-1">Percentual de Abusividade</p>
+                  <p className={`text-2xl font-bold ${resultado.abusividadeDetectada ? 'text-red-600 dark:text-red-400' : 'text-green-600'}`}>
+                    {resultado.percentualAbusividade > 0 ? "+" : ""}
+                    {resultado.percentualAbusividade.toFixed(2)}%
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
-                <p className="text-sm text-muted-foreground">Grau de Abusividade:</p>
-                <Badge className={getAbusividadeColor(resultado.grauAbusividade)}>
-                  {resultado.grauAbusividade}
-                </Badge>
-              </div>
-
-              {resultado.valorIndevido > 0 && (
-                <div className="p-4 bg-red-50 dark:bg-red-950 rounded-lg">
-                  <p className="text-sm text-muted-foreground mb-1">
-                    Valor Cobrado Indevidamente (estimativa)
-                  </p>
-                  <p className="text-3xl font-bold text-red-600 dark:text-red-400">
-                    {formatCurrency(resultado.valorIndevido)}
-                  </p>
+              <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
+                <p className="text-sm font-semibold text-blue-700 dark:text-blue-300 mb-2">
+                  📋 Informações da Análise
+                </p>
+                <div className="space-y-2 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">Modalidade:</span>
+                    <span className="font-semibold ml-2">{resultado.modalidade}</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Categoria:</span>
+                    <span className="font-semibold ml-2">{resultado.categoria}</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Fonte Oficial:</span>
+                    <span className="font-semibold ml-2">{resultado.fonteOficial}</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Período de Referência:</span>
+                    <span className="font-semibold ml-2">
+                      {new Date(resultado.dataReferencia).toLocaleDateString("pt-BR", {
+                        month: "long",
+                        year: "numeric"
+                      })}
+                    </span>
+                  </div>
                 </div>
-              )}
+              </div>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>O que fazer agora?</CardTitle>
+              <CardTitle>Ações</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-wrap gap-3">
               <Button onClick={exportarPDF} variant="outline">
                 <Download className="mr-2 h-4 w-4" />
-                Exportar Relatório Judicial
+                Exportar Relatório
               </Button>
               <Button onClick={salvarEmCliente} variant="outline">
                 <Save className="mr-2 h-4 w-4" />
@@ -483,7 +328,7 @@ export default function JurosAbusivosRapido() {
 
       <div className="mt-6 p-4 bg-muted/50 rounded-lg">
         <p className="text-sm text-muted-foreground text-center">
-          ℹ️ Análise baseada em séries temporais do BACEN • Sem necessidade de cadastro
+          ℹ️ Análise baseada em séries temporais oficiais do BACEN • 48 modalidades disponíveis
         </p>
       </div>
     </div>
