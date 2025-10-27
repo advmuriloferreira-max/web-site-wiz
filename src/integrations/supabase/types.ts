@@ -2035,6 +2035,39 @@ export type Database = {
           },
         ]
       }
+      taxas_juros_bacen: {
+        Row: {
+          categoria: string
+          codigo_serie: number
+          created_at: string | null
+          data_referencia: string
+          id: number
+          nome_modalidade: string
+          sub_categoria: string
+          taxa_mensal: number
+        }
+        Insert: {
+          categoria: string
+          codigo_serie: number
+          created_at?: string | null
+          data_referencia: string
+          id?: number
+          nome_modalidade: string
+          sub_categoria: string
+          taxa_mensal: number
+        }
+        Update: {
+          categoria?: string
+          codigo_serie?: number
+          created_at?: string | null
+          data_referencia?: string
+          id?: number
+          nome_modalidade?: string
+          sub_categoria?: string
+          taxa_mensal?: number
+        }
+        Relationships: []
+      }
       tipos_operacao_bcb: {
         Row: {
           carteira: string
