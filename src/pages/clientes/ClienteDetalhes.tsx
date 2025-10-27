@@ -345,9 +345,14 @@ export default function ClienteDetalhes() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              Contratos ({contratos?.length || 0})
+            <div>
+              <div className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Análise para Gestão de Passivo Bancário
+              </div>
+              <p className="text-sm text-muted-foreground mt-1">
+                Contratos do cliente ({contratos?.length || 0})
+              </p>
             </div>
             <Button onClick={() => navigate(`/app/contratos/novo?cliente_id=${id}`)}>
               Novo Contrato
