@@ -29,7 +29,7 @@ export function calcularTaxaJuros(
   parcela: number,
   prazo: number
 ): number {
-  // Validações de entrada
+  // Validações básicas de entrada
   if (!valorFinanciado || !parcela || !prazo) {
     console.error('❌ calcularTaxaJuros: Parâmetros inválidos', { valorFinanciado, parcela, prazo });
     return NaN;
@@ -50,46 +50,28 @@ export function calcularTaxaJuros(
     return NaN;
   }
 
-  // Validação de sanidade: parcela deve ser maior que valor financiado dividido por prazo (amortização mínima)
+  console.log('🔢 Calculando taxa com Newton-Raphson:', { valorFinanciado: vf, parcela: pmt, prazo: n });
+
+  // Validação mínima: parcela deve ser maior que amortização pura (sem juros)
   const parcelaMinima = vf / n;
-  if (pmt < parcelaMinima * 0.5) {
-    console.error('❌ calcularTaxaJuros: Parcela muito baixa (menor que metade da amortização mínima)', { 
+  if (pmt < parcelaMinima * 0.9) {
+    console.error('❌ calcularTaxaJuros: Parcela menor que amortização mínima', { 
       parcela: pmt, 
-      parcelaMinima: parcelaMinima * 0.5
+      amortizacaoMinima: parcelaMinima 
     });
     return NaN;
   }
 
-  // Validação de sanidade: parcela não pode ser absurdamente alta (limite generoso para taxas altas)
-  const totalPago = pmt * n;
-  const totalMaximoRazoavel = vf * 10; // Total pago não pode ser mais de 10x o valor financiado
-  if (totalPago > totalMaximoRazoavel) {
-    console.error('❌ calcularTaxaJuros: Total pago muito alto (parece incorreto)', { 
-      totalPago, 
-      totalMaximoRazoavel,
-      valorFinanciado: vf
-    });
-    return NaN;
-  }
-
-  let taxa = 0.01; // chute inicial de 1% a.m.
-  const epsilon = 0.0000001;
-  const maxIteracoes = 100;
-  const taxaMinima = -0.5; // Taxa mínima: -50% (impossível financeiramente)
-  const taxaMaxima = 2.0; // Taxa máxima: 200% a.m. (impossível financeiramente)
+  let taxa = 0.05; // chute inicial de 5% a.m. (mais realista para juros altos)
+  const epsilon = 0.00001;
+  const maxIteracoes = 200;
 
   for (let i = 0; i < maxIteracoes; i++) {
-    // Limitar taxa dentro de valores razoáveis
-    if (taxa < taxaMinima || taxa > taxaMaxima) {
-      console.error('❌ calcularTaxaJuros: Taxa fora dos limites razoáveis', { taxa, taxaMinima, taxaMaxima });
-      return NaN;
-    }
-
     const potencia = Math.pow(1 + taxa, n);
     
-    // Verificar se potencia é válida
-    if (isNaN(potencia) || !isFinite(potencia)) {
-      console.error('❌ calcularTaxaJuros: Potência inválida', { taxa, n, potencia });
+    // Verificar overflow
+    if (!isFinite(potencia)) {
+      console.error('❌ calcularTaxaJuros: Overflow na potência', { taxa, n });
       return NaN;
     }
 
@@ -97,7 +79,7 @@ export function calcularTaxaJuros(
     
     // Verificar divisão por zero
     if (Math.abs(denominador) < 0.0000001) {
-      console.error('❌ calcularTaxaJuros: Denominador muito próximo de zero', { denominador });
+      console.error('❌ calcularTaxaJuros: Denominador próximo de zero', { denominador });
       return NaN;
     }
 
@@ -105,8 +87,8 @@ export function calcularTaxaJuros(
     const df = vf * ((denominador - taxa * n * potencia) / Math.pow(denominador, 2));
 
     // Verificar se derivada é válida
-    if (isNaN(df) || Math.abs(df) < 0.0000001 || !isFinite(df)) {
-      console.error('❌ calcularTaxaJuros: Derivada inválida ou muito pequena', { df });
+    if (!isFinite(df) || Math.abs(df) < 0.0000001) {
+      console.error('❌ calcularTaxaJuros: Derivada inválida', { df });
       return NaN;
     }
 
@@ -114,23 +96,24 @@ export function calcularTaxaJuros(
     const novaTaxa = taxa - incremento;
 
     // Verificar se nova taxa é válida
-    if (isNaN(novaTaxa) || !isFinite(novaTaxa)) {
-      console.error('❌ calcularTaxaJuros: Nova taxa inválida', { novaTaxa, incremento });
+    if (!isFinite(novaTaxa)) {
+      console.error('❌ calcularTaxaJuros: Nova taxa inválida', { novaTaxa });
       return NaN;
     }
 
+    // Limitar taxa para evitar divergência (entre -10% e 50% a.m.)
+    taxa = Math.max(-0.1, Math.min(0.5, novaTaxa));
+
     // Verificar convergência
     if (Math.abs(incremento) < epsilon) {
-      const resultado = novaTaxa * 100;
-      console.log('✅ Taxa calculada com sucesso:', resultado.toFixed(4) + '% a.m. em', i + 1, 'iterações');
-      return resultado; // retorna em percentual
+      const resultado = taxa * 100;
+      console.log('✅ Taxa calculada:', resultado.toFixed(4) + '% a.m. em', i + 1, 'iterações');
+      return resultado;
     }
-
-    taxa = novaTaxa;
   }
 
   const resultado = taxa * 100;
-  console.warn('⚠️ Método não convergiu em', maxIteracoes, 'iterações, retornando última iteração:', resultado.toFixed(4) + '% a.m.');
+  console.warn('⚠️ Não convergiu em', maxIteracoes, 'iterações. Taxa:', resultado.toFixed(4) + '% a.m.');
   return resultado;
 }
 
