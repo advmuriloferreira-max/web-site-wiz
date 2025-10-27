@@ -234,94 +234,108 @@ export default function ClienteDetalhes() {
         </CardContent>
       </Card>
 
-      {/* Card de Superendividamento */}
-      <Card className="border-2 border-purple-200 dark:border-purple-800">
+      {/* Seção de Superendividamento */}
+      <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Shield className="h-5 w-5 text-purple-600" />
+            <PiggyBank className="h-6 w-6 text-primary" />
             Superendividamento
           </CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Duas análises independentes para demonstrar superendividamento e criar plano de repactuação.
+          </p>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            
-            {/* Análise Socioeconômica */}
-            <div className="flex items-center justify-between p-4 bg-purple-50 dark:bg-purple-950 rounded-lg border border-purple-200 dark:border-purple-800">
-              <div className="flex-1">
-                <p className="font-medium text-purple-900 dark:text-purple-100">
-                  Análise Socioeconômica
-                </p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Renda, despesas e capacidade de pagamento
-                </p>
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          
+          {/* Card 1: Análise Socioeconômica */}
+          <Card className="border-2 hover:border-primary/50 transition-colors">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg">1. Análise Socioeconômica</CardTitle>
                 {analisesSuperendividamento && analisesSuperendividamento.length > 0 && (
-                  <p className="text-xs text-purple-600 dark:text-purple-400 mt-2">
-                    Última análise: {format(new Date(analisesSuperendividamento[0].created_at), "dd/MM/yyyy", { locale: ptBR })}
-                  </p>
+                  <Badge variant="default" className="bg-green-600">Feita</Badge>
                 )}
               </div>
-              {analisesSuperendividamento && analisesSuperendividamento.length > 0 ? (
-                <div className="flex items-center gap-2">
-                  <Badge variant="default" className="bg-green-600">
-                    ✓ Realizada
-                  </Badge>
-                  <Button 
-                    size="sm" 
-                    onClick={() => navigate(`/app/clientes/${id}/superendividamento`)}
-                  >
-                    Ver Análise
-                  </Button>
+              <p className="text-xs text-muted-foreground">
+                Demonstrativo do Mínimo Existencial
+              </p>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                Raio-X completo da situação financeira: renda, despesas e dívidas.
+              </p>
+              
+              {analisesSuperendividamento && analisesSuperendividamento.length > 0 && (
+                <div className="mb-4 p-3 bg-muted rounded-lg space-y-1">
+                  <p className="text-xs text-muted-foreground">Última análise:</p>
+                  <p className="text-sm font-semibold">
+                    {format(new Date(analisesSuperendividamento[0].created_at), "dd/MM/yyyy", { locale: ptBR })}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Renda: {formatCurrency(analisesSuperendividamento[0].renda_liquida)}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Comprometimento: {analisesSuperendividamento[0].percentual_comprometimento}%
+                  </p>
                 </div>
-              ) : (
-                <Button 
-                  size="sm" 
-                  className="bg-purple-600 hover:bg-purple-700"
-                  onClick={() => navigate(`/app/clientes/${id}/superendividamento`)}
-                >
-                  Analisar Agora
-                </Button>
               )}
-            </div>
+              
+              <Button 
+                onClick={() => navigate(`/app/clientes/${id}/analise-socioeconomica`)}
+                className="w-full"
+              >
+                {analisesSuperendividamento && analisesSuperendividamento.length > 0 
+                  ? "Ver/Editar Análise" 
+                  : "Fazer Análise"}
+              </Button>
+            </CardContent>
+          </Card>
 
-            {/* Plano de Pagamento */}
-            <div className="flex items-center justify-between p-4 bg-purple-50 dark:bg-purple-950 rounded-lg border border-purple-200 dark:border-purple-800">
-              <div className="flex-1">
-                <p className="font-medium text-purple-900 dark:text-purple-100">
-                  Plano de Pagamento
-                </p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Repactuação de dívidas e cronograma
-                </p>
+          {/* Card 2: Plano de Pagamento */}
+          <Card className="border-2 hover:border-primary/50 transition-colors">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg">2. Plano de Pagamento</CardTitle>
                 {planosPagamento && planosPagamento.length > 0 && (
-                  <p className="text-xs text-purple-600 dark:text-purple-400 mt-2">
-                    {planosPagamento.length} plano(s) criado(s)
-                  </p>
+                  <Badge variant="default" className="bg-green-600">Criado</Badge>
                 )}
               </div>
-              {planosPagamento && planosPagamento.length > 0 ? (
-                <div className="flex items-center gap-2">
-                  <Badge variant="default" className="bg-green-600">
-                    ✓ Criado
-                  </Badge>
-                  <Button 
-                    size="sm" 
-                    onClick={() => navigate(`/app/clientes/${id}/plano-pagamento`)}
-                  >
-                    Ver Plano
-                  </Button>
+              <p className="text-xs text-muted-foreground">
+                Repactuação de Dívidas
+              </p>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                Crie um plano de repactuação com base na capacidade de pagamento.
+              </p>
+              
+              {planosPagamento && planosPagamento.length > 0 && (
+                <div className="mb-4 p-3 bg-muted rounded-lg space-y-1">
+                  <p className="text-xs text-muted-foreground">Último plano:</p>
+                  <p className="text-sm font-semibold">
+                    {format(new Date(planosPagamento[0].created_at), "dd/MM/yyyy", { locale: ptBR })}
+                  </p>
                 </div>
-              ) : (
-                <Button 
-                  size="sm" 
-                  className="bg-purple-600 hover:bg-purple-700"
-                  onClick={() => navigate(`/app/clientes/${id}/plano-pagamento`)}
-                >
-                  Criar Plano
-                </Button>
               )}
-            </div>
-
-          </div>
+              
+              <Button 
+                onClick={() => navigate(`/app/clientes/${id}/superendividamento`)}
+                className="w-full"
+                disabled={!analisesSuperendividamento || analisesSuperendividamento.length === 0}
+              >
+                {planosPagamento && planosPagamento.length > 0 
+                  ? "Ver/Editar Plano" 
+                  : "Criar Plano"}
+              </Button>
+              
+              {(!analisesSuperendividamento || analisesSuperendividamento.length === 0) && (
+                <p className="text-xs text-destructive mt-2 text-center">
+                  Faça a Análise Socioeconômica primeiro
+                </p>
+              )}
+            </CardContent>
+          </Card>
+          
         </CardContent>
       </Card>
 
