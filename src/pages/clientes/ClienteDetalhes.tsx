@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, User, Mail, Phone, MapPin, FileText, TrendingDown, Calculator, PiggyBank, MoreVertical, Shield } from "lucide-react";
+import { ArrowLeft, User, Mail, Phone, MapPin, FileText, TrendingDown, Calculator, PiggyBank, MoreVertical, Shield, Scale } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -57,7 +57,9 @@ export default function ClienteDetalhes() {
           analises_juros_abusivos(
             id,
             abusividade_detectada,
-            diferenca_percentual
+            diferenca_percentual,
+            taxa_contratual,
+            taxa_media_bacen
           )
         `)
         .eq("cliente_id", id)
@@ -489,6 +491,120 @@ export default function ClienteDetalhes() {
               <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <p className="text-muted-foreground mb-4">Nenhum contrato cadastrado</p>
               <Button onClick={() => navigate(`/app/contratos/novo?cliente_id=${id}`)}>
+                Cadastrar Primeiro Contrato
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Análise de Abusividade de Juros / Ações Revisionais */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <div>
+              <div className="flex items-center gap-2">
+                <Scale className="h-5 w-5" />
+                Análise de Abusividade de Juros / Ações Revisionais
+              </div>
+              <p className="text-sm text-muted-foreground font-normal mt-1">
+                Contratos do cliente ({contratos?.length || 0})
+              </p>
+            </div>
+            <Button 
+              onClick={() => navigate(`/app/contratos/novo?cliente_id=${id}`)}
+              variant="outline"
+            >
+              Novo Contrato
+            </Button>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {contratos && contratos.length > 0 ? (
+            <div className="space-y-4">
+              {contratos.map((contrato) => {
+                const analiseJuros = contrato.analises_juros_abusivos?.[0];
+                
+                return (
+                  <Card key={contrato.id} className="border-2">
+                    <CardContent className="pt-6">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <h3 className="font-semibold">{contrato.numero_contrato || "S/N"}</h3>
+                            {analiseJuros && (
+                              <Badge 
+                                variant={analiseJuros.abusividade_detectada ? "destructive" : "default"}
+                                className={analiseJuros.abusividade_detectada ? "" : "bg-green-600"}
+                              >
+                                {analiseJuros.abusividade_detectada ? "Abusividade Detectada" : "Sem Abusividade"}
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
+                            <p>Instituição: {contrato.bancos?.nome || "N/A"}</p>
+                            <p>Tipo: {contrato.tipo_operacao || "N/A"}</p>
+                            {analiseJuros && (
+                              <>
+                                <p>Taxa do Contrato: {analiseJuros.taxa_contratual}% a.m.</p>
+                                <p>Taxa Média BACEN: {analiseJuros.taxa_media_bacen}% a.m.</p>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex gap-2 ml-4">
+                          {analiseJuros ? (
+                            <>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => navigate(`/app/contratos/${contrato.id}/juros`)}
+                              >
+                                Ver Análise
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => navigate(`/app/contratos/${contrato.id}`)}
+                              >
+                                Detalhes
+                              </Button>
+                            </>
+                          ) : (
+                            <>
+                              <Button
+                                variant="default"
+                                size="sm"
+                                onClick={() => navigate(`/app/contratos/${contrato.id}/juros`)}
+                              >
+                                Analisar Juros
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => navigate(`/app/contratos/${contrato.id}`)}
+                              >
+                                Detalhes
+                              </Button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground mb-4">
+                Nenhum contrato cadastrado para análise de juros
+              </p>
+              <Button 
+                onClick={() => navigate(`/app/contratos/novo?cliente_id=${id}`)}
+                variant="outline"
+              >
                 Cadastrar Primeiro Contrato
               </Button>
             </div>
