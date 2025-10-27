@@ -13,7 +13,27 @@ export const useContratosByCliente = (clienteId: string | null) => {
         .select(`
           *,
           clientes:clientes (nome, cpf_cnpj),
-          bancos:bancos_provisao (nome)
+          bancos:bancos_provisao (nome),
+          analises_provisionamento (
+            id,
+            valor_divida,
+            dias_atraso,
+            meses_atraso,
+            classificacao_risco,
+            percentual_provisao,
+            valor_provisao,
+            data_calculo,
+            created_at
+          ),
+          analises_juros_abusivos (
+            id,
+            taxa_contratual,
+            taxa_media_bacen,
+            diferenca_percentual,
+            abusividade_detectada,
+            data_analise,
+            created_at
+          )
         `)
         .eq("cliente_id", clienteId)
         .order("created_at", { ascending: false });
@@ -22,7 +42,51 @@ export const useContratosByCliente = (clienteId: string | null) => {
         throw new Error(`Erro ao buscar contratos do cliente: ${error.message}`);
       }
 
-      return data as Contrato[];
+      // Mapear dados das análises mais recentes para cada contrato
+      const contratosComAnalises = data.map((contrato: any) => {
+        // Pegar análise de Passivo mais recente
+        const analisesPassivo = contrato.analises_provisionamento || [];
+        const analisePassivo = analisesPassivo.length > 0
+          ? analisesPassivo.sort((a: any, b: any) => 
+              new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+            )[0]
+          : null;
+
+        // Pegar análise de Juros mais recente
+        const analisesJuros = contrato.analises_juros_abusivos || [];
+        const analiseJuros = analisesJuros.length > 0
+          ? analisesJuros.sort((a: any, b: any) => 
+              new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+            )[0]
+          : null;
+
+        return {
+          ...contrato,
+          // Dados de Gestão de Passivo Bancário
+          valor_divida: analisePassivo?.valor_divida || contrato.valor_contrato || contrato.valor_financiado,
+          dias_atraso: analisePassivo?.dias_atraso,
+          meses_atraso: analisePassivo?.meses_atraso,
+          classificacao: analisePassivo?.classificacao_risco,
+          percentual_provisao: analisePassivo?.percentual_provisao,
+          valor_provisao: analisePassivo?.valor_provisao,
+          estagio_risco: analisePassivo?.classificacao_risco?.includes('Estágio 1') ? 1
+                       : analisePassivo?.classificacao_risco?.includes('Estágio 2') ? 2
+                       : analisePassivo?.classificacao_risco?.includes('Estágio 3') ? 3
+                       : null,
+          // Dados de Análise de Abusividades
+          taxa_contratual: analiseJuros?.taxa_contratual,
+          taxa_media_bacen: analiseJuros?.taxa_media_bacen,
+          diferenca_percentual: analiseJuros?.diferenca_percentual,
+          abusividade_detectada: analiseJuros?.abusividade_detectada,
+          // Indicadores de análises realizadas
+          temAnalisePassivo: !!analisePassivo,
+          temAnaliseJuros: !!analiseJuros,
+          // Situação do contrato (baseada no status ou análise)
+          situacao: contrato.status || "Em análise",
+        };
+      });
+
+      return contratosComAnalises as Contrato[];
     },
     enabled: !!clienteId,
   });
