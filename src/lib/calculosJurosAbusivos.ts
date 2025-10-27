@@ -277,3 +277,154 @@ export function analisarAbusividade(
     excedeLimite,
   };
 }
+
+/**
+ * Análise comparativa entre taxa real e contratual
+ */
+export interface AnaliseDiscrepancia {
+  taxaReal: number;
+  taxaContratual: number;
+  diferencaTaxas: number;
+  percentualDiferenca: number;
+  temDiscrepancia: boolean;
+}
+
+export function analisarDiscrepanciaTaxas(
+  taxaReal: number,
+  taxaContratual: number
+): AnaliseDiscrepancia {
+  const diferencaTaxas = taxaReal - taxaContratual;
+  const percentualDiferenca = ((taxaReal / taxaContratual - 1) * 100);
+  const temDiscrepancia = Math.abs(diferencaTaxas) > 0.1; // diferença > 0,1%
+
+  return {
+    taxaReal,
+    taxaContratual,
+    diferencaTaxas,
+    percentualDiferenca,
+    temDiscrepancia,
+  };
+}
+
+/**
+ * Projeções recalculadas com taxa BACEN
+ */
+export interface ProjecoesTaxaBacen {
+  parcelaCorreta: number;
+  valorFinanciadoCorreto: number;
+  totalCorreto: number;
+  diferencaParcela: number;
+  diferencaValorFinanciado: number;
+  diferencaTotalFinanciamento: number;
+  percentualDiferencaParcela: number;
+  percentualDiferencaFinanciado: number;
+}
+
+export function calcularProjecoesBacen(
+  valorFinanciado: number,
+  parcela: number,
+  prazo: number,
+  taxaReal: number,
+  taxaBacen: number
+): ProjecoesTaxaBacen {
+  // Recalcular com taxa BACEN
+  const parcelaCorreta = calcularValorParcela(valorFinanciado, taxaBacen, prazo);
+  const valorFinanciadoCorreto = calcularValorFinanciado(parcela, taxaBacen, prazo);
+  
+  // Totais
+  const totalContratual = parcela * prazo;
+  const totalCorreto = parcelaCorreta * prazo;
+  
+  // Diferenças
+  const diferencaParcela = parcela - parcelaCorreta;
+  const diferencaValorFinanciado = valorFinanciado - valorFinanciadoCorreto;
+  const diferencaTotalFinanciamento = totalContratual - totalCorreto;
+  
+  const percentualDiferencaParcela = (diferencaParcela / parcelaCorreta) * 100;
+  const percentualDiferencaFinanciado = (diferencaValorFinanciado / valorFinanciadoCorreto) * 100;
+
+  return {
+    parcelaCorreta,
+    valorFinanciadoCorreto,
+    totalCorreto,
+    diferencaParcela,
+    diferencaValorFinanciado,
+    diferencaTotalFinanciamento,
+    percentualDiferencaParcela,
+    percentualDiferencaFinanciado,
+  };
+}
+
+/**
+ * Cálculo detalhado de prejuízo do cliente
+ */
+export interface PrejuizoDetalhado {
+  totalPagoIndevido: number;
+  economiaFutura: number;
+  economiaTotal: number;
+  devolucaoDobro: number; // CDC Art. 42
+  percentualPrejuizo: number;
+}
+
+export function calcularPrejuizoDetalhado(
+  diferencaParcela: number,
+  parcelasPagas: number,
+  parcelasRestantes: number,
+  totalContratual: number
+): PrejuizoDetalhado {
+  const totalPagoIndevido = diferencaParcela * parcelasPagas;
+  const economiaFutura = diferencaParcela * parcelasRestantes;
+  const economiaTotal = totalPagoIndevido + economiaFutura;
+  const devolucaoDobro = totalPagoIndevido * 2; // CDC Art. 42, parágrafo único
+  const percentualPrejuizo = (economiaTotal / totalContratual) * 100;
+
+  return {
+    totalPagoIndevido,
+    economiaFutura,
+    economiaTotal,
+    devolucaoDobro,
+    percentualPrejuizo,
+  };
+}
+
+/**
+ * Análise de saldo devedor
+ */
+export interface AnaliseSaldoDevedor {
+  saldoDevedorAtual: number;
+  saldoDevedorCorreto: number;
+  diferencaSaldo: number;
+  percentualDiferencaSaldo: number;
+  economiaPotencial: number;
+}
+
+export function analisarSaldoDevedor(
+  valorFinanciado: number,
+  taxaMensal: number,
+  taxaBacen: number,
+  numeroParcelas: number,
+  parcelasPagas: number,
+  saldoDevedorAtual: number
+): AnaliseSaldoDevedor {
+  // Calcular saldo devedor correto com taxa BACEN
+  const parcelaCorreta = calcularValorParcela(valorFinanciado, taxaBacen, numeroParcelas);
+  const tabelaCorreta = gerarTabelaPrice(valorFinanciado, taxaBacen, numeroParcelas);
+  
+  const saldoDevedorCorreto = parcelasPagas > 0 && parcelasPagas <= tabelaCorreta.length
+    ? tabelaCorreta[parcelasPagas - 1].saldoDevedor
+    : valorFinanciado;
+  
+  const diferencaSaldo = saldoDevedorAtual - saldoDevedorCorreto;
+  const percentualDiferencaSaldo = saldoDevedorCorreto > 0 
+    ? (diferencaSaldo / saldoDevedorCorreto) * 100 
+    : 0;
+  const economiaPotencial = diferencaSaldo > 0 ? diferencaSaldo : 0;
+
+  return {
+    saldoDevedorAtual,
+    saldoDevedorCorreto,
+    diferencaSaldo,
+    percentualDiferencaSaldo,
+    economiaPotencial,
+  };
+}

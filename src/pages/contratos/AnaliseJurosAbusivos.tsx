@@ -22,10 +22,18 @@ import {
   analisarAbusividade,
   calcularPrejuizo,
   gerarTabelaPrice,
+  analisarDiscrepanciaTaxas,
+  calcularProjecoesBacen,
+  calcularPrejuizoDetalhado,
+  analisarSaldoDevedor,
   type DadosContratoJuros,
   type ResultadoCalculo,
   type AnaliseAbusividade,
   type CalculoPrejuizo,
+  type AnaliseDiscrepancia,
+  type ProjecoesTaxaBacen,
+  type PrejuizoDetalhado,
+  type AnaliseSaldoDevedor,
 } from "@/lib/calculosJurosAbusivos";
 
 export default function AnaliseJurosAbusivos() {
@@ -57,6 +65,10 @@ export default function AnaliseJurosAbusivos() {
   const [dadosCompletos, setDadosCompletos] = useState<ResultadoCalculo | null>(null);
   const [analiseAbusividade, setAnaliseAbusividade] = useState<AnaliseAbusividade | null>(null);
   const [analisePrejuizo, setAnalisePrejuizo] = useState<CalculoPrejuizo | null>(null);
+  const [analiseDiscrepancia, setAnaliseDiscrepancia] = useState<AnaliseDiscrepancia | null>(null);
+  const [projecoesBacen, setProjecoesBacen] = useState<ProjecoesTaxaBacen | null>(null);
+  const [prejuizoDetalhado, setPrejuizoDetalhado] = useState<PrejuizoDetalhado | null>(null);
+  const [analiseSaldo, setAnaliseSaldo] = useState<AnaliseSaldoDevedor | null>(null);
   const [tabelaPrice, setTabelaPrice] = useState<any[]>([]);
 
   const { data: taxaBacenData } = useTaxaJurosBacenPorData(
@@ -117,19 +129,63 @@ export default function AnaliseJurosAbusivos() {
       const analise = analisarAbusividade(resultado.taxaMensal, taxaBacen);
       setAnaliseAbusividade(analise);
 
-      // 3. Cálculo de prejuízo (se tiver parcelas pagas)
+      // 3. Análise de discrepância (taxa real vs contratual)
+      if (taxaPrevistaContrato && parseFloat(taxaPrevistaContrato) > 0) {
+        const discrepancia = analisarDiscrepanciaTaxas(
+          resultado.taxaMensal,
+          parseFloat(taxaPrevistaContrato)
+        );
+        setAnaliseDiscrepancia(discrepancia);
+      }
+
+      // 4. Projeções com taxa BACEN
+      const projecoes = calcularProjecoesBacen(
+        resultado.valorFinanciado,
+        resultado.valorParcela,
+        resultado.numeroParcelas,
+        resultado.taxaMensal,
+        taxaBacen
+      );
+      setProjecoesBacen(projecoes);
+
+      // 5. Cálculo de prejuízo detalhado (se tiver parcelas pagas)
       if (parcelasJaPagas && parseFloat(parcelasJaPagas) > 0) {
+        const parcelasPagasNum = parseFloat(parcelasJaPagas);
+        const parcelasRestantes = resultado.numeroParcelas - parcelasPagasNum;
+        
+        const prejuizoCompleto = calcularPrejuizoDetalhado(
+          projecoes.diferencaParcela,
+          parcelasPagasNum,
+          parcelasRestantes,
+          resultado.valorParcela * resultado.numeroParcelas
+        );
+        setPrejuizoDetalhado(prejuizoCompleto);
+
+        // Cálculo antigo para manter compatibilidade
         const prejuizo = calcularPrejuizo(
           resultado.valorFinanciado,
           resultado.numeroParcelas,
-          parseFloat(parcelasJaPagas),
+          parcelasPagasNum,
           resultado.taxaMensal,
           taxaBacen
         );
         setAnalisePrejuizo(prejuizo);
       }
 
-      // 4. Gerar tabela Price
+      // 6. Análise de saldo devedor (se informado)
+      if (saldoDevedorAtual && parseFloat(saldoDevedorAtual) > 0 && parcelasJaPagas) {
+        const saldo = analisarSaldoDevedor(
+          resultado.valorFinanciado,
+          resultado.taxaMensal,
+          taxaBacen,
+          resultado.numeroParcelas,
+          parseFloat(parcelasJaPagas),
+          parseFloat(saldoDevedorAtual)
+        );
+        setAnaliseSaldo(saldo);
+      }
+
+      // 7. Gerar tabela Price
       const tabela = gerarTabelaPrice(
         resultado.valorFinanciado,
         resultado.taxaMensal,
@@ -550,6 +606,198 @@ export default function AnaliseJurosAbusivos() {
                     </p>
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Discrepância Taxa Real vs Contratual */}
+          {analiseDiscrepancia && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <AlertTriangle className="h-5 w-5" />
+                  Discrepância: Taxa Real vs Taxa Contratual
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div className="p-4 bg-muted rounded-lg">
+                    <p className="text-sm text-muted-foreground">Taxa Real Aplicada</p>
+                    <p className="text-2xl font-bold">{analiseDiscrepancia.taxaReal.toFixed(2)}% a.m.</p>
+                  </div>
+                  <div className="p-4 bg-muted rounded-lg">
+                    <p className="text-sm text-muted-foreground">Taxa Prevista no Contrato</p>
+                    <p className="text-2xl font-bold">{analiseDiscrepancia.taxaContratual.toFixed(2)}% a.m.</p>
+                  </div>
+                  <div className="p-4 bg-red-50 dark:bg-red-950 rounded-lg">
+                    <p className="text-sm text-muted-foreground">Diferença</p>
+                    <p className="text-2xl font-bold text-red-600">{analiseDiscrepancia.diferencaTaxas.toFixed(2)} p.p.</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {analiseDiscrepancia.percentualDiferenca.toFixed(2)}% acima do previsto
+                    </p>
+                  </div>
+                </div>
+
+                {analiseDiscrepancia.temDiscrepancia && (
+                  <Alert variant="destructive">
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertDescription>
+                      <p className="font-semibold">⚠️ DISCREPÂNCIA DETECTADA</p>
+                      <p className="text-sm mt-1">
+                        A taxa real aplicada difere da taxa prevista no contrato em mais de 0,1 pontos percentuais.
+                      </p>
+                    </AlertDescription>
+                  </Alert>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Projeções com Taxa BACEN */}
+          {projecoesBacen && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5" />
+                  Projeções com Taxa BACEN (Correta)
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="p-4 bg-green-50 dark:bg-green-950 rounded-lg">
+                    <p className="text-sm text-muted-foreground">Parcela Correta (Taxa BACEN)</p>
+                    <p className="text-2xl font-bold text-green-600">
+                      R$ {projecoesBacen.parcelaCorreta.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Diferença: R$ {projecoesBacen.diferencaParcela.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} 
+                      ({projecoesBacen.percentualDiferencaParcela.toFixed(2)}%)
+                    </p>
+                  </div>
+                  <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
+                    <p className="text-sm text-muted-foreground">Total Correto do Financiamento</p>
+                    <p className="text-2xl font-bold text-blue-600">
+                      R$ {projecoesBacen.totalCorreto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Economia: R$ {projecoesBacen.diferencaTotalFinanciamento.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </p>
+                  </div>
+                </div>
+
+                <Alert>
+                  <TrendingUp className="h-4 w-4" />
+                  <AlertDescription>
+                    <p className="font-semibold">💡 Análise Comparativa</p>
+                    <p className="text-sm mt-1">
+                      Com a taxa BACEN, o cliente pagaria <span className="font-bold">R$ {projecoesBacen.diferencaTotalFinanciamento.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} a menos</span> no total do financiamento.
+                    </p>
+                  </AlertDescription>
+                </Alert>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Prejuízo Detalhado com CDC */}
+          {prejuizoDetalhado && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <DollarSign className="h-5 w-5" />
+                  Análise Detalhada de Prejuízo + CDC
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div className="p-4 bg-red-50 dark:bg-red-950 rounded-lg">
+                    <p className="text-sm text-muted-foreground">Valor Já Pago Indevidamente</p>
+                    <p className="text-2xl font-bold text-red-600">
+                      R$ {prejuizoDetalhado.totalPagoIndevido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {parcelasJaPagas} parcelas já pagas
+                    </p>
+                  </div>
+                  <div className="p-4 bg-orange-50 dark:bg-orange-950 rounded-lg">
+                    <p className="text-sm text-muted-foreground">Economia Futura (Revisando Agora)</p>
+                    <p className="text-2xl font-bold text-orange-600">
+                      R$ {prejuizoDetalhado.economiaFutura.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Nas {dadosCompletos!.numeroParcelas - parseFloat(parcelasJaPagas)} parcelas restantes
+                    </p>
+                  </div>
+                  <div className="p-4 bg-purple-50 dark:bg-purple-950 rounded-lg">
+                    <p className="text-sm text-muted-foreground">Economia Total</p>
+                    <p className="text-2xl font-bold text-purple-600">
+                      R$ {prejuizoDetalhado.economiaTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {prejuizoDetalhado.percentualPrejuizo.toFixed(2)}% do total
+                    </p>
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div className="p-6 bg-gradient-to-r from-yellow-100 to-green-100 dark:from-yellow-950 dark:to-green-950 rounded-lg border-2 border-yellow-400 dark:border-yellow-600">
+                  <p className="text-sm text-muted-foreground mb-2">⚖️ DEVOLUÇÃO EM DOBRO (CDC Art. 42)</p>
+                  <p className="text-4xl font-bold text-yellow-700 dark:text-yellow-400">
+                    R$ {prejuizoDetalhado.devolucaoDobro.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Valor a ser pleiteado judicialmente (dobro do pago indevidamente)
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Análise de Saldo Devedor */}
+          {analiseSaldo && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <DollarSign className="h-5 w-5" />
+                  Análise de Saldo Devedor
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div className="p-4 bg-red-50 dark:bg-red-950 rounded-lg">
+                    <p className="text-sm text-muted-foreground">Saldo Devedor Atual (Informado)</p>
+                    <p className="text-2xl font-bold text-red-600">
+                      R$ {analiseSaldo.saldoDevedorAtual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </p>
+                  </div>
+                  <div className="p-4 bg-green-50 dark:bg-green-950 rounded-lg">
+                    <p className="text-sm text-muted-foreground">Saldo Correto (Taxa BACEN)</p>
+                    <p className="text-2xl font-bold text-green-600">
+                      R$ {analiseSaldo.saldoDevedorCorreto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </p>
+                  </div>
+                  <div className="p-4 bg-orange-50 dark:bg-orange-950 rounded-lg">
+                    <p className="text-sm text-muted-foreground">Diferença no Saldo</p>
+                    <p className="text-2xl font-bold text-orange-600">
+                      R$ {analiseSaldo.diferencaSaldo.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {analiseSaldo.percentualDiferencaSaldo.toFixed(2)}% a mais
+                    </p>
+                  </div>
+                </div>
+
+                {analiseSaldo.economiaPotencial > 0 && (
+                  <Alert>
+                    <DollarSign className="h-4 w-4" />
+                    <AlertDescription>
+                      <p className="font-semibold">💰 Economia Potencial no Saldo</p>
+                      <p className="text-sm mt-1">
+                        O cliente poderia economizar <span className="font-bold">R$ {analiseSaldo.economiaPotencial.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span> no saldo devedor atual se a taxa fosse ajustada à taxa BACEN.
+                      </p>
+                    </AlertDescription>
+                  </Alert>
+                )}
               </CardContent>
             </Card>
           )}
