@@ -164,7 +164,10 @@ export default function ContratoDetalhes() {
     setShowSuccessEffect(true);
   };
 
-  // Calcular provisão avançada com garantias quando o contrato for carregado
+  // Cálculo automático de provisão desabilitado
+  // Os dados de provisão são obtidos das análises salvas no banco
+  // O cálculo deve ser feito manualmente na página de análise
+  /*
   useEffect(() => {
     const calcularProvisao = async () => {
       if (!contrato || !tabelaPerda || !tabelaIncorrida) return;
@@ -192,6 +195,7 @@ export default function ContratoDetalhes() {
 
     calcularProvisao();
   }, [contrato, tabelaPerda, tabelaIncorrida]);
+  */
 
   if (isLoading) {
     return (
