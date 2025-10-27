@@ -77,7 +77,8 @@ export function useAuthProvider(): AuthContextType {
 
   const loadUsuarioEscritorio = async (userId: string) => {
     try {
-      console.log('🔍 Carregando usuário escritório para:', userId);
+      console.log('🔍 [useAuth] Carregando usuário escritório para:', userId);
+      console.log('🔍 [useAuth] User ID tipo:', typeof userId, 'valor:', userId);
       
       const { data, error } = await supabase
         .from('usuarios_escritorio')
@@ -97,22 +98,42 @@ export function useAuthProvider(): AuthContextType {
         .eq('user_id', userId)
         .maybeSingle();
 
-      console.log('📊 Resultado da query:', { data, error });
+      console.log('📊 [useAuth] Resultado da query:', { 
+        temDados: !!data, 
+        temErro: !!error,
+        errorCode: error?.code,
+        errorMessage: error?.message,
+        data 
+      });
 
-      if (error && error.code !== 'PGRST116') {
-        console.error('❌ Erro na query:', error);
+      if (error) {
+        if (error.code === 'PGRST116') {
+          console.log('⚠️ [useAuth] PGRST116 - Nenhum resultado encontrado (normal se não tiver escritório)');
+          setUsuarioEscritorio(null);
+          return;
+        }
+        console.error('❌ [useAuth] Erro na query:', error);
         throw error;
       }
       
       if (data) {
-        console.log('✅ Escritório carregado:', data);
+        console.log('✅ [useAuth] Dados recebidos:');
+        console.log('  - ID usuário escritório:', data.id);
+        console.log('  - Escritório ID:', data.escritorio_id);
+        console.log('  - Tem objeto escritorio?:', !!data.escritorio);
+        console.log('  - Escritório nome:', data.escritorio?.nome);
+        console.log('  - Status:', data.status);
+        console.log('  - Permissões:', data.permissoes);
+        console.log('🎯 [useAuth] Setando usuarioEscritorio no estado');
         setUsuarioEscritorio(data as unknown as UsuarioEscritorio);
+        console.log('✅ [useAuth] Estado atualizado com sucesso');
       } else {
-        console.log('⚠️ Nenhum escritório encontrado para o usuário');
+        console.log('⚠️ [useAuth] Data é null/undefined - nenhum escritório encontrado');
         setUsuarioEscritorio(null);
       }
     } catch (error) {
-      console.error('💥 Erro ao carregar dados do usuário:', error);
+      console.error('💥 [useAuth] Erro ao carregar dados do usuário:', error);
+      console.error('💥 [useAuth] Stack:', (error as Error).stack);
       setUsuarioEscritorio(null);
     }
   };
