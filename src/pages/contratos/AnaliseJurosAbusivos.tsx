@@ -85,7 +85,10 @@ export default function AnaliseJurosAbusivos() {
       if (contrato.modalidade_bacen_id) setModalidadeId(contrato.modalidade_bacen_id);
       if (contrato.data_assinatura) setDataAssinatura(contrato.data_assinatura);
       if (contrato.valor_financiado) setValorFinanciado(contrato.valor_financiado.toString());
-      if (contrato.valor_parcela) setValorParcela(contrato.valor_parcela.toString());
+      // Não carregar valor_parcela se for 0 ou null
+      if (contrato.valor_parcela && contrato.valor_parcela > 0) {
+        setValorParcela(contrato.valor_parcela.toString());
+      }
       if (contrato.numero_parcelas) setNumeroParcelas(contrato.numero_parcelas.toString());
     }
   }, [contrato]);
@@ -95,13 +98,23 @@ export default function AnaliseJurosAbusivos() {
     .filter((v) => v && parseFloat(v) > 0).length;
 
   const calcularAnalise = () => {
+    console.log('🔍 Iniciando cálculo de análise...');
+    console.log('📋 Campos preenchidos:', {
+      valorFinanciado,
+      taxaMensal,
+      valorParcela,
+      numeroParcelas,
+      modalidadeId,
+      dataAssinatura
+    });
+
     if (!modalidadeId || !dataAssinatura || !taxaBacenData) {
       toast.error("Preencha a modalidade e data de assinatura");
       return;
     }
 
     if (camposPreenchidos !== 3) {
-      toast.error("Preencha exatamente 3 dos 4 campos da Regra de 3");
+      toast.error(`Preencha exatamente 3 dos 4 campos da Regra de 3 (preenchidos: ${camposPreenchidos})`);
       return;
     }
 
@@ -121,14 +134,14 @@ export default function AnaliseJurosAbusivos() {
       console.log('📊 Resultado do cálculo:', resultado);
 
       if (!resultado) {
-        toast.error("Erro ao calcular dados do contrato");
+        toast.error("Erro ao calcular dados do contrato. Verifique se os valores informados são compatíveis.");
         return;
       }
 
       // Verificar se taxa é válida
       if (isNaN(resultado.taxaMensal) || !isFinite(resultado.taxaMensal)) {
         console.error('❌ Taxa inválida no resultado:', resultado.taxaMensal);
-        toast.error("Erro: Taxa de juros inválida");
+        toast.error("Erro: Os valores informados não permitem calcular uma taxa de juros válida. Verifique se o valor da parcela é compatível com o valor financiado e prazo.");
         return;
       }
 
