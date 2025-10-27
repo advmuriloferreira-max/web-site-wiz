@@ -125,13 +125,14 @@ export default function Contratos() {
                   <TableHead>Valor da Dívida</TableHead>
                   <TableHead>Classificação</TableHead>
                   <TableHead>Provisão</TableHead>
+                  <TableHead>Análises</TableHead>
                   <TableHead className="text-right w-32">Ações</TableHead>
                 </TableRow>
               </TableHeader>
             <TableBody>
               {contratos.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-12">
+                  <TableCell colSpan={8} className="text-center py-12">
                     <div className="flex flex-col items-center space-y-4">
                       <LegalIcons.contract className="w-12 h-12 text-muted-foreground" />
                       <div className="space-y-2 text-center">
@@ -177,6 +178,20 @@ export default function Contratos() {
                       </TableCell>
                       <TableCell className="font-medium text-orange-600">
                         {formatCurrency(contrato.valor_provisao)}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap gap-1">
+                          {contrato.analises_provisionamento && contrato.analises_provisionamento.length > 0 ? (
+                            <Badge 
+                              variant="outline" 
+                              className="text-xs bg-orange-50 text-orange-700 border-orange-300 dark:bg-orange-950 dark:text-orange-300"
+                            >
+                              Passivo
+                            </Badge>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">—</span>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center gap-1 justify-end" onClick={(e) => e.stopPropagation()}>

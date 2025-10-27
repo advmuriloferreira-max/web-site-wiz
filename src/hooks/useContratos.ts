@@ -29,6 +29,17 @@ export interface Contrato {
   bancos?: {
     nome: string;
   };
+  analises_provisionamento?: Array<{
+    id: string;
+    valor_divida: number;
+    dias_atraso: number;
+    meses_atraso: number;
+    classificacao_risco: string;
+    percentual_provisao: number;
+    valor_provisao: number;
+    data_calculo: string;
+    created_at: string;
+  }>;
   // Campos de análise de provisionamento (buscar da tabela analises_provisionamento)
   valor_divida?: number;
   saldo_contabil?: number | null;
