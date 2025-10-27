@@ -197,7 +197,7 @@ export default function PlanoSuperendividamento() {
 
       const renda = parseFloat(rendaLiquida);
 
-      // 1. Salvar análise socioeconômica
+      // 1. Salvar dados de renda e percentual
       const { data: analiseData, error: analiseError } = await supabase
         .from("analises_superendividamento")
         .insert({
@@ -358,10 +358,13 @@ export default function PlanoSuperendividamento() {
         </CardContent>
       </Card>
 
-      {/* Análise Socioeconômica */}
+      {/* Cálculo da Renda Líquida */}
       <Card>
         <CardHeader>
-          <CardTitle>Análise Socioeconômica</CardTitle>
+          <CardTitle>Cálculo da Renda Líquida Mensal Disponível</CardTitle>
+          <p className="text-sm text-muted-foreground mt-2">
+            Informe a renda líquida do cliente e escolha o percentual disponível para pagamento de dívidas.
+          </p>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid md:grid-cols-2 gap-4">
@@ -388,8 +391,8 @@ export default function PlanoSuperendividamento() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="30">30% (Padrão)</SelectItem>
-                  <SelectItem value="35">35% (Excepcional)</SelectItem>
+                  <SelectItem value="30">30%</SelectItem>
+                  <SelectItem value="35">35% (Recomendada)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
