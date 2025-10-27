@@ -50,22 +50,24 @@ export function calcularTaxaJuros(
     return NaN;
   }
 
-  // Validação de sanidade: parcela deve ser maior que valor financiado dividido por prazo
+  // Validação de sanidade: parcela deve ser maior que valor financiado dividido por prazo (amortização mínima)
   const parcelaMinima = vf / n;
-  if (pmt < parcelaMinima) {
-    console.error('❌ calcularTaxaJuros: Parcela muito baixa (menor que amortização mínima)', { 
+  if (pmt < parcelaMinima * 0.5) {
+    console.error('❌ calcularTaxaJuros: Parcela muito baixa (menor que metade da amortização mínima)', { 
       parcela: pmt, 
-      parcelaMinima 
+      parcelaMinima: parcelaMinima * 0.5
     });
     return NaN;
   }
 
-  // Validação de sanidade: parcela não pode ser absurdamente alta
-  const parcelaMaxima = vf * 2 / n; // No máximo o dobro do valor financiado dividido pelo prazo
-  if (pmt > parcelaMaxima) {
-    console.error('❌ calcularTaxaJuros: Parcela muito alta (parece incorreta)', { 
-      parcela: pmt, 
-      parcelaMaxima 
+  // Validação de sanidade: parcela não pode ser absurdamente alta (limite generoso para taxas altas)
+  const totalPago = pmt * n;
+  const totalMaximoRazoavel = vf * 10; // Total pago não pode ser mais de 10x o valor financiado
+  if (totalPago > totalMaximoRazoavel) {
+    console.error('❌ calcularTaxaJuros: Total pago muito alto (parece incorreto)', { 
+      totalPago, 
+      totalMaximoRazoavel,
+      valorFinanciado: vf
     });
     return NaN;
   }
