@@ -72,7 +72,7 @@ export default function LandingPage() {
                 </h1>
                 
                 <p className="text-xl text-gray-600 leading-relaxed">
-                  Provisionamento bancário, análise de juros abusivos e planos de superendividamento 
+                  Gestão de passivo bancário, análise de juros abusivos e planos de superendividamento 
                   em uma única plataforma. Aumente sua produtividade em <strong>300%</strong> e 
                   impressione seus clientes com relatórios profissionais.
                 </p>
@@ -213,7 +213,7 @@ export default function LandingPage() {
                   
                   <div>
                     <h3 className="text-xl font-bold text-gray-900 mb-2">
-                      Provisionamento Bancário
+                      Gestão de Passivo Bancário
                     </h3>
                     <p className="text-gray-600">
                       Cálculos precisos conforme Resoluções BCB 352 e 4966. 

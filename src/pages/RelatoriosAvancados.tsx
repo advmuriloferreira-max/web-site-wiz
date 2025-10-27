@@ -240,7 +240,7 @@ export default function RelatoriosAvancados() {
             <PremiumStatsCard
               title="Tempo para 100%"
               value={analysisResults.diasPara100 ? `${analysisResults.diasPara100} dias` : "Já atingido"}
-              description="Dias para atingir provisionamento total"
+              description="Dias para atingir 100% de provisão"
               icon={Target}
               color="red"
             />
@@ -265,7 +265,7 @@ export default function RelatoriosAvancados() {
             <CardHeader className="glass-header border-b border-white/10">
               <CardTitle className="flex items-center space-x-3">
                 <ColoredIcon icon={LineChart} className="text-primary" />
-                <GradientText variant="primary">Evolução do Provisionamento no Tempo</GradientText>
+                <GradientText variant="primary">Evolução da Provisão no Tempo</GradientText>
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
@@ -344,7 +344,7 @@ export default function RelatoriosAvancados() {
                 Nenhuma análise executada
               </h3>
               <p className="text-muted-foreground max-w-md mx-auto">
-                Selecione um cliente e contrato, depois clique em "Analisar Evolução" para visualizar a evolução do provisionamento até atingir 100%
+                Selecione um cliente e contrato, depois clique em "Analisar Evolução" para visualizar a evolução da provisão até atingir 100%
               </p>
             </div>
           </CardContent>

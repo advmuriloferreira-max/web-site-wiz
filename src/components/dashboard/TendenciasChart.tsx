@@ -77,11 +77,11 @@ export function TendenciasChart() {
     return null;
   };
 
-  if (isLoading) {
+   if (isLoading) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Tendências de Provisionamento</CardTitle>
+          <CardTitle>Tendências de Gestão de Passivo</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="h-80 flex items-center justify-center">
@@ -95,7 +95,7 @@ export function TendenciasChart() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg font-semibold">Tendências de Provisionamento</CardTitle>
+        <CardTitle className="text-lg font-semibold">Tendências de Gestão de Passivo</CardTitle>
         <p className="text-sm text-muted-foreground">
           Evolução dos últimos 6 meses
         </p>

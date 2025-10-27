@@ -471,14 +471,14 @@ export default function ContratoDetalhes() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Botão Provisionamento */}
+              {/* Botão Gestão de Passivo Bancário */}
               <Card className="border-2 border-primary/20 hover:border-primary/40 transition-all cursor-pointer group">
                 <CardHeader className="pb-3">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
                       <Shield className="h-5 w-5 text-primary" />
                     </div>
-                    <CardTitle className="text-base">Provisionamento Bancário</CardTitle>
+                    <CardTitle className="text-base">Gestão de Passivo Bancário</CardTitle>
                   </div>
                   <p className="text-xs text-muted-foreground">
                     Cálculo de provisões conforme Resolução BCB 352/2023
@@ -500,7 +500,7 @@ export default function ContratoDetalhes() {
                     }}
                   >
                     <Calculator className="mr-2 h-4 w-4" />
-                    Ver Provisionamento
+                    Ver Gestão de Passivo
                   </Button>
                 </CardContent>
               </Card>

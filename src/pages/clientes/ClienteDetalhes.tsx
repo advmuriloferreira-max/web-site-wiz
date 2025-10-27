@@ -312,7 +312,7 @@ export default function ClienteDetalhes() {
                             >
                               <Calculator className="mr-2 h-4 w-4" />
                               <div>
-                                <p className="font-medium">Provisionamento Bancário</p>
+                                <p className="font-medium">Gestão de Passivo Bancário</p>
                                 <p className="text-xs text-muted-foreground">
                                   Calcular provisão (BCB 4966/2021)
                                 </p>

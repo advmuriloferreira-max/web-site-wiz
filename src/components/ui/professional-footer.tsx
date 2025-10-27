@@ -20,7 +20,7 @@ export function ProfessionalFooter() {
               <Shield className="h-8 w-8 text-accent" />
               <div>
                 <h3 className="font-bold text-xl">INTELLBANK</h3>
-                <p className="text-xs text-slate-300">Provisionamento de Dívidas Bancárias</p>
+                <p className="text-xs text-slate-300">Gestão de Passivo Bancário</p>
               </div>
             </div>
             

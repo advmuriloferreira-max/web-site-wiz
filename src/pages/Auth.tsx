@@ -51,7 +51,7 @@ export default function Auth() {
       } else {
         toast({
           title: "Login realizado com sucesso!",
-          description: "Bem-vindo ao sistema de provisionamento."
+          description: "Bem-vindo ao sistema de gestão de passivo bancário."
         });
         navigate('/');
       }
@@ -116,7 +116,7 @@ export default function Auth() {
             INTELLBANK
           </h1>
           <p className="text-muted-foreground">
-            Sistema de Provisionamento Bancário
+            Sistema de Gestão de Passivo Bancário
           </p>
         </div>
 
