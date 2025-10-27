@@ -15,7 +15,8 @@ import { Badge } from "@/components/ui/badge";
 import { SelectJurosBACEN } from "@/components/juros/SelectJurosBACEN";
 import { useTaxaJurosBacenPorData } from "@/hooks/useTaxasJurosBacen";
 import { useCreateAnaliseJuros } from "@/hooks/useAnaliseJuros";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
   completarDadosContrato,
   calcularTaxaAnual,
@@ -445,6 +446,288 @@ export default function AnaliseJurosAbusivos() {
       {/* RESULTADOS */}
       {dadosCompletos && analiseAbusividade && (
         <>
+          {/* ===== DASHBOARD DE RESULTADOS - 6 CARDS ===== */}
+          
+          {/* CARD 1: VEREDITO GERAL */}
+          <Card className={analiseAbusividade.abusividadeDetectada ? "border-2 border-red-500" : "border-2 border-green-500"}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                {analiseAbusividade.abusividadeDetectada ? <AlertTriangle className="h-5 w-5 text-red-600" /> : <TrendingUp className="h-5 w-5 text-green-600" />}
+                Veredito da Análise
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center gap-4">
+                <Badge 
+                  variant={analiseAbusividade.abusividadeDetectada ? "destructive" : "default"}
+                  className={analiseAbusividade.abusividadeDetectada ? "text-lg px-4 py-2" : "bg-green-600 text-lg px-4 py-2"}
+                >
+                  {analiseAbusividade.abusividadeDetectada ? "⚠️ ABUSIVIDADE DETECTADA" : "✅ SEM ABUSIVIDADE"}
+                </Badge>
+              </div>
+              
+              <div className="grid md:grid-cols-2 gap-4 pt-2">
+                <div className="p-3 bg-muted rounded-lg">
+                  <p className="text-sm text-muted-foreground">Grau de Abusividade</p>
+                  <p className="text-xl font-bold">{analiseAbusividade.grauAbusividade}</p>
+                </div>
+                <div className="p-3 bg-muted rounded-lg">
+                  <p className="text-sm text-muted-foreground">Percentual de Abusividade</p>
+                  <p className="text-xl font-bold text-red-600">{analiseAbusividade.percentualAbusividade.toFixed(2)}%</p>
+                </div>
+              </div>
+
+              {analiseDiscrepancia?.temDiscrepancia && (
+                <Alert variant="destructive" className="mt-4">
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertTitle>Discrepância Detectada</AlertTitle>
+                  <AlertDescription>
+                    A taxa real aplicada ({analiseDiscrepancia.taxaReal.toFixed(2)}% a.m.) é DIFERENTE da taxa contratual prevista ({analiseDiscrepancia.taxaContratual.toFixed(2)}% a.m.).
+                    Diferença de {analiseDiscrepancia.percentualDiferenca.toFixed(2)}%.
+                  </AlertDescription>
+                </Alert>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* CARD 2: COMPARAÇÃO DE TAXAS */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5" />
+                Comparação de Taxas
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Taxa</TableHead>
+                    <TableHead className="text-right">Mensal</TableHead>
+                    <TableHead className="text-right">Anual</TableHead>
+                    <TableHead className="text-right">Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow>
+                    <TableCell className="font-medium">Taxa Real Aplicada</TableCell>
+                    <TableCell className="text-right font-semibold">{dadosCompletos.taxaMensal.toFixed(2)}%</TableCell>
+                    <TableCell className="text-right font-semibold">{dadosCompletos.taxaAnual.toFixed(2)}%</TableCell>
+                    <TableCell className="text-right">-</TableCell>
+                  </TableRow>
+                  {analiseDiscrepancia && (
+                    <TableRow className={analiseDiscrepancia.temDiscrepancia ? "bg-yellow-50 dark:bg-yellow-950" : ""}>
+                      <TableCell className="font-medium">Taxa Contratual Prevista</TableCell>
+                      <TableCell className="text-right">{analiseDiscrepancia.taxaContratual.toFixed(2)}%</TableCell>
+                      <TableCell className="text-right">{calcularTaxaAnual(analiseDiscrepancia.taxaContratual).toFixed(2)}%</TableCell>
+                      <TableCell className="text-right">
+                        {analiseDiscrepancia.temDiscrepancia ? "⚠️ Divergente" : "✅ Conforme"}
+                      </TableCell>
+                    </TableRow>
+                  )}
+                  <TableRow className="bg-green-50 dark:bg-green-950">
+                    <TableCell className="font-medium">Taxa Média BACEN</TableCell>
+                    <TableCell className="text-right font-semibold text-green-600">{taxaBacenData?.taxa_mensal.toFixed(2)}%</TableCell>
+                    <TableCell className="text-right font-semibold text-green-600">{calcularTaxaAnual(taxaBacenData?.taxa_mensal || 0).toFixed(2)}%</TableCell>
+                    <TableCell className="text-right">-</TableCell>
+                  </TableRow>
+                  <TableRow className="bg-blue-50 dark:bg-blue-950">
+                    <TableCell className="font-medium">Limite Aceitável (1,5x)</TableCell>
+                    <TableCell className="text-right font-semibold">{analiseAbusividade.taxaLimiteAceitavel.toFixed(2)}%</TableCell>
+                    <TableCell className="text-right font-semibold">{calcularTaxaAnual(analiseAbusividade.taxaLimiteAceitavel).toFixed(2)}%</TableCell>
+                    <TableCell className="text-right">
+                      {analiseAbusividade.excedeLimite ? "❌ Excedido" : "✅ Dentro"}
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+
+          {/* CARD 3: IMPACTO FINANCEIRO */}
+          {projecoesBacen && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <DollarSign className="h-5 w-5" />
+                  Impacto Financeiro
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Item</TableHead>
+                      <TableHead className="text-right">Contratual</TableHead>
+                      <TableHead className="text-right">Correto (BACEN)</TableHead>
+                      <TableHead className="text-right">Diferença</TableHead>
+                      <TableHead className="text-right">%</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell className="font-medium">Valor Financiado</TableCell>
+                      <TableCell className="text-right">R$ {dadosCompletos.valorFinanciado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</TableCell>
+                      <TableCell className="text-right">R$ {projecoesBacen.valorFinanciadoCorreto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</TableCell>
+                      <TableCell className="text-right text-red-600 font-semibold">R$ {projecoesBacen.diferencaValorFinanciado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</TableCell>
+                      <TableCell className="text-right">{projecoesBacen.percentualDiferencaFinanciado.toFixed(2)}%</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="font-medium">Parcela Mensal</TableCell>
+                      <TableCell className="text-right">R$ {dadosCompletos.valorParcela.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</TableCell>
+                      <TableCell className="text-right">R$ {projecoesBacen.parcelaCorreta.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</TableCell>
+                      <TableCell className="text-right text-red-600 font-semibold">R$ {projecoesBacen.diferencaParcela.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</TableCell>
+                      <TableCell className="text-right">{projecoesBacen.percentualDiferencaParcela.toFixed(2)}%</TableCell>
+                    </TableRow>
+                    <TableRow className="font-bold bg-muted">
+                      <TableCell>Total do Financiamento</TableCell>
+                      <TableCell className="text-right">R$ {dadosCompletos.totalPago.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</TableCell>
+                      <TableCell className="text-right">R$ {projecoesBacen.totalCorreto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</TableCell>
+                      <TableCell className="text-right text-red-600">R$ {projecoesBacen.diferencaTotalFinanciamento.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</TableCell>
+                      <TableCell className="text-right">{((projecoesBacen.diferencaTotalFinanciamento / projecoesBacen.totalCorreto) * 100).toFixed(2)}%</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* CARD 4: PREJUÍZO DO CLIENTE */}
+          {prejuizoDetalhado && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <DollarSign className="h-5 w-5" />
+                  Prejuízo do Cliente
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center p-4 bg-red-50 dark:bg-red-950 rounded-lg">
+                    <span className="font-medium">Total já pago indevidamente:</span>
+                    <span className="font-bold text-red-600 text-xl">R$ {prejuizoDetalhado.totalPagoIndevido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                  </div>
+                  <div className="flex justify-between items-center p-4 bg-green-50 dark:bg-green-950 rounded-lg">
+                    <span className="font-medium">Economia futura (se revisar agora):</span>
+                    <span className="font-bold text-green-600 text-xl">R$ {prejuizoDetalhado.economiaFutura.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                  </div>
+                  <div className="flex justify-between items-center p-4 bg-blue-50 dark:bg-blue-950 rounded-lg border-2 border-blue-300 dark:border-blue-700">
+                    <span className="font-bold text-lg">Economia total na revisão:</span>
+                    <span className="font-bold text-blue-600 text-2xl">R$ {prejuizoDetalhado.economiaTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                  </div>
+                  <Separator />
+                  <div className="flex justify-between items-center p-4 bg-purple-50 dark:bg-purple-950 rounded-lg border-2 border-purple-300 dark:border-purple-700">
+                    <span className="font-bold">Devolução em dobro (CDC Art. 42):</span>
+                    <span className="font-bold text-purple-600 text-2xl">R$ {prejuizoDetalhado.devolucaoDobro.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* CARD 5: ANÁLISE DE SALDO DEVEDOR */}
+          {analiseSaldo && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Análise de Saldo Devedor
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell className="font-medium">Saldo Devedor Atual (informado)</TableCell>
+                      <TableCell className="text-right font-semibold">R$ {analiseSaldo.saldoDevedorAtual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="font-medium">Saldo Devedor Correto (com taxa BACEN)</TableCell>
+                      <TableCell className="text-right font-semibold text-green-600">R$ {analiseSaldo.saldoDevedorCorreto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</TableCell>
+                    </TableRow>
+                    <TableRow className="font-bold bg-red-50 dark:bg-red-950">
+                      <TableCell>Diferença (valor indevido no saldo)</TableCell>
+                      <TableCell className="text-right text-red-600 text-lg">R$ {analiseSaldo.diferencaSaldo.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="font-medium">Percentual de diferença</TableCell>
+                      <TableCell className="text-right font-semibold">{analiseSaldo.percentualDiferencaSaldo.toFixed(2)}%</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* CARD 6: RESUMO EXECUTIVO */}
+          <Card className="border-2 border-primary">
+            <CardHeader className="bg-primary/5">
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Resumo Executivo
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <div className="prose prose-sm max-w-none dark:prose-invert">
+                <p className="text-base">
+                  Conforme análise técnica realizada, o contrato nº <strong>{contrato.numero_contrato || "N/A"}</strong> 
+                  {" "}firmado com <strong>{contrato.bancos?.nome || "instituição financeira"}</strong> em <strong>{new Date(dataAssinatura).toLocaleDateString('pt-BR')}</strong> 
+                  {" "}apresenta as seguintes irregularidades:
+                </p>
+                
+                {analiseDiscrepancia?.temDiscrepancia && (
+                  <div className="bg-yellow-50 dark:bg-yellow-950 p-4 rounded-lg my-4 border-l-4 border-yellow-400">
+                    <h4 className="font-bold text-base mb-2">1. Discrepância Contratual</h4>
+                    <p className="text-sm">
+                      A taxa de juros real aplicada (<strong>{dadosCompletos.taxaMensal.toFixed(2)}% a.m.</strong>) 
+                      {" "}diverge da taxa contratual prevista (<strong>{analiseDiscrepancia.taxaContratual.toFixed(2)}% a.m.</strong>), 
+                      {" "}caracterizando descumprimento contratual e cobrança indevida.
+                    </p>
+                  </div>
+                )}
+                
+                {analiseAbusividade.abusividadeDetectada && (
+                  <div className="bg-red-50 dark:bg-red-950 p-4 rounded-lg my-4 border-l-4 border-red-500">
+                    <h4 className="font-bold text-base mb-2">2. Abusividade de Juros</h4>
+                    <p className="text-sm">
+                      A taxa de juros aplicada (<strong>{dadosCompletos.taxaMensal.toFixed(2)}% a.m.</strong>) 
+                      {" "}supera em <strong>{analiseAbusividade.percentualAbusividade.toFixed(2)}%</strong> a taxa média de mercado 
+                      {" "}divulgada pelo Banco Central (<strong>{taxaBacenData?.taxa_mensal.toFixed(2)}% a.m.</strong>), 
+                      {" "}ultrapassando o limite de 1,5 vezes estabelecido pela jurisprudência do STJ, 
+                      {" "}caracterizando <strong>abusividade {analiseAbusividade.grauAbusividade.toLowerCase()}</strong>.
+                    </p>
+                  </div>
+                )}
+                
+                {prejuizoDetalhado && (
+                  <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg my-4 border-l-4 border-blue-500">
+                    <h4 className="font-bold text-base mb-2">3. Prejuízo Financeiro</h4>
+                    <p className="text-sm">
+                      O cliente já pagou <strong>R$ {prejuizoDetalhado.totalPagoIndevido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong> a mais 
+                      {" "}do que deveria, e caso não haja revisão, pagará mais 
+                      {" "}<strong>R$ {prejuizoDetalhado.economiaFutura.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong> indevidamente, 
+                      {" "}totalizando um prejuízo de <strong className="text-lg">R$ {prejuizoDetalhado.economiaTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong>.
+                    </p>
+                  </div>
+                )}
+
+                {!analiseAbusividade.abusividadeDetectada && (
+                  <div className="bg-green-50 dark:bg-green-950 p-4 rounded-lg my-4 border-l-4 border-green-500">
+                    <h4 className="font-bold text-base mb-2">✅ Conclusão Favorável</h4>
+                    <p className="text-sm">
+                      A taxa aplicada encontra-se dentro dos parâmetros de mercado estabelecidos pelo BACEN, 
+                      não caracterizando abusividade nos termos da jurisprudência do STJ.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* ===== FIM DO DASHBOARD - INÍCIO DOS CARDS DETALHADOS ===== */}
+          <Separator className="my-8" />
+          <h2 className="text-2xl font-bold mb-4">Análises Detalhadas</h2>
+
           {/* Resultado: Dados Completos do Contrato */}
           <Card>
             <CardHeader>
