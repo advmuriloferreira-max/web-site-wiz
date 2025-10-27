@@ -10,15 +10,14 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, TrendingDown, Download, Save, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
-import { useModalidadesBacenJuros } from "@/hooks/useModalidadesBacenJuros";
 import { calcularTaxaEfetiva, compararComTaxaBacen } from "@/lib/calculoTaxaEfetiva";
-import { consultarTaxaBacenCSV } from "@/lib/consultarTaxaBacenCSV";
 import { gerarRelatorioPDF } from "@/lib/gerarRelatorioPDF";
 import { useAuth } from "@/hooks/useAuth";
+import { SelectJurosBACEN } from "@/components/juros/SelectJurosBACEN";
+import { useTaxaJurosBacenPorData } from "@/hooks/useTaxasJurosBacen";
 
 export default function JurosAbusivosRapido() {
   const navigate = useNavigate();
-  const { data: modalidades } = useModalidadesBacenJuros();
   const { usuarioEscritorio } = useAuth();
   
   // Campos do formulário
@@ -33,9 +32,20 @@ export default function JurosAbusivosRapido() {
   const [calculando, setCalculando] = useState(false);
   const [resultado, setResultado] = useState<any>(null);
 
+  // Buscar taxa BACEN automaticamente quando modalidade e data estiverem preenchidos
+  const { data: taxaBacenData } = useTaxaJurosBacenPorData(
+    modalidadeId ? parseInt(modalidadeId) : null,
+    dataReferencia || null
+  );
+
   const calcular = async () => {
     if (!valorFinanciado || !valorParcela || !numeroParcelas || !modalidadeId || !dataReferencia) {
       toast.error("Preencha todos os campos obrigatórios");
+      return;
+    }
+
+    if (!taxaBacenData) {
+      toast.error("Taxa BACEN não encontrada para esta modalidade e data");
       return;
     }
 
@@ -55,29 +65,24 @@ export default function JurosAbusivosRapido() {
         taxaJurosContratual: tc,
       });
 
-      toast.info("Buscando taxa BACEN...");
-
-      // 2. Buscar taxa média BACEN
-      const taxaBacen = await consultarTaxaBacenCSV(modalidadeId, dataReferencia);
+      // 2. Usar taxa BACEN já carregada
+      const taxaBacen = taxaBacenData.taxa_mensal;
 
       // 3. Comparar e identificar abusividade
       const comparacao = compararComTaxaBacen(
         calculoTaxa.taxaEfetivaMensal,
-        taxaBacen.taxa_mensal
+        taxaBacen
       );
 
       // 4. Calcular valor indevido
       let valorIndevido = 0;
       if (comparacao.acimaMercado) {
         const totalPagoReal = vp * np;
-        const parcelaMercado = vf * (taxaBacen.taxa_mensal/100 * Math.pow(1 + taxaBacen.taxa_mensal/100, np)) / 
-                               (Math.pow(1 + taxaBacen.taxa_mensal/100, np) - 1);
+        const parcelaMercado = vf * (taxaBacen/100 * Math.pow(1 + taxaBacen/100, np)) / 
+                               (Math.pow(1 + taxaBacen/100, np) - 1);
         const totalPagoMercado = parcelaMercado * np;
         valorIndevido = Math.max(0, totalPagoReal - totalPagoMercado);
       }
-
-      // Buscar nome da modalidade
-      const modalidade = modalidades?.find(m => m.id === modalidadeId);
 
       setResultado({
         valorFinanciado: vf,
@@ -86,13 +91,16 @@ export default function JurosAbusivosRapido() {
         taxaContratual: tc,
         taxaRealMensal: calculoTaxa.taxaEfetivaMensal,
         taxaRealAnual: calculoTaxa.taxaEfetivaAnual,
-        taxaMediaBacen: taxaBacen.taxa_mensal,
+        taxaMediaBacen: taxaBacen,
         diferencaAbsoluta: comparacao.diferenca,
         diferencaPercentual: comparacao.percentualDiferenca,
         abusividadeDetectada: comparacao.acimaMercado && comparacao.percentualDiferenca > 20,
         grauAbusividade: comparacao.grauAbusividade,
         valorIndevido,
-        modalidade: modalidade?.nome || "Não informado",
+        modalidade: taxaBacenData.nome_modalidade,
+        categoria: taxaBacenData.categoria,
+        subCategoria: taxaBacenData.sub_categoria,
+        codigoSerie: taxaBacenData.codigo_serie,
         dataReferencia,
       });
 
@@ -195,24 +203,35 @@ export default function JurosAbusivosRapido() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div>
-              <Label htmlFor="modalidade">Modalidade BACEN *</Label>
-              <Select value={modalidadeId} onValueChange={setModalidadeId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione a modalidade..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {modalidades?.map((mod) => (
-                    <SelectItem key={mod.id} value={mod.id}>
-                      {mod.nome}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground mt-1">
-                Tipo de operação para comparação com taxas BACEN
-              </p>
-            </div>
+            <SelectJurosBACEN
+              value={modalidadeId}
+              onValueChange={setModalidadeId}
+              label="Modalidade BACEN"
+              placeholder="Selecione a modalidade de crédito..."
+              required
+            />
+            
+            {taxaBacenData && modalidadeId && dataReferencia && (
+              <div className="p-3 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg">
+                <p className="text-sm font-semibold text-blue-700 dark:text-blue-300 mb-1">
+                  📊 Taxa BACEN Encontrada
+                </p>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div>
+                    <span className="text-muted-foreground">Taxa Mensal:</span>
+                    <span className="font-bold ml-1 text-blue-600 dark:text-blue-400">
+                      {taxaBacenData.taxa_mensal.toFixed(2)}% a.m.
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Data Ref:</span>
+                    <span className="font-semibold ml-1">
+                      {new Date(taxaBacenData.data_referencia).toLocaleDateString("pt-BR")}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div>
               <Label htmlFor="valorFinanciado">Valor Financiado *</Label>

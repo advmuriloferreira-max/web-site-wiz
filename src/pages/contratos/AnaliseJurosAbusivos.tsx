@@ -16,17 +16,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useContratoById } from "@/hooks/useContratoById";
-import { useModalidadesBacenJuros } from "@/hooks/useModalidadesBacenJuros";
 import { supabase } from "@/integrations/supabase/client";
 import { calcularTaxaEfetiva, compararComTaxaBacen } from "@/lib/calculoTaxaEfetiva";
-import { consultarTaxaBacenCSV } from "@/lib/consultarTaxaBacenCSV";
 import { Badge } from "@/components/ui/badge";
+import { SelectJurosBACEN } from "@/components/juros/SelectJurosBACEN";
+import { useTaxaJurosBacenPorData } from "@/hooks/useTaxasJurosBacen";
 
 export default function AnaliseJurosAbusivos() {
   const { id: contratoId } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data: contrato, isLoading } = useContratoById(contratoId!);
-  const { data: modalidades } = useModalidadesBacenJuros();
 
   const [valorFinanciado, setValorFinanciado] = useState<string>("");
   const [valorParcela, setValorParcela] = useState<string>("");
@@ -50,6 +49,12 @@ export default function AnaliseJurosAbusivos() {
     grauAbusividade: string;
     valorIndevido: number;
   } | null>(null);
+
+  // Buscar taxa BACEN automaticamente
+  const { data: taxaBacenData } = useTaxaJurosBacenPorData(
+    modalidadeId ? parseInt(modalidadeId) : null,
+    dataReferencia || null
+  );
 
   useEffect(() => {
     if (contrato) {
@@ -81,6 +86,11 @@ export default function AnaliseJurosAbusivos() {
       return;
     }
 
+    if (!taxaBacenData) {
+      toast.error("Taxa BACEN não encontrada para esta modalidade e data");
+      return;
+    }
+
     setCalculando(true);
 
     try {
@@ -97,15 +107,13 @@ export default function AnaliseJurosAbusivos() {
         taxaJurosContratual: tc,
       });
 
-      toast.info("Buscando taxa BACEN...");
-
-      // 2. Buscar taxa média BACEN
-      const taxaBacen = await consultarTaxaBacenCSV(modalidadeId, dataReferencia);
+      // 2. Usar taxa BACEN já carregada
+      const taxaBacen = taxaBacenData.taxa_mensal;
 
       // 3. Comparar e identificar abusividade
       const comparacao = compararComTaxaBacen(
         calculoTaxa.taxaEfetivaMensal,
-        taxaBacen.taxa_mensal
+        taxaBacen
       );
 
       // 4. Calcular valor cobrado indevidamente se houver abusividade
@@ -113,8 +121,8 @@ export default function AnaliseJurosAbusivos() {
       if (comparacao.acimaMercado) {
         const totalPagoReal = vp * np;
         // Recalcular o que deveria ser pago com a taxa do mercado
-        const parcelaMercado = vf * (taxaBacen.taxa_mensal/100 * Math.pow(1 + taxaBacen.taxa_mensal/100, np)) / 
-                               (Math.pow(1 + taxaBacen.taxa_mensal/100, np) - 1);
+        const parcelaMercado = vf * (taxaBacen/100 * Math.pow(1 + taxaBacen/100, np)) / 
+                               (Math.pow(1 + taxaBacen/100, np) - 1);
         const totalPagoMercado = parcelaMercado * np;
         valorIndevido = Math.max(0, totalPagoReal - totalPagoMercado);
       }
@@ -122,7 +130,7 @@ export default function AnaliseJurosAbusivos() {
       setResultado({
         taxaRealMensal: calculoTaxa.taxaEfetivaMensal,
         taxaRealAnual: calculoTaxa.taxaEfetivaAnual,
-        taxaMediaBacen: taxaBacen.taxa_mensal,
+        taxaMediaBacen: taxaBacen,
         diferencaAbsoluta: comparacao.diferenca,
         diferencaPercentual: comparacao.percentualDiferenca,
         abusividadeDetectada: comparacao.acimaMercado && comparacao.percentualDiferenca > 20,
@@ -358,23 +366,39 @@ export default function AnaliseJurosAbusivos() {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="modalidade">
-              Modalidade BACEN <span className="text-destructive">*</span>
-            </Label>
-            <Select value={modalidadeId} onValueChange={setModalidadeId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione a modalidade..." />
-              </SelectTrigger>
-              <SelectContent>
-                {modalidades?.map((mod) => (
-                  <SelectItem key={mod.id} value={mod.id}>
-                    {mod.nome} ({mod.tipo_pessoa} - {mod.tipo_recurso})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <SelectJurosBACEN
+            value={modalidadeId}
+            onValueChange={setModalidadeId}
+            label="Modalidade BACEN"
+            placeholder="Selecione a modalidade de crédito..."
+            required
+          />
+          
+          {taxaBacenData && modalidadeId && dataReferencia && (
+            <div className="p-3 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg">
+              <p className="text-sm font-semibold text-blue-700 dark:text-blue-300 mb-1">
+                📊 Taxa BACEN Encontrada
+              </p>
+              <div className="grid grid-cols-3 gap-2 text-xs">
+                <div>
+                  <span className="text-muted-foreground">Taxa Mensal:</span>
+                  <span className="font-bold ml-1 text-blue-600 dark:text-blue-400">
+                    {taxaBacenData.taxa_mensal.toFixed(2)}% a.m.
+                  </span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Categoria:</span>
+                  <span className="font-semibold ml-1">{taxaBacenData.categoria}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Data Ref:</span>
+                  <span className="font-semibold ml-1">
+                    {new Date(taxaBacenData.data_referencia).toLocaleDateString("pt-BR")}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label htmlFor="observacoes">Observações</Label>
