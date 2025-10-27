@@ -418,6 +418,8 @@ export default function ClienteDetalhes() {
                           <DropdownMenuContent align="end" className="w-56 bg-background">
                             <DropdownMenuLabel>Escolha o tipo de análise</DropdownMenuLabel>
                             <DropdownMenuSeparator />
+                            
+                            {/* Gestão de Passivo Bancário */}
                             <DropdownMenuItem
                               onClick={() => navigate(`/app/contratos/${contrato.id}/provisionamento`)}
                               className="cursor-pointer"
@@ -430,40 +432,30 @@ export default function ClienteDetalhes() {
                                 </p>
                               </div>
                             </DropdownMenuItem>
+                            
+                            {/* Análise de Abusividades */}
                             <DropdownMenuItem
-                              onClick={() => navigate(`/app/contratos/${contrato.id}/juros-abusivos`)}
+                              onClick={() => navigate(`/app/contratos/${contrato.id}/juros`)}
                               className="cursor-pointer"
                             >
                               <TrendingDown className="mr-2 h-4 w-4" />
                               <div>
-                                <p className="font-medium">Análise de Juros Abusivos</p>
+                                <p className="font-medium">Análise de Abusividades</p>
                                 <p className="text-xs text-muted-foreground">
-                                  Comparar com taxas BACEN
+                                  Comparar com taxas BACEN (Ação Revisional)
                                 </p>
                               </div>
                             </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => {
-                                // TODO: Implementar lógica de adicionar ao superendividamento
-                                toast.info("Contrato adicionado ao plano de superendividamento");
-                              }}
-                              className="cursor-pointer"
-                            >
-                              <PiggyBank className="mr-2 h-4 w-4" />
-                              <div>
-                                <p className="font-medium">Adicionar ao Superendividamento</p>
-                                <p className="text-xs text-muted-foreground">
-                                  Incluir no plano de pagamento
-                                </p>
-                              </div>
-                            </DropdownMenuItem>
+                            
                             <DropdownMenuSeparator />
+                            
+                            {/* Ver Detalhes do Contrato */}
                             <DropdownMenuItem
                               onClick={() => navigate(`/app/contratos/${contrato.id}`)}
                               className="cursor-pointer"
                             >
                               <FileText className="mr-2 h-4 w-4" />
-                              Ver Detalhes Completos
+                              <span>Ver Detalhes Completos</span>
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
