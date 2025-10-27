@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Plus, Eye, Edit2, Building2, Calendar, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,10 +18,22 @@ interface ContratosClienteProps {
 }
 
 export function ContratosCliente({ cliente }: ContratosClienteProps) {
+  const navigate = useNavigate();
   const { data: contratos, isLoading } = useContratosByCliente(cliente.id);
   const deleteContratoMutation = useDeleteContrato();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [contratoParaEditar, setContratoParaEditar] = useState<string | null>(null);
+
+  // DEBUG: Verificar estrutura dos contratos
+  useEffect(() => {
+    if (contratos && contratos.length > 0) {
+      console.log('📋 Contratos carregados:', contratos);
+      console.log('🔑 IDs dos contratos:', contratos.map(c => ({ 
+        id: c.id, 
+        numero: c.numero_contrato 
+      })));
+    }
+  }, [contratos]);
 
   const getClassificacaoColor = (classificacao: string | null) => {
     if (!classificacao) return "bg-gray-500";
@@ -190,7 +203,14 @@ export function ContratosCliente({ cliente }: ContratosClienteProps) {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => window.location.href = `/app/contratos/${contrato.id}`}
+                          onClick={() => {
+                            console.log('🔍 Navegando para contrato:', contrato.id);
+                            if (!contrato.id) {
+                              console.error('❌ ID do contrato está vazio!', contrato);
+                              return;
+                            }
+                            navigate(`/app/contratos/${contrato.id}`);
+                          }}
                           className="h-8 w-8 p-0 touch-target hover:bg-accent/10"
                           aria-label={`Ver detalhes do contrato ${contrato.numero_contrato}`}
                         >
