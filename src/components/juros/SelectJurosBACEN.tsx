@@ -22,10 +22,11 @@ interface SelectJurosBACENProps {
 
 interface ModalidadeAgrupada {
   categoria: string;
-  sub_categoria: string;
+  tipo_recurso: string;
   modalidades: Array<{
-    codigo_serie: number;
-    nome_modalidade: string;
+    id: string;
+    nome: string;
+    codigo_sgs: string;
   }>;
 }
 
@@ -42,29 +43,27 @@ export function SelectJurosBACEN({
 }: SelectJurosBACENProps) {
   const { data: modalidades, isLoading, error } = useModalidadesJurosBacen();
 
-  // Agrupar modalidades por categoria e sub-categoria
+  // Agrupar modalidades por categoria e tipo_recurso
   const modalidadesAgrupadas = useMemo(() => {
     if (!modalidades) return [];
 
     const grupos: { [key: string]: ModalidadeAgrupada } = {};
 
     modalidades.forEach((mod) => {
-      // Ignorar séries totais (não devem aparecer na UI principal)
-      if (mod.categoria === "Total") return;
-
-      const chave = `${mod.categoria}||${mod.sub_categoria}`;
+      const chave = `${mod.categoria}||${mod.tipo_recurso}`;
 
       if (!grupos[chave]) {
         grupos[chave] = {
           categoria: mod.categoria,
-          sub_categoria: mod.sub_categoria,
+          tipo_recurso: mod.tipo_recurso,
           modalidades: [],
         };
       }
 
       grupos[chave].modalidades.push({
-        codigo_serie: mod.codigo_serie,
-        nome_modalidade: mod.nome_modalidade,
+        id: mod.id,
+        nome: mod.nome,
+        codigo_sgs: mod.codigo_sgs,
       });
     });
 
@@ -72,10 +71,10 @@ export function SelectJurosBACEN({
     return Object.values(grupos).sort((a, b) => {
       // Primeiro por categoria (PF antes de PJ)
       if (a.categoria !== b.categoria) {
-        return a.categoria === "Pessoas Físicas" ? -1 : 1;
+        return a.categoria === "Pessoa Física" ? -1 : 1;
       }
-      // Depois por sub-categoria
-      return a.sub_categoria.localeCompare(b.sub_categoria);
+      // Depois por tipo_recurso
+      return a.tipo_recurso.localeCompare(b.tipo_recurso);
     });
   }, [modalidades]);
 
@@ -124,20 +123,20 @@ export function SelectJurosBACEN({
           {modalidadesAgrupadas.map((grupo, idx) => (
             <SelectGroup key={idx}>
               <SelectLabel className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-2 py-2 bg-muted/30 sticky top-0 z-10">
-                {grupo.categoria === "Pessoas Físicas" ? "🧑 " : "🏢 "}
-                {grupo.categoria} - {grupo.sub_categoria}
+                {grupo.categoria === "Pessoa Física" ? "🧑 " : "🏢 "}
+                {grupo.categoria} - {grupo.tipo_recurso}
               </SelectLabel>
               
               {grupo.modalidades.map((mod) => (
                 <SelectItem
-                  key={mod.codigo_serie}
-                  value={mod.codigo_serie.toString()}
+                  key={mod.id}
+                  value={mod.id}
                   className="pl-8 py-3 hover:bg-accent cursor-pointer"
                 >
                   <div className="flex flex-col">
-                    <span className="font-medium">{mod.nome_modalidade}</span>
+                    <span className="font-medium">{mod.nome}</span>
                     <span className="text-xs text-muted-foreground">
-                      Código: {mod.codigo_serie}
+                      SGS: {mod.codigo_sgs}
                     </span>
                   </div>
                 </SelectItem>

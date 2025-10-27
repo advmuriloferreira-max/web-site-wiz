@@ -1,42 +1,43 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-export interface TaxaJurosBacen {
-  id: number;
-  codigo_serie: number;
-  nome_modalidade: string;
+export interface ModalidadeBacenJuros {
+  id: string;
+  nome: string;
+  codigo_sgs: string;
   categoria: string;
-  sub_categoria: string;
+  tipo_pessoa: string;
+  tipo_recurso: string;
+  descricao: string | null;
+}
+
+export interface SerieTemporal {
+  id: string;
+  modalidade_id: string;
   data_referencia: string;
+  ano: number;
+  mes: number;
   taxa_mensal: number;
-  created_at: string;
+  taxa_anual: number | null;
+  modalidades_bacen_juros: ModalidadeBacenJuros;
 }
 
 /**
  * Hook para buscar todas as modalidades únicas disponíveis
- * Retorna apenas um registro por modalidade (mais recente)
  */
 export const useModalidadesJurosBacen = () => {
   return useQuery({
     queryKey: ["modalidades-juros-bacen"],
     queryFn: async () => {
-      // Buscar modalidades únicas agrupadas por codigo_serie
       const { data, error } = await supabase
-        .from("taxas_juros_bacen")
-        .select("codigo_serie, nome_modalidade, categoria, sub_categoria")
-        .order("codigo_serie", { ascending: true });
+        .from("modalidades_bacen_juros")
+        .select("*")
+        .eq("ativo", true)
+        .order("categoria", { ascending: true })
+        .order("nome", { ascending: true });
 
       if (error) throw error;
-
-      // Remover duplicatas (manter apenas uma entrada por código de série)
-      const modalidadesUnicas = data.reduce((acc, curr) => {
-        if (!acc.find(m => m.codigo_serie === curr.codigo_serie)) {
-          acc.push(curr);
-        }
-        return acc;
-      }, [] as typeof data);
-
-      return modalidadesUnicas;
+      return data as ModalidadeBacenJuros[];
     },
   });
 };
@@ -45,19 +46,22 @@ export const useModalidadesJurosBacen = () => {
  * Hook para buscar taxa específica de uma modalidade em uma data
  */
 export const useTaxaJurosBacenPorData = (
-  codigoSerie: number | null,
+  modalidadeId: string | null,
   dataReferencia: string | null
 ) => {
   return useQuery({
-    queryKey: ["taxa-juros-bacen", codigoSerie, dataReferencia],
+    queryKey: ["taxa-juros-bacen", modalidadeId, dataReferencia],
     queryFn: async () => {
-      if (!codigoSerie || !dataReferencia) return null;
+      if (!modalidadeId || !dataReferencia) return null;
 
       // Buscar taxa exata para a data
       const { data, error } = await supabase
-        .from("taxas_juros_bacen")
-        .select("*")
-        .eq("codigo_serie", codigoSerie)
+        .from("series_temporais_bacen")
+        .select(`
+          *,
+          modalidades_bacen_juros (*)
+        `)
+        .eq("modalidade_id", modalidadeId)
         .eq("data_referencia", dataReferencia)
         .maybeSingle();
 
@@ -66,21 +70,24 @@ export const useTaxaJurosBacenPorData = (
       // Se não encontrar taxa exata, buscar a mais próxima anterior
       if (!data) {
         const { data: proximaData, error: proximaError } = await supabase
-          .from("taxas_juros_bacen")
-          .select("*")
-          .eq("codigo_serie", codigoSerie)
+          .from("series_temporais_bacen")
+          .select(`
+            *,
+            modalidades_bacen_juros (*)
+          `)
+          .eq("modalidade_id", modalidadeId)
           .lte("data_referencia", dataReferencia)
           .order("data_referencia", { ascending: false })
           .limit(1)
           .maybeSingle();
 
         if (proximaError) throw proximaError;
-        return proximaData;
+        return proximaData as SerieTemporal | null;
       }
 
-      return data;
+      return data as SerieTemporal;
     },
-    enabled: !!codigoSerie && !!dataReferencia,
+    enabled: !!modalidadeId && !!dataReferencia,
   });
 };
 
@@ -88,24 +95,27 @@ export const useTaxaJurosBacenPorData = (
  * Hook para buscar histórico de taxas de uma modalidade
  */
 export const useHistoricoTaxasJurosBacen = (
-  codigoSerie: number | null,
+  modalidadeId: string | null,
   limite: number = 12
 ) => {
   return useQuery({
-    queryKey: ["historico-taxas-bacen", codigoSerie, limite],
+    queryKey: ["historico-taxas-bacen", modalidadeId, limite],
     queryFn: async () => {
-      if (!codigoSerie) return [];
+      if (!modalidadeId) return [];
 
       const { data, error } = await supabase
-        .from("taxas_juros_bacen")
-        .select("*")
-        .eq("codigo_serie", codigoSerie)
+        .from("series_temporais_bacen")
+        .select(`
+          *,
+          modalidades_bacen_juros (*)
+        `)
+        .eq("modalidade_id", modalidadeId)
         .order("data_referencia", { ascending: false })
         .limit(limite);
 
       if (error) throw error;
-      return data;
+      return data as SerieTemporal[];
     },
-    enabled: !!codigoSerie,
+    enabled: !!modalidadeId,
   });
 };

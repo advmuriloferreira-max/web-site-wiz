@@ -14,21 +14,22 @@ import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { SelectJurosBACEN } from "@/components/juros/SelectJurosBACEN";
 import { useTaxaJurosBacenPorData } from "@/hooks/useTaxasJurosBacen";
+import { useCreateAnaliseJuros } from "@/hooks/useAnaliseJuros";
 
 export default function AnaliseJurosAbusivos() {
   const { id: contratoId } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data: contrato, isLoading } = useContratoById(contratoId!);
+  const createAnalise = useCreateAnaliseJuros();
 
   const [taxaContratoMensal, setTaxaContratoMensal] = useState("");
   const [modalidadeId, setModalidadeId] = useState("");
   const [dataAssinatura, setDataAssinatura] = useState("");
   const [observacoes, setObservacoes] = useState("");
   const [resultado, setResultado] = useState<any>(null);
-  const [salvando, setSalvando] = useState(false);
 
   const { data: taxaBacenData } = useTaxaJurosBacenPorData(
-    modalidadeId ? parseInt(modalidadeId) : null,
+    modalidadeId || null,
     dataAssinatura || null
   );
 
@@ -76,19 +77,13 @@ export default function AnaliseJurosAbusivos() {
 
   const salvarAnalise = async () => {
     if (!resultado || !contratoId) return;
-    setSalvando(true);
 
     try {
       const { data: userData } = await supabase.auth.getUser();
-      const { data: escritorioData } = await supabase
-        .from("usuarios_escritorio")
-        .select("escritorio_id")
-        .eq("user_id", userData.user?.id)
-        .single();
 
-      await supabase.from("analises_juros_abusivos").insert({
+      await createAnalise.mutateAsync({
         contrato_id: contratoId,
-        modalidade_bacen_id: modalidadeId ? parseInt(modalidadeId) : null,
+        modalidade_bacen_id: modalidadeId || null,
         taxa_contratual: parseFloat(taxaContratoMensal),
         data_referencia: dataAssinatura,
         taxa_real_aplicada: resultado.taxaContrato,
@@ -98,14 +93,14 @@ export default function AnaliseJurosAbusivos() {
         abusividade_detectada: resultado.abusividadeDetectada,
         usuario_id: userData.user?.id,
         observacoes,
-      });
+        metodologia: 'Comparação com Séries Temporais BACEN',
+        fonte_taxa_bacen: 'SGS - Sistema Gerenciador de Séries Temporais',
+        data_analise: new Date().toISOString(),
+      } as any);
 
-      toast.success("Análise salva!");
       navigate(-1);
     } catch (error) {
-      toast.error("Erro ao salvar");
-    } finally {
-      setSalvando(false);
+      console.error(error);
     }
   };
 
@@ -167,7 +162,7 @@ export default function AnaliseJurosAbusivos() {
               <div><p className="text-sm text-muted-foreground">Diferença</p><p className="text-xl font-bold">{resultado.diferencaAbsoluta.toFixed(2)} p.p.</p></div>
               <div><p className="text-sm text-muted-foreground">Abusividade</p><p className="text-xl font-bold text-red-600">{resultado.percentualAbusividade.toFixed(2)}%</p></div>
             </div>
-            <Button onClick={salvarAnalise} disabled={salvando}><Save className="mr-2 h-4 w-4" />Salvar Análise</Button>
+            <Button onClick={salvarAnalise} disabled={createAnalise.isPending}><Save className="mr-2 h-4 w-4" />Salvar Análise</Button>
           </CardContent>
         </Card>
       )}

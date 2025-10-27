@@ -25,7 +25,7 @@ export default function JurosAbusivosRapido() {
   const [resultado, setResultado] = useState<any>(null);
 
   const { data: taxaBacenData } = useTaxaJurosBacenPorData(
-    modalidadeId ? parseInt(modalidadeId) : null,
+    modalidadeId || null,
     dataAssinatura || null
   );
 
@@ -61,12 +61,12 @@ export default function JurosAbusivosRapido() {
         percentualAbusividade,
         abusividadeDetectada,
         grauAbusividade,
-        modalidade: taxaBacenData.nome_modalidade,
-        categoria: taxaBacenData.categoria,
-        subCategoria: taxaBacenData.sub_categoria,
-        codigoSerie: taxaBacenData.codigo_serie,
+        modalidade: taxaBacenData.modalidades_bacen_juros.nome,
+        categoria: taxaBacenData.modalidades_bacen_juros.categoria,
+        tipoRecurso: taxaBacenData.modalidades_bacen_juros.tipo_recurso,
+        codigoSgs: taxaBacenData.modalidades_bacen_juros.codigo_sgs,
         dataReferencia: taxaBacenData.data_referencia,
-        fonteOficial: `Banco Central do Brasil - SGS (Código ${taxaBacenData.codigo_serie})`,
+        fonteOficial: `Banco Central do Brasil - SGS (Código ${taxaBacenData.modalidades_bacen_juros.codigo_sgs})`,
       });
 
       toast.success("Análise concluída!");

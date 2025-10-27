@@ -12,11 +12,11 @@ import { Badge } from "@/components/ui/badge";
  * Remove este arquivo após integrar em suas páginas reais
  */
 export function ExemploUsoSelectBACEN() {
-  const [codigoSerie, setCodigoSerie] = useState<string>("");
+  const [modalidadeId, setModalidadeId] = useState<string>("");
   const [dataReferencia, setDataReferencia] = useState<string>("");
   
   const { data: taxa, isLoading } = useTaxaJurosBacenPorData(
-    codigoSerie ? parseInt(codigoSerie) : null,
+    modalidadeId || null,
     dataReferencia || null
   );
 
@@ -32,8 +32,8 @@ export function ExemploUsoSelectBACEN() {
         <CardContent className="space-y-6">
           {/* Select de Modalidade */}
           <SelectJurosBACEN
-            value={codigoSerie}
-            onValueChange={setCodigoSerie}
+            value={modalidadeId}
+            onValueChange={setModalidadeId}
             label="Selecione a Modalidade de Crédito"
             placeholder="Escolha a modalidade BACEN..."
             required
@@ -60,11 +60,11 @@ export function ExemploUsoSelectBACEN() {
           {/* Botão de Consulta */}
           <Button
             onClick={() => {
-              if (codigoSerie && dataReferencia) {
-                console.log("Consultando taxa:", { codigoSerie, dataReferencia });
+              if (modalidadeId && dataReferencia) {
+                console.log("Consultando taxa:", { modalidadeId, dataReferencia });
               }
             }}
-            disabled={!codigoSerie || !dataReferencia}
+            disabled={!modalidadeId || !dataReferencia}
             className="w-full"
           >
             Consultar Taxa BACEN
@@ -89,17 +89,17 @@ export function ExemploUsoSelectBACEN() {
               <CardContent className="space-y-3">
                 <div>
                   <p className="text-sm text-muted-foreground">Modalidade</p>
-                  <p className="font-semibold">{taxa.nome_modalidade}</p>
+                  <p className="font-semibold">{taxa.modalidades_bacen_juros.nome}</p>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm text-muted-foreground">Categoria</p>
-                    <Badge variant="outline">{taxa.categoria}</Badge>
+                    <Badge variant="outline">{taxa.modalidades_bacen_juros.categoria}</Badge>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Sub-categoria</p>
-                    <Badge variant="outline">{taxa.sub_categoria}</Badge>
+                    <p className="text-sm text-muted-foreground">Tipo Recurso</p>
+                    <Badge variant="outline">{taxa.modalidades_bacen_juros.tipo_recurso}</Badge>
                   </div>
                 </div>
 
@@ -112,8 +112,8 @@ export function ExemploUsoSelectBACEN() {
 
                 <div className="grid grid-cols-2 gap-4 text-xs">
                   <div>
-                    <p className="text-muted-foreground">Código Série</p>
-                    <p className="font-mono font-semibold">{taxa.codigo_serie}</p>
+                    <p className="text-muted-foreground">Código SGS</p>
+                    <p className="font-mono font-semibold">{taxa.modalidades_bacen_juros.codigo_sgs}</p>
                   </div>
                   <div>
                     <p className="text-muted-foreground">Data Referência</p>
@@ -126,7 +126,7 @@ export function ExemploUsoSelectBACEN() {
             </Card>
           )}
 
-          {codigoSerie && dataReferencia && !isLoading && !taxa && (
+          {modalidadeId && dataReferencia && !isLoading && !taxa && (
             <div className="p-4 bg-yellow-50 dark:bg-yellow-950 rounded-lg border border-yellow-200 dark:border-yellow-800">
               <p className="text-sm text-yellow-700 dark:text-yellow-300">
                 ⚠️ Taxa não encontrada para esta data. Tente uma data mais recente ou execute a importação de dados.
