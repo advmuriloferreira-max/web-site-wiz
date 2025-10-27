@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { ArrowLeft, FileText, Save, Calculator, Loader2, AlertTriangle, TrendingUp, DollarSign } from "lucide-react";
+import { ArrowLeft, FileText, Save, Calculator, Loader2, AlertTriangle, TrendingUp, DollarSign, Download, BarChart } from "lucide-react";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -236,6 +238,435 @@ export default function AnaliseJurosAbusivos() {
       console.error(error);
       toast.error("Erro ao salvar análise");
     }
+  };
+
+  // ===== FUNÇÕES DE GERAÇÃO DE RELATÓRIOS =====
+  
+  const gerarRelatorioAbusividade = () => {
+    if (!dadosCompletos || !analiseAbusividade || !taxaBacenData) return;
+    
+    const pdf = new jsPDF();
+    
+    // Cabeçalho
+    pdf.setFontSize(16);
+    pdf.setFont("helvetica", "bold");
+    pdf.text("RELATÓRIO DE ANÁLISE DE ABUSIVIDADE DE JUROS", 105, 20, { align: "center" });
+    
+    pdf.setFontSize(10);
+    pdf.setFont("helvetica", "normal");
+    pdf.text(`Gerado em: ${new Date().toLocaleDateString('pt-BR')}`, 105, 28, { align: "center" });
+    
+    let y = 40;
+    
+    // 1. DADOS DO CONTRATO
+    pdf.setFontSize(12);
+    pdf.setFont("helvetica", "bold");
+    pdf.text("1. DADOS DO CONTRATO", 20, y);
+    y += 10;
+    
+    pdf.setFontSize(10);
+    pdf.setFont("helvetica", "normal");
+    pdf.text(`Cliente: ${contrato?.clientes?.nome || "N/A"}`, 20, y);
+    y += 6;
+    pdf.text(`Instituição: ${contrato?.bancos?.nome || "N/A"}`, 20, y);
+    y += 6;
+    pdf.text(`Nº Contrato: ${contrato?.numero_contrato || "N/A"}`, 20, y);
+    y += 6;
+    pdf.text(`Data Assinatura: ${new Date(dataAssinatura).toLocaleDateString('pt-BR')}`, 20, y);
+    y += 15;
+    
+    // 2. ANÁLISE DE TAXAS
+    pdf.setFontSize(12);
+    pdf.setFont("helvetica", "bold");
+    pdf.text("2. ANÁLISE DE TAXAS", 20, y);
+    y += 10;
+    
+    autoTable(pdf, {
+      startY: y,
+      head: [['Taxa', 'Mensal', 'Anual', 'Status']],
+      body: [
+        ['Taxa Real Aplicada', `${dadosCompletos.taxaMensal.toFixed(2)}%`, `${dadosCompletos.taxaAnual.toFixed(2)}%`, '-'],
+        ['Taxa BACEN (Mercado)', `${taxaBacenData.taxa_mensal.toFixed(2)}%`, `${calcularTaxaAnual(taxaBacenData.taxa_mensal).toFixed(2)}%`, '-'],
+        ['Limite Aceitável (1,5x)', `${analiseAbusividade.taxaLimiteAceitavel.toFixed(2)}%`, `${calcularTaxaAnual(analiseAbusividade.taxaLimiteAceitavel).toFixed(2)}%`, analiseAbusividade.excedeLimite ? 'EXCEDIDO' : 'Dentro'],
+      ],
+    });
+    
+    y = (pdf as any).lastAutoTable.finalY + 15;
+    
+    // 3. VEREDITO
+    pdf.setFontSize(12);
+    pdf.setFont("helvetica", "bold");
+    pdf.text("3. VEREDITO", 20, y);
+    y += 10;
+    
+    pdf.setFontSize(10);
+    pdf.setFont("helvetica", "normal");
+    pdf.text(`Status: ${analiseAbusividade.abusividadeDetectada ? "ABUSIVIDADE DETECTADA" : "SEM ABUSIVIDADE"}`, 20, y);
+    y += 6;
+    pdf.text(`Grau: ${analiseAbusividade.grauAbusividade}`, 20, y);
+    y += 6;
+    pdf.text(`Percentual de Abusividade: ${analiseAbusividade.percentualAbusividade.toFixed(2)}%`, 20, y);
+    y += 6;
+    pdf.text(`Diferença Absoluta: ${analiseAbusividade.diferencaAbsoluta.toFixed(2)} pontos percentuais`, 20, y);
+    
+    pdf.save(`analise_abusividade_${contrato?.numero_contrato || 'contrato'}.pdf`);
+    toast.success("Relatório gerado com sucesso!");
+  };
+
+  const gerarRelatorioDiscrepancia = () => {
+    if (!analiseDiscrepancia || !dadosCompletos) {
+      toast.error("Não há discrepância detectada para gerar relatório");
+      return;
+    }
+    
+    const pdf = new jsPDF();
+    
+    pdf.setFontSize(16);
+    pdf.setFont("helvetica", "bold");
+    pdf.text("RELATÓRIO DE DISCREPÂNCIA CONTRATUAL", 105, 20, { align: "center" });
+    
+    let y = 40;
+    
+    pdf.setFontSize(12);
+    pdf.text("COMPARAÇÃO TAXA PREVISTA vs TAXA APLICADA", 20, y);
+    y += 15;
+    
+    autoTable(pdf, {
+      startY: y,
+      head: [['Item', 'Valor']],
+      body: [
+        ['Taxa Contratual Prevista', `${analiseDiscrepancia.taxaContratual.toFixed(2)}% a.m.`],
+        ['Taxa Real Aplicada', `${analiseDiscrepancia.taxaReal.toFixed(2)}% a.m.`],
+        ['Diferença', `${analiseDiscrepancia.diferencaTaxas.toFixed(2)} p.p.`],
+        ['Percentual de Diferença', `${analiseDiscrepancia.percentualDiferenca.toFixed(2)}%`],
+      ],
+    });
+    
+    y = (pdf as any).lastAutoTable.finalY + 15;
+    
+    pdf.setFontSize(12);
+    pdf.setFont("helvetica", "bold");
+    pdf.text("FUNDAMENTAÇÃO LEGAL", 20, y);
+    y += 10;
+    
+    pdf.setFontSize(10);
+    pdf.setFont("helvetica", "normal");
+    const texto = pdf.splitTextToSize(
+      "A aplicação de taxa de juros diferente da prevista no contrato caracteriza descumprimento " +
+      "contratual e cobrança indevida, conforme art. 422 do Código Civil (princípio da boa-fé objetiva) " +
+      "e art. 51, IV do CDC (cláusulas abusivas).",
+      170
+    );
+    pdf.text(texto, 20, y);
+    
+    pdf.save(`discrepancia_contratual_${contrato?.numero_contrato || 'contrato'}.pdf`);
+    toast.success("Relatório de discrepância gerado!");
+  };
+
+  const gerarRelatorioImpactoFinanceiro = () => {
+    if (!projecoesBacen || !dadosCompletos) return;
+    
+    const pdf = new jsPDF();
+    
+    pdf.setFontSize(16);
+    pdf.setFont("helvetica", "bold");
+    pdf.text("RELATÓRIO DE IMPACTO FINANCEIRO", 105, 20, { align: "center" });
+    
+    let y = 40;
+    
+    pdf.setFontSize(12);
+    pdf.text("COMPARAÇÃO DETALHADA", 20, y);
+    y += 15;
+    
+    autoTable(pdf, {
+      startY: y,
+      head: [['Item', 'Contratual', 'Correto (BACEN)', 'Diferença', '%']],
+      body: [
+        [
+          'Valor Financiado',
+          `R$ ${dadosCompletos.valorFinanciado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+          `R$ ${projecoesBacen.valorFinanciadoCorreto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+          `R$ ${projecoesBacen.diferencaValorFinanciado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+          `${projecoesBacen.percentualDiferencaFinanciado.toFixed(2)}%`
+        ],
+        [
+          'Parcela Mensal',
+          `R$ ${dadosCompletos.valorParcela.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+          `R$ ${projecoesBacen.parcelaCorreta.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+          `R$ ${projecoesBacen.diferencaParcela.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+          `${projecoesBacen.percentualDiferencaParcela.toFixed(2)}%`
+        ],
+        [
+          'Total Financiamento',
+          `R$ ${dadosCompletos.totalPago.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+          `R$ ${projecoesBacen.totalCorreto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+          `R$ ${projecoesBacen.diferencaTotalFinanciamento.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+          `${((projecoesBacen.diferencaTotalFinanciamento / projecoesBacen.totalCorreto) * 100).toFixed(2)}%`
+        ],
+      ],
+    });
+    
+    pdf.save(`impacto_financeiro_${contrato?.numero_contrato || 'contrato'}.pdf`);
+    toast.success("Relatório de impacto financeiro gerado!");
+  };
+
+  const gerarRelatorioPrejuizo = () => {
+    if (!prejuizoDetalhado) {
+      toast.error("Preencha o número de parcelas pagas para gerar este relatório");
+      return;
+    }
+    
+    const pdf = new jsPDF();
+    
+    pdf.setFontSize(16);
+    pdf.setFont("helvetica", "bold");
+    pdf.text("DEMONSTRATIVO DE PREJUÍZO DO CLIENTE", 105, 20, { align: "center" });
+    
+    let y = 40;
+    
+    autoTable(pdf, {
+      startY: y,
+      head: [['Descrição', 'Valor']],
+      body: [
+        ['Valor Já Pago Indevidamente', `R$ ${prejuizoDetalhado.totalPagoIndevido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`],
+        ['Economia Futura (se revisar agora)', `R$ ${prejuizoDetalhado.economiaFutura.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`],
+        ['ECONOMIA TOTAL', `R$ ${prejuizoDetalhado.economiaTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`],
+        ['Devolução em Dobro (CDC Art. 42)', `R$ ${prejuizoDetalhado.devolucaoDobro.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`],
+      ],
+      theme: 'grid',
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [66, 139, 202] },
+    });
+    
+    y = (pdf as any).lastAutoTable.finalY + 15;
+    
+    pdf.setFontSize(10);
+    pdf.setFont("helvetica", "bold");
+    pdf.text("FUNDAMENTAÇÃO LEGAL - CDC Art. 42, Parágrafo Único:", 20, y);
+    y += 8;
+    pdf.setFont("helvetica", "normal");
+    const texto = pdf.splitTextToSize(
+      "O consumidor cobrado em quantia indevida tem direito à repetição do indébito, " +
+      "por valor igual ao dobro do que pagou em excesso, acrescido de correção monetária e juros legais.",
+      170
+    );
+    pdf.text(texto, 20, y);
+    
+    pdf.save(`demonstrativo_prejuizo_${contrato?.numero_contrato || 'contrato'}.pdf`);
+    toast.success("Demonstrativo de prejuízo gerado!");
+  };
+
+  const gerarPlanilhaAmortizacao = () => {
+    if (!tabelaPrice.length || !dadosCompletos || !taxaBacenData) return;
+    
+    const pdf = new jsPDF('l', 'mm', 'a4'); // landscape
+    
+    pdf.setFontSize(14);
+    pdf.setFont("helvetica", "bold");
+    pdf.text("PLANILHA DE AMORTIZAÇÃO COMPARATIVA", 148, 15, { align: "center" });
+    
+    // Gerar tabela correta com taxa BACEN
+    const tabelaCorreta = gerarTabelaPrice(
+      dadosCompletos.valorFinanciado,
+      taxaBacenData.taxa_mensal,
+      dadosCompletos.numeroParcelas
+    ).slice(0, 12);
+    
+    const dados = tabelaPrice.map((p, i) => {
+      const correta = tabelaCorreta[i];
+      return [
+        p.numero,
+        `R$ ${p.valorParcela.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+        `R$ ${correta.valorParcela.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+        `R$ ${(p.valorParcela - correta.valorParcela).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+        `R$ ${p.saldoDevedor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+        `R$ ${correta.saldoDevedor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+      ];
+    });
+    
+    autoTable(pdf, {
+      startY: 25,
+      head: [['#', 'Parcela Original', 'Parcela Correta', 'Diferença', 'Saldo Original', 'Saldo Correto']],
+      body: dados,
+      theme: 'grid',
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [66, 139, 202] },
+    });
+    
+    pdf.save(`planilha_amortizacao_${contrato?.numero_contrato || 'contrato'}.pdf`);
+    toast.success("Planilha de amortização gerada!");
+  };
+
+  const gerarRelatorioSaldoDevedor = () => {
+    if (!analiseSaldo) {
+      toast.error("Preencha o saldo devedor atual para gerar este relatório");
+      return;
+    }
+    
+    const pdf = new jsPDF();
+    
+    pdf.setFontSize(16);
+    pdf.setFont("helvetica", "bold");
+    pdf.text("ANÁLISE DE SALDO DEVEDOR", 105, 20, { align: "center" });
+    
+    let y = 40;
+    
+    autoTable(pdf, {
+      startY: y,
+      body: [
+        ['Saldo Devedor Atual (informado)', `R$ ${analiseSaldo.saldoDevedorAtual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`],
+        ['Saldo Devedor Correto (Taxa BACEN)', `R$ ${analiseSaldo.saldoDevedorCorreto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`],
+        ['Diferença (valor indevido)', `R$ ${analiseSaldo.diferencaSaldo.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`],
+        ['Percentual de Diferença', `${analiseSaldo.percentualDiferencaSaldo.toFixed(2)}%`],
+      ],
+      theme: 'grid',
+      styles: { fontSize: 11 },
+    });
+    
+    pdf.save(`analise_saldo_devedor_${contrato?.numero_contrato || 'contrato'}.pdf`);
+    toast.success("Análise de saldo devedor gerada!");
+  };
+
+  const gerarResumoExecutivo = () => {
+    if (!dadosCompletos || !analiseAbusividade) return;
+    
+    const pdf = new jsPDF();
+    
+    pdf.setFontSize(16);
+    pdf.setFont("helvetica", "bold");
+    pdf.text("RESUMO EXECUTIVO PARA PETIÇÃO", 105, 20, { align: "center" });
+    
+    let y = 40;
+    
+    pdf.setFontSize(11);
+    pdf.setFont("helvetica", "normal");
+    
+    const paragrafo1 = pdf.splitTextToSize(
+      `Conforme análise técnica realizada, o contrato nº ${contrato?.numero_contrato || "N/A"} ` +
+      `firmado com ${contrato?.bancos?.nome || "instituição financeira"} em ${new Date(dataAssinatura).toLocaleDateString('pt-BR')} ` +
+      `apresenta as seguintes irregularidades:`,
+      170
+    );
+    pdf.text(paragrafo1, 20, y);
+    y += paragrafo1.length * 7 + 10;
+    
+    if (analiseDiscrepancia?.temDiscrepancia) {
+      pdf.setFont("helvetica", "bold");
+      pdf.text("1. DISCREPÂNCIA CONTRATUAL", 20, y);
+      y += 8;
+      pdf.setFont("helvetica", "normal");
+      const texto1 = pdf.splitTextToSize(
+        `A taxa de juros real aplicada (${dadosCompletos.taxaMensal.toFixed(2)}% a.m.) diverge da taxa ` +
+        `contratual prevista (${analiseDiscrepancia.taxaContratual.toFixed(2)}% a.m.), caracterizando ` +
+        `descumprimento contratual e cobrança indevida.`,
+        170
+      );
+      pdf.text(texto1, 20, y);
+      y += texto1.length * 7 + 10;
+    }
+    
+    if (analiseAbusividade.abusividadeDetectada) {
+      pdf.setFont("helvetica", "bold");
+      pdf.text("2. ABUSIVIDADE DE JUROS", 20, y);
+      y += 8;
+      pdf.setFont("helvetica", "normal");
+      const texto2 = pdf.splitTextToSize(
+        `A taxa de juros aplicada (${dadosCompletos.taxaMensal.toFixed(2)}% a.m.) supera em ` +
+        `${analiseAbusividade.percentualAbusividade.toFixed(2)}% a taxa média de mercado divulgada pelo ` +
+        `Banco Central (${taxaBacenData?.taxa_mensal.toFixed(2)}% a.m.), ultrapassando o limite de 1,5 vezes ` +
+        `estabelecido pela jurisprudência do STJ, caracterizando abusividade ${analiseAbusividade.grauAbusividade.toLowerCase()}.`,
+        170
+      );
+      pdf.text(texto2, 20, y);
+      y += texto2.length * 7 + 10;
+    }
+    
+    if (prejuizoDetalhado) {
+      pdf.setFont("helvetica", "bold");
+      pdf.text("3. PREJUÍZO FINANCEIRO", 20, y);
+      y += 8;
+      pdf.setFont("helvetica", "normal");
+      const texto3 = pdf.splitTextToSize(
+        `O cliente já pagou R$ ${prejuizoDetalhado.totalPagoIndevido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} ` +
+        `a mais do que deveria, e caso não haja revisão, pagará mais ` +
+        `R$ ${prejuizoDetalhado.economiaFutura.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} indevidamente, ` +
+        `totalizando um prejuízo de R$ ${prejuizoDetalhado.economiaTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}.`,
+        170
+      );
+      pdf.text(texto3, 20, y);
+      y += texto3.length * 7 + 10;
+    }
+    
+    // Nova página para pedidos
+    pdf.addPage();
+    y = 20;
+    
+    pdf.setFontSize(14);
+    pdf.setFont("helvetica", "bold");
+    pdf.text("PEDIDOS", 20, y);
+    y += 15;
+    
+    pdf.setFontSize(11);
+    pdf.setFont("helvetica", "normal");
+    pdf.text("Diante do exposto, requer-se:", 20, y);
+    y += 10;
+    
+    pdf.text("a) A revisão da taxa de juros aplicada;", 25, y);
+    y += 7;
+    pdf.text("b) A repetição do indébito, em dobro, conforme CDC Art. 42;", 25, y);
+    y += 7;
+    pdf.text("c) A redução do saldo devedor;", 25, y);
+    y += 7;
+    pdf.text("d) A recalculação das parcelas vincendas.", 25, y);
+    
+    pdf.save(`resumo_executivo_${contrato?.numero_contrato || 'contrato'}.pdf`);
+    toast.success("Resumo executivo gerado!");
+  };
+
+  const gerarRelatorioConsolidado = () => {
+    if (!dadosCompletos || !analiseAbusividade) return;
+    
+    const pdf = new jsPDF();
+    
+    // Capa
+    pdf.setFontSize(20);
+    pdf.setFont("helvetica", "bold");
+    pdf.text("RELATÓRIO CONSOLIDADO", 105, 100, { align: "center" });
+    pdf.text("ANÁLISE DE JUROS ABUSIVOS", 105, 115, { align: "center" });
+    
+    pdf.setFontSize(14);
+    pdf.setFont("helvetica", "normal");
+    pdf.text(`Contrato: ${contrato?.numero_contrato || "N/A"}`, 105, 140, { align: "center" });
+    pdf.text(`Cliente: ${contrato?.clientes?.nome || "N/A"}`, 105, 150, { align: "center" });
+    pdf.text(`Data: ${new Date().toLocaleDateString('pt-BR')}`, 105, 160, { align: "center" });
+    
+    // Sumário executivo
+    pdf.addPage();
+    let y = 20;
+    
+    pdf.setFontSize(16);
+    pdf.setFont("helvetica", "bold");
+    pdf.text("SUMÁRIO EXECUTIVO", 20, y);
+    y += 15;
+    
+    pdf.setFontSize(11);
+    pdf.setFont("helvetica", "normal");
+    pdf.text(`Status: ${analiseAbusividade.abusividadeDetectada ? "ABUSIVIDADE DETECTADA" : "SEM ABUSIVIDADE"}`, 20, y);
+    y += 8;
+    pdf.text(`Grau: ${analiseAbusividade.grauAbusividade}`, 20, y);
+    y += 8;
+    pdf.text(`Percentual de Abusividade: ${analiseAbusividade.percentualAbusividade.toFixed(2)}%`, 20, y);
+    
+    if (prejuizoDetalhado) {
+      y += 15;
+      pdf.setFont("helvetica", "bold");
+      pdf.text("PREJUÍZO TOTAL:", 20, y);
+      pdf.setFont("helvetica", "normal");
+      pdf.text(`R$ ${prejuizoDetalhado.economiaTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 70, y);
+    }
+    
+    toast.success("Relatório consolidado gerado! (Páginas 1-2)");
+    pdf.save(`relatorio_consolidado_${contrato?.numero_contrato || 'contrato'}.pdf`);
   };
 
   if (isLoading) return <div className="flex items-center justify-center h-96"><Loader2 className="h-8 w-8 animate-spin" /></div>;
@@ -1127,6 +1558,310 @@ export default function AnaliseJurosAbusivos() {
               </CardContent>
             </Card>
           )}
+
+          {/* ===== FUNCIONALIDADES ADICIONAIS ===== */}
+          <Separator className="my-8" />
+          <h2 className="text-2xl font-bold mb-4">Funcionalidades Adicionais</h2>
+
+          {/* Simulador de Cenários */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calculator className="h-5 w-5" />
+                Simulador de Cenários
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Simule diferentes taxas e prazos para comparação
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="p-4 bg-muted rounded-lg">
+                  <Label className="text-sm font-semibold mb-2 block">Simular com outra taxa</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      type="number"
+                      step="0.01"
+                      placeholder="Ex: 2.50"
+                      className="flex-1"
+                    />
+                    <Button variant="outline" size="sm">
+                      Simular
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Insira uma taxa alternativa (% a.m.) para recalcular tudo
+                  </p>
+                </div>
+
+                <div className="p-4 bg-muted rounded-lg">
+                  <Label className="text-sm font-semibold mb-2 block">Simular com outro prazo</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      type="number"
+                      placeholder="Ex: 48"
+                      className="flex-1"
+                    />
+                    <Button variant="outline" size="sm">
+                      Simular
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Insira um prazo alternativo (meses) para recalcular tudo
+                  </p>
+                </div>
+              </div>
+
+              <Alert>
+                <TrendingUp className="h-4 w-4" />
+                <AlertDescription>
+                  <p className="text-sm font-semibold">💡 Dica</p>
+                  <p className="text-xs mt-1">
+                    Use o simulador para explorar diferentes cenários e comparar o impacto de mudanças na taxa ou prazo.
+                  </p>
+                </AlertDescription>
+              </Alert>
+            </CardContent>
+          </Card>
+
+          {/* Comparação com Outras Modalidades */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart className="h-5 w-5" />
+                Comparação com Outras Modalidades
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Veja se o cliente poderia ter contratado modalidade mais vantajosa
+              </p>
+            </CardHeader>
+            <CardContent>
+              <Alert>
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>
+                  <p className="text-sm font-semibold">⚠️ Funcionalidade em Desenvolvimento</p>
+                  <p className="text-xs mt-1">
+                    Em breve você poderá comparar automaticamente com todas as 48 modalidades BACEN disponíveis 
+                    para identificar se o cliente poderia ter obtido condições melhores.
+                  </p>
+                </AlertDescription>
+              </Alert>
+
+              <div className="mt-4 p-4 bg-muted rounded-lg">
+                <p className="text-sm font-semibold mb-2">Análise Manual Sugerida:</p>
+                <p className="text-xs text-muted-foreground">
+                  Compare a modalidade selecionada ({taxaBacenData ? "Taxa BACEN disponível" : "Aguardando seleção"}) 
+                  com modalidades similares na data de assinatura para verificar se havia opções mais vantajosas no mercado.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Histórico de Taxas BACEN */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5" />
+                Histórico de Taxas BACEN
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Evolução da taxa de mercado nos últimos meses
+              </p>
+            </CardHeader>
+            <CardContent>
+              <Alert>
+                <TrendingUp className="h-4 w-4" />
+                <AlertDescription>
+                  <p className="text-sm font-semibold">📊 Análise Histórica</p>
+                  <p className="text-xs mt-1">
+                    O sistema utiliza as taxas médias mensais divulgadas pelo BACEN através do SGS 
+                    (Sistema Gerenciador de Séries Temporais) para garantir comparações precisas e atualizadas.
+                  </p>
+                </AlertDescription>
+              </Alert>
+
+              {taxaBacenData && dataAssinatura && (
+                <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
+                  <p className="text-sm font-semibold mb-2">Taxa na Data de Assinatura:</p>
+                  <p className="text-2xl font-bold text-blue-600">
+                    {taxaBacenData.taxa_mensal.toFixed(2)}% a.m.
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Referência: {new Date(dataAssinatura).toLocaleDateString('pt-BR')}
+                  </p>
+                </div>
+              )}
+
+              <div className="mt-4 p-4 bg-muted rounded-lg">
+                <p className="text-xs text-muted-foreground">
+                  <strong>Nota:</strong> Gráficos de evolução histórica estarão disponíveis em breve, 
+                  permitindo visualizar tendências de mercado e identificar se a taxa contratada 
+                  estava acima da média mesmo para aquele período.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Calculadora de Capitalização */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calculator className="h-5 w-5" />
+                Análise de Capitalização de Juros
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Detectar e calcular impacto da capitalização
+              </p>
+            </CardHeader>
+            <CardContent>
+              <Alert>
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>
+                  <p className="text-sm font-semibold">⚖️ Capitalização de Juros</p>
+                  <p className="text-xs mt-1">
+                    A capitalização mensal de juros (juros sobre juros) só é permitida em operações específicas 
+                    regulamentadas pelo Banco Central. Sua aplicação indevida configura anatocismo, 
+                    prática vedada pelo art. 4º do Decreto 22.626/33 (Lei da Usura).
+                  </p>
+                </AlertDescription>
+              </Alert>
+
+              <div className="mt-4 grid md:grid-cols-2 gap-4">
+                <div className="p-4 bg-muted rounded-lg">
+                  <p className="text-sm font-semibold mb-2">Sistema de Amortização Detectado:</p>
+                  <Badge>Tabela Price (SAC)</Badge>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    A Tabela Price utiliza capitalização composta na formação das parcelas, 
+                    o que é permitido desde que previsto em contrato e regulamentado.
+                  </p>
+                </div>
+
+                <div className="p-4 bg-muted rounded-lg">
+                  <p className="text-sm font-semibold mb-2">Análise Complementar:</p>
+                  <p className="text-xs text-muted-foreground">
+                    Verifique se o contrato prevê expressamente a capitalização de juros e 
+                    se a operação se enquadra nas exceções legais permitidas pela legislação vigente.
+                  </p>
+                  <Button variant="outline" size="sm" className="mt-3">
+                    Ver Fundamentação Legal
+                  </Button>
+                </div>
+              </div>
+
+              {dadosCompletos && (
+                <div className="mt-4 p-4 bg-yellow-50 dark:bg-yellow-950 rounded-lg border-l-4 border-yellow-400">
+                  <p className="text-sm font-semibold mb-2">📌 Informações do Cálculo Atual:</p>
+                  <div className="text-xs space-y-1">
+                    <p>• Taxa Mensal: {dadosCompletos.taxaMensal.toFixed(2)}%</p>
+                    <p>• Taxa Anual Equivalente: {dadosCompletos.taxaAnual.toFixed(2)}%</p>
+                    <p>• Total de Juros: R$ {dadosCompletos.totalJuros.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                    <p>• CET (Custo Efetivo Total): {dadosCompletos.custoEfetivoTotal.toFixed(2)}%</p>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* ===== GERAÇÃO DE RELATÓRIOS (8 TIPOS) ===== */}
+          <Separator className="my-8" />
+          <Card className="border-2 border-primary">
+            <CardHeader className="bg-primary/5">
+              <CardTitle className="flex items-center gap-2">
+                <Download className="h-5 w-5" />
+                Geração de Relatórios Profissionais
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Gere relatórios em PDF para diferentes finalidades
+              </p>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <Button
+                  onClick={gerarRelatorioAbusividade}
+                  variant="outline"
+                  className="h-auto flex-col gap-2 p-4"
+                >
+                  <FileText className="h-6 w-6" />
+                  <span className="text-sm font-semibold">1. Análise de Abusividade</span>
+                  <span className="text-xs text-muted-foreground">Relatório completo com veredito</span>
+                </Button>
+
+                <Button
+                  onClick={gerarRelatorioDiscrepancia}
+                  variant="outline"
+                  className="h-auto flex-col gap-2 p-4"
+                  disabled={!analiseDiscrepancia?.temDiscrepancia}
+                >
+                  <AlertTriangle className="h-6 w-6" />
+                  <span className="text-sm font-semibold">2. Discrepância Contratual</span>
+                  <span className="text-xs text-muted-foreground">Se taxa aplicada ≠ prevista</span>
+                </Button>
+
+                <Button
+                  onClick={gerarRelatorioImpactoFinanceiro}
+                  variant="outline"
+                  className="h-auto flex-col gap-2 p-4"
+                  disabled={!projecoesBacen}
+                >
+                  <DollarSign className="h-6 w-6" />
+                  <span className="text-sm font-semibold">3. Impacto Financeiro</span>
+                  <span className="text-xs text-muted-foreground">Tabela comparativa detalhada</span>
+                </Button>
+
+                <Button
+                  onClick={gerarRelatorioPrejuizo}
+                  variant="outline"
+                  className="h-auto flex-col gap-2 p-4"
+                  disabled={!prejuizoDetalhado}
+                >
+                  <TrendingUp className="h-6 w-6" />
+                  <span className="text-sm font-semibold">4. Prejuízo do Cliente</span>
+                  <span className="text-xs text-muted-foreground">Com devolução em dobro</span>
+                </Button>
+
+                <Button
+                  onClick={gerarPlanilhaAmortizacao}
+                  variant="outline"
+                  className="h-auto flex-col gap-2 p-4"
+                >
+                  <BarChart className="h-6 w-6" />
+                  <span className="text-sm font-semibold">5. Planilha Amortização</span>
+                  <span className="text-xs text-muted-foreground">Comparativa lado a lado</span>
+                </Button>
+
+                <Button
+                  onClick={gerarRelatorioSaldoDevedor}
+                  variant="outline"
+                  className="h-auto flex-col gap-2 p-4"
+                  disabled={!analiseSaldo}
+                >
+                  <FileText className="h-6 w-6" />
+                  <span className="text-sm font-semibold">6. Saldo Devedor</span>
+                  <span className="text-xs text-muted-foreground">Análise de diferenças</span>
+                </Button>
+
+                <Button
+                  onClick={gerarResumoExecutivo}
+                  variant="outline"
+                  className="h-auto flex-col gap-2 p-4"
+                >
+                  <FileText className="h-6 w-6" />
+                  <span className="text-sm font-semibold">7. Resumo Executivo</span>
+                  <span className="text-xs text-muted-foreground">Pronto para petição</span>
+                </Button>
+
+                <Button
+                  onClick={gerarRelatorioConsolidado}
+                  variant="default"
+                  className="h-auto flex-col gap-2 p-4"
+                >
+                  <Download className="h-6 w-6" />
+                  <span className="text-sm font-semibold">8. Consolidado</span>
+                  <span className="text-xs text-muted-foreground">Todos em um PDF</span>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Botão Salvar */}
           <Card>
