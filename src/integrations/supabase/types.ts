@@ -2035,6 +2035,33 @@ export type Database = {
           },
         ]
       }
+      tabela_provisao_bcb352: {
+        Row: {
+          carteira: string
+          descricao: string | null
+          id: number
+          meses_atraso_max: number | null
+          meses_atraso_min: number
+          percentual_provisao: number
+        }
+        Insert: {
+          carteira: string
+          descricao?: string | null
+          id?: number
+          meses_atraso_max?: number | null
+          meses_atraso_min: number
+          percentual_provisao: number
+        }
+        Update: {
+          carteira?: string
+          descricao?: string | null
+          id?: number
+          meses_atraso_max?: number | null
+          meses_atraso_min?: number
+          percentual_provisao?: number
+        }
+        Relationships: []
+      }
       taxas_juros_bacen: {
         Row: {
           categoria: string
