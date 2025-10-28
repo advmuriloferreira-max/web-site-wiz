@@ -1,30 +1,34 @@
 import { Link } from "react-router-dom";
-import { Users, FileText, Calculator, ArrowRight } from "lucide-react";
+import { Users, FileText, Calculator, TrendingDown, ArrowRight } from "lucide-react";
 
 const quickActions = [
   {
     title: "Novo Cliente",
     description: "Cadastrar novo cliente",
-    href: "/clientes/novo",
+    href: "/app/clientes/novo",
     icon: Users,
     gradient: "from-blue-600 to-blue-700",
-    hoverGradient: "hover:from-blue-500 hover:to-blue-600"
   },
   {
-    title: "Novo Contrato", 
-    description: "Registrar nova dívida",
-    href: "/contratos/novo",
-    icon: FileText,
-    gradient: "from-emerald-600 to-emerald-700",
-    hoverGradient: "hover:from-emerald-500 hover:to-emerald-600"
-  },
-  {
-    title: "Calculadora",
-    description: "Calcular provisões",
-    href: "/calculos", 
+    title: "Análise de Passivo",
+    description: "Gestão de passivo bancário",
+    href: "/app/quick/provisionamento",
     icon: Calculator,
+    gradient: "from-emerald-600 to-emerald-700",
+  },
+  {
+    title: "Juros Abusivos",
+    description: "Calcular abusividade de juros",
+    href: "/app/quick/juros-abusivos",
+    icon: TrendingDown,
+    gradient: "from-red-600 to-red-700",
+  },
+  {
+    title: "Superendividamento",
+    description: "Análise e plano de pagamento",
+    href: "/app/quick/superendividamento", 
+    icon: FileText,
     gradient: "from-amber-600 to-amber-700",
-    hoverGradient: "hover:from-amber-500 hover:to-amber-600"
   }
 ];
 
@@ -38,7 +42,7 @@ export function QuickActionsSection() {
       </div>
       
       <div className="p-6 bg-background">
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {quickActions.map((action) => (
             <Link
               key={action.title}
