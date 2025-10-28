@@ -324,7 +324,11 @@ export default function ListaAnalises() {
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => navigate("/app/gestao-passivo/dashboard")}>
             <TrendingUp className="h-4 w-4 mr-2" />
-            Dashboard de Oportunidades
+            Dashboard
+          </Button>
+          <Button variant="outline" onClick={() => navigate("/app/gestao-passivo/simulador")}>
+            <TrendingUp className="h-4 w-4 mr-2" />
+            Simulador
           </Button>
           <Button onClick={() => navigate("/app/gestao-passivo/nova")}>
             <Plus className="h-4 w-4 mr-2" />

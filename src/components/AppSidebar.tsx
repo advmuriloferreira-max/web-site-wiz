@@ -8,6 +8,7 @@ import {
   PiggyBank,
   BarChart3,
   Settings,
+  TrendingUp,
 } from "lucide-react";
 import {
   Sidebar,
@@ -58,6 +59,11 @@ const menuItems = [
         title: "Análises Salvas",
         url: "/app/gestao-passivo",
         icon: Calculator,
+      },
+      {
+        title: "Simulador de Cenários",
+        url: "/app/gestao-passivo/simulador",
+        icon: TrendingUp,
       },
     ],
   },

@@ -60,6 +60,7 @@ import SuperendividamentoRapido from "@/pages/quick/SuperendividamentoRapido";
 import ListaAnalises from "@/pages/gestao-passivo/ListaAnalises";
 import NovaAnalise from "@/pages/gestao-passivo/NovaAnalise";
 import DashboardOportunidades from "@/pages/gestao-passivo/DashboardOportunidades";
+import SimuladorCenarios from "@/pages/gestao-passivo/SimuladorCenarios";
 
 export function EnterpriseLayout() {
   const [searchOpen, setSearchOpen] = useState(false);
@@ -225,6 +226,7 @@ export function EnterpriseLayout() {
                     <Route path="/gestao-passivo" element={<ListaAnalises />} />
                     <Route path="/gestao-passivo/nova" element={<NovaAnalise />} />
                     <Route path="/gestao-passivo/dashboard" element={<DashboardOportunidades />} />
+                    <Route path="/gestao-passivo/simulador" element={<SimuladorCenarios />} />
 
                     {/* ===================================================================== */}
                     {/* CALCULADORA (manter para compatibilidade) */}

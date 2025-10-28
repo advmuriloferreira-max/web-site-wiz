@@ -239,10 +239,24 @@ export default function DashboardOportunidades() {
     <div className="container mx-auto py-8 px-4 max-w-7xl">
       {/* HEADER COM ESTATÍSTICAS GERAIS */}
       <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-2">Dashboard de Oportunidades</h1>
-        <p className="text-muted-foreground mb-6">
-          Análise premium de oportunidades de negociação baseada em provisões BCB 352
-        </p>
+        <div className="flex items-start justify-between mb-6">
+          <div>
+            <h1 className="text-4xl font-bold mb-2">Dashboard de Oportunidades</h1>
+            <p className="text-muted-foreground">
+              Análise premium de oportunidades de negociação baseada em provisões BCB 352
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => navigate("/app/gestao-passivo/simulador")}>
+              <TrendingUp className="h-4 w-4 mr-2" />
+              Simulador
+            </Button>
+            <Button onClick={() => navigate("/app/gestao-passivo/nova")}>
+              <FileText className="h-4 w-4 mr-2" />
+              Nova Análise
+            </Button>
+          </div>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <Card>
