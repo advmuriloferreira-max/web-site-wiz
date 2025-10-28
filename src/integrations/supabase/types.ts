@@ -14,6 +14,143 @@ export type Database = {
   }
   public: {
     Tables: {
+      analises_gestao_passivo: {
+        Row: {
+          banco_codigo_compe: string | null
+          banco_nome: string
+          banco_segmento: string | null
+          carteira_bcb352: string
+          cliente_id: string | null
+          created_at: string | null
+          data_contratacao: string
+          data_inadimplencia: string
+          data_proposta_enviada: string | null
+          data_reestruturacao: string | null
+          data_resposta_banco: string | null
+          data_vencimento_original: string | null
+          dias_atraso: number
+          em_default: boolean | null
+          escritorio_id: string
+          estrategia_negociacao: string | null
+          foi_reestruturado: boolean | null
+          fundamentacao_juridica: string | null
+          id: string
+          marco_provisionamento: string | null
+          meses_atraso: number
+          momento_negociacao: string | null
+          motivo_default: string[] | null
+          numero_contrato: string
+          observacoes: string | null
+          observacoes_negociacao: string | null
+          percentual_proposta_acordo: number | null
+          percentual_provisao_bcb352: number
+          possui_garantias: boolean | null
+          provisao_adicional_reestruturacao: number | null
+          saldo_devedor_atual: number
+          status_negociacao: string | null
+          tipo_garantias: string[] | null
+          tipo_operacao: string
+          updated_at: string | null
+          usuario_id: string | null
+          valor_garantias: number | null
+          valor_original: number
+          valor_proposta_acordo: number | null
+          valor_provisao_bcb352: number
+        }
+        Insert: {
+          banco_codigo_compe?: string | null
+          banco_nome: string
+          banco_segmento?: string | null
+          carteira_bcb352: string
+          cliente_id?: string | null
+          created_at?: string | null
+          data_contratacao: string
+          data_inadimplencia: string
+          data_proposta_enviada?: string | null
+          data_reestruturacao?: string | null
+          data_resposta_banco?: string | null
+          data_vencimento_original?: string | null
+          dias_atraso?: number
+          em_default?: boolean | null
+          escritorio_id: string
+          estrategia_negociacao?: string | null
+          foi_reestruturado?: boolean | null
+          fundamentacao_juridica?: string | null
+          id?: string
+          marco_provisionamento?: string | null
+          meses_atraso?: number
+          momento_negociacao?: string | null
+          motivo_default?: string[] | null
+          numero_contrato: string
+          observacoes?: string | null
+          observacoes_negociacao?: string | null
+          percentual_proposta_acordo?: number | null
+          percentual_provisao_bcb352: number
+          possui_garantias?: boolean | null
+          provisao_adicional_reestruturacao?: number | null
+          saldo_devedor_atual: number
+          status_negociacao?: string | null
+          tipo_garantias?: string[] | null
+          tipo_operacao: string
+          updated_at?: string | null
+          usuario_id?: string | null
+          valor_garantias?: number | null
+          valor_original: number
+          valor_proposta_acordo?: number | null
+          valor_provisao_bcb352: number
+        }
+        Update: {
+          banco_codigo_compe?: string | null
+          banco_nome?: string
+          banco_segmento?: string | null
+          carteira_bcb352?: string
+          cliente_id?: string | null
+          created_at?: string | null
+          data_contratacao?: string
+          data_inadimplencia?: string
+          data_proposta_enviada?: string | null
+          data_reestruturacao?: string | null
+          data_resposta_banco?: string | null
+          data_vencimento_original?: string | null
+          dias_atraso?: number
+          em_default?: boolean | null
+          escritorio_id?: string
+          estrategia_negociacao?: string | null
+          foi_reestruturado?: boolean | null
+          fundamentacao_juridica?: string | null
+          id?: string
+          marco_provisionamento?: string | null
+          meses_atraso?: number
+          momento_negociacao?: string | null
+          motivo_default?: string[] | null
+          numero_contrato?: string
+          observacoes?: string | null
+          observacoes_negociacao?: string | null
+          percentual_proposta_acordo?: number | null
+          percentual_provisao_bcb352?: number
+          possui_garantias?: boolean | null
+          provisao_adicional_reestruturacao?: number | null
+          saldo_devedor_atual?: number
+          status_negociacao?: string | null
+          tipo_garantias?: string[] | null
+          tipo_operacao?: string
+          updated_at?: string | null
+          usuario_id?: string | null
+          valor_garantias?: number | null
+          valor_original?: number
+          valor_proposta_acordo?: number | null
+          valor_provisao_bcb352?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analises_gestao_passivo_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       analises_juros: {
         Row: {
           analista_id: string | null

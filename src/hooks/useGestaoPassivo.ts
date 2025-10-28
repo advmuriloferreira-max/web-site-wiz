@@ -8,12 +8,12 @@ export const useGestaoPassivo = () => {
     queryKey: ["analises-gestao-passivo"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("analises_gestao_passivo")
+        .from("analises_gestao_passivo" as any)
         .select("*")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return data as AnaliseGestaoPassivo[];
+      return data as any as AnaliseGestaoPassivo[];
     },
   });
 };
@@ -25,13 +25,13 @@ export const useGestaoPassivoById = (id: string | null) => {
       if (!id) return null;
 
       const { data, error } = await supabase
-        .from("analises_gestao_passivo")
+        .from("analises_gestao_passivo" as any)
         .select("*")
         .eq("id", id)
         .single();
 
       if (error) throw error;
-      return data as AnaliseGestaoPassivo;
+      return data as any as AnaliseGestaoPassivo;
     },
     enabled: !!id,
   });
@@ -43,13 +43,13 @@ export const useCreateGestaoPassivo = () => {
   return useMutation({
     mutationFn: async (analise: Partial<AnaliseGestaoPassivo>) => {
       const { data, error } = await supabase
-        .from("analises_gestao_passivo")
-        .insert(analise)
+        .from("analises_gestao_passivo" as any)
+        .insert(analise as any)
         .select()
         .single();
 
       if (error) throw error;
-      return data as AnaliseGestaoPassivo;
+      return data as any as AnaliseGestaoPassivo;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["analises-gestao-passivo"] });
@@ -71,14 +71,14 @@ export const useUpdateGestaoPassivo = () => {
       ...updates
     }: Partial<AnaliseGestaoPassivo> & { id: string }) => {
       const { data, error } = await supabase
-        .from("analises_gestao_passivo")
-        .update(updates)
+        .from("analises_gestao_passivo" as any)
+        .update(updates as any)
         .eq("id", id)
         .select()
         .single();
 
       if (error) throw error;
-      return data as AnaliseGestaoPassivo;
+      return data as any as AnaliseGestaoPassivo;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["analises-gestao-passivo"] });
