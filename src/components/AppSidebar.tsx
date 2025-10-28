@@ -39,11 +39,6 @@ const menuItems = [
         url: "/app/clientes",
         icon: Users,
       },
-      {
-        title: "Contratos",
-        url: "/app/contratos",
-        icon: FileText,
-      },
     ],
   },
   {
