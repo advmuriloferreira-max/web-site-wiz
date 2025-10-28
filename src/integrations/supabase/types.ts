@@ -458,6 +458,42 @@ export type Database = {
         }
         Relationships: []
       }
+      bancos_brasil: {
+        Row: {
+          ativo: boolean | null
+          codigo_compe: string
+          controle: string | null
+          created_at: string | null
+          id: string
+          nome_completo: string
+          nome_curto: string
+          segmento_bcb: string | null
+          tipo_instituicao: string | null
+        }
+        Insert: {
+          ativo?: boolean | null
+          codigo_compe: string
+          controle?: string | null
+          created_at?: string | null
+          id?: string
+          nome_completo: string
+          nome_curto: string
+          segmento_bcb?: string | null
+          tipo_instituicao?: string | null
+        }
+        Update: {
+          ativo?: boolean | null
+          codigo_compe?: string
+          controle?: string | null
+          created_at?: string | null
+          id?: string
+          nome_completo?: string
+          nome_curto?: string
+          segmento_bcb?: string | null
+          tipo_instituicao?: string | null
+        }
+        Relationships: []
+      }
       bancos_provisao: {
         Row: {
           codigo_banco: string | null
