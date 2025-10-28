@@ -48,6 +48,7 @@ import { AnaliseGestaoPassivo, CarteiraBCB352, StatusNegociacao } from "@/types/
 import { determinarMarcoProvisionamento, determinarMomentoNegociacao } from "@/lib/calculoGestaoPassivo";
 import { PremiumPagination } from "@/components/ui/premium-pagination";
 import { toast } from "sonner";
+import { gerarRelatorioGestaoPassivoPDF } from "@/lib/gerarRelatorioGestaoPassivoPDF";
 
 export default function ListaAnalises() {
   const navigate = useNavigate();
@@ -238,6 +239,19 @@ export default function ListaAnalises() {
   const handleDelete = (id: string) => {
     // TODO: Implementar deleção
     toast.success("Análise excluída com sucesso");
+  };
+
+  const handleGerarPDF = async (id: string) => {
+    try {
+      toast.loading("Gerando relatório PDF...");
+      await gerarRelatorioGestaoPassivoPDF(id);
+      toast.dismiss();
+      toast.success("Relatório PDF gerado com sucesso!");
+    } catch (error) {
+      toast.dismiss();
+      toast.error("Erro ao gerar relatório PDF");
+      console.error(error);
+    }
   };
 
   const getCarteiraBadge = (carteira: string) => {
@@ -597,6 +611,10 @@ export default function ListaAnalises() {
                             <DropdownMenuItem onClick={() => navigate(`/app/gestao-passivo/${analise.id}`)}>
                               <FileText className="h-4 w-4 mr-2" />
                               Ver Detalhes
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleGerarPDF(analise.id)}>
+                              <Download className="h-4 w-4 mr-2" />
+                              Gerar Relatório PDF
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => navigate(`/app/gestao-passivo/${analise.id}/editar`)}>
                               <Edit className="h-4 w-4 mr-2" />
