@@ -172,7 +172,7 @@ export function EnterpriseLayout() {
                     {/* ===================================================================== */}
                     {/* ROTAS PRINCIPAIS */}
                     {/* ===================================================================== */}
-                    <Route path="/home" element={<Home />} />
+                    <Route path="/home" element={<Index />} />
                     <Route path="/workspace" element={<WorkspacePage />} />
 
                     {/* ===================================================================== */}
@@ -182,7 +182,7 @@ export function EnterpriseLayout() {
                     <Route path="/clientes/novo" element={<NovoCliente />} />
                     <Route path="/clientes/:id" element={<ClienteDetalhes />} />
                     
-                    <Route path="/contratos" element={<Contratos />} />
+                    {/* Rotas de contrato mantidas apenas para acesso via cliente */}
                     <Route path="/contratos/novo" element={<NovoContrato />} />
                     <Route path="/contratos/:id" element={<ContratoDetalhes />} />
 
