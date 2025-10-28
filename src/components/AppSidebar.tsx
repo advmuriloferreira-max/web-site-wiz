@@ -42,13 +42,28 @@ const menuItems = [
     ],
   },
   {
-    section: "ANÁLISE RÁPIDA",
+    section: "GESTÃO DE PASSIVO BANCÁRIO",
     items: [
       {
-        title: "Gestão de Passivo Bancário",
-        url: "/app/quick/provisionamento",
+        title: "Dashboard Premium",
+        url: "/app/gestao-passivo/dashboard",
+        icon: BarChart3,
+      },
+      {
+        title: "Nova Análise",
+        url: "/app/gestao-passivo/nova",
+        icon: FileText,
+      },
+      {
+        title: "Análises Salvas",
+        url: "/app/gestao-passivo",
         icon: Calculator,
       },
+    ],
+  },
+  {
+    section: "ANÁLISE RÁPIDA",
+    items: [
       {
         title: "Juros Abusivos",
         url: "/app/quick/juros-abusivos",
@@ -64,11 +79,6 @@ const menuItems = [
   {
     section: "ANÁLISES SALVAS",
     items: [
-      {
-        title: "Gestão de Passivo Bancário",
-        url: "/app/analises/provisionamento",
-        icon: BarChart3,
-      },
       {
         title: "Juros Abusivos",
         url: "/app/analises/juros-abusivos",
