@@ -30,23 +30,20 @@ const quickActions = [
 
 export function QuickActionsSection() {
   return (
-    <div className="rounded-xl bg-white/10 backdrop-blur-md border border-white/20 overflow-hidden">
-      <div className="bg-gradient-to-r from-slate-50/50 to-white/50 dark:from-slate-800/50 dark:to-slate-700/50 p-6 border-b border-white/20">
-        <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+    <div className="rounded-xl bg-card border border-border shadow-sm overflow-hidden">
+      <div className="bg-muted/50 p-6 border-b border-border">
+        <h3 className="text-lg font-semibold text-foreground">
           Ações Rápidas
         </h3>
       </div>
       
-      <div className="p-6">
+      <div className="p-6 bg-background">
         <div className="grid gap-4 md:grid-cols-3">
           {quickActions.map((action) => (
             <Link
               key={action.title}
               to={action.href}
-              className="group relative overflow-hidden rounded-xl p-6 bg-gradient-to-br text-white transition-all duration-300 hover:scale-105 hover:shadow-2xl"
-              style={{
-                background: `linear-gradient(135deg, ${action.gradient.split(' ')[1]}, ${action.gradient.split(' ')[3]})`
-              }}
+              className={`group relative overflow-hidden rounded-xl p-6 text-white transition-all duration-300 hover:scale-105 hover:shadow-2xl bg-gradient-to-br ${action.gradient}`}
             >
               {/* Gradient overlay on hover */}
               <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
