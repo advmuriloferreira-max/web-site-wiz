@@ -14,6 +14,65 @@ export type Database = {
   }
   public: {
     Tables: {
+      alertas_provisionamento: {
+        Row: {
+          analise_id: string
+          created_at: string | null
+          escritorio_id: string
+          id: string
+          lido: boolean | null
+          lido_em: string | null
+          marco_anterior: string | null
+          marco_atual: string
+          mensagem: string
+          numero_contrato: string
+          percentual_provisao_anterior: number | null
+          percentual_provisao_atual: number
+          tipo_alerta: string
+          updated_at: string | null
+        }
+        Insert: {
+          analise_id: string
+          created_at?: string | null
+          escritorio_id: string
+          id?: string
+          lido?: boolean | null
+          lido_em?: string | null
+          marco_anterior?: string | null
+          marco_atual: string
+          mensagem: string
+          numero_contrato: string
+          percentual_provisao_anterior?: number | null
+          percentual_provisao_atual: number
+          tipo_alerta: string
+          updated_at?: string | null
+        }
+        Update: {
+          analise_id?: string
+          created_at?: string | null
+          escritorio_id?: string
+          id?: string
+          lido?: boolean | null
+          lido_em?: string | null
+          marco_anterior?: string | null
+          marco_atual?: string
+          mensagem?: string
+          numero_contrato?: string
+          percentual_provisao_anterior?: number | null
+          percentual_provisao_atual?: number
+          tipo_alerta?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alertas_provisionamento_analise_id_fkey"
+            columns: ["analise_id"]
+            isOneToOne: false
+            referencedRelation: "analises_gestao_passivo"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       analises_gestao_passivo: {
         Row: {
           banco_codigo_compe: string | null
@@ -1676,6 +1735,50 @@ export type Database = {
             columns: ["escritorio_id"]
             isOneToOne: false
             referencedRelation: "escritorios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      historico_provisao: {
+        Row: {
+          analise_id: string
+          created_at: string | null
+          data_snapshot: string
+          escritorio_id: string
+          id: string
+          marco_provisionamento: string
+          meses_atraso: number
+          percentual_provisao: number
+          valor_provisao: number
+        }
+        Insert: {
+          analise_id: string
+          created_at?: string | null
+          data_snapshot?: string
+          escritorio_id: string
+          id?: string
+          marco_provisionamento: string
+          meses_atraso: number
+          percentual_provisao: number
+          valor_provisao: number
+        }
+        Update: {
+          analise_id?: string
+          created_at?: string | null
+          data_snapshot?: string
+          escritorio_id?: string
+          id?: string
+          marco_provisionamento?: string
+          meses_atraso?: number
+          percentual_provisao?: number
+          valor_provisao?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "historico_provisao_analise_id_fkey"
+            columns: ["analise_id"]
+            isOneToOne: false
+            referencedRelation: "analises_gestao_passivo"
             referencedColumns: ["id"]
           },
         ]

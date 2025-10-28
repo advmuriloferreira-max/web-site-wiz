@@ -10,6 +10,7 @@ import { EnterpriseMobileNav } from "@/components/ui/enterprise-mobile-nav";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { InstallPrompt } from "@/components/InstallPrompt";
 import { UserMenu } from "@/components/UserMenu";
+import { AlertasProvisao } from "@/components/AlertasProvisao";
 import { PageTransition } from "@/components/ui/page-transition";
 import { ErrorBoundary } from "@/components/ui/error-boundary";
 import { SkipToMainContent } from "@/components/ui/accessibility-helpers";
@@ -158,6 +159,9 @@ export function EnterpriseLayout() {
 
                 {/* Theme Toggle */}
                 <ThemeToggle />
+                
+                {/* Alertas de Provisão */}
+                <AlertasProvisao />
                 
                 {/* User Menu */}
                 <UserMenu />
