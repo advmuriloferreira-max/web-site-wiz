@@ -89,7 +89,7 @@ export async function calcularGestaoPassivo(
 /**
  * Determina o marco de provisionamento (50%, 60%, 70%, 80%, 90%, 100%)
  */
-function determinarMarcoProvisionamento(percentual: number): string {
+export function determinarMarcoProvisionamento(percentual: number): string {
   if (percentual >= 1.0) return "100";
   if (percentual >= 0.90) return "90";
   if (percentual >= 0.80) return "80";
@@ -102,7 +102,7 @@ function determinarMarcoProvisionamento(percentual: number): string {
 /**
  * Determina o momento ideal de negociação
  */
-function determinarMomentoNegociacao(percentual: number): MomentoNegociacao {
+export function determinarMomentoNegociacao(percentual: number): MomentoNegociacao {
   if (percentual >= 1.0) return "total";
   if (percentual >= 0.90) return "premium";
   if (percentual >= 0.70) return "otimo";
