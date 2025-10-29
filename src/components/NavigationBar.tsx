@@ -52,7 +52,7 @@ export default function NavigationBar() {
               <DropdownMenuItem asChild>
                 <Link to="/app/gestao-passivo/dashboard" className="w-full cursor-pointer">
                   <Home className="h-4 w-4 mr-2" />
-                  Dashboard
+                  Radar de Oportunidades de Acordos
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
