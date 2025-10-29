@@ -68,17 +68,42 @@ const menuItems = [
     ],
   },
   {
+    section: "SUPERENDIVIDAMENTO",
+    items: [
+      {
+        title: "Dashboard",
+        url: "/app/superendividamento/dashboard",
+        icon: Home,
+      },
+      {
+        title: "Novo Relatório Socioeconômico",
+        url: "/app/clientes",
+        icon: FileText,
+      },
+      {
+        title: "Novo Plano de Pagamento",
+        url: "/app/clientes",
+        icon: PiggyBank,
+      },
+      {
+        title: "Lista de Análises Completas",
+        url: "/app/superendividamento/lista",
+        icon: List,
+      },
+      {
+        title: "Simulação Rápida",
+        url: "/app/superendividamento/simulacao-rapida",
+        icon: CheckCircle,
+      },
+    ],
+  },
+  {
     section: "ANÁLISE RÁPIDA",
     items: [
       {
         title: "Juros Abusivos",
         url: "/app/quick/juros-abusivos",
         icon: TrendingDown,
-      },
-      {
-        title: "Superendividamento",
-        url: "/app/quick/superendividamento",
-        icon: PiggyBank,
       },
     ],
   },

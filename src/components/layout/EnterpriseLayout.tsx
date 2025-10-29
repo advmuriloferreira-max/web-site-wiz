@@ -28,8 +28,6 @@ import Clientes from "@/pages/Clientes";
 import NovoCliente from "@/pages/NovoCliente";
 import ClienteDetalhes from "@/pages/clientes/ClienteDetalhes";
 import AnaliseJurosAbusivos from "@/pages/contratos/AnaliseJurosAbusivos";
-import PlanoSuperendividamento from "@/pages/clientes/PlanoSuperendividamento";
-import AnaliseSocioeconomica from "@/pages/clientes/AnaliseSocioeconomica";
 import ListaJurosAbusivos from "@/pages/analises/ListaJurosAbusivos";
 import ListaSuperendividamento from "@/pages/analises/ListaSuperendividamento";
 import Contratos from "@/pages/Contratos";
@@ -50,8 +48,12 @@ import GerenciarEscritorio from "@/pages/configuracoes/GerenciarEscritorio";
 import AdminDashboard from "@/pages/admin/Dashboard";
 import SystemCheckPage from "@/pages/admin/SystemCheck";
 import JurosAbusivosRapido from "@/pages/quick/JurosAbusivosRapido";
-import SuperendividamentoRapido from "@/pages/quick/SuperendividamentoRapido";
 import Dashboard from "@/pages/gestao-passivo/Dashboard";
+import DashboardSuperendividamento from "@/pages/superendividamento/Dashboard";
+import RelatorioSocioeconomico from "@/pages/superendividamento/RelatorioSocioeconomico";
+import NovoPlano from "@/pages/superendividamento/NovoPlano";
+import SimulacaoRapida from "@/pages/superendividamento/SimulacaoRapida";
+import ListaCompletaSuperendividamento from "@/pages/superendividamento/ListaCompleta";
 import NovaAnalise from "@/pages/gestao-passivo/NovaAnalise";
 import ListaAnalises from "@/pages/gestao-passivo/ListaAnalises";
 import TesteProvisao from "@/pages/gestao-passivo/TesteProvisao";
@@ -184,8 +186,8 @@ export function EnterpriseLayout() {
                     {/* ===================================================================== */}
                     {/* ANÁLISES POR CLIENTE */}
                     {/* ===================================================================== */}
-                    <Route path="/clientes/:id/superendividamento" element={<PlanoSuperendividamento />} />
-                    <Route path="/clientes/:id/analise-socioeconomica" element={<AnaliseSocioeconomica />} />
+                    <Route path="/clientes/:id/superendividamento" element={<NovoPlano />} />
+                    <Route path="/clientes/:id/analise-socioeconomica" element={<RelatorioSocioeconomico />} />
 
                     {/* ===================================================================== */}
                     {/* LISTAGENS DE ANÁLISES */}
@@ -197,11 +199,8 @@ export function EnterpriseLayout() {
                     {/* ANÁLISE RÁPIDA */}
                     {/* ===================================================================== */}
                     <Route path="/quick/juros-abusivos" element={<JurosAbusivosRapido />} />
-                    <Route path="/quick/superendividamento" element={<SuperendividamentoRapido />} />
 
                     {/* ===================================================================== */}
-                    {/* ===================================================================== */}
-                    {/* CALCULADORA (manter para compatibilidade) */}
                     {/* GESTÃO DE PASSIVO BANCÁRIO */}
                     {/* ===================================================================== */}
                     <Route path="/gestao-passivo/dashboard" element={<Dashboard />} />
@@ -210,6 +209,15 @@ export function EnterpriseLayout() {
                     <Route path="/gestao-passivo/analise/:id" element={<DetalhesAnalise />} />
                     <Route path="/gestao-passivo/teste-provisao" element={<TesteProvisao />} />
                     <Route path="/gestao-passivo/relatorios" element={<RelatoriosGestaoPassivo />} />
+
+                    {/* ===================================================================== */}
+                    {/* SUPERENDIVIDAMENTO */}
+                    {/* ===================================================================== */}
+                    <Route path="/superendividamento/dashboard" element={<DashboardSuperendividamento />} />
+                    <Route path="/superendividamento/novo-relatorio" element={<RelatorioSocioeconomico />} />
+                    <Route path="/superendividamento/novo-plano" element={<NovoPlano />} />
+                    <Route path="/superendividamento/lista" element={<ListaCompletaSuperendividamento />} />
+                    <Route path="/superendividamento/simulacao-rapida" element={<SimulacaoRapida />} />
 
                     {/* ===================================================================== */}
                     <Route path="/calculadora-juros" element={<CalculadoraJuros />} />
