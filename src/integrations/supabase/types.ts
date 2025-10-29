@@ -65,110 +65,6 @@ export type Database = {
         }
         Relationships: []
       }
-      analises_gestao_passivo: {
-        Row: {
-          banco_id: string | null
-          carteira_bcb352: string
-          created_at: string
-          data_inadimplencia: string
-          data_vencimento_original: string | null
-          descricao_garantia: string | null
-          dias_atraso: number
-          em_default: boolean | null
-          estagio_cmn4966: number | null
-          id: string
-          marco_provisionamento: string | null
-          meses_atraso: number
-          momento_negociacao: string | null
-          numero_contrato: string
-          observacoes: string | null
-          percentual_proposta_acordo: number | null
-          percentual_provisao_bcb352: number
-          possui_garantias: boolean | null
-          saldo_devedor_atual: number
-          status_negociacao: string | null
-          tipo_garantias: string[] | null
-          tipo_operacao: string
-          tipo_pessoa: string
-          tipo_provisao: string | null
-          updated_at: string
-          usuario_id: string
-          valor_garantias: number | null
-          valor_proposta_acordo: number | null
-          valor_provisao_bcb352: number
-        }
-        Insert: {
-          banco_id?: string | null
-          carteira_bcb352: string
-          created_at?: string
-          data_inadimplencia: string
-          data_vencimento_original?: string | null
-          descricao_garantia?: string | null
-          dias_atraso: number
-          em_default?: boolean | null
-          estagio_cmn4966?: number | null
-          id?: string
-          marco_provisionamento?: string | null
-          meses_atraso: number
-          momento_negociacao?: string | null
-          numero_contrato: string
-          observacoes?: string | null
-          percentual_proposta_acordo?: number | null
-          percentual_provisao_bcb352: number
-          possui_garantias?: boolean | null
-          saldo_devedor_atual: number
-          status_negociacao?: string | null
-          tipo_garantias?: string[] | null
-          tipo_operacao: string
-          tipo_pessoa: string
-          tipo_provisao?: string | null
-          updated_at?: string
-          usuario_id: string
-          valor_garantias?: number | null
-          valor_proposta_acordo?: number | null
-          valor_provisao_bcb352: number
-        }
-        Update: {
-          banco_id?: string | null
-          carteira_bcb352?: string
-          created_at?: string
-          data_inadimplencia?: string
-          data_vencimento_original?: string | null
-          descricao_garantia?: string | null
-          dias_atraso?: number
-          em_default?: boolean | null
-          estagio_cmn4966?: number | null
-          id?: string
-          marco_provisionamento?: string | null
-          meses_atraso?: number
-          momento_negociacao?: string | null
-          numero_contrato?: string
-          observacoes?: string | null
-          percentual_proposta_acordo?: number | null
-          percentual_provisao_bcb352?: number
-          possui_garantias?: boolean | null
-          saldo_devedor_atual?: number
-          status_negociacao?: string | null
-          tipo_garantias?: string[] | null
-          tipo_operacao?: string
-          tipo_pessoa?: string
-          tipo_provisao?: string | null
-          updated_at?: string
-          usuario_id?: string
-          valor_garantias?: number | null
-          valor_proposta_acordo?: number | null
-          valor_provisao_bcb352?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "analises_gestao_passivo_banco_id_fkey"
-            columns: ["banco_id"]
-            isOneToOne: false
-            referencedRelation: "bancos_brasil"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       analises_juros: {
         Row: {
           analista_id: string | null
@@ -610,36 +506,6 @@ export type Database = {
           pergunta?: string
           resposta?: string
           user_id?: string | null
-        }
-        Relationships: []
-      }
-      bancos_brasil: {
-        Row: {
-          ativo: boolean | null
-          codigo_compe: string
-          created_at: string
-          id: string
-          nome_completo: string
-          nome_curto: string
-          segmento_bcb: string
-        }
-        Insert: {
-          ativo?: boolean | null
-          codigo_compe: string
-          created_at?: string
-          id?: string
-          nome_completo: string
-          nome_curto: string
-          segmento_bcb: string
-        }
-        Update: {
-          ativo?: boolean | null
-          codigo_compe?: string
-          created_at?: string
-          id?: string
-          nome_completo?: string
-          nome_curto?: string
-          segmento_bcb?: string
         }
         Relationships: []
       }
@@ -2128,84 +1994,6 @@ export type Database = {
           },
         ]
       }
-      provisao_bcb352_anexo1: {
-        Row: {
-          c1_percentual: number
-          c2_percentual: number
-          c3_percentual: number
-          c4_percentual: number
-          c5_percentual: number
-          created_at: string
-          faixa_meses: string
-          id: string
-          meses_max: number | null
-          meses_min: number
-        }
-        Insert: {
-          c1_percentual: number
-          c2_percentual: number
-          c3_percentual: number
-          c4_percentual: number
-          c5_percentual: number
-          created_at?: string
-          faixa_meses: string
-          id?: string
-          meses_max?: number | null
-          meses_min: number
-        }
-        Update: {
-          c1_percentual?: number
-          c2_percentual?: number
-          c3_percentual?: number
-          c4_percentual?: number
-          c5_percentual?: number
-          created_at?: string
-          faixa_meses?: string
-          id?: string
-          meses_max?: number | null
-          meses_min?: number
-        }
-        Relationships: []
-      }
-      provisao_bcb352_anexo2: {
-        Row: {
-          c1_percentual: number
-          c2_percentual: number
-          c3_percentual: number
-          c4_percentual: number
-          c5_percentual: number
-          created_at: string
-          dias_max: number
-          dias_min: number
-          faixa_dias: string
-          id: string
-        }
-        Insert: {
-          c1_percentual: number
-          c2_percentual: number
-          c3_percentual: number
-          c4_percentual: number
-          c5_percentual: number
-          created_at?: string
-          dias_max: number
-          dias_min: number
-          faixa_dias: string
-          id?: string
-        }
-        Update: {
-          c1_percentual?: number
-          c2_percentual?: number
-          c3_percentual?: number
-          c4_percentual?: number
-          c5_percentual?: number
-          created_at?: string
-          dias_max?: number
-          dias_min?: number
-          faixa_dias?: string
-          id?: string
-        }
-        Relationships: []
-      }
       provisao_perda_esperada: {
         Row: {
           c1_percentual: number
@@ -2418,33 +2206,6 @@ export type Database = {
           id?: string
           nome?: string
           updated_at?: string | null
-        }
-        Relationships: []
-      }
-      tipos_operacao_carteira: {
-        Row: {
-          ativo: boolean | null
-          carteira: string
-          created_at: string
-          descricao: string | null
-          id: string
-          tipo_operacao: string
-        }
-        Insert: {
-          ativo?: boolean | null
-          carteira: string
-          created_at?: string
-          descricao?: string | null
-          id?: string
-          tipo_operacao: string
-        }
-        Update: {
-          ativo?: boolean | null
-          carteira?: string
-          created_at?: string
-          descricao?: string | null
-          id?: string
-          tipo_operacao?: string
         }
         Relationships: []
       }
