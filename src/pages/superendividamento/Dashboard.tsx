@@ -143,7 +143,7 @@ export default function DashboardSuperendividamento() {
   return (
     <div className="space-y-6">
       {/* Header com Logo e Botão Dropdown */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center justify-between">
         <IntelliLogo />
         
         <DropdownMenu>
