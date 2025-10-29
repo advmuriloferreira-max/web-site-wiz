@@ -15,11 +15,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ArrowLeft, PiggyBank, Download, Save, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, PiggyBank, Download, Save, Plus, Trash2, ArrowRight, Home } from "lucide-react";
 import { toast } from "sonner";
 import { calcularPlanoCompleto } from "@/utils/calculoPlanosPagamento";
 // import { gerarRelatorioPDF } from "@/lib/gerarRelatorioPDF";
 import { useAuth } from "@/hooks/useAuth";
+import { 
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator 
+} from "@/components/ui/breadcrumb";
 
 interface Divida {
   id: string;
@@ -29,7 +37,7 @@ interface Divida {
   tipo_divida: "inclusa" | "excluida";
 }
 
-export default function SuperendividamentoRapido() {
+export default function SimulacaoRapida() {
   const navigate = useNavigate();
   const { usuarioEscritorio } = useAuth();
   
@@ -201,19 +209,30 @@ export default function SuperendividamentoRapido() {
 
   return (
     <div className="container mx-auto p-6 max-w-6xl">
-      <Button
-        variant="ghost"
-        onClick={() => navigate("/app")}
-        className="mb-6"
-      >
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Voltar ao Dashboard
-      </Button>
+      <Breadcrumb className="mb-6">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/app">
+              <Home className="h-4 w-4" />
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/app/superendividamento/dashboard">
+              Superendividamento
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Simulação Rápida</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
 
       <div className="mb-6">
         <h1 className="text-3xl font-bold flex items-center gap-3">
           <PiggyBank className="h-8 w-8 text-blue-600" />
-          Plano de Superendividamento Rápido
+          Simulação Rápida
         </h1>
         <p className="text-muted-foreground mt-2">
           Crie plano de pagamento conforme Lei 14.181/2021
@@ -569,6 +588,13 @@ export default function SuperendividamentoRapido() {
               <CardTitle>O que fazer agora?</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-wrap gap-3">
+              <Button 
+                onClick={() => navigate("/app/superendividamento/novo-plano")}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                <ArrowRight className="mr-2 h-4 w-4" />
+                Converter em Plano Completo
+              </Button>
               <Button onClick={exportarPDF} variant="outline">
                 <Download className="mr-2 h-4 w-4" />
                 Exportar Plano (PDF)
@@ -579,7 +605,7 @@ export default function SuperendividamentoRapido() {
               </Button>
               <Button onClick={novaAnalise} variant="outline">
                 <PiggyBank className="mr-2 h-4 w-4" />
-                Novo Plano
+                Nova Simulação
               </Button>
             </CardContent>
           </Card>
