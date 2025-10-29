@@ -1,9 +1,8 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
-import { CalendarIcon, ArrowLeft, Save, X } from "lucide-react";
+import { CalendarIcon, Save, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -115,7 +114,6 @@ const formatCurrency = (value: string) => {
 };
 
 export default function NovaAnalise() {
-  const navigate = useNavigate();
   const { user } = useAuth();
   const { data: bancos } = useBancosBrasil();
   const createAnalise = useCreateGestaoPassivo();
@@ -192,15 +190,15 @@ export default function NovaAnalise() {
         status_negociacao: "pendente",
       };
 
-      const result = await createAnalise.mutateAsync(analiseData as any);
+      await createAnalise.mutateAsync(analiseData as any);
       
-      if (result) {
-        toast({
-          title: "Sucesso!",
-          description: "Análise criada com sucesso",
-        });
-        navigate(`/app/gestao-passivo/${result.id}`);
-      }
+      toast({
+        title: "Sucesso!",
+        description: "Análise criada com sucesso",
+      });
+      
+      // Reset form
+      form.reset();
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -213,14 +211,6 @@ export default function NovaAnalise() {
   return (
     <div className="container mx-auto py-8 px-4 max-w-4xl">
       <div className="mb-6">
-        <Button
-          variant="ghost"
-          onClick={() => navigate("/app/gestao-passivo")}
-          className="mb-4"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Voltar
-        </Button>
         <h1 className="text-3xl font-bold">Nova Análise de Contrato</h1>
         <p className="text-muted-foreground mt-2">
           Análise de Provisão conforme BCB 352/2023 e CMN 4.966/2021
@@ -597,10 +587,10 @@ export default function NovaAnalise() {
             <Button
               type="button"
               variant="outline"
-              onClick={() => navigate("/app/gestao-passivo")}
+              onClick={() => form.reset()}
             >
               <X className="h-4 w-4 mr-2" />
-              Cancelar
+              Limpar
             </Button>
             <Button type="submit" disabled={createAnalise.isPending}>
               <Save className="h-4 w-4 mr-2" />

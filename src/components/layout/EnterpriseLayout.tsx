@@ -51,9 +51,7 @@ import AdminDashboard from "@/pages/admin/Dashboard";
 import SystemCheckPage from "@/pages/admin/SystemCheck";
 import JurosAbusivosRapido from "@/pages/quick/JurosAbusivosRapido";
 import SuperendividamentoRapido from "@/pages/quick/SuperendividamentoRapido";
-import ListaAnalises from "@/pages/gestao-passivo/ListaAnalises";
 import NovaAnalise from "@/pages/gestao-passivo/NovaAnalise";
-import SimuladorCenarios from "@/pages/gestao-passivo/SimuladorCenarios";
 
 export function EnterpriseLayout() {
   const [searchOpen, setSearchOpen] = useState(false);
@@ -199,9 +197,7 @@ export function EnterpriseLayout() {
                     {/* ===================================================================== */}
                     {/* GESTÃO DE PASSIVO BANCÁRIO (MÓDULO INDEPENDENTE) */}
                     {/* ===================================================================== */}
-                    <Route path="/gestao-passivo" element={<ListaAnalises />} />
                     <Route path="/gestao-passivo/nova" element={<NovaAnalise />} />
-                    <Route path="/gestao-passivo/simulador" element={<SimuladorCenarios />} />
 
                     {/* ===================================================================== */}
                     {/* CALCULADORA (manter para compatibilidade) */}

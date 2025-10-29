@@ -3,12 +3,9 @@ import {
   Home,
   Users,
   FileText,
-  Calculator,
   TrendingDown,
   PiggyBank,
-  BarChart3,
   Settings,
-  TrendingUp,
 } from "lucide-react";
 import {
   Sidebar,
@@ -46,24 +43,9 @@ const menuItems = [
     section: "GESTÃO DE PASSIVO BANCÁRIO",
     items: [
       {
-        title: "Dashboard Premium",
-        url: "/app/gestao-passivo/dashboard",
-        icon: BarChart3,
-      },
-      {
         title: "Nova Análise",
         url: "/app/gestao-passivo/nova",
         icon: FileText,
-      },
-      {
-        title: "Análises Salvas",
-        url: "/app/gestao-passivo",
-        icon: Calculator,
-      },
-      {
-        title: "Simulador de Cenários",
-        url: "/app/gestao-passivo/simulador",
-        icon: TrendingUp,
       },
     ],
   },
