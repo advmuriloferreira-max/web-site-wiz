@@ -42,7 +42,7 @@ import {
 export default function AnaliseJurosAbusivos() {
   const { id: contratoId } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { data: contrato, isLoading } = useContratoById(contratoId!);
+  const { data: contrato, isLoading } = useContratoById(contratoId || undefined);
   const createAnalise = useCreateAnaliseJuros();
 
   // Identificação do contrato
@@ -696,7 +696,6 @@ export default function AnaliseJurosAbusivos() {
   };
 
   if (isLoading) return <div className="flex items-center justify-center h-96"><Loader2 className="h-8 w-8 animate-spin" /></div>;
-  if (!contrato) return <div className="container mx-auto py-8"><Card><CardContent className="py-8"><p className="text-center text-muted-foreground">Contrato não encontrado</p></CardContent></Card></div>;
 
   return (
     <div className="container mx-auto py-8 space-y-6">
@@ -708,14 +707,16 @@ export default function AnaliseJurosAbusivos() {
         </div>
       </div>
 
-      <Card>
-        <CardHeader><CardTitle>Informações do Contrato</CardTitle></CardHeader>
-        <CardContent className="grid md:grid-cols-2 gap-4">
-          <div><Label className="text-muted-foreground">Cliente</Label><p className="font-medium">{contrato.clientes?.nome}</p></div>
-          <div><Label className="text-muted-foreground">Banco</Label><p className="font-medium">{contrato.bancos?.nome || "-"}</p></div>
-          <div><Label className="text-muted-foreground">Número do Contrato</Label><p className="font-medium">{contrato.numero_contrato || "-"}</p></div>
-        </CardContent>
-      </Card>
+      {contrato && (
+        <Card>
+          <CardHeader><CardTitle>Informações do Contrato</CardTitle></CardHeader>
+          <CardContent className="grid md:grid-cols-2 gap-4">
+            <div><Label className="text-muted-foreground">Cliente</Label><p className="font-medium">{contrato.clientes?.nome}</p></div>
+            <div><Label className="text-muted-foreground">Banco</Label><p className="font-medium">{contrato.bancos?.nome || "-"}</p></div>
+            <div><Label className="text-muted-foreground">Número do Contrato</Label><p className="font-medium">{contrato.numero_contrato || "-"}</p></div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* SEÇÃO 1: Identificação do Contrato */}
       <Card>
