@@ -24,17 +24,21 @@ import {
 } from "lucide-react";
 
 const formSchema = z.object({
+  // OBRIGATÓRIOS
   nome: z.string().trim().min(3, "Nome do escritório deve ter no mínimo 3 caracteres").max(200),
-  cnpj: z.string().trim().max(18).optional(),
   email: z.string().trim().email("Email inválido").max(255),
-  telefone: z.string().trim().min(10, "Telefone inválido").max(20),
-  endereco: z.string().trim().max(500).optional(),
-  plano: z.enum(["essencial", "premium"]),
   nomeResponsavel: z.string().trim().min(3, "Nome deve ter no mínimo 3 caracteres").max(200),
   emailResponsavel: z.string().trim().email("Email inválido").max(255),
-  cargoResponsavel: z.string().trim().max(100),
   senha: z.string().min(6, "Senha deve ter no mínimo 6 caracteres").max(100),
   confirmarSenha: z.string().min(6).max(100),
+  
+  // OPCIONAIS (podem ficar vazios)
+  cnpj: z.string().trim().max(18).optional(),
+  telefone: z.string().trim().max(20).optional(),
+  endereco: z.string().trim().max(500).optional(),
+  plano: z.enum(["essencial", "premium"]).default("essencial"),
+  
+  // TERMOS
   aceitaTermos: z.boolean().refine(val => val === true, "Você deve aceitar os termos"),
   aceitaMarketing: z.boolean().optional()
 });
@@ -53,7 +57,6 @@ export default function CadastroEscritorio() {
     plano: "essencial",
     nomeResponsavel: "",
     emailResponsavel: "",
-    cargoResponsavel: "Sócio",
     senha: "",
     confirmarSenha: "",
     aceitaTermos: false,
@@ -97,10 +100,10 @@ export default function CadastroEscritorio() {
       const { data, error } = await supabase.functions.invoke('cadastrar-escritorio', {
         body: {
           nome: formData.nome,
-          cnpj: formData.cnpj,
+          cnpj: formData.cnpj || null,
           email: formData.email,
-          telefone: formData.telefone,
-          endereco: formData.endereco,
+          telefone: formData.telefone || null,
+          endereco: formData.endereco || null,
           plano: formData.plano,
           nomeResponsavel: formData.nomeResponsavel,
           emailResponsavel: formData.emailResponsavel,
@@ -288,36 +291,12 @@ export default function CadastroEscritorio() {
                           <Input
                             id="nome"
                             required
-                            placeholder="Ex: Silva & Associados Advogados"
+                            placeholder="Silva & Associados Advocacia"
                             value={formData.nome}
                             onChange={(e) => setFormData({...formData, nome: e.target.value})}
                             className="mt-1"
+                            disabled={loading}
                           />
-                        </div>
-                        
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div>
-                            <Label htmlFor="cnpj">CNPJ</Label>
-                            <Input
-                              id="cnpj"
-                              placeholder="00.000.000/0000-00"
-                              value={formData.cnpj}
-                              onChange={(e) => setFormData({...formData, cnpj: e.target.value})}
-                              className="mt-1"
-                            />
-                          </div>
-                          
-                          <div>
-                            <Label htmlFor="telefone">Telefone *</Label>
-                            <Input
-                              id="telefone"
-                              required
-                              placeholder="(11) 99999-9999"
-                              value={formData.telefone}
-                              onChange={(e) => setFormData({...formData, telefone: e.target.value})}
-                              className="mt-1"
-                            />
-                          </div>
                         </div>
                         
                         <div>
@@ -326,22 +305,25 @@ export default function CadastroEscritorio() {
                             id="email"
                             type="email"
                             required
-                            placeholder="contato@seuescritorio.com.br"
+                            placeholder="contato@escritorio.com"
                             value={formData.email}
                             onChange={(e) => setFormData({...formData, email: e.target.value})}
                             className="mt-1"
+                            disabled={loading}
                           />
                         </div>
                         
                         <div>
-                          <Label htmlFor="endereco">Endereço</Label>
-                          <Textarea
-                            id="endereco"
-                            placeholder="Rua, número, bairro, cidade - UF"
-                            value={formData.endereco}
-                            onChange={(e) => setFormData({...formData, endereco: e.target.value})}
+                          <Label htmlFor="telefone">
+                            Telefone <span className="text-xs text-muted-foreground">(opcional)</span>
+                          </Label>
+                          <Input
+                            id="telefone"
+                            placeholder="(11) 98765-4321"
+                            value={formData.telefone || ""}
+                            onChange={(e) => setFormData({...formData, telefone: e.target.value})}
                             className="mt-1"
-                            rows={3}
+                            disabled={loading}
                           />
                         </div>
                         
@@ -448,79 +430,63 @@ export default function CadastroEscritorio() {
                     {/* Step 3: Dados do Responsável */}
                     {step === 3 && (
                       <div className="space-y-4">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div>
-                            <Label htmlFor="nomeResponsavel">Nome Completo *</Label>
-                            <Input
-                              id="nomeResponsavel"
-                              required
-                              placeholder="Seu nome completo"
-                              value={formData.nomeResponsavel}
-                              onChange={(e) => setFormData({...formData, nomeResponsavel: e.target.value})}
-                              className="mt-1"
-                            />
-                          </div>
-                          
-                          <div>
-                            <Label htmlFor="cargoResponsavel">Cargo</Label>
-                            <Select 
-                              value={formData.cargoResponsavel} 
-                              onValueChange={(value) => setFormData({...formData, cargoResponsavel: value})}
-                            >
-                              <SelectTrigger className="mt-1">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="Sócio">Sócio</SelectItem>
-                                <SelectItem value="Advogado">Advogado</SelectItem>
-                                <SelectItem value="Coordenador">Coordenador</SelectItem>
-                                <SelectItem value="Gerente">Gerente</SelectItem>
-                                <SelectItem value="Outro">Outro</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
+                        <div>
+                          <Label htmlFor="nomeResponsavel">Seu Nome Completo *</Label>
+                          <Input
+                            id="nomeResponsavel"
+                            required
+                            placeholder="João Silva"
+                            value={formData.nomeResponsavel}
+                            onChange={(e) => setFormData({...formData, nomeResponsavel: e.target.value})}
+                            className="mt-1"
+                            disabled={loading}
+                          />
                         </div>
                         
                         <div>
-                          <Label htmlFor="emailResponsavel">Email de Login *</Label>
+                          <Label htmlFor="emailResponsavel">Seu Email *</Label>
                           <Input
                             id="emailResponsavel"
                             type="email"
                             required
-                            placeholder="seu.email@exemplo.com"
+                            placeholder="joao@escritorio.com"
                             value={formData.emailResponsavel}
                             onChange={(e) => setFormData({...formData, emailResponsavel: e.target.value})}
                             className="mt-1"
+                            disabled={loading}
+                          />
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Este será seu email de login
+                          </p>
+                        </div>
+                        
+                        <div>
+                          <Label htmlFor="senha">Senha *</Label>
+                          <Input
+                            id="senha"
+                            type="password"
+                            required
+                            minLength={6}
+                            placeholder="Mínimo 6 caracteres"
+                            value={formData.senha}
+                            onChange={(e) => setFormData({...formData, senha: e.target.value})}
+                            className="mt-1"
+                            disabled={loading}
                           />
                         </div>
                         
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div>
-                            <Label htmlFor="senha">Senha *</Label>
-                            <Input
-                              id="senha"
-                              type="password"
-                              required
-                              minLength={6}
-                              placeholder="Mínimo 6 caracteres"
-                              value={formData.senha}
-                              onChange={(e) => setFormData({...formData, senha: e.target.value})}
-                              className="mt-1"
-                            />
-                          </div>
-                          
-                          <div>
-                            <Label htmlFor="confirmarSenha">Confirmar Senha *</Label>
-                            <Input
-                              id="confirmarSenha"
-                              type="password"
-                              required
-                              placeholder="Confirme sua senha"
-                              value={formData.confirmarSenha}
-                              onChange={(e) => setFormData({...formData, confirmarSenha: e.target.value})}
-                              className="mt-1"
-                            />
-                          </div>
+                        <div>
+                          <Label htmlFor="confirmarSenha">Confirmar Senha *</Label>
+                          <Input
+                            id="confirmarSenha"
+                            type="password"
+                            required
+                            placeholder="Digite a senha novamente"
+                            value={formData.confirmarSenha}
+                            onChange={(e) => setFormData({...formData, confirmarSenha: e.target.value})}
+                            className="mt-1"
+                            disabled={loading}
+                          />
                         </div>
                         
                         {/* Termos e Condições */}
@@ -531,16 +497,18 @@ export default function CadastroEscritorio() {
                               checked={formData.aceitaTermos}
                               onCheckedChange={(checked) => setFormData({...formData, aceitaTermos: checked as boolean})}
                               className="mt-1"
+                              disabled={loading}
                             />
                             <Label htmlFor="termos" className="text-sm leading-relaxed cursor-pointer">
                               Aceito os{" "}
-                              <a href="#" className="text-blue-600 hover:underline">
+                              <a href="#" className="text-primary underline">
                                 Termos de Uso
                               </a>{" "}
-                              e{" "}
-                              <a href="#" className="text-blue-600 hover:underline">
+                              e a{" "}
+                              <a href="#" className="text-primary underline">
                                 Política de Privacidade
-                              </a>
+                              </a>{" "}
+                              *
                             </Label>
                           </div>
                           
@@ -550,15 +518,16 @@ export default function CadastroEscritorio() {
                               checked={formData.aceitaMarketing}
                               onCheckedChange={(checked) => setFormData({...formData, aceitaMarketing: checked as boolean})}
                               className="mt-1"
+                              disabled={loading}
                             />
                             <Label htmlFor="marketing" className="text-sm leading-relaxed cursor-pointer">
-                              Quero receber dicas, novidades e conteúdos exclusivos sobre advocacia bancária
+                              Quero receber novidades e atualizações por email
                             </Label>
                           </div>
                         </div>
                         
                         <div className="flex space-x-4 pt-4">
-                          <Button type="button" variant="outline" onClick={prevStep} className="flex-1">
+                          <Button type="button" variant="outline" onClick={prevStep} className="flex-1" disabled={loading}>
                             Voltar
                           </Button>
                           <Button 
