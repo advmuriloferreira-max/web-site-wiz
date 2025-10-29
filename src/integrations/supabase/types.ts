@@ -76,6 +76,7 @@ export type Database = {
       analises_gestao_passivo: {
         Row: {
           banco_codigo_compe: string | null
+          banco_id: string | null
           banco_nome: string
           banco_segmento: string | null
           carteira_bcb352: string
@@ -87,9 +88,11 @@ export type Database = {
           data_reestruturacao: string | null
           data_resposta_banco: string | null
           data_vencimento_original: string | null
+          descricao_garantia: string | null
           dias_atraso: number
           em_default: boolean | null
           escritorio_id: string
+          estagio_cmn4966: number | null
           estrategia_negociacao: string | null
           foi_reestruturado: boolean | null
           fundamentacao_juridica: string | null
@@ -101,6 +104,7 @@ export type Database = {
           numero_contrato: string
           observacoes: string | null
           observacoes_negociacao: string | null
+          percentual_desconto: number | null
           percentual_proposta_acordo: number | null
           percentual_provisao_bcb352: number
           possui_garantias: boolean | null
@@ -109,6 +113,8 @@ export type Database = {
           status_negociacao: string | null
           tipo_garantias: string[] | null
           tipo_operacao: string
+          tipo_pessoa: string | null
+          tipo_provisao: string | null
           updated_at: string | null
           usuario_id: string | null
           valor_garantias: number | null
@@ -118,6 +124,7 @@ export type Database = {
         }
         Insert: {
           banco_codigo_compe?: string | null
+          banco_id?: string | null
           banco_nome: string
           banco_segmento?: string | null
           carteira_bcb352: string
@@ -129,9 +136,11 @@ export type Database = {
           data_reestruturacao?: string | null
           data_resposta_banco?: string | null
           data_vencimento_original?: string | null
+          descricao_garantia?: string | null
           dias_atraso?: number
           em_default?: boolean | null
           escritorio_id: string
+          estagio_cmn4966?: number | null
           estrategia_negociacao?: string | null
           foi_reestruturado?: boolean | null
           fundamentacao_juridica?: string | null
@@ -143,6 +152,7 @@ export type Database = {
           numero_contrato: string
           observacoes?: string | null
           observacoes_negociacao?: string | null
+          percentual_desconto?: number | null
           percentual_proposta_acordo?: number | null
           percentual_provisao_bcb352: number
           possui_garantias?: boolean | null
@@ -151,6 +161,8 @@ export type Database = {
           status_negociacao?: string | null
           tipo_garantias?: string[] | null
           tipo_operacao: string
+          tipo_pessoa?: string | null
+          tipo_provisao?: string | null
           updated_at?: string | null
           usuario_id?: string | null
           valor_garantias?: number | null
@@ -160,6 +172,7 @@ export type Database = {
         }
         Update: {
           banco_codigo_compe?: string | null
+          banco_id?: string | null
           banco_nome?: string
           banco_segmento?: string | null
           carteira_bcb352?: string
@@ -171,9 +184,11 @@ export type Database = {
           data_reestruturacao?: string | null
           data_resposta_banco?: string | null
           data_vencimento_original?: string | null
+          descricao_garantia?: string | null
           dias_atraso?: number
           em_default?: boolean | null
           escritorio_id?: string
+          estagio_cmn4966?: number | null
           estrategia_negociacao?: string | null
           foi_reestruturado?: boolean | null
           fundamentacao_juridica?: string | null
@@ -185,6 +200,7 @@ export type Database = {
           numero_contrato?: string
           observacoes?: string | null
           observacoes_negociacao?: string | null
+          percentual_desconto?: number | null
           percentual_proposta_acordo?: number | null
           percentual_provisao_bcb352?: number
           possui_garantias?: boolean | null
@@ -193,6 +209,8 @@ export type Database = {
           status_negociacao?: string | null
           tipo_garantias?: string[] | null
           tipo_operacao?: string
+          tipo_pessoa?: string | null
+          tipo_provisao?: string | null
           updated_at?: string | null
           usuario_id?: string | null
           valor_garantias?: number | null
@@ -201,6 +219,13 @@ export type Database = {
           valor_provisao_bcb352?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "analises_gestao_passivo_banco_id_fkey"
+            columns: ["banco_id"]
+            isOneToOne: false
+            referencedRelation: "bancos_brasil"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "analises_gestao_passivo_cliente_id_fkey"
             columns: ["cliente_id"]
@@ -2182,6 +2207,84 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      provisao_bcb352_anexo1: {
+        Row: {
+          c1_percentual: number
+          c2_percentual: number
+          c3_percentual: number
+          c4_percentual: number
+          c5_percentual: number
+          created_at: string
+          faixa_meses: string
+          id: string
+          meses_max: number | null
+          meses_min: number
+        }
+        Insert: {
+          c1_percentual: number
+          c2_percentual: number
+          c3_percentual: number
+          c4_percentual: number
+          c5_percentual: number
+          created_at?: string
+          faixa_meses: string
+          id?: string
+          meses_max?: number | null
+          meses_min: number
+        }
+        Update: {
+          c1_percentual?: number
+          c2_percentual?: number
+          c3_percentual?: number
+          c4_percentual?: number
+          c5_percentual?: number
+          created_at?: string
+          faixa_meses?: string
+          id?: string
+          meses_max?: number | null
+          meses_min?: number
+        }
+        Relationships: []
+      }
+      provisao_bcb352_anexo2: {
+        Row: {
+          c1_percentual: number
+          c2_percentual: number
+          c3_percentual: number
+          c4_percentual: number
+          c5_percentual: number
+          created_at: string
+          dias_max: number
+          dias_min: number
+          faixa_dias: string
+          id: string
+        }
+        Insert: {
+          c1_percentual: number
+          c2_percentual: number
+          c3_percentual: number
+          c4_percentual: number
+          c5_percentual: number
+          created_at?: string
+          dias_max: number
+          dias_min: number
+          faixa_dias: string
+          id?: string
+        }
+        Update: {
+          c1_percentual?: number
+          c2_percentual?: number
+          c3_percentual?: number
+          c4_percentual?: number
+          c5_percentual?: number
+          created_at?: string
+          dias_max?: number
+          dias_min?: number
+          faixa_dias?: string
+          id?: string
+        }
+        Relationships: []
       }
       provisao_perda_esperada: {
         Row: {
