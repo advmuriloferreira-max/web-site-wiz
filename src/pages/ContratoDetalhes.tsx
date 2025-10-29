@@ -921,24 +921,6 @@ export default function ContratoDetalhes() {
               </div>
             </div>
 
-            {/* Section removed - provision calculation temporarily unavailable */}
-                  </div>
-                  <div className="space-y-4">
-                    <TransparencyPanel />
-                    <CalculationTransparency 
-                      formula="Provisão = Valor × Percentual × (1 - Fator Garantia)"
-                      steps={[
-                        "Identificar classificação de risco do contrato",
-                        "Aplicar percentual conforme BCB 352/2023",
-                        "Calcular impacto das garantias (se aplicável)",
-                        "Verificar período de observação (reestruturadas)",
-                        "Aplicar resultado final"
-                      ]}
-                    />
-                  </div>
-                </div>
-              );
-            })()}
 
             {/* Garantias e Auditoria */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
