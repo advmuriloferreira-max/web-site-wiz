@@ -76,14 +76,14 @@ export default function NavigationBar() {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Dropdown - Ações Revisionais (aparece apenas dentro de Gestão de Passivo) */}
-          {isModuleActive('/gestao-passivo') && (
+          {/* Dropdown - Ações Revisionais (aparece apenas dentro de Ações Revisionais) */}
+          {isModuleActive('/acoes-revisionais') && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button 
-                  variant="ghost"
+                  variant="default"
                   size="sm"
-                  className="gap-2 bg-purple-600 hover:bg-purple-700 text-white"
+                  className="gap-2 bg-purple-600 hover:bg-purple-700"
                 >
                   <Scale className="h-4 w-4" />
                   Ações Revisionais
