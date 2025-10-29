@@ -30,7 +30,7 @@ export function gerarRelatorioPDFPassivoBancario(analise: AnaliseParaPDF) {
     doc.setFontSize(20);
     doc.setTextColor(40);
     doc.setFont("helvetica", "bold");
-    doc.text("INTELLIBANK SAAS", 105, 20, { align: "center" });
+    doc.text("INTELLBANK SAAS", 105, 20, { align: "center" });
     doc.setFontSize(12);
     doc.setTextColor(100);
     doc.text("Análise de Gestão de Passivo Bancário", 105, 28, { align: "center" });

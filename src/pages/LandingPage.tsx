@@ -37,7 +37,7 @@ export default function LandingPage() {
               </div>
               <div>
                 <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                  INTELLIBANK
+                  INTELLBANK
                 </span>
                 <p className="text-xs text-gray-500">Inteligência Jurídica Bancária</p>
               </div>
@@ -487,7 +487,7 @@ export default function LandingPage() {
               Resultados Reais, Mensuráveis
             </h2>
             <p className="text-xl opacity-90">
-              Veja o impacto do INTELLIBANK na sua prática
+              Veja o impacto do INTELLBANK na sua prática
             </p>
           </div>
           
@@ -541,7 +541,7 @@ export default function LandingPage() {
                 cargo: "Sócio",
                 escritorio: "Silva & Associados",
                 foto: "👨‍💼",
-                texto: "O INTELLIBANK revolucionou nossa prática. Conseguimos identificar R$ 3 milhões em oportunidades de negociação que estavam invisíveis antes. Nossos clientes ficam impressionados com os relatórios profissionais."
+                texto: "O INTELLBANK revolucionou nossa prática. Conseguimos identificar R$ 3 milhões em oportunidades de negociação que estavam invisíveis antes. Nossos clientes ficam impressionados com os relatórios profissionais."
               },
               {
                 nome: "Dra. Maria Santos",
@@ -685,7 +685,7 @@ export default function LandingPage() {
           
           <p className="text-xl md:text-2xl opacity-90 max-w-2xl mx-auto">
             Junte-se a mais de <strong>500 escritórios</strong> que já transformaram 
-            seus resultados com o INTELLIBANK
+            seus resultados com o INTELLBANK
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -727,7 +727,7 @@ export default function LandingPage() {
                 <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
                   <BarChart3 className="h-5 w-5 text-white" />
                 </div>
-                <span className="text-xl font-bold">INTELLIBANK</span>
+                <span className="text-xl font-bold">INTELLBANK</span>
               </div>
               <p className="text-sm text-gray-400">
                 Sistema de Inteligência Jurídica Bancária
@@ -763,7 +763,7 @@ export default function LandingPage() {
           </div>
           
           <div className="border-t border-gray-800 pt-8 text-center text-sm text-gray-400">
-            <p>© 2025 INTELLIBANK. Todos os direitos reservados.</p>
+            <p>© 2025 INTELLBANK. Todos os direitos reservados.</p>
           </div>
         </div>
       </footer>

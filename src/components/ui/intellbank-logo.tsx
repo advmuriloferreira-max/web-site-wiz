@@ -8,7 +8,7 @@ export function IntelliLogo() {
       </div>
       <div className="flex flex-col">
         <span className="text-lg font-bold tracking-tight text-gray-900 dark:text-white">
-          INTELLIBANK
+          INTELLBANK
         </span>
         <span className="text-xs text-gray-600 dark:text-gray-400">
           Direito Bancário

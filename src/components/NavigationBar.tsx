@@ -34,7 +34,7 @@ export default function NavigationBar() {
             <span className={`text-lg font-bold tracking-tight ${
               isSuperendividamentoModule ? 'text-gray-900 dark:text-white' : ''
             }`}>
-              INTELLIBANK
+              INTELLBANK
             </span>
             <span className="text-xs text-muted-foreground">Direito Bancário</span>
           </div>

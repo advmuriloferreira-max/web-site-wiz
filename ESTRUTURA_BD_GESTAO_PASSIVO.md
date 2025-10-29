@@ -2,7 +2,7 @@
 
 ## Visão Geral
 
-Este documento descreve a estrutura completa do banco de dados para o módulo de Gestão de Passivo Bancário do INTELLIBANK, incluindo tabelas de provisão conforme Resolução BCB 352/2023 e classificação por estágios conforme Resolução CMN 4.966/2021.
+Este documento descreve a estrutura completa do banco de dados para o módulo de Gestão de Passivo Bancário do INTELLBANK, incluindo tabelas de provisão conforme Resolução BCB 352/2023 e classificação por estágios conforme Resolução CMN 4.966/2021.
 
 ---
 
