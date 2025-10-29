@@ -110,11 +110,6 @@ const menuItems = [
         url: "/app/analises/juros-abusivos",
         icon: TrendingDown,
       },
-      {
-        title: "Superendividamento",
-        url: "/app/analises/superendividamento",
-        icon: PiggyBank,
-      },
     ],
   },
   {
