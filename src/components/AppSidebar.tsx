@@ -76,7 +76,7 @@ const menuItems = [
         icon: BarChart3,
       },
       {
-        title: "Nova Análise Completa",
+        title: "Calcular Abusividades",
         url: "/app/acoes-revisionais/nova-analise",
         icon: PlusCircle,
       },
