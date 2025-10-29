@@ -215,7 +215,7 @@ export function EnterpriseLayout() {
                     {/* ===================================================================== */}
                     <Route path="/superendividamento/dashboard" element={<DashboardSuperendividamento />} />
                     <Route path="/superendividamento/novo-relatorio/:clienteId?" element={<RelatorioSocioeconomico />} />
-                    <Route path="/superendividamento/novo-plano" element={<NovoPlano />} />
+                    <Route path="/superendividamento/novo-plano/:clienteId?" element={<NovoPlano />} />
                     <Route path="/superendividamento/lista" element={<ListaCompletaSuperendividamento />} />
                     <Route path="/superendividamento/simulacao-rapida" element={<SimulacaoRapida />} />
 

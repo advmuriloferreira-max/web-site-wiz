@@ -112,7 +112,7 @@ export default function DashboardSuperendividamento() {
       description: "Criar plano com base na Lei 14.181/2021",
       icon: PiggyBank,
       color: "from-green-500 to-green-600",
-      action: () => navigate("/app/clientes"), // Selecionar cliente primeiro
+      action: () => navigate("/app/superendividamento/novo-plano"),
     },
     {
       title: "Simulação Rápida",

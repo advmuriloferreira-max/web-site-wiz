@@ -105,7 +105,7 @@ export default function NavigationBar() {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link to="/app/clientes" className="w-full cursor-pointer">
+                <Link to="/app/superendividamento/novo-plano" className="w-full cursor-pointer">
                   <PlusCircle className="h-4 w-4 mr-2" />
                   Novo Plano de Pagamento
                 </Link>

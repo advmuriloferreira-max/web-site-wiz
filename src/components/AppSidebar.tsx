@@ -82,7 +82,7 @@ const menuItems = [
       },
       {
         title: "Novo Plano de Pagamento",
-        url: "/app/clientes",
+        url: "/app/superendividamento/novo-plano",
         icon: PiggyBank,
       },
       {

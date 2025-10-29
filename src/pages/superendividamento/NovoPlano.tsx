@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { ArrowLeft, Plus, FileText, Save, Calculator, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, FileText, Save, Calculator, Trash2, Home, Download, User } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -24,6 +24,19 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@/components/ui/alert";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useDividasSuperendividamento } from "@/hooks/useDividasSuperendividamento";
@@ -38,28 +51,64 @@ interface NovaDivida {
   tipo_divida: "inclusa" | "excluida";
 }
 
-export default function PlanoSuperendividamento() {
-  const { id: clienteId } = useParams<{ id: string }>();
+export default function NovoPlano() {
+  const { clienteId } = useParams<{ clienteId?: string }>();
   const navigate = useNavigate();
 
-  // Buscar cliente
+  // Seleção de cliente (se não fornecido)
+  const [clienteSelecionadoId, setClienteSelecionadoId] = useState<string | undefined>(clienteId);
+
+  // Buscar todos os clientes para seleção
+  const { data: clientes } = useQuery({
+    queryKey: ["clientes-select"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("clientes")
+        .select("id, nome, cpf_cnpj")
+        .order("nome");
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !clienteId,
+  });
+
+  // Buscar cliente selecionado
   const { data: cliente, isLoading: loadingCliente } = useQuery({
-    queryKey: ["cliente", clienteId],
+    queryKey: ["cliente", clienteSelecionadoId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("clientes")
         .select("*")
-        .eq("id", clienteId!)
+        .eq("id", clienteSelecionadoId!)
         .maybeSingle();
 
       if (error) throw error;
       return data;
     },
-    enabled: !!clienteId,
+    enabled: !!clienteSelecionadoId,
+  });
+
+  // Buscar relatório socioeconômico existente
+  const { data: relatorioSocioeconomico } = useQuery({
+    queryKey: ["relatorio-socioeconomico", clienteSelecionadoId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("analises_socioeconomicas")
+        .select("*")
+        .eq("cliente_id", clienteSelecionadoId!)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (error && error.code !== 'PGRST116') throw error;
+      return data;
+    },
+    enabled: !!clienteSelecionadoId,
   });
 
   // Buscar dívidas existentes
-  const { dividas, isLoading: loadingDividas } = useDividasSuperendividamento(clienteId);
+  const { dividas, isLoading: loadingDividas } = useDividasSuperendividamento(clienteSelecionadoId);
 
   const [rendaLiquida, setRendaLiquida] = useState<string>("");
   const [percentualRenda, setPercentualRenda] = useState<string>("30");
@@ -79,6 +128,17 @@ export default function PlanoSuperendividamento() {
   const [salvando, setSalvando] = useState(false);
   const [resultado, setResultado] = useState<ResultadoPlano | null>(null);
 
+  // Importar dados do relatório socioeconômico
+  const importarDadosRelatorio = () => {
+    if (!relatorioSocioeconomico) {
+      toast.error("Nenhum relatório socioeconômico encontrado para este cliente");
+      return;
+    }
+
+    setRendaLiquida(relatorioSocioeconomico.renda_liquida?.toString() || "");
+    toast.success("Dados importados do relatório socioeconômico!");
+  };
+
   const adicionarDivida = async () => {
     if (!novaDivida.credor || novaDivida.valor_atual <= 0 || novaDivida.parcela_mensal_atual <= 0) {
       toast.error("Preencha todos os campos da dívida");
@@ -95,7 +155,7 @@ export default function PlanoSuperendividamento() {
 
       const { error } = await supabase.from("dividas_superendividamento").insert({
         escritorio_id: escritorioData?.escritorio_id,
-        cliente_id: clienteId,
+        cliente_id: clienteSelecionadoId,
         credor: novaDivida.credor,
         valor_original: novaDivida.valor_original || novaDivida.valor_atual,
         valor_atual: novaDivida.valor_atual,
@@ -180,8 +240,8 @@ export default function PlanoSuperendividamento() {
   };
 
   const salvarPlano = async () => {
-    if (!resultado || !clienteId) {
-      toast.error("Calcule o plano antes de salvar");
+    if (!resultado || !clienteSelecionadoId) {
+      toast.error("Selecione um cliente e calcule o plano antes de salvar");
       return;
     }
 
@@ -202,7 +262,7 @@ export default function PlanoSuperendividamento() {
         .from("analises_superendividamento")
         .insert({
           escritorio_id: escritorioData?.escritorio_id,
-          cliente_id: clienteId,
+          cliente_id: clienteSelecionadoId,
           renda_liquida: renda,
           percentual_comprometimento: parseInt(percentualRenda),
           total_dividas: dividas?.reduce((sum, d) => sum + d.valor_atual, 0),
@@ -224,7 +284,7 @@ export default function PlanoSuperendividamento() {
         .from("planos_pagamento")
         .insert({
           escritorio_id: escritorioData?.escritorio_id,
-          cliente_id: clienteId,
+          cliente_id: clienteSelecionadoId,
           percentual_renda: parseInt(percentualRenda),
           valor_mensal_total: resultado.resumo.novoEncargo,
           total_dividas: dividas?.reduce((sum, d) => sum + d.valor_atual, 0),
@@ -290,7 +350,7 @@ export default function PlanoSuperendividamento() {
     // TODO: Implementar geração de petição
   };
 
-  if (loadingCliente || loadingDividas) {
+  if (!clienteSelecionadoId && !clientes) {
     return (
       <div className="container mx-auto py-8">
         <div className="flex items-center justify-center h-64">
@@ -300,20 +360,29 @@ export default function PlanoSuperendividamento() {
     );
   }
 
-  if (!cliente) {
-    return (
-      <div className="container mx-auto py-8">
-        <Card>
-          <CardContent className="py-8">
-            <p className="text-center text-muted-foreground">Cliente não encontrado</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   return (
     <div className="container mx-auto py-8 space-y-6">
+      {/* Breadcrumbs */}
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/app">
+              <Home className="h-4 w-4" />
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/app/superendividamento/dashboard">
+              Superendividamento
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Novo Plano de Pagamento</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -321,8 +390,8 @@ export default function PlanoSuperendividamento() {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold">Plano de Superendividamento</h1>
-            <p className="text-muted-foreground">Lei 14.181/2021 - Limite de 30% da renda</p>
+            <h1 className="text-3xl font-bold">Plano de Pagamento</h1>
+            <p className="text-muted-foreground">Lei 14.181/2021 - Limite de 30% ou 35% da renda</p>
           </div>
         </div>
         {resultado && (
@@ -333,72 +402,121 @@ export default function PlanoSuperendividamento() {
         )}
       </div>
 
-      {/* Informações do Cliente */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Dados do Cliente</CardTitle>
-        </CardHeader>
-        <CardContent className="grid md:grid-cols-2 gap-4">
-          <div>
-            <Label className="text-muted-foreground">Nome</Label>
-            <p className="font-medium">{cliente.nome}</p>
-          </div>
-          <div>
-            <Label className="text-muted-foreground">CPF/CNPJ</Label>
-            <p className="font-medium">{cliente.cpf_cnpj || "-"}</p>
-          </div>
-          <div>
-            <Label className="text-muted-foreground">Email</Label>
-            <p className="font-medium">{cliente.email || "-"}</p>
-          </div>
-          <div>
-            <Label className="text-muted-foreground">Telefone</Label>
-            <p className="font-medium">{cliente.telefone || "-"}</p>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Cálculo da Renda Líquida */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Cálculo da Renda Líquida Mensal Disponível</CardTitle>
-          <p className="text-sm text-muted-foreground mt-2">
-            Informe a renda líquida do cliente e escolha o percentual disponível para pagamento de dívidas.
-          </p>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="rendaLiquida">
-                Renda Líquida <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="rendaLiquida"
-                type="number"
-                step="0.01"
-                value={rendaLiquida}
-                onChange={(e) => setRendaLiquida(e.target.value)}
-                placeholder="0.00"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="percentualRenda">
-                Percentual da Renda <span className="text-destructive">*</span>
-              </Label>
-              <Select value={percentualRenda} onValueChange={setPercentualRenda}>
+      {/* Seleção de Cliente (se não foi fornecido) */}
+      {!clienteSelecionadoId && (
+        <Alert>
+          <User className="h-4 w-4" />
+          <AlertTitle>Selecione um Cliente</AlertTitle>
+          <AlertDescription>
+            <div className="mt-4 space-y-2">
+              <Label>Cliente</Label>
+              <Select onValueChange={setClienteSelecionadoId}>
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder="Selecione um cliente" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="30">30%</SelectItem>
-                  <SelectItem value="35">35% (Recomendada)</SelectItem>
+                  {clientes?.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.nome} - {c.cpf_cnpj || "CPF não informado"}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Informações do Cliente */}
+      {cliente && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Dados do Cliente</CardTitle>
+          </CardHeader>
+          <CardContent className="grid md:grid-cols-2 gap-4">
+            <div>
+              <Label className="text-muted-foreground">Nome</Label>
+              <p className="font-medium">{cliente.nome}</p>
+            </div>
+            <div>
+              <Label className="text-muted-foreground">CPF/CNPJ</Label>
+              <p className="font-medium">{cliente.cpf_cnpj || "-"}</p>
+            </div>
+            <div>
+              <Label className="text-muted-foreground">Email</Label>
+              <p className="font-medium">{cliente.email || "-"}</p>
+            </div>
+            <div>
+              <Label className="text-muted-foreground">Telefone</Label>
+              <p className="font-medium">{cliente.telefone || "-"}</p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Alert se houver relatório socioeconômico */}
+      {clienteSelecionadoId && relatorioSocioeconomico && (
+        <Alert className="bg-blue-50 dark:bg-blue-950 border-blue-200">
+          <Download className="h-4 w-4" />
+          <AlertTitle>Relatório Socioeconômico Encontrado</AlertTitle>
+          <AlertDescription className="flex items-center justify-between">
+            <span>Você pode importar os dados de renda do relatório existente.</span>
+            <Button 
+              onClick={importarDadosRelatorio} 
+              variant="outline" 
+              size="sm"
+              className="ml-4"
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Importar Dados
+            </Button>
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Cálculo da Renda Líquida */}
+      {clienteSelecionadoId && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Cálculo da Renda Líquida Mensal Disponível</CardTitle>
+            <CardDescription>
+              Informe a renda líquida do cliente e escolha o percentual disponível para pagamento de dívidas (30% ou 35% conforme Lei 14.181/2021).
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="rendaLiquida">
+                  Renda Líquida <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="rendaLiquida"
+                  type="number"
+                  step="0.01"
+                  value={rendaLiquida}
+                  onChange={(e) => setRendaLiquida(e.target.value)}
+                  placeholder="0.00"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="percentualRenda">
+                  Percentual da Renda <span className="text-destructive">*</span>
+                </Label>
+                <Select value={percentualRenda} onValueChange={setPercentualRenda}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="30">30%</SelectItem>
+                    <SelectItem value="35">35% (Recomendada)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Lista de Dívidas */}
       <Card>
