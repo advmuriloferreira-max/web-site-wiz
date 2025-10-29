@@ -116,11 +116,6 @@ export default function RadarAcoes() {
     <>
       <NavigationBar />
       <div className="container mx-auto p-4 md:p-8 space-y-8">
-        {/* Logo INTELLBANK */}
-        <div className="mb-4">
-          <IntelliLogo />
-        </div>
-        
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight text-purple-700 dark:text-purple-400">

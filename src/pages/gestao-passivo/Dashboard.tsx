@@ -74,11 +74,6 @@ export default function DashboardPage() {
     <>
       <NavigationBar />
       <div className="container mx-auto p-4 md:p-8 space-y-8">
-        {/* Logo INTELLBANK */}
-        <div className="mb-4">
-          <IntelliLogo />
-        </div>
-        
         <h1 className="text-3xl font-bold tracking-tight">Radar de Oportunidades de Acordos</h1>
 
       {/* Seção de KPIs Principais */}
