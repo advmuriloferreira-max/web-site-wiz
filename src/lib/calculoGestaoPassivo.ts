@@ -1,4 +1,5 @@
 import { CarteiraBCB352, MomentoNegociacao } from "@/types/gestaoPassivo";
+import { buscarPercentualProvisaoBCB352 } from "@/lib/calculoProvisaoBCB352";
 
 export interface CalculoProvisaoResult {
   percentualProvisao: number;
@@ -8,31 +9,7 @@ export interface CalculoProvisaoResult {
   valorPropostaAcordo: number;
   percentualPropostaAcordo: number;
   recomendacaoEstrategica: string;
-}
-
-/**
- * Busca o percentual de provisão BCB 352 baseado na carteira e meses de atraso
- */
-export async function buscarPercentualProvisaoBCB352(
-  carteira: CarteiraBCB352,
-  mesesAtraso: number
-): Promise<number> {
-  const { supabase } = await import("@/integrations/supabase/client");
-  
-  const { data, error } = await supabase
-    .from("tabela_provisao_bcb352")
-    .select("percentual_provisao")
-    .eq("carteira", carteira)
-    .lte("meses_atraso_min", mesesAtraso)
-    .or(`meses_atraso_max.gte.${mesesAtraso},meses_atraso_max.is.null`)
-    .single();
-
-  if (error) {
-    console.error("Erro ao buscar percentual de provisão:", error);
-    return 0;
-  }
-
-  return data?.percentual_provisao || 0;
+  tipoProvisao?: 'ANEXO_I' | 'ANEXO_II';
 }
 
 /**
@@ -41,10 +18,18 @@ export async function buscarPercentualProvisaoBCB352(
 export async function calcularGestaoPassivo(
   carteira: CarteiraBCB352,
   saldoDevedor: number,
-  mesesAtraso: number
+  mesesAtraso: number,
+  diasAtraso?: number
 ): Promise<CalculoProvisaoResult> {
-  // Buscar percentual de provisão na tabela BCB 352
-  const percentualProvisao = await buscarPercentualProvisaoBCB352(carteira, mesesAtraso);
+  // Calcular dias de atraso se não fornecido
+  const dias = diasAtraso || mesesAtraso * 30;
+  
+  // Buscar percentual de provisão usando a nova biblioteca
+  const { percentual: percentualProvisao, tipo: tipoProvisao } = await buscarPercentualProvisaoBCB352(
+    carteira,
+    dias,
+    mesesAtraso
+  );
   
   // Calcular valor da provisão
   const valorProvisao = saldoDevedor * percentualProvisao;
@@ -82,7 +67,8 @@ export async function calcularGestaoPassivo(
     momentoNegociacao,
     valorPropostaAcordo,
     percentualPropostaAcordo,
-    recomendacaoEstrategica
+    recomendacaoEstrategica,
+    tipoProvisao
   };
 }
 
