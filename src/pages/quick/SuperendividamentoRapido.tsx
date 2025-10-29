@@ -18,7 +18,7 @@ import {
 import { ArrowLeft, PiggyBank, Download, Save, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { calcularPlanoCompleto } from "@/utils/calculoPlanosPagamento";
-import { gerarRelatorioPDF } from "@/lib/gerarRelatorioPDF";
+// import { gerarRelatorioPDF } from "@/lib/gerarRelatorioPDF";
 import { useAuth } from "@/hooks/useAuth";
 
 interface Divida {
@@ -160,20 +160,21 @@ export default function SuperendividamentoRapido() {
     if (!resultado) return;
 
     try {
-      gerarRelatorioPDF({
-        tipo: "superendividamento",
-        cliente: {
-          nome: "Cliente Não Cadastrado",
-        },
-        escritorio: {
-          nome: usuarioEscritorio?.escritorio?.nome || "Escritório",
-          oab: undefined,
-        },
-        resultado: resultado,
-        dataAnalise: new Date(),
-      });
+      // TODO: Implementar geração de PDF para superendividamento
+      // gerarRelatorioPDF({
+      //   tipo: "superendividamento",
+      //   cliente: {
+      //     nome: "Cliente Não Cadastrado",
+      //   },
+      //   escritorio: {
+      //     nome: usuarioEscritorio?.escritorio?.nome || "Escritório",
+      //     oab: undefined,
+      //   },
+      //   resultado: resultado,
+      //   dataAnalise: new Date(),
+      // });
       
-      toast.success("Relatório PDF gerado com sucesso!");
+      toast.info("Funcionalidade de PDF em desenvolvimento");
     } catch (error) {
       console.error("Erro ao gerar PDF:", error);
       toast.error("Erro ao gerar relatório PDF");

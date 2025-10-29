@@ -8,6 +8,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MoreHorizontal } from 'lucide-react';
+import { gerarRelatorioPDFPassivoBancario } from '@/lib/gerarRelatorioPDF';
+import { toast } from 'sonner';
 
 // ==============================================================================
 // DADOS MOCKADOS (SUBSTITUIR PELA CHAMADA À API/BANCO DE DADOS)
@@ -76,7 +78,7 @@ export default function ListaAnalisesPage() {
                 <TableCell className="text-right font-semibold text-green-600">{analise.propostaValor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</TableCell>
                 <TableCell className="text-center font-bold text-orange-500">{analise.marco}</TableCell>
                 <TableCell className="text-right">
-                  <ActionsMenu id={analise.id} />
+                  <ActionsMenu id={analise.id} analise={analise} />
                 </TableCell>
               </TableRow>
             ))}
@@ -91,7 +93,12 @@ export default function ListaAnalisesPage() {
 // SUB-COMPONENTE DE AÇÕES
 // ==============================================================================
 
-function ActionsMenu({ id }: { id: number }) {
+interface ActionsMenuProps {
+  id: number;
+  analise: typeof mockAnalises[0];
+}
+
+function ActionsMenu({ id, analise }: ActionsMenuProps) {
   const navigate = useNavigate();
 
   const handleAction = (action: string) => {
@@ -100,17 +107,34 @@ function ActionsMenu({ id }: { id: number }) {
         navigate(`/app/gestao-passivo/analise/${id}`);
         break;
       case 'Editar':
-        alert(`Editar análise ${id}`);
+        toast.info(`Funcionalidade de edição será implementada em breve`);
         // navigate(`/app/gestao-passivo/editar/${id}`);
         break;
       case 'Gerar PDF':
-        alert(`Gerando PDF da análise ${id}`);
-        // Lógica para gerar PDF
+        try {
+          gerarRelatorioPDFPassivoBancario({
+            numeroContrato: analise.contrato,
+            contrato: analise.contrato,
+            cliente: analise.cliente,
+            banco: analise.banco,
+            modalidade: analise.modalidade,
+            carteira: analise.carteira,
+            saldoDevedor: analise.saldoDevedor,
+            diasAtraso: analise.diasAtraso,
+            provisaoPercentual: analise.provisaoPercentual,
+            propostaValor: analise.propostaValor,
+            marco: analise.marco,
+          });
+          toast.success('PDF gerado com sucesso!');
+        } catch (error) {
+          toast.error('Erro ao gerar PDF');
+          console.error(error);
+        }
         break;
       case 'Excluir':
-        if (confirm(`Deseja realmente excluir a análise ${id}?`)) {
-          alert(`Análise ${id} excluída`);
-          // Lógica para excluir
+        if (confirm(`Deseja realmente excluir a análise ${analise.contrato}?`)) {
+          toast.success(`Análise ${analise.contrato} excluída com sucesso`);
+          // Lógica para excluir do backend
         }
         break;
     }

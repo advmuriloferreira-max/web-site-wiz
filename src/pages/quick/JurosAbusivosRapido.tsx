@@ -11,7 +11,7 @@ import { ArrowLeft, TrendingDown, Download, Save, AlertTriangle } from "lucide-r
 import { toast } from "sonner";
 import { SelectJurosBACEN } from "@/components/juros/SelectJurosBACEN";
 import { useTaxaJurosBacenPorData } from "@/hooks/useTaxasJurosBacen";
-import { gerarRelatorioPDF } from "@/lib/gerarRelatorioPDF";
+// import { gerarRelatorioPDF } from "@/lib/gerarRelatorioPDF";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function JurosAbusivosRapido() {
