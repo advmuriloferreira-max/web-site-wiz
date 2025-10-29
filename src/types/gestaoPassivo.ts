@@ -55,6 +55,7 @@ export interface AnaliseGestaoPassivo {
   banco_segmento: string | null;
   carteira_bcb352: CarteiraBCB352;
   tipo_operacao: TipoOperacaoGestaoPassivo;
+  tipo_pessoa: 'PF' | 'PJ' | null;
   valor_original: number;
   saldo_devedor_atual: number;
   data_contratacao: string;
@@ -62,6 +63,7 @@ export interface AnaliseGestaoPassivo {
   data_inadimplencia: string;
   dias_atraso: number;
   meses_atraso: number;
+  estagio_cmn4966: 1 | 2 | 3 | null;
   percentual_provisao_bcb352: number;
   valor_provisao_bcb352: number;
   valor_proposta_acordo: number | null;
