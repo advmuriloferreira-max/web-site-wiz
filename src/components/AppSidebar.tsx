@@ -7,6 +7,7 @@ import {
   PiggyBank,
   Settings,
   CheckCircle,
+  BarChart3,
 } from "lucide-react";
 import {
   Sidebar,
@@ -43,6 +44,11 @@ const menuItems = [
   {
     section: "GESTÃO DE PASSIVO BANCÁRIO",
     items: [
+      {
+        title: "Dashboard",
+        url: "/app/gestao-passivo/dashboard",
+        icon: BarChart3,
+      },
       {
         title: "Nova Análise",
         url: "/app/gestao-passivo/nova",

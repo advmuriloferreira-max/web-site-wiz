@@ -51,6 +51,7 @@ import AdminDashboard from "@/pages/admin/Dashboard";
 import SystemCheckPage from "@/pages/admin/SystemCheck";
 import JurosAbusivosRapido from "@/pages/quick/JurosAbusivosRapido";
 import SuperendividamentoRapido from "@/pages/quick/SuperendividamentoRapido";
+import Dashboard from "@/pages/gestao-passivo/Dashboard";
 import NovaAnalise from "@/pages/gestao-passivo/NovaAnalise";
 import TesteProvisao from "@/pages/gestao-passivo/TesteProvisao";
 
@@ -200,6 +201,7 @@ export function EnterpriseLayout() {
                     {/* CALCULADORA (manter para compatibilidade) */}
                     {/* GESTÃO DE PASSIVO BANCÁRIO */}
                     {/* ===================================================================== */}
+                    <Route path="/gestao-passivo/dashboard" element={<Dashboard />} />
                     <Route path="/gestao-passivo/nova" element={<NovaAnalise />} />
                     <Route path="/gestao-passivo/teste-provisao" element={<TesteProvisao />} />
 
