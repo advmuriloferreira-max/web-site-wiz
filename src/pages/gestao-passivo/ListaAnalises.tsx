@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { MoreHorizontal } from 'lucide-react';
 import { gerarRelatorioPDFPassivoBancario } from '@/lib/gerarRelatorioPDF';
 import { toast } from 'sonner';
+import NavigationBar from '@/components/NavigationBar';
 
 // ==============================================================================
 // DADOS MOCKADOS (SUBSTITUIR PELA CHAMADA À API/BANCO DE DADOS)
@@ -40,7 +41,9 @@ export default function ListaAnalisesPage() {
   }, [filtro]);
 
   return (
-    <div className="container mx-auto p-4 md:p-8">
+    <>
+      <NavigationBar />
+      <div className="container mx-auto p-4 md:p-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold tracking-tight">Lista de Análises</h1>
         <Input 
@@ -86,6 +89,7 @@ export default function ListaAnalisesPage() {
         </Table>
       </Card>
     </div>
+    </>
   );
 }
 

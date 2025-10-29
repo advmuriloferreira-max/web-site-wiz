@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { Eye } from 'lucide-react';
+import NavigationBar from '@/components/NavigationBar';
 
 // ==============================================================================
 // DADOS MOCKADOS (SUBSTITUIR PELA CHAMADA À API/BANCO DE DADOS)
@@ -69,8 +70,10 @@ export default function DashboardPage() {
   const dataGraficoBancos = Object.entries(distribuicaoPorBanco).map(([name, value]) => ({ name, value }));
 
   return (
-    <div className="container mx-auto p-4 md:p-8 space-y-8">
-      <h1 className="text-3xl font-bold tracking-tight">Dashboard de Oportunidades</h1>
+    <>
+      <NavigationBar />
+      <div className="container mx-auto p-4 md:p-8 space-y-8">
+        <h1 className="text-3xl font-bold tracking-tight">Dashboard de Oportunidades</h1>
 
       {/* Seção de KPIs Principais */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -170,7 +173,8 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-    </div>
+      </div>
+    </>
   );
 }
 

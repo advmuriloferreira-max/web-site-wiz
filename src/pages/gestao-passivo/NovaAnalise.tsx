@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import NavigationBar from '@/components/NavigationBar';
 
 // ==============================================================================
 // COMPONENTE PRINCIPAL
@@ -72,8 +73,10 @@ export default function NovaAnalisePage() {
   };
 
   return (
-    <div className="container mx-auto p-4 md:p-8">
-      <form onSubmit={handleSubmit}>
+    <>
+      <NavigationBar />
+      <div className="container mx-auto p-4 md:p-8">
+        <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
           {/* Coluna 1: Formulário de Entrada */}
@@ -200,5 +203,6 @@ export default function NovaAnalisePage() {
         </div>
       </form>
     </div>
+    </>
   );
 }

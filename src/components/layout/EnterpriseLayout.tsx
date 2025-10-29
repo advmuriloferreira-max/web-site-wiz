@@ -56,6 +56,7 @@ import NovaAnalise from "@/pages/gestao-passivo/NovaAnalise";
 import ListaAnalises from "@/pages/gestao-passivo/ListaAnalises";
 import TesteProvisao from "@/pages/gestao-passivo/TesteProvisao";
 import DetalhesAnalise from "@/pages/gestao-passivo/DetalhesAnalise";
+import RelatoriosGestaoPassivo from "@/pages/gestao-passivo/Relatorios";
 
 export function EnterpriseLayout() {
   const [searchOpen, setSearchOpen] = useState(false);
@@ -208,6 +209,7 @@ export function EnterpriseLayout() {
                     <Route path="/gestao-passivo/lista" element={<ListaAnalises />} />
                     <Route path="/gestao-passivo/analise/:id" element={<DetalhesAnalise />} />
                     <Route path="/gestao-passivo/teste-provisao" element={<TesteProvisao />} />
+                    <Route path="/gestao-passivo/relatorios" element={<RelatoriosGestaoPassivo />} />
 
                     {/* ===================================================================== */}
                     <Route path="/calculadora-juros" element={<CalculadoraJuros />} />

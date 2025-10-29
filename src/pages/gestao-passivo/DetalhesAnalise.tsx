@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import NavigationBar from '@/components/NavigationBar';
 
 // ==============================================================================
 // DADOS MOCKADOS (SUBSTITUIR PELA CHAMADA À API/BANCO DE DADOS)
@@ -71,7 +72,9 @@ export default function DetalhesAnalisePage() {
   }
 
   return (
-    <div className="container mx-auto p-4 md:p-8 space-y-8">
+    <>
+      <NavigationBar />
+      <div className="container mx-auto p-4 md:p-8 space-y-8">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Detalhes da Análise</h1>
         <p className="text-muted-foreground">Contrato: {analise.numeroContrato}</p>
@@ -130,6 +133,7 @@ export default function DetalhesAnalisePage() {
         </div>
       </div>
     </div>
+    </>
   );
 }
 
