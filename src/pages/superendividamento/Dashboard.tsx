@@ -23,7 +23,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { HeroSection } from "@/components/dashboard/HeroSection";
+import { Brain } from "lucide-react";
 
 export default function DashboardSuperendividamento() {
   const navigate = useNavigate();
@@ -141,12 +141,14 @@ export default function DashboardSuperendividamento() {
 
   return (
     <div className="space-y-6">
-      {/* Hero Section */}
-      <HeroSection />
-      
       {/* Header com Menu Dropdown */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
+          {/* Logo pequeno INTELLBANK */}
+          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gray-900 text-white dark:bg-gray-800">
+            <Brain className="h-7 w-7" />
+          </div>
+          
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button 
