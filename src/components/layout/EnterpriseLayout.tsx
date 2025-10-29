@@ -54,6 +54,7 @@ import SuperendividamentoRapido from "@/pages/quick/SuperendividamentoRapido";
 import Dashboard from "@/pages/gestao-passivo/Dashboard";
 import NovaAnalise from "@/pages/gestao-passivo/NovaAnalise";
 import TesteProvisao from "@/pages/gestao-passivo/TesteProvisao";
+import DetalhesAnalise from "@/pages/gestao-passivo/DetalhesAnalise";
 
 export function EnterpriseLayout() {
   const [searchOpen, setSearchOpen] = useState(false);
@@ -203,6 +204,7 @@ export function EnterpriseLayout() {
                     {/* ===================================================================== */}
                     <Route path="/gestao-passivo/dashboard" element={<Dashboard />} />
                     <Route path="/gestao-passivo/nova" element={<NovaAnalise />} />
+                    <Route path="/gestao-passivo/analise/:id" element={<DetalhesAnalise />} />
                     <Route path="/gestao-passivo/teste-provisao" element={<TesteProvisao />} />
 
                     {/* ===================================================================== */}

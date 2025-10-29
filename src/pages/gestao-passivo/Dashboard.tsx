@@ -1,8 +1,11 @@
 // src/pages/gestao-passivo/Dashboard.tsx
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { Eye } from 'lucide-react';
 
 // ==============================================================================
 // DADOS MOCKADOS (SUBSTITUIR PELA CHAMADA À API/BANCO DE DADOS)
@@ -41,6 +44,7 @@ const PIE_COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#AF19FF', '#FF1
 // ==============================================================================
 
 export default function DashboardPage() {
+  const navigate = useNavigate();
 
   // --- CÁLCULO DOS KPIs --- (Estes cálculos seriam feitos no backend idealmente)
   const totalAnalises = mockAnalises.length;
@@ -96,6 +100,36 @@ export default function DashboardPage() {
           })}
         </div>
       </div>
+
+      {/* Tabela de Análises Recentes */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Análises Recentes</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {mockAnalises.slice(0, 5).map((analise) => (
+              <div key={analise.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors">
+                <div className="flex-1">
+                  <p className="font-semibold">{analise.banco}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Saldo: {analise.saldoDevedor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} | 
+                    Marco: {analise.marco}
+                  </p>
+                </div>
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  onClick={() => navigate(`/app/gestao-passivo/analise/${analise.id}`)}
+                >
+                  <Eye className="h-4 w-4 mr-2" />
+                  Ver Detalhes
+                </Button>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Seção de Gráficos */}
       <div className="grid gap-8 md:grid-cols-2">
