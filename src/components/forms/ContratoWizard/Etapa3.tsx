@@ -7,11 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useProvisaoPerda, useProvisaoPerdaIncorrida } from "@/hooks/useProvisao";
 import { useGetTipoOperacaoById } from "@/hooks/useTiposOperacao";
 import { ContratoWizardData } from "./types";
 import { Calculator, TrendingUp, AlertTriangle, CheckCircle, Info } from "lucide-react";
-import { calcularProvisao, ClassificacaoRisco } from "@/lib/calculoProvisao";
 import { toast } from "sonner";
 
 interface Etapa3Props {
@@ -19,8 +17,6 @@ interface Etapa3Props {
 }
 
 export function Etapa3({ form }: Etapa3Props) {
-  const { data: tabelaPerda } = useProvisaoPerda();
-  const { data: tabelaIncorrida } = useProvisaoPerdaIncorrida();
   const [calculoRealizado, setCalculoRealizado] = useState(false);
 
   // Dados do formulário
@@ -37,51 +33,14 @@ export function Etapa3({ form }: Etapa3Props) {
   // Definir classificação automaticamente baseada no tipo de operação
   useEffect(() => {
     if (tipoOperacaoSelecionado && !classificacao) {
-      const novaClassificacao = tipoOperacaoSelecionado.carteira as ClassificacaoRisco;
+      const novaClassificacao = tipoOperacaoSelecionado.carteira as any;
       form.setValue("classificacao", novaClassificacao);
       toast.info("Classificação " + novaClassificacao + " definida automaticamente baseada no tipo de operação BCB");
     }
   }, [tipoOperacaoSelecionado, classificacao, form]);
 
   const calcularProvisaoAutomatica = () => {
-    if (!saldoContabil || !classificacao) {
-      toast.error("Dados insuficientes - Informe pelo menos a dívida contábil e a classificação");
-      return;
-    }
-
-    if (!tabelaPerda || !tabelaIncorrida) {
-      toast.error("Tabelas de referência não carregadas");
-      return;
-    }
-
-    try {
-      const diasAtrasoNum = diasAtraso ? parseInt(diasAtraso) : 0;
-      const saldoCont = parseFloat(saldoContabil);
-      const valorDiv = valorDivida ? parseFloat(valorDivida) : null;
-      const valorParaCalculo = saldoCont;
-
-      const resultado = calcularProvisao({
-        valorDivida: valorParaCalculo,
-        diasAtraso: diasAtrasoNum,
-        classificacao: classificacao as ClassificacaoRisco,
-        tabelaPerda,
-        tabelaIncorrida,
-        criterioIncorrida: "Dias de Atraso",
-      });
-
-      // Atualizar formulário
-      form.setValue("percentual_provisao", resultado.percentualProvisao.toFixed(2));
-      form.setValue("valor_provisao", resultado.valorProvisao.toFixed(2));
-      
-      const proposta = valorParaCalculo - resultado.valorProvisao;
-      form.setValue("proposta_acordo", Math.max(0, proposta).toFixed(2));
-
-      setCalculoRealizado(true);
-      toast.success("Provisão calculada: " + resultado.percentualProvisao.toFixed(2) + "% - R$ " + resultado.valorProvisao.toLocaleString('pt-BR', { minimumFractionDigits: 2 }));
-    } catch (error) {
-      toast.error("Erro ao calcular provisão");
-      console.error(error);
-    }
+    toast.info("Cálculo de provisão disponível no módulo de Gestão de Passivo");
   };
 
   const getClassificacaoColor = (classif: string) => {

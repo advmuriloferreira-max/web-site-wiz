@@ -10,15 +10,8 @@ import { ContratoWizard } from "@/components/forms/ContratoWizard";
 import { GarantiaImpactDisplay } from "@/components/garantias/GarantiaImpactDisplay";
 import { GarantiasSection } from "@/components/garantias/GarantiasSection";
 import { useContratoById } from "@/hooks/useContratoById";
-import { useProvisaoPerda, useProvisaoPerdaIncorrida } from "@/hooks/useProvisao";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { 
-  verificarPeriodoObservacaoReestruturacao, 
-  calcularProvisaoAvancada, 
-  ClassificacaoRisco,
-  ResultadoCalculo 
-} from "@/lib/calculoProvisao";
 import { format } from "date-fns";
 import { useState, useEffect } from "react";
 import AssistenteVirtual from "@/components/assistente/AssistenteVirtual";
@@ -89,12 +82,9 @@ export default function ContratoDetalhes() {
   const { contratoId } = useParams<{ contratoId: string }>();
   const navigate = useNavigate();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [resultadoProvisao, setResultadoProvisao] = useState<ResultadoCalculo | null>(null);
   const [showSuccessEffect, setShowSuccessEffect] = useState(false);
   
   const { data: contrato, isLoading, error } = useContratoById(contratoId || null);
-  const { data: tabelaPerda } = useProvisaoPerda();
-  const { data: tabelaIncorrida } = useProvisaoPerdaIncorrida();
 
   // Buscar análise de Gestão de Passivo Bancário
   const { data: analisePassivo } = useQuery({
@@ -646,28 +636,17 @@ export default function ContratoDetalhes() {
         </Dialog>
 
         {/* Alerta para contratos reestruturados */}
-        {(contrato as any).is_reestruturado && (contrato as any).data_reestruturacao && (() => {
-          const observacao = verificarPeriodoObservacaoReestruturacao((contrato as any).data_reestruturacao);
-          if (observacao.emPeriodo) {
-            return (
-              <Alert className="border-yellow-200 bg-yellow-50/80 dark:border-yellow-800 dark:bg-yellow-950/80 backdrop-blur-sm">
-                  <AlertTriangle className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
-                  <AlertDescription className="text-yellow-800 dark:text-yellow-200">
-                    <strong>Operação Reestruturada - Período de Observação</strong>
-                    <br />
-                    Este contrato está em período de observação regulamentar de 6 meses. 
-                    Mantido em Estágio de Risco mínimo 2 conforme normativas.
-                    <br />
-                    <span className="text-sm">
-                      Restam {observacao.diasRestantes} dias para conclusão do período de observação.
-                      Data da reestruturação: {format(new Date((contrato as any).data_reestruturacao), "dd/MM/yyyy")}
-                    </span>
-                  </AlertDescription>
-                </Alert>
-            );
-          }
-          return null;
-        })()}
+        {(contrato as any).is_reestruturado && (contrato as any).data_reestruturacao && (
+          <Alert className="border-yellow-200 bg-yellow-50/80 dark:border-yellow-800 dark:bg-yellow-950/80 backdrop-blur-sm">
+              <AlertTriangle className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+              <AlertDescription className="text-yellow-800 dark:text-yellow-200">
+                <strong>Operação Reestruturada - Período de Observação</strong>
+                <br />
+                Este contrato foi reestruturado em {format(new Date((contrato as any).data_reestruturacao), "dd/MM/yyyy")}.
+                Período de observação regulamentar aplicável.
+              </AlertDescription>
+            </Alert>
+          )}
 
         {/* Ferramentas de Análise */}
         <Card className="bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 border-2">
@@ -911,17 +890,11 @@ export default function ContratoDetalhes() {
                           <p className="text-xl font-semibold text-orange-600">
                             {formatCurrency(contrato.valor_provisao)}
                           </p>
-                          {(contrato as any).is_reestruturado && (contrato as any).data_reestruturacao && (() => {
-                            const observacao = verificarPeriodoObservacaoReestruturacao((contrato as any).data_reestruturacao);
-                            if (observacao.emPeriodo) {
-                              return (
-                                <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
-                                  ⚠️ Provisão ajustada por reestruturação
-                                </p>
-                              );
-                            }
-                            return null;
-                          })()}
+                           {(contrato as any).is_reestruturado && (contrato as any).data_reestruturacao && (
+                             <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
+                               ⚠️ Contrato reestruturado
+                             </p>
+                           )}
                         </div>
                       )}
 
@@ -948,13 +921,7 @@ export default function ContratoDetalhes() {
               </div>
             </div>
 
-            {/* Cálculo Avançado de Provisão com Garantias */}
-            {resultadoProvisao && (() => {
-              console.log('🎯 Mostrando resultado da provisão:', resultadoProvisao);
-              return (
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  <div className="lg:col-span-2">
-                    <GarantiaImpactDisplay resultado={resultadoProvisao} />
+            {/* Section removed - provision calculation temporarily unavailable */}
                   </div>
                   <div className="space-y-4">
                     <TransparencyPanel />

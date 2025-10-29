@@ -10,7 +10,6 @@ import { EnterpriseMobileNav } from "@/components/ui/enterprise-mobile-nav";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { InstallPrompt } from "@/components/InstallPrompt";
 import { UserMenu } from "@/components/UserMenu";
-import { AlertasProvisao } from "@/components/AlertasProvisao";
 import { PageTransition } from "@/components/ui/page-transition";
 import { ErrorBoundary } from "@/components/ui/error-boundary";
 import { SkipToMainContent } from "@/components/ui/accessibility-helpers";
@@ -28,22 +27,18 @@ import Home from "@/pages/Home";
 import Clientes from "@/pages/Clientes";
 import NovoCliente from "@/pages/NovoCliente";
 import ClienteDetalhes from "@/pages/clientes/ClienteDetalhes";
-import AnaliseProvisionamento from "@/pages/contratos/AnaliseProvisionamento";
 import AnaliseJurosAbusivos from "@/pages/contratos/AnaliseJurosAbusivos";
 import PlanoSuperendividamento from "@/pages/clientes/PlanoSuperendividamento";
 import AnaliseSocioeconomica from "@/pages/clientes/AnaliseSocioeconomica";
-import ListaProvisionamento from "@/pages/analises/ListaProvisionamento";
 import ListaJurosAbusivos from "@/pages/analises/ListaJurosAbusivos";
 import ListaSuperendividamento from "@/pages/analises/ListaSuperendividamento";
 import Contratos from "@/pages/Contratos";
 import NovoContrato from "@/pages/NovoContrato";
 import ContratoDetalhes from "@/pages/ContratoDetalhes";
-import Calculos from "@/pages/Calculos";
 import Processos from "@/pages/Processos";
 import Acordos from "@/pages/Acordos";
 import PainelCliente from "@/pages/PainelCliente";
 import Relatorios from "@/pages/Relatorios";
-import RelatoriosAvancados from "@/pages/RelatoriosAvancados";
 import Configuracoes from "@/pages/Configuracoes";
 import WorkspacePage from "@/pages/WorkspacePage";
 import NotFound from "@/pages/NotFound";
@@ -54,12 +49,10 @@ import Planos from "@/pages/superendividamento/Planos";
 import GerenciarEscritorio from "@/pages/configuracoes/GerenciarEscritorio";
 import AdminDashboard from "@/pages/admin/Dashboard";
 import SystemCheckPage from "@/pages/admin/SystemCheck";
-import ProvisionamentoRapido from "@/pages/quick/ProvisionamentoRapido";
 import JurosAbusivosRapido from "@/pages/quick/JurosAbusivosRapido";
 import SuperendividamentoRapido from "@/pages/quick/SuperendividamentoRapido";
 import ListaAnalises from "@/pages/gestao-passivo/ListaAnalises";
 import NovaAnalise from "@/pages/gestao-passivo/NovaAnalise";
-import DashboardOportunidades from "@/pages/gestao-passivo/DashboardOportunidades";
 import SimuladorCenarios from "@/pages/gestao-passivo/SimuladorCenarios";
 
 export function EnterpriseLayout() {
@@ -122,17 +115,6 @@ export function EnterpriseLayout() {
 
               {/* Right Section - Ações Úteis */}
               <div className="flex items-center gap-2 flex-shrink-0">
-                {/* Botão: Nova Análise Rápida */}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => window.location.href = '/app/quick/provisionamento'}
-                  className="text-white hover:text-white hover:bg-white/10 border border-white/20 transition-all duration-200 hover:scale-105 hidden sm:flex"
-                  title="Nova Análise Rápida"
-                >
-                  <LegalIcons.calculations className="h-4 w-4" />
-                  <span className="hidden lg:inline ml-2 text-sm font-medium">Análise Rápida</span>
-                </Button>
 
                 {/* Botão: Novo Cliente */}
                 <Button
@@ -160,9 +142,6 @@ export function EnterpriseLayout() {
 
                 {/* Theme Toggle */}
                 <ThemeToggle />
-                
-                {/* Alertas de Provisão */}
-                <AlertasProvisao />
                 
                 {/* User Menu */}
                 <UserMenu />
@@ -197,7 +176,6 @@ export function EnterpriseLayout() {
                     {/* ===================================================================== */}
                     {/* ANÁLISES POR CONTRATO */}
                     {/* ===================================================================== */}
-                    <Route path="/contratos/:id/provisionamento" element={<AnaliseProvisionamento />} />
                     <Route path="/contratos/:id/juros-abusivos" element={<AnaliseJurosAbusivos />} />
                     
                     {/* ===================================================================== */}
@@ -209,14 +187,12 @@ export function EnterpriseLayout() {
                     {/* ===================================================================== */}
                     {/* LISTAGENS DE ANÁLISES */}
                     {/* ===================================================================== */}
-                    <Route path="/analises/provisionamento" element={<ListaProvisionamento />} />
                     <Route path="/analises/juros-abusivos" element={<ListaJurosAbusivos />} />
                     <Route path="/analises/superendividamento" element={<ListaSuperendividamento />} />
 
                     {/* ===================================================================== */}
                     {/* ANÁLISE RÁPIDA */}
                     {/* ===================================================================== */}
-                    <Route path="/quick/provisionamento" element={<ProvisionamentoRapido />} />
                     <Route path="/quick/juros-abusivos" element={<JurosAbusivosRapido />} />
                     <Route path="/quick/superendividamento" element={<SuperendividamentoRapido />} />
 
@@ -225,7 +201,6 @@ export function EnterpriseLayout() {
                     {/* ===================================================================== */}
                     <Route path="/gestao-passivo" element={<ListaAnalises />} />
                     <Route path="/gestao-passivo/nova" element={<NovaAnalise />} />
-                    <Route path="/gestao-passivo/dashboard" element={<DashboardOportunidades />} />
                     <Route path="/gestao-passivo/simulador" element={<SimuladorCenarios />} />
 
                     {/* ===================================================================== */}

@@ -2,7 +2,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { TrendingDown, Shield, Calculator } from "lucide-react";
-import { ResultadoCalculo, GarantiaInfo } from "@/lib/calculoProvisao";
+
+interface ResultadoCalculo {
+  garantias?: any[];
+  lgdBase?: number;
+  lgdAjustado?: number;
+  impactoGarantia?: number;
+  valorGarantiaTotal?: number;
+}
 
 interface GarantiaImpactDisplayProps {
   resultado: ResultadoCalculo;

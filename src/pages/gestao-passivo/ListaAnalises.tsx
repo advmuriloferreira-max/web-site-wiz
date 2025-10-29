@@ -48,7 +48,6 @@ import { AnaliseGestaoPassivo, CarteiraBCB352, StatusNegociacao } from "@/types/
 import { determinarMarcoProvisionamento, determinarMomentoNegociacao } from "@/lib/calculoGestaoPassivo";
 import { PremiumPagination } from "@/components/ui/premium-pagination";
 import { toast } from "sonner";
-import { gerarRelatorioGestaoPassivoPDF } from "@/lib/gerarRelatorioGestaoPassivoPDF";
 
 export default function ListaAnalises() {
   const navigate = useNavigate();
@@ -242,16 +241,7 @@ export default function ListaAnalises() {
   };
 
   const handleGerarPDF = async (id: string) => {
-    try {
-      toast.loading("Gerando relatório PDF...");
-      await gerarRelatorioGestaoPassivoPDF(id);
-      toast.dismiss();
-      toast.success("Relatório PDF gerado com sucesso!");
-    } catch (error) {
-      toast.dismiss();
-      toast.error("Erro ao gerar relatório PDF");
-      console.error(error);
-    }
+    toast.info("Geração de PDF temporariamente indisponível");
   };
 
   const getCarteiraBadge = (carteira: string) => {

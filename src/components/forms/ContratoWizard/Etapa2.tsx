@@ -12,7 +12,6 @@ import { ContratoWizardData } from "./types";
 import { DollarSign, Calendar as CalendarIcon, TrendingUp, Building2, Info } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import { calcularDiasAtraso, diasParaMeses } from "@/lib/calculoProvisao";
 import { toast } from "sonner";
 
 interface Etapa2Props {
@@ -28,8 +27,11 @@ export function Etapa2({ form }: Etapa2Props) {
   useEffect(() => {
     if (dataUltimoPagamento) {
       try {
-        const diasAtraso = calcularDiasAtraso(dataUltimoPagamento);
-        const mesesAtraso = diasParaMeses(diasAtraso);
+        const dataUltimo = new Date(dataUltimoPagamento);
+        const hoje = new Date();
+        const diffTime = Math.abs(hoje.getTime() - dataUltimo.getTime());
+        const diasAtraso = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        const mesesAtraso = Math.floor(diasAtraso / 30);
         
         form.setValue("dias_atraso", diasAtraso.toString());
         form.setValue("meses_atraso", mesesAtraso.toString());

@@ -7,8 +7,6 @@ import { format, addMonths, subDays } from "date-fns";
 import { useContratos } from "@/hooks/useContratos";
 import { useClientes } from "@/hooks/useClientes";
 import { useContratosByCliente } from "@/hooks/useContratosByCliente";
-import { determinarEstagio, calcularProvisao, ClassificacaoRisco } from "@/lib/calculoProvisao";
-import { useProvisaoPerda, useProvisaoPerdaIncorrida } from "@/hooks/useProvisao";
 import { toast } from "sonner";
 import { LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from "recharts";
 import { ResponsiveContainer as LayoutResponsiveContainer } from "@/components/ui/layout-consistency";
@@ -28,124 +26,9 @@ export default function RelatoriosAvancados() {
   const { data: contratos } = useContratos();
   const { data: clientes } = useClientes();
   const { data: clienteContratos } = useContratosByCliente(selectedClienteId || null);
-  
-  // Hooks para tabelas de provisão
-  const { data: tabelaPerda } = useProvisaoPerda();
-  const { data: tabelaIncorrida } = useProvisaoPerdaIncorrida();
 
   const analyzeContractEvolution = async () => {
-    if (!selectedContratoId || !clienteContratos || !tabelaPerda) return;
-    
-    setIsAnalyzing(true);
-    
-    try {
-      const contrato = clienteContratos.find(c => c.id === selectedContratoId);
-      if (!contrato) return;
-      
-      // Calcular a evolução do provisionamento baseado na lógica real
-      const hoje = new Date();
-      
-      // Determinar estágio atual e calcular provisão atual
-      const estagioAtual = determinarEstagio(contrato.dias_atraso || 0);
-      const provisaoAtual = calcularProvisao({
-        valorDivida: contrato.valor_divida,
-        diasAtraso: contrato.dias_atraso || 0,
-        classificacao: (contrato.classificacao as ClassificacaoRisco) || 'C1',
-        tabelaPerda: tabelaPerda,
-        tabelaIncorrida: tabelaIncorrida || []
-      });
-      
-      // Gerar evolução baseada na lógica real de provisão
-      const analysisData = [];
-      
-      // Dados históricos - calcular provisão real para cada mês anterior
-      for (let i = 12; i >= 0; i--) {
-        const dataSimulada = subDays(hoje, i * 30);
-        const diasAtrasoHistorico = Math.max(0, (contrato.dias_atraso || 0) - (i * 30));
-        
-        // Calcular provisão real para esse período
-        const provisaoHistorica = calcularProvisao({
-          valorDivida: contrato.valor_divida,
-          diasAtraso: diasAtrasoHistorico,
-          classificacao: (contrato.classificacao as ClassificacaoRisco) || 'C1',
-          tabelaPerda: tabelaPerda,
-          tabelaIncorrida: tabelaIncorrida || []
-        });
-        
-        analysisData.push({
-          mes: format(dataSimulada, 'MMM/yy'),
-          provisao: provisaoHistorica.percentualProvisao,
-          diasAtraso: diasAtrasoHistorico,
-          valor: provisaoHistorica.valorProvisao,
-          isProjection: false
-        });
-      }
-      
-      // Projeção futura - simular evolução baseada no aumento dos dias de atraso
-      let provisaoProjecao = provisaoAtual.percentualProvisao;
-      let mesesPara50 = null;
-      let mesesPara100 = null;
-      let mesProjecao = 0;
-      const diasAtrasoAtual = contrato.dias_atraso || 0;
-      
-      // Projetar evolução baseada no aumento real dos dias de atraso
-      while (provisaoProjecao < 100 && mesProjecao < 36) {
-        mesProjecao++;
-        const diasAtrasoFuturo = diasAtrasoAtual + (mesProjecao * 30);
-        
-        // Calcular provisão real para esse período futuro
-        const provisaoFutura = calcularProvisao({
-          valorDivida: contrato.valor_divida,
-          diasAtraso: diasAtrasoFuturo,
-          classificacao: (contrato.classificacao as ClassificacaoRisco) || 'C1',
-          tabelaPerda: tabelaPerda,
-          tabelaIncorrida: tabelaIncorrida || []
-        });
-        
-        provisaoProjecao = provisaoFutura.percentualProvisao;
-        
-        const dataFutura = addMonths(hoje, mesProjecao);
-        
-        if (provisaoProjecao >= 50 && !mesesPara50) {
-          mesesPara50 = mesProjecao;
-        }
-        
-        if (provisaoProjecao >= 100 && !mesesPara100) {
-          mesesPara100 = mesProjecao;
-        }
-        
-        analysisData.push({
-          mes: format(dataFutura, 'MMM/yy'),
-          provisao: provisaoProjecao,
-          diasAtraso: diasAtrasoFuturo,
-          valor: provisaoFutura.valorProvisao,
-          isProjection: true
-        });
-        
-        // Se já chegou a 100%, não precisa continuar
-        if (provisaoProjecao >= 100) break;
-      }
-      
-      setContractAnalysisData(analysisData);
-      setAnalysisResults({
-        valorDivida: contrato.valor_divida,
-        provisaoAtual: provisaoAtual.percentualProvisao,
-        valorProvisaoAtual: provisaoAtual.valorProvisao,
-        estagioRisco: estagioAtual,
-        classificacao: provisaoAtual.regra,
-        mesesPara50: mesesPara50,
-        mesesPara100: mesesPara100,
-        diasPara50: mesesPara50 ? mesesPara50 * 30 : null,
-        diasPara100: mesesPara100 ? mesesPara100 * 30 : null
-      });
-      
-      toast.success("Análise de evolução concluída com sucesso!");
-    } catch (error) {
-      toast.error("Erro ao realizar análise");
-      console.error(error);
-    } finally {
-      setIsAnalyzing(false);
-    }
+    toast.info("Análise de evolução temporariamente indisponível");
   };
 
   const formatCurrency = (value: number) => {

@@ -16,14 +16,7 @@ import { useBancos } from "@/hooks/useBancos";
 import { useCreateContrato } from "@/hooks/useCreateContrato";
 import { useUpdateContrato } from "@/hooks/useUpdateContrato";
 import { useContratoByNumero } from "@/hooks/useContratoByNumero";
-import { useProvisaoPerda, useProvisaoPerdaIncorrida } from "@/hooks/useProvisao";
 import { useTiposOperacao, useGetTipoOperacaoById } from "@/hooks/useTiposOperacao";
-import { 
-  calcularProvisao, 
-  calcularDiasAtraso,
-  diasParaMeses,
-  ClassificacaoRisco 
-} from "@/lib/calculoProvisao";
 import { Calculator, Info, Search, Edit, CalendarIcon } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -78,8 +71,6 @@ export function ContratoForm({ onSuccess, contratoParaEditar, clienteIdPredefini
   const { data: tiposOperacao } = useTiposOperacao();
   const createContrato = useCreateContrato();
   const updateContrato = useUpdateContrato();
-  const { data: tabelaPerda } = useProvisaoPerda();
-  const { data: tabelaIncorrida } = useProvisaoPerdaIncorrida();
   
   const [numeroContratoSearch, setNumeroContratoSearch] = useState("");
   const [isEditing, setIsEditing] = useState(false);
@@ -171,54 +162,7 @@ export function ContratoForm({ onSuccess, contratoParaEditar, clienteIdPredefini
   };
 
   const calcularProvisaoAutomatica = () => {
-    const valores = form.getValues();
-    
-    // Verificar se temos os dados essenciais
-    if (!valores.saldo_contabil || !valores.classificacao) {
-      toast.error("Para calcular a provisão, informe pelo menos a dívida contábil e a classificação");
-      return;
-    }
-
-    if (!tabelaPerda || !tabelaIncorrida) {
-      toast.error("Tabelas de referência não carregadas");
-      return;
-    }
-
-    try {
-      // Calcular dias de atraso se houver data do último pagamento
-      let diasAtraso = valores.dias_atraso ? parseInt(valores.dias_atraso) : 0;
-      if (valores.data_ultimo_pagamento && diasAtraso === 0) {
-        diasAtraso = calcularDiasAtraso(valores.data_ultimo_pagamento);
-      }
-
-      // Determinar valor para cálculo (usar dívida contábil, fallback valor da dívida)
-      const saldoContabil = parseFloat(valores.saldo_contabil);
-      const valorDivida = valores.valor_divida ? parseFloat(valores.valor_divida) : null;
-      const valorParaCalculo = saldoContabil;
-
-      // Calcular provisão
-      const resultado = calcularProvisao({
-        valorDivida: valorParaCalculo,
-        diasAtraso,
-        classificacao: valores.classificacao as ClassificacaoRisco,
-        tabelaPerda,
-        tabelaIncorrida,
-        criterioIncorrida: "Dias de Atraso",
-      });
-
-      const mesesAtraso = diasParaMeses(diasAtraso);
-      const percentualProvisao = resultado.percentualProvisao;
-      form.setValue("valor_provisao", resultado.valorProvisao.toFixed(2));
-      
-      // Calcular proposta de acordo (valor para cálculo - valor da provisão)
-      const propostaAcordo = valorParaCalculo - resultado.valorProvisao;
-      form.setValue("proposta_acordo", propostaAcordo.toFixed(2));
-
-      toast.success(`Provisão calculada: ${percentualProvisao.toFixed(2)}% (R$ ${resultado.valorProvisao.toLocaleString('pt-BR', { minimumFractionDigits: 2 })})`);
-    } catch (error) {
-      toast.error("Erro ao calcular provisão");
-      console.error(error);
-    }
+    toast.info("Cálculo de provisão disponível no módulo de Gestão de Passivo");
   };
 
   const buscarContrato = () => {
@@ -305,8 +249,11 @@ export function ContratoForm({ onSuccess, contratoParaEditar, clienteIdPredefini
   useEffect(() => {
     if (dataUltimoPagamento) {
       try {
-        const diasAtraso = calcularDiasAtraso(dataUltimoPagamento);
-        const mesesAtraso = diasParaMeses(diasAtraso);
+        const dataUltimo = new Date(dataUltimoPagamento);
+        const hoje = new Date();
+        const diffTime = Math.abs(hoje.getTime() - dataUltimo.getTime());
+        const diasAtraso = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        const mesesAtraso = Math.floor(diasAtraso / 30);
         
         form.setValue("dias_atraso", diasAtraso.toString());
         form.setValue("meses_atraso", mesesAtraso.toString());
@@ -328,7 +275,7 @@ export function ContratoForm({ onSuccess, contratoParaEditar, clienteIdPredefini
   useEffect(() => {
     if (tipoOperacaoSelecionado) {
       // A classificação é definida pela carteira do tipo de operação
-      const classificacao = tipoOperacaoSelecionado.carteira as ClassificacaoRisco;
+      const classificacao = tipoOperacaoSelecionado.carteira as any;
       form.setValue("classificacao", classificacao);
       
       toast.info(`Classificação automaticamente definida como ${classificacao} baseada no tipo de operação selecionado`);
@@ -409,45 +356,6 @@ export function ContratoForm({ onSuccess, contratoParaEditar, clienteIdPredefini
       form.setValue("valor_honorarios", "0");
     }
   }, [percentualHonorarios, reducaoDivida, form]);
-
-  // Calcular provisão automaticamente quando campos relevantes mudarem
-  useEffect(() => {
-    if (saldoContabil && classificacao && tabelaPerda && tabelaIncorrida) {
-      try {
-        // Usar dias de atraso do formulário ou calcular se não disponível
-        let diasCalculados = diasAtraso ? parseInt(diasAtraso) : 0;
-        if (dataUltimoPagamento && diasCalculados === 0) {
-          diasCalculados = calcularDiasAtraso(dataUltimoPagamento);
-        }
-
-        // Determinar valor para cálculo (usar dívida contábil, fallback valor da dívida)
-        const saldoContabilNum = parseFloat(saldoContabil);
-        const valorDividaNum = valorDivida ? parseFloat(valorDivida) : null;
-        const valorParaCalculo = saldoContabilNum;
-
-        // Calcular provisão
-        const resultado = calcularProvisao({
-          valorDivida: valorParaCalculo,
-          diasAtraso: diasCalculados,
-          classificacao: classificacao as ClassificacaoRisco,
-          tabelaPerda,
-          tabelaIncorrida,
-          criterioIncorrida: "Dias de Atraso",
-        });
-
-        // Atualizar campos calculados
-        form.setValue("percentual_provisao", resultado.percentualProvisao.toString());
-        form.setValue("valor_provisao", resultado.valorProvisao.toFixed(2));
-        
-        // Calcular proposta de acordo (valor para cálculo - valor da provisão)
-        const propostaAcordoCalculada = valorParaCalculo - resultado.valorProvisao;
-        form.setValue("proposta_acordo", propostaAcordoCalculada.toFixed(2));
-
-      } catch (error) {
-        console.error("Erro no cálculo automático de provisão:", error);
-      }
-    }
-  }, [saldoContabil, classificacao, diasAtraso, valorDivida, dataUltimoPagamento, tabelaPerda, tabelaIncorrida, form]);
 
   // Carregar contrato automaticamente quando contratoParaEditar muda
   useEffect(() => {
@@ -736,7 +644,6 @@ export function ContratoForm({ onSuccess, contratoParaEditar, clienteIdPredefini
             type="button" 
             variant="outline" 
             onClick={calcularProvisaoAutomatica}
-            disabled={!tabelaPerda || !tabelaIncorrida}
             className="flex items-center gap-2"
           >
             <Calculator className="h-4 w-4" />

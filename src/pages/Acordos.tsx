@@ -9,7 +9,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { AcordoForm } from "@/components/acordos/AcordoForm";
 import { useContratos } from "@/hooks/useContratos";
 import { usePropostasAcordo, useCreateProposta, useUpdateProposta } from "@/hooks/usePropostasAcordo";
 import { ResponsiveContainer } from "@/components/ui/layout-consistency";
@@ -398,15 +397,14 @@ export default function Acordos() {
               <Handshake className="h-5 w-5" />
               Gerenciar Acordo - {selectedContrato?.clientes?.nome}
             </DialogTitle>
+            <p className="text-sm text-muted-foreground mt-2">
+              Funcionalidade de acordo em desenvolvimento
+            </p>
           </DialogHeader>
           {selectedContrato && (
-            <AcordoForm 
-              contrato={selectedContrato} 
-              onSuccess={() => {
-                setShowAcordoDialog(false);
-                setSelectedContrato(null);
-              }}
-            />
+            <div className="p-4">
+              <p className="text-muted-foreground">Funcionalidade de acordo em desenvolvimento</p>
+            </div>
           )}
         </DialogContent>
       </Dialog>
