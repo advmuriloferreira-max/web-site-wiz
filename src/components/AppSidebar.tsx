@@ -30,11 +30,6 @@ const menuItems = [
         url: "/app",
         icon: Home,
       },
-    ],
-  },
-  {
-    section: "GESTÃO",
-    items: [
       {
         title: "Clientes",
         url: "/app/clientes",
@@ -147,13 +142,13 @@ export function AppSidebar() {
         </div>
 
         {menuItems.map((group, groupIndex) => (
-          <SidebarGroup key={groupIndex} className="px-3 py-3 mt-2">
+          <SidebarGroup key={groupIndex} className="px-4 py-2 mt-1">
             {group.section && (
-              <SidebarGroupLabel className="px-3 py-2 text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider mb-2 bg-gray-100 dark:bg-gray-800 rounded-md shadow-sm border-l-4 border-blue-500">
+              <SidebarGroupLabel className="px-4 py-2.5 text-[11px] font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider mb-1.5 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-800/50 rounded-lg shadow-sm border-l-[3px] border-blue-500">
                 {group.section}
               </SidebarGroupLabel>
             )}
-            <SidebarGroupContent>
+            <SidebarGroupContent className="space-y-0.5">
               <SidebarMenu>
                 {group.items.map((item) => {
                   const isActive = location.pathname === item.url;
@@ -164,15 +159,15 @@ export function AppSidebar() {
                         isActive={isActive}
                         className={`
                           ${isActive 
-                            ? 'bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 font-semibold border-l-4 border-blue-600' 
-                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100'
+                            ? 'bg-gradient-to-r from-blue-50 to-blue-100/50 dark:from-blue-950 dark:to-blue-900/50 text-blue-700 dark:text-blue-300 font-semibold border-l-[3px] border-blue-600 shadow-sm' 
+                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:text-gray-900 dark:hover:text-gray-100 border-l-[3px] border-transparent'
                           }
-                          transition-all duration-200 rounded-r-lg
+                          transition-all duration-200 rounded-lg my-0.5
                         `}
                       >
-                        <Link to={item.url} className="flex items-center gap-3 px-3 py-2.5">
-                          <item.icon className={`h-5 w-5 ${isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'}`} />
-                          <span className="text-sm">{item.title}</span>
+                        <Link to={item.url} className="flex items-center gap-3 px-4 py-2.5">
+                          <item.icon className={`h-[18px] w-[18px] flex-shrink-0 ${isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'}`} />
+                          <span className={`text-[13px] leading-tight ${isActive ? 'font-semibold' : 'font-medium'}`}>{item.title}</span>
                         </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
