@@ -16,17 +16,26 @@ export default function NavigationBar() {
 
   const isActive = (path: string) => location.pathname === path;
   const isModuleActive = (modulePath: string) => location.pathname.includes(modulePath);
+  const isSuperendividamentoModule = isModuleActive('/superendividamento');
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
         {/* Logo e Nome do Sistema */}
         <div className="flex items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+          <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${
+            isSuperendividamentoModule 
+              ? 'bg-gray-900 text-white dark:bg-gray-800' 
+              : 'bg-primary text-primary-foreground'
+          }`}>
             <BarChart3 className="h-6 w-6" />
           </div>
           <div className="flex flex-col">
-            <span className="text-lg font-bold tracking-tight">INTELLIBANK</span>
+            <span className={`text-lg font-bold tracking-tight ${
+              isSuperendividamentoModule ? 'text-gray-900 dark:text-white' : ''
+            }`}>
+              INTELLIBANK
+            </span>
             <span className="text-xs text-muted-foreground">Direito Bancário</span>
           </div>
         </div>
