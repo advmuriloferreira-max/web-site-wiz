@@ -126,7 +126,7 @@ export default function DashboardSuperendividamento() {
       description: "Ver todos os relatórios e planos salvos",
       icon: ListChecks,
       color: "from-orange-500 to-orange-600",
-      action: () => navigate("/app/superendividamento/lista"),
+      action: () => navigate("/app/superendividamento/lista-analises"),
     },
   ];
 

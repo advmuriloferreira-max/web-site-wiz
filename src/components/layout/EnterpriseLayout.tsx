@@ -53,6 +53,7 @@ import DashboardSuperendividamento from "@/pages/superendividamento/Dashboard";
 import RelatorioSocioeconomico from "@/pages/superendividamento/RelatorioSocioeconomico";
 import NovoPlano from "@/pages/superendividamento/NovoPlano";
 import SimulacaoRapida from "@/pages/superendividamento/SimulacaoRapida";
+import ListaAnalisesSuperendividamento from "@/pages/superendividamento/ListaAnalises";
 import ListaCompletaSuperendividamento from "@/pages/superendividamento/ListaCompleta";
 import NovaAnalise from "@/pages/gestao-passivo/NovaAnalise";
 import ListaAnalises from "@/pages/gestao-passivo/ListaAnalises";
@@ -217,6 +218,7 @@ export function EnterpriseLayout() {
                     <Route path="/superendividamento/novo-relatorio/:clienteId?" element={<RelatorioSocioeconomico />} />
                     <Route path="/superendividamento/novo-plano/:clienteId?" element={<NovoPlano />} />
                     <Route path="/superendividamento/lista" element={<ListaCompletaSuperendividamento />} />
+                    <Route path="/superendividamento/lista-analises" element={<ListaAnalisesSuperendividamento />} />
                     <Route path="/superendividamento/simulacao-rapida" element={<SimulacaoRapida />} />
 
                     {/* ===================================================================== */}

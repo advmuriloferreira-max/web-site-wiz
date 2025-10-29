@@ -111,7 +111,7 @@ export default function NavigationBar() {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link to="/app/superendividamento/lista" className="w-full cursor-pointer">
+                <Link to="/app/superendividamento/lista-analises" className="w-full cursor-pointer">
                   <ListChecks className="h-4 w-4 mr-2" />
                   Lista de Análises Completas
                 </Link>

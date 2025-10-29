@@ -87,7 +87,7 @@ const menuItems = [
       },
       {
         title: "Lista de Análises Completas",
-        url: "/app/superendividamento/lista",
+        url: "/app/superendividamento/lista-analises",
         icon: List,
       },
       {
