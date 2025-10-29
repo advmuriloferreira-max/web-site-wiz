@@ -163,11 +163,11 @@ export default function DashboardSuperendividamento() {
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate("/app/superendividamento/novo-relatorio")}>
                 <FileText className="h-4 w-4 mr-2" />
-                Novo Relatório Socioeconômico
+                Relatório Socioeconômico
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate("/app/superendividamento/novo-plano")}>
                 <PiggyBank className="h-4 w-4 mr-2" />
-                Novo Plano de Pagamento
+                Plano de Pagamento
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate("/app/superendividamento/lista-analises")}>
                 <ListChecks className="h-4 w-4 mr-2" />
