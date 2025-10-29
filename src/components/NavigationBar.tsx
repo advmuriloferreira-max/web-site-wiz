@@ -68,7 +68,7 @@ export default function NavigationBar() {
                 <DropdownMenuItem asChild>
                   <Link to="/app/gestao-passivo/nova" className="w-full cursor-pointer">
                     <PlusCircle className="h-4 w-4 mr-2" />
-                    Análise de Provisionamento
+                    Calcular Provisionamento
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>

@@ -51,7 +51,7 @@ const menuItems = [
         icon: BarChart3,
       },
       {
-        title: "Nova Análise",
+        title: "Calcular Provisionamento",
         url: "/app/gestao-passivo/nova",
         icon: FileText,
       },
