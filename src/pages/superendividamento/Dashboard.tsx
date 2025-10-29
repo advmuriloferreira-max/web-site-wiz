@@ -24,6 +24,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Brain } from "lucide-react";
+import { IntelliLogo } from "@/components/ui/intellbank-logo";
 
 export default function DashboardSuperendividamento() {
   const navigate = useNavigate();
@@ -141,14 +142,14 @@ export default function DashboardSuperendividamento() {
 
   return (
     <div className="space-y-6">
+      {/* Logo INTELLBANK */}
+      <div className="mb-4">
+        <IntelliLogo />
+      </div>
+      
       {/* Header com Menu Dropdown */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          {/* Logo pequeno INTELLBANK */}
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gray-900 text-white dark:bg-gray-800">
-            <Brain className="h-7 w-7" />
-          </div>
-          
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button 
