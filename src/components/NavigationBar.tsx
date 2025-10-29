@@ -131,7 +131,7 @@ export default function NavigationBar() {
                 <DropdownMenuItem asChild>
                   <Link to="/app/acoes-revisionais/simulador" className="w-full cursor-pointer">
                     <FileSearch className="h-4 w-4 mr-2" />
-                    Simulador "E Se?"
+                    Simulador de Impacto Financeiro
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>

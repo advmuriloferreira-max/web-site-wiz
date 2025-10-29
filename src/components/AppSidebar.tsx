@@ -91,7 +91,7 @@ const menuItems = [
         icon: Calculator,
       },
       {
-        title: "Simulador \"E Se?\"",
+        title: "Simulador de Impacto Financeiro",
         url: "/app/acoes-revisionais/simulador",
         icon: FileSearch,
       },

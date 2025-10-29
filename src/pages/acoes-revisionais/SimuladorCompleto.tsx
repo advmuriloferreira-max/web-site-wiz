@@ -184,7 +184,7 @@ export default function SimuladorCompleto() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight text-purple-700 dark:text-purple-400">
-              Simulador "E Se?" - Ações Revisionais
+              Simulador de Impacto Financeiro - Ações Revisionais
             </h1>
             <p className="text-muted-foreground mt-1">
               Compare 3 cenários e mostre ao cliente o impacto financeiro da revisão

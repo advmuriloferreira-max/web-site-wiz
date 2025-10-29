@@ -111,7 +111,7 @@ export default function DetalhesAnalisePage() {
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Simulador de Cenários: "E se...?"</CardTitle>
+                    <CardTitle>Simulador de Impacto Financeiro</CardTitle>
                     <CardDescription>Arraste o controle para simular o impacto de esperar mais tempo para negociar.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
