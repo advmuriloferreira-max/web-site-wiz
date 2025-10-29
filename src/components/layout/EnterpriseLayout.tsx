@@ -232,6 +232,7 @@ export function EnterpriseLayout() {
                     {/* ===================================================================== */}
                     <Route path="/acoes-revisionais/radar" element={<RadarAcoes />} />
                     <Route path="/acoes-revisionais/nova-analise" element={<NovaAnaliseRevisional />} />
+                    <Route path="/acoes-revisionais/nova-analise/:contratoId" element={<NovaAnaliseRevisional />} />
                     <Route path="/acoes-revisionais/lista" element={<ListaAnalisesRevisional />} />
                     <Route path="/acoes-revisionais/analise-rapida" element={<AnaliseRapida />} />
                     <Route path="/acoes-revisionais/simulador" element={<Simulador />} />
