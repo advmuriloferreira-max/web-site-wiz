@@ -53,6 +53,7 @@ import JurosAbusivosRapido from "@/pages/quick/JurosAbusivosRapido";
 import SuperendividamentoRapido from "@/pages/quick/SuperendividamentoRapido";
 import Dashboard from "@/pages/gestao-passivo/Dashboard";
 import NovaAnalise from "@/pages/gestao-passivo/NovaAnalise";
+import ListaAnalises from "@/pages/gestao-passivo/ListaAnalises";
 import TesteProvisao from "@/pages/gestao-passivo/TesteProvisao";
 import DetalhesAnalise from "@/pages/gestao-passivo/DetalhesAnalise";
 
@@ -204,6 +205,7 @@ export function EnterpriseLayout() {
                     {/* ===================================================================== */}
                     <Route path="/gestao-passivo/dashboard" element={<Dashboard />} />
                     <Route path="/gestao-passivo/nova" element={<NovaAnalise />} />
+                    <Route path="/gestao-passivo/lista" element={<ListaAnalises />} />
                     <Route path="/gestao-passivo/analise/:id" element={<DetalhesAnalise />} />
                     <Route path="/gestao-passivo/teste-provisao" element={<TesteProvisao />} />
 

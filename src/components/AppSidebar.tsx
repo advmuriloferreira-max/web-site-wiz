@@ -8,6 +8,7 @@ import {
   Settings,
   CheckCircle,
   BarChart3,
+  List,
 } from "lucide-react";
 import {
   Sidebar,
@@ -53,6 +54,11 @@ const menuItems = [
         title: "Nova Análise",
         url: "/app/gestao-passivo/nova",
         icon: FileText,
+      },
+      {
+        title: "Lista de Análises",
+        url: "/app/gestao-passivo/lista",
+        icon: List,
       },
       {
         title: "Teste de Conformidade",
