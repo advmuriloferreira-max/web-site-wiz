@@ -73,7 +73,7 @@ export default function DashboardPage() {
     <>
       <NavigationBar />
       <div className="container mx-auto p-4 md:p-8 space-y-8">
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard de Oportunidades</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Radar de Oportunidades de Acordos</h1>
 
       {/* Seção de KPIs Principais */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
