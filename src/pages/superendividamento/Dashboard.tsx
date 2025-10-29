@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PiggyBank, FileText, Calculator, ListChecks, TrendingDown, Users, AlertTriangle, DollarSign, TrendingUp } from "lucide-react";
+import { PiggyBank, FileText, Calculator, ListChecks, TrendingDown, Users, AlertTriangle, DollarSign, TrendingUp, Scale, ChevronDown, Home } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PieChart, Pie, Cell, BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
@@ -15,6 +15,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function DashboardSuperendividamento() {
   const navigate = useNavigate();
@@ -132,15 +140,54 @@ export default function DashboardSuperendividamento() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Header com Menu Dropdown */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-            Superendividamento
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Lei 14.181/2021 - Planos de pagamento e análise socioeconômica
-          </p>
+        <div className="flex items-center gap-4">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button 
+                size="lg"
+                className="gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                <Scale className="h-5 w-5" />
+                Superendividamento
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-64 bg-white dark:bg-gray-800 z-50">
+              <DropdownMenuLabel>Lei 14.181/2021</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => navigate("/app/superendividamento/dashboard")}>
+                <Home className="h-4 w-4 mr-2" />
+                Visão Geral
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/app/superendividamento/novo-relatorio")}>
+                <FileText className="h-4 w-4 mr-2" />
+                Novo Relatório Socioeconômico
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/app/superendividamento/novo-plano")}>
+                <PiggyBank className="h-4 w-4 mr-2" />
+                Novo Plano de Pagamento
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/app/superendividamento/lista-analises")}>
+                <ListChecks className="h-4 w-4 mr-2" />
+                Lista de Análises Completas
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/app/superendividamento/simulacao-rapida")}>
+                <Calculator className="h-4 w-4 mr-2" />
+                Simulação Rápida
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+              Visão Geral
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-1">
+              Lei 14.181/2021 - Planos de pagamento e análise socioeconômica
+            </p>
+          </div>
         </div>
       </div>
 
