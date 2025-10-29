@@ -33,48 +33,50 @@ export default function NavigationBar() {
 
         {/* Links de Navegação */}
         <div className="flex items-center gap-2">
-          {/* Dropdown - Gestão de Passivo Bancário */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button 
-                variant={isModuleActive('/gestao-passivo') ? 'default' : 'ghost'}
-                size="sm"
-                className="gap-2"
-              >
-                <BarChart3 className="h-4 w-4" />
-                Gestão de Passivo
-                <ChevronDown className="h-3 w-3" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 bg-white dark:bg-gray-800 z-50">
-              <DropdownMenuLabel>Gestão de Passivo Bancário</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link to="/app/gestao-passivo/dashboard" className="w-full cursor-pointer">
-                  <Home className="h-4 w-4 mr-2" />
-                  Radar de Oportunidades de Acordos
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/app/gestao-passivo/nova" className="w-full cursor-pointer">
-                  <PlusCircle className="h-4 w-4 mr-2" />
-                  Análise de Provisionamento
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/app/gestao-passivo/lista" className="w-full cursor-pointer">
-                  <List className="h-4 w-4 mr-2" />
-                  Lista de Análises
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/app/gestao-passivo/relatorios" className="w-full cursor-pointer">
-                  <FileText className="h-4 w-4 mr-2" />
-                  Gerar Relatórios
-                </Link>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {/* Dropdown - Gestão de Passivo Bancário (não aparece dentro de Ações Revisionais) */}
+          {!isModuleActive('/acoes-revisionais') && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant={isModuleActive('/gestao-passivo') ? 'default' : 'ghost'}
+                  size="sm"
+                  className="gap-2"
+                >
+                  <BarChart3 className="h-4 w-4" />
+                  Gestão de Passivo
+                  <ChevronDown className="h-3 w-3" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56 bg-white dark:bg-gray-800 z-50">
+                <DropdownMenuLabel>Gestão de Passivo Bancário</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to="/app/gestao-passivo/dashboard" className="w-full cursor-pointer">
+                    <Home className="h-4 w-4 mr-2" />
+                    Radar de Oportunidades de Acordos
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/app/gestao-passivo/nova" className="w-full cursor-pointer">
+                    <PlusCircle className="h-4 w-4 mr-2" />
+                    Análise de Provisionamento
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/app/gestao-passivo/lista" className="w-full cursor-pointer">
+                    <List className="h-4 w-4 mr-2" />
+                    Lista de Análises
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/app/gestao-passivo/relatorios" className="w-full cursor-pointer">
+                    <FileText className="h-4 w-4 mr-2" />
+                    Gerar Relatórios
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
 
           {/* Dropdown - Ações Revisionais (aparece apenas dentro de Ações Revisionais) */}
           {isModuleActive('/acoes-revisionais') && (
