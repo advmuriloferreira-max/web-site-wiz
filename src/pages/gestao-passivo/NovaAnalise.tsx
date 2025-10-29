@@ -33,9 +33,14 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { analisarContrato, TIPOS_GARANTIA } from "@/lib/calculoGestaoPassivoBancario";
+import { 
+  calcularAnaliseCompleta, 
+  MODALIDADES_COMPLETAS, 
+  BANCOS_COMPLETOS, 
+  getCarteira 
+} from "@/lib/calculoGestaoPassivoBancario";
 import { toast } from "@/hooks/use-toast";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 
 const formSchema = z.object({
   // Seção 1: Dados do Contrato
@@ -87,15 +92,14 @@ const formSchema = z.object({
   path: ["saldo_devedor"],
 });
 
-const TIPOS_OPERACAO = [
-  "Empréstimo Pessoal",
-  "Capital de Giro",
-  "Financiamento de Veículo",
-  "Cartão de Crédito",
-  "Cheque Especial",
-  "Crédito Consignado",
-  "Outros",
-];
+// Modalidades agrupadas por carteira
+const MODALIDADES_POR_CARTEIRA = {
+  C1: MODALIDADES_COMPLETAS.filter(m => m.carteira === "C1"),
+  C2: MODALIDADES_COMPLETAS.filter(m => m.carteira === "C2"),
+  C3: MODALIDADES_COMPLETAS.filter(m => m.carteira === "C3"),
+  C4: MODALIDADES_COMPLETAS.filter(m => m.carteira === "C4"),
+  C5: MODALIDADES_COMPLETAS.filter(m => m.carteira === "C5"),
+};
 
 const formatCurrency = (value: string) => {
   const number = parseFloat(value.replace(/[^0-9,-]+/g, "").replace(",", "."));
@@ -108,20 +112,6 @@ const formatCurrency = (value: string) => {
 
 export default function NovaAnalise() {
   const { user } = useAuth();
-
-  const { data: bancos } = useQuery({
-    queryKey: ["bancos-brasil"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("bancos_brasil")
-        .select("*")
-        .eq("ativo", true)
-        .order("nome_curto", { ascending: true });
-
-      if (error) throw error;
-      return data;
-    },
-  });
 
   const createAnalise = useMutation({
     mutationFn: async (analise: any) => {
@@ -177,38 +167,45 @@ export default function NovaAnalise() {
         ? parseFloat(values.valor_garantia.replace(/[^0-9,-]+/g, "").replace(",", "."))
         : null;
 
-      // Executar análise
-      const resultado = await analisarContrato({
-        dataInadimplencia: values.data_inadimplencia,
+      // Executar análise com a nova função
+      const resultado = calcularAnaliseCompleta(
         saldoDevedor,
-        possuiGarantia: values.possui_garantia === "sim",
-        tipoGarantia: values.tipo_garantia || null,
-        tipoPessoa: values.tipo_pessoa,
-        supabase,
-      });
+        values.data_inadimplencia,
+        values.tipo_operacao
+      );
+
+      // Determinar estágio CMN 4.966
+      const estagio = resultado.diasAtraso >= 90 ? 3 : resultado.diasAtraso >= 30 ? 2 : 1;
+      
+      // Determinar momento de negociação
+      const momento = resultado.provisaoPercentual >= 90 ? "premium" :
+                      resultado.provisaoPercentual >= 80 ? "otimo" :
+                      resultado.provisaoPercentual >= 70 ? "muito_favoravel" :
+                      resultado.provisaoPercentual >= 60 ? "favoravel" :
+                      resultado.provisaoPercentual >= 50 ? "inicial" : "prematuro";
 
       // Montar objeto para salvar
       const analiseData = {
         usuario_id: user.id,
         numero_contrato: values.numero_contrato,
-        banco_id: values.banco_id,
+        banco_id: null, // Não estamos mais usando banco_id do Supabase
         tipo_pessoa: values.tipo_pessoa,
         tipo_operacao: values.tipo_operacao,
-        carteira_bcb352: resultado.carteira,
+        carteira_bcb352: resultado.carteira || "C5",
         saldo_devedor_atual: saldoDevedor,
         data_vencimento_original: format(values.data_vencimento_original, "yyyy-MM-dd"),
         data_inadimplencia: format(values.data_inadimplencia, "yyyy-MM-dd"),
         dias_atraso: resultado.diasAtraso,
-        meses_atraso: resultado.mesesAtraso,
-        estagio_cmn4966: resultado.estagio,
-        em_default: resultado.emDefault,
-        percentual_provisao_bcb352: resultado.percentualProvisao,
-        valor_provisao_bcb352: resultado.valorProvisao,
-        tipo_provisao: resultado.tipoProvisao,
-        valor_proposta_acordo: resultado.valorPropostaAcordo,
-        percentual_proposta_acordo: resultado.percentualDesconto,
-        marco_provisionamento: resultado.marcoProvisionamento,
-        momento_negociacao: resultado.momentoNegociacao,
+        meses_atraso: Math.floor(resultado.diasAtraso / 30),
+        estagio_cmn4966: estagio,
+        em_default: resultado.diasAtraso >= 90,
+        percentual_provisao_bcb352: resultado.provisaoPercentual,
+        valor_provisao_bcb352: resultado.provisaoValor,
+        tipo_provisao: resultado.diasAtraso >= 90 ? "ANEXO_I" : "ANEXO_II",
+        valor_proposta_acordo: resultado.propostaValor,
+        percentual_proposta_acordo: (resultado.provisaoValor / saldoDevedor) * 100,
+        marco_provisionamento: resultado.marco,
+        momento_negociacao: momento,
         possui_garantias: values.possui_garantia === "sim",
         tipo_garantias: values.tipo_garantia ? [values.tipo_garantia] : null,
         valor_garantias: valorGarantia,
@@ -275,9 +272,9 @@ export default function NovaAnalise() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {bancos?.map((banco) => (
-                          <SelectItem key={banco.id} value={banco.id}>
-                            {banco.codigo_compe} - {banco.nome_curto}
+                        {BANCOS_COMPLETOS.map((banco, index) => (
+                          <SelectItem key={index} value={banco.nome}>
+                            {banco.segmento} - {banco.nome}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -327,9 +324,44 @@ export default function NovaAnalise() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {TIPOS_OPERACAO.map((tipo) => (
-                          <SelectItem key={tipo} value={tipo}>
-                            {tipo}
+                        <div className="px-2 py-1.5 text-sm font-semibold text-muted-foreground">
+                          C1 - Máxima Liquidez
+                        </div>
+                        {MODALIDADES_POR_CARTEIRA.C1.map((mod) => (
+                          <SelectItem key={mod.nome} value={mod.nome}>
+                            {mod.nome}
+                          </SelectItem>
+                        ))}
+                        <div className="px-2 py-1.5 text-sm font-semibold text-muted-foreground mt-2">
+                          C2 - Alta Liquidez
+                        </div>
+                        {MODALIDADES_POR_CARTEIRA.C2.map((mod) => (
+                          <SelectItem key={mod.nome} value={mod.nome}>
+                            {mod.nome}
+                          </SelectItem>
+                        ))}
+                        <div className="px-2 py-1.5 text-sm font-semibold text-muted-foreground mt-2">
+                          C3 - Liquidez Moderada
+                        </div>
+                        {MODALIDADES_POR_CARTEIRA.C3.map((mod) => (
+                          <SelectItem key={mod.nome} value={mod.nome}>
+                            {mod.nome}
+                          </SelectItem>
+                        ))}
+                        <div className="px-2 py-1.5 text-sm font-semibold text-muted-foreground mt-2">
+                          C4 - PJ Sem Garantia
+                        </div>
+                        {MODALIDADES_POR_CARTEIRA.C4.map((mod) => (
+                          <SelectItem key={mod.nome} value={mod.nome}>
+                            {mod.nome}
+                          </SelectItem>
+                        ))}
+                        <div className="px-2 py-1.5 text-sm font-semibold text-muted-foreground mt-2">
+                          C5 - PF Sem Garantia
+                        </div>
+                        {MODALIDADES_POR_CARTEIRA.C5.map((mod) => (
+                          <SelectItem key={mod.nome} value={mod.nome}>
+                            {mod.nome}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -501,25 +533,25 @@ export default function NovaAnalise() {
                             <div className="px-2 py-1.5 text-sm font-semibold text-muted-foreground">
                               C1 - Máxima Liquidez
                             </div>
-                            {TIPOS_GARANTIA.C1.map((tipo) => (
-                              <SelectItem key={tipo} value={tipo}>
-                                {tipo}
+                            {MODALIDADES_POR_CARTEIRA.C1.map((mod) => (
+                              <SelectItem key={mod.nome} value={mod.nome}>
+                                {mod.nome}
                               </SelectItem>
                             ))}
                             <div className="px-2 py-1.5 text-sm font-semibold text-muted-foreground mt-2">
                               C2 - Alta Liquidez
                             </div>
-                            {TIPOS_GARANTIA.C2.map((tipo) => (
-                              <SelectItem key={tipo} value={tipo}>
-                                {tipo}
+                            {MODALIDADES_POR_CARTEIRA.C2.map((mod) => (
+                              <SelectItem key={mod.nome} value={mod.nome}>
+                                {mod.nome}
                               </SelectItem>
                             ))}
                             <div className="px-2 py-1.5 text-sm font-semibold text-muted-foreground mt-2">
                               C3 - Liquidez Moderada
                             </div>
-                            {TIPOS_GARANTIA.C3.map((tipo) => (
-                              <SelectItem key={tipo} value={tipo}>
-                                {tipo}
+                            {MODALIDADES_POR_CARTEIRA.C3.map((mod) => (
+                              <SelectItem key={mod.nome} value={mod.nome}>
+                                {mod.nome}
                               </SelectItem>
                             ))}
                           </SelectContent>
