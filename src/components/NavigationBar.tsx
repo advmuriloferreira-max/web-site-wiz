@@ -76,63 +76,6 @@ export default function NavigationBar() {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Dropdown - Ações Revisionais */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button 
-                variant={isModuleActive('/acoes-revisionais') ? 'default' : 'ghost'}
-                size="sm"
-                className={`gap-2 ${isModuleActive('/acoes-revisionais') ? 'bg-purple-600 hover:bg-purple-700' : ''}`}
-              >
-                <Scale className="h-4 w-4" />
-                Ações Revisionais
-                <ChevronDown className="h-3 w-3" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-64 bg-white dark:bg-gray-800 z-50">
-              <DropdownMenuLabel>Juros Abusivos</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link to="/app/acoes-revisionais/radar" className="w-full cursor-pointer">
-                  <BarChart3 className="h-4 w-4 mr-2" />
-                  Radar de Ações
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/app/acoes-revisionais/nova-analise" className="w-full cursor-pointer">
-                  <PlusCircle className="h-4 w-4 mr-2" />
-                  Nova Análise Completa
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/app/acoes-revisionais/lista" className="w-full cursor-pointer">
-                  <List className="h-4 w-4 mr-2" />
-                  Lista de Análises
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/app/acoes-revisionais/analise-rapida" className="w-full cursor-pointer">
-                  <Calculator className="h-4 w-4 mr-2" />
-                  Análise Rápida (30s)
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/app/acoes-revisionais/simulador" className="w-full cursor-pointer">
-                  <FileSearch className="h-4 w-4 mr-2" />
-                  Simulador "E Se?"
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/app/acoes-revisionais/gerar-peticoes" className="w-full cursor-pointer">
-                  <div className="flex items-center w-full text-green-600 dark:text-green-400 font-semibold">
-                    <Sparkles className="h-4 w-4 mr-2" />
-                    Gerar Petições ⭐
-                  </div>
-                </Link>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
           {/* Link direto para Clientes */}
           <Link to="/app/clientes">
             <Button 
