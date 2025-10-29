@@ -23,7 +23,6 @@ export default function NovaAnalisePage() {
   const [cliente, setCliente] = useState('');
   const [modalidade, setModalidade] = useState('');
   const [saldoDevedor, setSaldoDevedor] = useState<number | ''>('');
-  const [dataVencimento, setDataVencimento] = useState('');
   const [dataPrimeiroAtraso, setDataPrimeiroAtraso] = useState('');
 
   // --- ESTADO DOS CÁLCULOS ---
@@ -64,7 +63,6 @@ export default function NovaAnalisePage() {
       cliente,
       modalidade,
       saldoDevedor,
-      dataVencimento,
       dataPrimeiroAtraso,
       ...resultado,
     });
@@ -140,11 +138,6 @@ export default function NovaAnalisePage() {
                 <div className="space-y-2">
                   <Label htmlFor="saldoDevedor">Saldo Devedor (R$) *</Label>
                   <Input id="saldoDevedor" type="number" value={saldoDevedor} onChange={e => setSaldoDevedor(Number(e.target.value))} placeholder="Ex: 50000.00" required />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="dataVencimento">Data de Vencimento Original</Label>
-                  <Input id="dataVencimento" type="date" value={dataVencimento} onChange={e => setDataVencimento(e.target.value)} />
                 </div>
 
                 <div className="space-y-2">
