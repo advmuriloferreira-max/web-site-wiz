@@ -14,7 +14,7 @@ import { Eye } from 'lucide-react';
 // Simula os dados que viriam do seu backend (Supabase)
 const mockAnalises = [
   { id: 1, marco: '90%+', saldoDevedor: 150000, provisaoValor: 135000, propostaValor: 15000, banco: 'Itaú Unibanco S.A.', carteira: 'C4' },
-  { id: 2, marco: '80-89%', saldoDevedor: 80000, provisaoValor: 68000, propostaValor: 12000, banco: 'Bradesco S.A.', carteira: 'C5' },
+  { id: 2, marco: '80-89%', saldoDevedor: 80000, provisaoValor: 60000, propostaValor: 12000, banco: 'Bradesco S.A.', carteira: 'C5' },
   { id: 3, marco: '70-79%', saldoDevedor: 200000, provisaoValor: 150000, propostaValor: 50000, banco: 'Santander Brasil S.A.', carteira: 'C3' },
   { id: 4, marco: '90%+', saldoDevedor: 50000, provisaoValor: 45000, propostaValor: 5000, banco: 'Banco do Brasil S.A.', carteira: 'C4' },
   { id: 5, marco: '60-69%', saldoDevedor: 120000, provisaoValor: 78000, propostaValor: 42000, banco: 'Caixa Econômica Federal', carteira: 'C2' },
