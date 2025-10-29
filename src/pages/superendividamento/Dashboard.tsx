@@ -23,6 +23,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { HeroSection } from "@/components/dashboard/HeroSection";
 
 export default function DashboardSuperendividamento() {
   const navigate = useNavigate();
@@ -140,6 +141,9 @@ export default function DashboardSuperendividamento() {
 
   return (
     <div className="space-y-6">
+      {/* Hero Section */}
+      <HeroSection />
+      
       {/* Header com Menu Dropdown */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
