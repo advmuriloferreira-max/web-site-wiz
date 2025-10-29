@@ -60,6 +60,12 @@ import ListaAnalises from "@/pages/gestao-passivo/ListaAnalises";
 import TesteProvisao from "@/pages/gestao-passivo/TesteProvisao";
 import DetalhesAnalise from "@/pages/gestao-passivo/DetalhesAnalise";
 import RelatoriosGestaoPassivo from "@/pages/gestao-passivo/Relatorios";
+import RadarAcoes from "@/pages/acoes-revisionais/RadarAcoes";
+import NovaAnaliseRevisional from "@/pages/acoes-revisionais/NovaAnalise";
+import ListaAnalisesRevisional from "@/pages/acoes-revisionais/ListaAnalises";
+import AnaliseRapida from "@/pages/acoes-revisionais/AnaliseRapida";
+import Simulador from "@/pages/acoes-revisionais/Simulador";
+import GerarPeticoes from "@/pages/acoes-revisionais/GerarPeticoes";
 
 export function EnterpriseLayout() {
   const [searchOpen, setSearchOpen] = useState(false);
@@ -220,6 +226,16 @@ export function EnterpriseLayout() {
                     <Route path="/superendividamento/lista" element={<ListaCompletaSuperendividamento />} />
                     <Route path="/superendividamento/lista-analises" element={<ListaAnalisesSuperendividamento />} />
                     <Route path="/superendividamento/simulacao-rapida" element={<SimulacaoRapida />} />
+
+                    {/* ===================================================================== */}
+                    {/* AÇÕES REVISIONAIS */}
+                    {/* ===================================================================== */}
+                    <Route path="/acoes-revisionais/radar" element={<RadarAcoes />} />
+                    <Route path="/acoes-revisionais/nova-analise" element={<NovaAnaliseRevisional />} />
+                    <Route path="/acoes-revisionais/lista" element={<ListaAnalisesRevisional />} />
+                    <Route path="/acoes-revisionais/analise-rapida" element={<AnaliseRapida />} />
+                    <Route path="/acoes-revisionais/simulador" element={<Simulador />} />
+                    <Route path="/acoes-revisionais/gerar-peticoes" element={<GerarPeticoes />} />
 
                     {/* ===================================================================== */}
                     <Route path="/calculadora-juros" element={<CalculadoraJuros />} />
