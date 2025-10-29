@@ -76,55 +76,6 @@ export default function NavigationBar() {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Dropdown - Superendividamento */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button 
-                variant={isModuleActive('/superendividamento') ? 'default' : 'ghost'}
-                size="sm"
-                className="gap-2 bg-blue-600 hover:bg-blue-700 text-white"
-              >
-                <Scale className="h-4 w-4" />
-                Superendividamento
-                <ChevronDown className="h-3 w-3" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 bg-white dark:bg-gray-800 z-50">
-              <DropdownMenuLabel>Lei 14.181/2021</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link to="/app/superendividamento/dashboard" className="w-full cursor-pointer">
-                  <Home className="h-4 w-4 mr-2" />
-                  Dashboard
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/app/superendividamento/novo-relatorio" className="w-full cursor-pointer">
-                  <FileText className="h-4 w-4 mr-2" />
-                  Novo Relatório Socioeconômico
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/app/superendividamento/novo-plano" className="w-full cursor-pointer">
-                  <PlusCircle className="h-4 w-4 mr-2" />
-                  Novo Plano de Pagamento
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/app/superendividamento/lista-analises" className="w-full cursor-pointer">
-                  <ListChecks className="h-4 w-4 mr-2" />
-                  Lista de Análises Completas
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/app/superendividamento/simulacao-rapida" className="w-full cursor-pointer">
-                  <Calculator className="h-4 w-4 mr-2" />
-                  Simulação Rápida
-                </Link>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
           {/* Link direto para Clientes */}
           <Link to="/app/clientes">
             <Button 
