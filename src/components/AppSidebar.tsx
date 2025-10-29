@@ -9,6 +9,11 @@ import {
   CheckCircle,
   BarChart3,
   List,
+  Scale,
+  PlusCircle,
+  Calculator,
+  FileSearch,
+  Sparkles,
 } from "lucide-react";
 import {
   Sidebar,
@@ -59,6 +64,41 @@ const menuItems = [
         title: "Teste de Conformidade",
         url: "/app/gestao-passivo/teste-provisao",
         icon: CheckCircle,
+      },
+    ],
+  },
+  {
+    section: "AÇÕES REVISIONAIS",
+    items: [
+      {
+        title: "Radar de Ações",
+        url: "/app/acoes-revisionais/radar",
+        icon: BarChart3,
+      },
+      {
+        title: "Nova Análise Completa",
+        url: "/app/acoes-revisionais/nova-analise",
+        icon: PlusCircle,
+      },
+      {
+        title: "Lista de Análises",
+        url: "/app/acoes-revisionais/lista",
+        icon: List,
+      },
+      {
+        title: "Análise Rápida (30s)",
+        url: "/app/acoes-revisionais/analise-rapida",
+        icon: Calculator,
+      },
+      {
+        title: "Simulador \"E Se?\"",
+        url: "/app/acoes-revisionais/simulador",
+        icon: FileSearch,
+      },
+      {
+        title: "Gerar Petições ⭐",
+        url: "/app/acoes-revisionais/gerar-peticoes",
+        icon: Sparkles,
       },
     ],
   },
