@@ -6,6 +6,7 @@ import {
   TrendingDown,
   PiggyBank,
   Settings,
+  CheckCircle,
 } from "lucide-react";
 import {
   Sidebar,
@@ -36,6 +37,21 @@ const menuItems = [
         title: "Clientes",
         url: "/app/clientes",
         icon: Users,
+      },
+    ],
+  },
+  {
+    section: "GESTÃO DE PASSIVO BANCÁRIO",
+    items: [
+      {
+        title: "Nova Análise",
+        url: "/app/gestao-passivo/nova",
+        icon: FileText,
+      },
+      {
+        title: "Teste de Conformidade",
+        url: "/app/gestao-passivo/teste-provisao",
+        icon: CheckCircle,
       },
     ],
   },
