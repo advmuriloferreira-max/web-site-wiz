@@ -41,7 +41,7 @@ const menuItems = [
     section: "GESTÃO DE PASSIVO BANCÁRIO",
     items: [
       {
-        title: "Dashboard",
+        title: "Radar de Oportunidades",
         url: "/app/gestao-passivo/dashboard",
         icon: BarChart3,
       },
@@ -66,7 +66,7 @@ const menuItems = [
     section: "SUPERENDIVIDAMENTO",
     items: [
       {
-        title: "Dashboard",
+        title: "Visão Geral",
         url: "/app/superendividamento/dashboard",
         icon: Home,
       },
