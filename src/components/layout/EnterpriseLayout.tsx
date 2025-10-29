@@ -51,7 +51,6 @@ import AdminDashboard from "@/pages/admin/Dashboard";
 import SystemCheckPage from "@/pages/admin/SystemCheck";
 import JurosAbusivosRapido from "@/pages/quick/JurosAbusivosRapido";
 import SuperendividamentoRapido from "@/pages/quick/SuperendividamentoRapido";
-import NovaAnalise from "@/pages/gestao-passivo/NovaAnalise";
 
 export function EnterpriseLayout() {
   const [searchOpen, setSearchOpen] = useState(false);
@@ -195,10 +194,6 @@ export function EnterpriseLayout() {
                     <Route path="/quick/superendividamento" element={<SuperendividamentoRapido />} />
 
                     {/* ===================================================================== */}
-                    {/* GESTÃO DE PASSIVO BANCÁRIO (MÓDULO INDEPENDENTE) */}
-                    {/* ===================================================================== */}
-                    <Route path="/gestao-passivo/nova" element={<NovaAnalise />} />
-
                     {/* ===================================================================== */}
                     {/* CALCULADORA (manter para compatibilidade) */}
                     {/* ===================================================================== */}

@@ -40,16 +40,6 @@ const menuItems = [
     ],
   },
   {
-    section: "GESTÃO DE PASSIVO BANCÁRIO",
-    items: [
-      {
-        title: "Nova Análise",
-        url: "/app/gestao-passivo/nova",
-        icon: FileText,
-      },
-    ],
-  },
-  {
     section: "ANÁLISE RÁPIDA",
     items: [
       {
