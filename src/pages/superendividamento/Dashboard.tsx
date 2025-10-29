@@ -105,7 +105,7 @@ export default function DashboardSuperendividamento() {
       description: "Coletar renda, despesas e dívidas do cliente",
       icon: FileText,
       color: "from-blue-500 to-blue-600",
-      action: () => navigate("/app/clientes"), // Selecionar cliente primeiro
+      action: () => navigate("/app/superendividamento/novo-relatorio"),
     },
     {
       title: "Novo Plano de Pagamento",

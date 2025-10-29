@@ -77,7 +77,7 @@ const menuItems = [
       },
       {
         title: "Novo Relatório Socioeconômico",
-        url: "/app/clientes",
+        url: "/app/superendividamento/novo-relatorio",
         icon: FileText,
       },
       {

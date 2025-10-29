@@ -5,11 +5,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, Save, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Save, Plus, Trash2, Home } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { z } from "zod";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 // Validação de inputs
 const fonteRendaSchema = z.object({
@@ -67,7 +75,7 @@ interface Despesas {
   outrosGastos: number;
 }
 
-export default function AnaliseSocioeconomica() {
+export default function RelatorioSocioeconomico() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -273,6 +281,27 @@ export default function AnaliseSocioeconomica() {
 
   return (
     <div className="container mx-auto p-6 max-w-6xl">
+      {/* Breadcrumbs */}
+      <Breadcrumb className="mb-4">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/app">
+              <Home className="h-4 w-4" />
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/app/superendividamento/dashboard">
+              Superendividamento
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Novo Relatório Socioeconômico</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
@@ -281,45 +310,44 @@ export default function AnaliseSocioeconomica() {
             Voltar
           </Button>
           <div>
-            <h1 className="text-3xl font-bold">Demonstrativo do Mínimo Existencial</h1>
-            <p className="text-muted-foreground">Análise Socioeconômica do Cliente</p>
+            <h1 className="text-3xl font-bold">Relatório Socioeconômico</h1>
+            <p className="text-muted-foreground">Análise completa da situação financeira do cliente</p>
           </div>
         </div>
         <Button onClick={() => salvarMutation.mutate()} disabled={salvarMutation.isPending}>
           <Save className="h-4 w-4 mr-2" />
-          {salvarMutation.isPending ? "Salvando..." : "Salvar Análise"}
+          {salvarMutation.isPending ? "Salvando..." : "Salvar Relatório"}
         </Button>
       </div>
 
-      {/* Card de Resumo */}
-      <Card className="mb-6 border-2 border-primary">
+      {/* Card de Preview/Resumo */}
+      <Card className="mb-6 border-2 border-primary bg-gradient-to-br from-blue-50 to-white dark:from-blue-950 dark:to-gray-900">
         <CardHeader>
-          <CardTitle>Resumo</CardTitle>
+          <CardTitle className="flex items-center justify-between">
+            <span>Preview Financeiro</span>
+            <span className={`text-lg ${Number(comprometimentoMinimo) > 70 ? 'text-red-600' : Number(comprometimentoMinimo) > 50 ? 'text-orange-600' : Number(comprometimentoMinimo) > 30 ? 'text-yellow-600' : 'text-green-600'}`}>
+              Comprometimento: {comprometimentoMinimo}%
+            </span>
+          </CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div>
-            <p className="text-sm text-muted-foreground">Renda líquida mensal</p>
-            <p className="text-xl font-bold text-green-600">{formatCurrency(rendaTotal)}</p>
+          <div className="text-center p-3 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+            <p className="text-sm text-muted-foreground mb-1">Renda Total</p>
+            <p className="text-2xl font-bold text-green-600">{formatCurrency(rendaTotal)}</p>
           </div>
-          <div>
-            <p className="text-sm text-muted-foreground">Despesa mensal total</p>
-            <p className="text-xl font-bold">{formatCurrency(despesaTotal)}</p>
+          <div className="text-center p-3 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+            <p className="text-sm text-muted-foreground mb-1">Despesas Totais</p>
+            <p className="text-2xl font-bold text-orange-600">{formatCurrency(despesaTotal)}</p>
           </div>
-          <div>
-            <p className="text-sm text-muted-foreground">Dívidas Bancárias</p>
-            <p className="text-xl font-bold text-red-600">{formatCurrency(dividasTotal)}</p>
-          </div>
-          <div>
-            <p className="text-sm text-muted-foreground">Renda restante</p>
-            <p className={`text-xl font-bold ${rendaRestante < 0 ? 'text-red-600' : 'text-green-600'}`}>
+          <div className="text-center p-3 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+            <p className="text-sm text-muted-foreground mb-1">Renda Líquida Disponível</p>
+            <p className={`text-2xl font-bold ${rendaRestante < 0 ? 'text-red-600' : 'text-blue-600'}`}>
               {formatCurrency(rendaRestante)}
             </p>
           </div>
-        </CardContent>
-        <CardContent>
-          <div className="flex items-center gap-4">
-            <p className="text-sm font-semibold">Comprometimento do Mínimo Existencial:</p>
-            <p className="text-2xl font-bold text-primary">{comprometimentoMinimo}%</p>
+          <div className="text-center p-3 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+            <p className="text-sm text-muted-foreground mb-1">Dívidas Bancárias (Atual)</p>
+            <p className="text-2xl font-bold text-red-600">{formatCurrency(dividasTotal)}</p>
           </div>
         </CardContent>
       </Card>
@@ -569,7 +597,7 @@ export default function AnaliseSocioeconomica() {
         </Button>
         <Button size="lg" onClick={() => salvarMutation.mutate()} disabled={salvarMutation.isPending}>
           <Save className="h-5 w-5 mr-2" />
-          {salvarMutation.isPending ? "Salvando..." : "Salvar Análise Socioeconômica"}
+          {salvarMutation.isPending ? "Salvando..." : "Salvar Relatório Socioeconômico"}
         </Button>
       </div>
     </div>

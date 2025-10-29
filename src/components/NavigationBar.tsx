@@ -99,7 +99,7 @@ export default function NavigationBar() {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link to="/app/clientes" className="w-full cursor-pointer">
+                <Link to="/app/superendividamento/novo-relatorio" className="w-full cursor-pointer">
                   <FileText className="h-4 w-4 mr-2" />
                   Novo Relatório Socioeconômico
                 </Link>
